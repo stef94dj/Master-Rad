@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using MasterRad.Extensions;
+using MasterRad.Models;
+using MasterRad.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,7 +36,12 @@ namespace MasterRad
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            var conf = new ConnectionParams();
+            Configuration.Bind("DbConnection", conf);
+            var connString = $"server={conf.ServerName};database={conf.DbName};User ID={conf.Login};password={conf.Password};";
+            services.AddDbContext<Context>(opts => opts.UseSqlServer(new SqlConnection(connString)));
 
+            services.AddScoped<IMicrosoftSQL, MicrosoftSQL>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -48,6 +58,8 @@ namespace MasterRad
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.AddCustomExceptionMiddleware();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
