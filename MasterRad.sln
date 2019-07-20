@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterRad", "MasterRad\MasterRad.csproj", "{1EF80499-E31E-4C68-863A-03A7D495A9BD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1EF80499-E31E-4C68-863A-03A7D495A9BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EF80499-E31E-4C68-863A-03A7D495A9BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EF80499-E31E-4C68-863A-03A7D495A9BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EF80499-E31E-4C68-863A-03A7D495A9BD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8AEBE9F3-B19A-47A9-A612-768B074A12BE}
+	EndGlobalSection
+EndGlobal
