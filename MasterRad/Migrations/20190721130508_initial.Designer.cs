@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MasterRad.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20190720151328_intial")]
-    partial class intial
+    [Migration("20190721130508_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -31,13 +31,19 @@ namespace MasterRad.Migrations
 
                     b.Property<string>("Cookies");
 
-                    b.Property<DateTime>("DateCreated");
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTime?>("DateCreated");
+
+                    b.Property<DateTime?>("DateModified");
 
                     b.Property<string>("Exception");
 
                     b.Property<string>("Headers");
 
                     b.Property<string>("Method");
+
+                    b.Property<string>("ModifiedBy");
 
                     b.Property<string>("Path");
 
@@ -48,6 +54,10 @@ namespace MasterRad.Migrations
                     b.Property<string>("Query");
 
                     b.Property<string>("QueryString");
+
+                    b.Property<byte[]>("TimeStamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.HasKey("Id");
 

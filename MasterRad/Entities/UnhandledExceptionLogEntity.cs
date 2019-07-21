@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace MasterRad.Entities
 {
-    public class UnhandledExceptionLogEntity
+    public class UnhandledExceptionLogEntity : BaseEntity<int>
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-        public DateTime DateCreated { get; set; }
+        public override int Id { get; set; }
 
         public string Exception { get; set; }
 

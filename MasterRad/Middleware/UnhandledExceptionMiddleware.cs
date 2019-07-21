@@ -49,6 +49,7 @@ namespace MasterRad.Middleware
             var logEntity = new UnhandledExceptionLogEntity()
             {
                 DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED",
                 Exception = JsonConvert.SerializeObject(ex),
                 Body = rqBody,
                 Headers = JsonConvert.SerializeObject(context.Request.Headers),
