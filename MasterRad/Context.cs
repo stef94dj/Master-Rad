@@ -15,10 +15,12 @@ namespace MasterRad
         }
 
         public DbSet<UnhandledExceptionLogEntity> UnhandledExceptionLog { get; set; }
+        public DbSet<DbTemplateEntity> DbTemplate { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UnhandledExceptionLogEntity>().ToTable("UnhandledExceptionLog");
+            modelBuilder.Entity<DbTemplateEntity>().ToTable("DbTemplate");
         }
     }
 }

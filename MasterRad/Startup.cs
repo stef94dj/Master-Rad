@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MasterRad.Extensions;
 using MasterRad.Models;
+using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,6 +43,7 @@ namespace MasterRad
             services.AddDbContext<Context>(opts => opts.UseSqlServer(new SqlConnection(connString)));
 
             services.AddScoped<IMicrosoftSQL, MicrosoftSQL>();
+            services.AddScoped<IDbTemplateRepository, DbTemplateRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
