@@ -37,7 +37,7 @@ namespace MasterRad
             });
 
             var conf = new ConnectionParams();
-            Configuration.Bind("DbConnection", conf);
+            Configuration.Bind("DbAdminConnection", conf);
             var connString = $"server={conf.ServerName};database={conf.DbName};User ID={conf.Login};password={conf.Password};";
             services.AddDbContext<Context>(opts => opts.UseSqlServer(new SqlConnection(connString)));
 

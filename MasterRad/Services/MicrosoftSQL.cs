@@ -15,6 +15,7 @@ namespace MasterRad.Services
 {
     public interface IMicrosoftSQL : IPerWebRequest
     {
+        QueryExecuteRS ExecuteSQLAsAdmin(string sqlQuery, string dbName = "master");
         QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams);
         Result<bool> CreateSQLServerUser(string login);
         Result<bool> AssignSQLServerUserToDb(string userLogin, string dbName);
@@ -37,8 +38,13 @@ namespace MasterRad.Services
         private string BuildConnectionString(ConnectionParams connParams)
         {
             var template = Constants.MicrosoftSQLConnectionStringTemplate;
-            var serverName = _config.GetSection("DbConnection:ServerName").Value;
+            var serverName = _config.GetSection("DbAdminConnection:ServerName").Value;
             return string.Format(template, serverName, connParams.DbName, connParams.Login, connParams.Password);
+        }
+
+        public QueryExecuteRS ExecuteSQLAsAdmin(string sqlQuery, string dbName = "master")
+        {
+            return ExecuteSQL(sqlQuery, GetAdminConnParams(dbName));
         }
 
         public QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams)
@@ -135,8 +141,8 @@ namespace MasterRad.Services
             return connParams = new ConnectionParams()
             {
                 DbName = dbName,
-                Login = _config.GetSection("DbConnection:AdminLogin").Value,
-                Password = _config.GetSection("DbConnection:AdminPassword").Value
+                Login = _config.GetSection("DbAdminConnection:Login").Value,
+                Password = _config.GetSection("DbAdminConnection:Password").Value
             };
         }
 

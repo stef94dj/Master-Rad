@@ -30,8 +30,8 @@ namespace MasterRad.API.Controllers
             var connParams = new ConnectionParams()
             {
                 DbName = body.DatabaseName,
-                Login = _config.GetSection("DbConnection:AdminLogin").Value,
-                Password = _config.GetSection("DbConnection:AdminPassword").Value
+                Login = _config.GetSection("DbAdminConnection:Login").Value,
+                Password = _config.GetSection("DbAdminConnection:Password").Value
             };
 
             var userName = string.Empty; //_profileService.GetUserName(token);

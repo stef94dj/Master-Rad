@@ -10,12 +10,12 @@ namespace MasterRad.Controllers
 {
     public class SetupController : Controller
     {
-        public IActionResult MyDatabases()
+        public IActionResult Databases()
         {
             return View();
         }
 
-        public IActionResult MyDatabase()
+        public IActionResult Database()
         {
             return View();
         }

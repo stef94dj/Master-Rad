@@ -1,0 +1,13 @@
+Create database
+===========================================================================
+- TEXTAREA: sql syntax, horizontal scroll, undo, responsive
+1. upis u bazu izvornog texta (sa whitespace-ovima)
+- transformacija inputa u pravilan sql (izbaci whitespace-ove)
+- Verifikacija upita
+- modali
+
+
+EntityFramework
+================
+- DI
+- TimeStamp
