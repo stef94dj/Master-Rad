@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MasterRad.API.Controllers
+namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]

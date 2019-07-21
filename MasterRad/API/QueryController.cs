@@ -8,7 +8,7 @@ using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-namespace MasterRad.API.Controllers
+namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]

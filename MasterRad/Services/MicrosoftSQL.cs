@@ -17,6 +17,7 @@ namespace MasterRad.Services
     {
         QueryExecuteRS ExecuteSQLAsAdmin(string sqlQuery, string dbName = "master");
         QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams);
+        QueryExecuteRS ReadTable(string dbName, string tableName);
         Result<bool> CreateSQLServerUser(string login);
         Result<bool> AssignSQLServerUserToDb(string userLogin, string dbName);
         Result<bool> DeleteSQLServerUser(string userLogin);
@@ -148,11 +149,16 @@ namespace MasterRad.Services
 
         public IEnumerable<string> GetTableNames(ConnectionParams connParams)
         {
-            var sqlCommand = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'";
+            var sqlCommand = "SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'";
 
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
 
-            var result = sqlResult.Tables[0].Select(x => x["TABLE_NAME"].ToString());
+            var result = sqlResult.Tables[0]
+                .Select(x =>
+                    (x["TABLE_SCHEMA"].ToString().Equals("dbo") ? "" : (x["TABLE_SCHEMA"].ToString() + ".")) +
+                    x["TABLE_NAME"].ToString())
+                .OrderBy(fullName => fullName);
+
             return result;
         }
 
@@ -195,6 +201,14 @@ namespace MasterRad.Services
                 return Result<bool>.Fail(sqlResult.Messages);
 
             return Result<bool>.Success(true);
+        }
+
+        public QueryExecuteRS ReadTable(string dbName, string tableName)
+        {
+            var conn = GetAdminConnParams(dbName);
+            var sqlCommand = $"SELECT * FROM {tableName}";
+
+            return ExecuteSQL(sqlCommand, connParams);
         }
     }
 }

@@ -1,13 +1,19 @@
 Create database
 ===========================================================================
 - TEXTAREA: sql syntax, horizontal scroll, undo, responsive
-1. upis u bazu izvornog texta (sa whitespace-ovima)
 - transformacija inputa u pravilan sql (izbaci whitespace-ove)
 - Verifikacija upita
 - modali
 
+Modify database data
+===========================================================================
+- bootstrap css - dropdown ne radi lepo (kada se spusti nema desne ivice) - kada se odzumira radi
+- treba search za dropdown
+- json optimizacija (jedan niz kolone i ostalo data - a ne "kolona":"data")
+- vertikalni scroll za tabelu
+
 
 EntityFramework
 ================
-- DI
+- DIdsdasd	
 - TimeStamp

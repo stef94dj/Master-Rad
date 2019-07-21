@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MasterRad.API.Controllers
+namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -38,6 +38,13 @@ namespace MasterRad.API.Controllers
             var tableName = $"{body.TableName}_{userName}";
 
             var res = _microsoftSQLService.InsertRecord(tableName, body.DataRecord, connParams);
+            return Ok(res);
+        }
+
+        [HttpGet, Route("read/{dbName}/{tableName}")]
+        public ActionResult<Result<bool>> ReadTable([FromRoute] string dbName, [FromRoute] string tableName)
+        {
+            var res = _microsoftSQLService.ReadTable(dbName, tableName);
             return Ok(res);
         }
     }

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MasterRad.API.Controllers
+namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -42,11 +42,11 @@ namespace MasterRad.API.Controllers
 
             var tableNames = _microsoftSQLService.GetTableNames(conn);
 
-            var username = "rY"; //_profileService.GetUserName(token);
+            //var username = "rY"; //_profileService.GetUserName(token);
 
-            var result = tableNames.Where(tn => tn.ToLower().EndsWith(username.ToLower()));
+            //var result = tableNames.Where(tn => tn.ToLower().EndsWith(username.ToLower()));
 
-            return Ok(result); 
+            return Ok(tableNames); 
         }
 
         [HttpGet, Route("columns/{dbName}/{tableName}")]

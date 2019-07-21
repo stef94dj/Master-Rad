@@ -53,11 +53,6 @@ function saveSchema() {
         success: function (data, textStatus, jQxhr) {
             debugger;
             alert("success");
-        },
-        error: function (jqXhr, textStatus, errorThrown) {
-            debugger;
-            alert("error");
-            console.log(errorThrown);
         }
     });
 }

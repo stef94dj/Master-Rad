@@ -19,5 +19,10 @@ namespace MasterRad.Controllers
         {
             return View();
         }
+
+        public IActionResult ModifyData()
+        {
+            return View();
+        }
     }
 }
