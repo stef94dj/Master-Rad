@@ -47,7 +47,7 @@ function saveSchema() {
     $.ajax({
         url: '/api/Database/Create',
         dataType: 'json',
-        type: 'post',
+        type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {

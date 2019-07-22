@@ -24,8 +24,8 @@ namespace MasterRad.API
             _config = config;
         }
 
-        [HttpPost, Route("insert")]
-        public ActionResult<Result<bool>> InsertData([FromHeader] string token, [FromBody] DataInsertRQ body)
+        [HttpPost, Route("insert/{dbName}/{tableName}")]
+        public ActionResult<Result<bool>> InsertRecord([FromBody] DataCreateRQ body)
         {
             var connParams = new ConnectionParams()
             {
@@ -34,10 +34,44 @@ namespace MasterRad.API
                 Password = _config.GetSection("DbAdminConnection:Password").Value
             };
 
-            var userName = string.Empty; //_profileService.GetUserName(token);
-            var tableName = $"{body.TableName}_{userName}";
+            //var userName = string.Empty; //_profileService.GetUserName(token); 
+            //var tableName = $"{body.TableName}_{userName}";
 
-            var res = _microsoftSQLService.InsertRecord(tableName, body.DataRecord, connParams);
+            var res = _microsoftSQLService.InsertRecord(body.TableName, body.ValuesNew, connParams);
+            return Ok(res);
+        }
+
+        [HttpPost, Route("update/{dbName}/{tableName}")]
+        public ActionResult<Result<bool>> UpdateRecord([FromBody] DataUpdateRQ body)
+        {
+            var connParams = new ConnectionParams()
+            {
+                DbName = body.DatabaseName,
+                Login = _config.GetSection("DbAdminConnection:Login").Value,
+                Password = _config.GetSection("DbAdminConnection:Password").Value
+            };
+
+            //var userName = string.Empty; //_profileService.GetUserName(token); 
+            //var tableName = $"{body.TableName}_{userName}";
+
+            var res = _microsoftSQLService.UpdateRecord(body.TableName, body.ValuesNew, body.ValuesPrevious, connParams);
+            return Ok(res);
+        }
+
+        [HttpPost, Route("delete")]
+        public ActionResult<Result<bool>> DeleteRecord([FromBody] DataDeleteRQ body)
+        {
+            var connParams = new ConnectionParams()
+            {
+                DbName = body.DatabaseName,
+                Login = _config.GetSection("DbAdminConnection:Login").Value,
+                Password = _config.GetSection("DbAdminConnection:Password").Value
+            };
+
+            //var userName = string.Empty; //_profileService.GetUserName(token); 
+            //var tableName = $"{body.TableName}_{userName}";
+
+            var res = _microsoftSQLService.DeleteRecord(body.TableName, body.Values, connParams);
             return Ok(res);
         }
 

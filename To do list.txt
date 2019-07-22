@@ -12,6 +12,15 @@ Modify database data
 - json optimizacija (jedan niz kolone i ostalo data - a ne "kolona":"data")
 - vertikalni scroll za tabelu
 - esacapovani - kada se posalju treba da budu originalni (unescapeoveani) + da li se kao edit racuna kada se promeni unescape u esacape
+- where statement treba da proveri count 1
+
+TYPE CONVERTER (treba da se nadje tabela sa svim MSSQL tipovima i da se proba edit)
+- DATUM !!!! (sqlServer prikaze: "2017-08-22 19:39:35.643", reader[col.ColumnName].ToString() prikaze "8/22/2017 7:39:35 PM")
+  ovo pravi problem u upitima !!!!
+- hirearchyId tipovi rade (select OrganizationNode from HumanResources.Employee where OrganizationNode = '/1/') prikaze 0x58
+- null mora da se pretvara u IS NULL u upitima
+
+
 
 
 EntityFramework

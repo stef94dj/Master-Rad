@@ -11,15 +11,24 @@ namespace MasterRad.DTOs
         public string Value { get; set; }
     }
 
-    public class DataInsertRQ
+    public abstract class DataBaseRQ
     {
         public string DatabaseName { get; set; }
         public string TableName { get; set; }
-        public List<Cell> DataRecord { get; set; }
     }
 
-    public class DataInsertRS
+    public class DataCreateRQ : DataBaseRQ
     {
-        
+        public List<Cell> ValuesNew { get; set; }
+    }
+
+    public class DataDeleteRQ : DataBaseRQ
+    {
+        public List<Cell> Values { get; set; }
+    }
+
+    public class DataUpdateRQ : DataCreateRQ
+    {
+        public List<Cell> ValuesPrevious { get; set; }
     }
 }
