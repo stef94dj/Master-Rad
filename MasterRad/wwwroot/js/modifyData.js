@@ -25,12 +25,32 @@ function tableSelected() {
         url: '/api/Data/read/AdventureWorks2017/' + tableName,
         type: 'GET',
         success: function (data) {
-            debugger;
-            drawTable(data);
+            drawTable(data.tables[0]);
         }
     });
 }
 
 function drawTable(data) {
     debugger;
+    var tableHeader = $('#table-header');
+    var tableBody = $('#table-body');
+
+
+    tableHeader.html('');
+    tableBody.html('');
+
+    $.each(data.columns, function (index, value) {
+        tableHeader.append('<th scope="col">' + value + '</th>');
+    });
+
+    $.each(data.rows, function (rowIndex, row) {
+        var newRow = '<tr>';
+        tableBody.append('<tr>');
+        $.each(row, function (cellIndex, cell) {
+            newRow += '<td>' + cell + '</td>';
+        });
+        newRow += '</tr>';
+        tableBody.append(newRow);
+
+    });
 }

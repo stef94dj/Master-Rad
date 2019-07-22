@@ -6,11 +6,8 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using TableRow = System.Collections.Generic.Dictionary<string, object>;
-using Table = System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, object>>;
 using MasterRad.DTOs;
 using master_BE;
-
 namespace MasterRad.Services
 {
     public interface IMicrosoftSQL : IPerWebRequest
@@ -75,12 +72,13 @@ namespace MasterRad.Services
                         var columns = reader.GetColumnSchema();
                         if (columns.Any())
                         {
+                            table.Columns = columns.Select(c => c.ColumnName).ToList();
                             while (reader.Read())
                             {
-                                var tableRow = new TableRow();
+                                var tableRow = new List<object>();
                                 foreach (var col in columns)
-                                    tableRow.Add(col.ColumnName, reader[col.ColumnName] is DBNull ? null : reader[col.ColumnName]);
-                                table.Add(tableRow);
+                                    tableRow.Add(reader[col.ColumnName] is DBNull ? null : reader[col.ColumnName]);
+                                table.Rows.Add(tableRow);
                             }
                         }
                         tables.Add(table);
@@ -153,10 +151,10 @@ namespace MasterRad.Services
 
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
 
-            var result = sqlResult.Tables[0]
+            var result = sqlResult.Tables[0].Rows
                 .Select(x =>
-                    (x["TABLE_SCHEMA"].ToString().Equals("dbo") ? "" : (x["TABLE_SCHEMA"].ToString() + ".")) +
-                    x["TABLE_NAME"].ToString())
+                    (x[0].ToString().Equals("dbo") ? "" : (x[0].ToString() + ".")) +
+                    x[1].ToString())
                 .OrderBy(fullName => fullName);
 
             return result;
@@ -172,14 +170,14 @@ namespace MasterRad.Services
 
             //AutoMapper
             var result = new List<ColumnInfo>();
-            foreach (var record in sqlResult.Tables[0])
+            foreach (var record in sqlResult.Tables[0].Rows)
             {
                 var columnInfo = new ColumnInfo();
-                columnInfo.Name = record["COLUMN_NAME"].ToString();
-                columnInfo.Type = record["DATA_TYPE"].ToString();
-                columnInfo.IsNullable = record["IS_NULLABLE"].ToString().Equals("YES");
-                columnInfo.DefaultValue = record["COLUMN_DEFAULT"]?.ToString() ?? null;
-                columnInfo.MaxLength = record["CHARACTER_MAXIMUM_LENGTH"] == null ? default(int?) : int.Parse(record["CHARACTER_MAXIMUM_LENGTH"].ToString());
+                columnInfo.Name = record[0].ToString();
+                columnInfo.DefaultValue = record[1]?.ToString() ?? null;
+                columnInfo.IsNullable = record[2].ToString().Equals("YES");
+                columnInfo.Type = record[3].ToString();
+                columnInfo.MaxLength = record[4] == null ? default(int?) : int.Parse(record[4].ToString());
                 result.Add(columnInfo);
             }
 

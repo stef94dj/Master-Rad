@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Table = System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, object>>;
 
 namespace MasterRad.DTOs
 {
@@ -23,5 +22,17 @@ namespace MasterRad.DTOs
         public List<string> Messages { get; set; }
         public int? RowsAffected { get; set; }
         public List<Table> Tables { get; set; }
+    }
+
+    public class Table
+    {
+        public Table()
+        {
+            Columns = new List<string>();
+            Rows = new List<List<object>>();
+        }
+
+        public List<string> Columns { get; set; }
+        public List<List<object>> Rows { get; set; }
     }
 }
