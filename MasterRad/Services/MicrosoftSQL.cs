@@ -77,7 +77,7 @@ namespace MasterRad.Services
                             {
                                 var tableRow = new List<object>();
                                 foreach (var col in columns)
-                                    tableRow.Add(reader[col.ColumnName] is DBNull ? null : reader[col.ColumnName]);
+                                    tableRow.Add(reader[col.ColumnName] is DBNull ? null : reader[col.ColumnName].ToString());
                                 table.Rows.Add(tableRow);
                             }
                         }

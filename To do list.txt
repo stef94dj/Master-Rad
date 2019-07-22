@@ -11,6 +11,7 @@ Modify database data
 - treba search za dropdown
 - json optimizacija (jedan niz kolone i ostalo data - a ne "kolona":"data")
 - vertikalni scroll za tabelu
+- esacapovani - kada se posalju treba da budu originalni (unescapeoveani) + da li se kao edit racuna kada se promeni unescape u esacape
 
 
 EntityFramework

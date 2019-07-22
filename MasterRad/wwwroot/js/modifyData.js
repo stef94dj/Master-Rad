@@ -31,7 +31,6 @@ function tableSelected() {
 }
 
 function drawTable(data) {
-    debugger;
     var tableHeader = $('#table-header');
     var tableBody = $('#table-body');
 
@@ -39,18 +38,28 @@ function drawTable(data) {
     tableHeader.html('');
     tableBody.html('');
 
+    //columns
+    tableHeader.append('<th scope="col"></th>');
     $.each(data.columns, function (index, value) {
         tableHeader.append('<th scope="col">' + value + '</th>');
     });
 
+    //rows
     $.each(data.rows, function (rowIndex, row) {
-        var newRow = '<tr>';
+        var newRow = '<tr><td><button type="button" class="btn btn-danger btn-sm">-</button></td>';
         tableBody.append('<tr>');
         $.each(row, function (cellIndex, cell) {
-            newRow += '<td>' + cell + '</td>';
+            cell = cell.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/'/g, "&#39;");
+            newRow += '<td><input class="form-control form-control-sm" type="text" data-value-original="' + cell + '"value="' + cell + '"></td>';
         });
         newRow += '</tr>';
         tableBody.append(newRow);
-
     });
+
+    //final row
+    var finalRow = '<td><button type="button" class="btn btn-info btn-sm">+</button></td>';
+    $.each(data.columns, function (index, value) {
+        finalRow += '<td><input class="form-control form-control-sm" type="text" value=""></td>';
+    });
+    tableBody.append(finalRow);
 }
