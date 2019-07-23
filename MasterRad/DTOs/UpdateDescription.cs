@@ -6,12 +6,12 @@ using Table = System.Collections.Generic.List<System.Collections.Generic.Diction
 
 namespace MasterRad.DTOs
 {
-    public class DatabaseCreateRQ
+    public class UpdateDescriptionRQ : UpdateDTO
     {
-        public string Name { get; set; }
+        public string Description { get; set; }
     }
 
-    public class DatabaseCreateRS
+    public class UpdateDescriptionRS
     {
       
     }

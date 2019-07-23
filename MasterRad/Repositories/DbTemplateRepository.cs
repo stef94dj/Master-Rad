@@ -1,14 +1,13 @@
-﻿using MasterRad.Entities;
+﻿using MasterRad.DTOs;
+using MasterRad.Entities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MasterRad.Repositories
 {
     public interface IDbTemplateRepository
     {
-        void Insert(string sqlScript, string dbName);
+        DbTemplateEntity Create(string templateName);
+        DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request);
     }
 
     public class DbTemplateRepository : IDbTemplateRepository
@@ -20,18 +19,38 @@ namespace MasterRad.Repositories
             _context = context;
         }
 
-        public void Insert(string sqlScript, string dbName)
+
+        public DbTemplateEntity Create(string templateName)
         {
             var dbTemplateEntity = new DbTemplateEntity()
             {
-                SqlScript = sqlScript,
-                NameOnServer = dbName,
+                Name = templateName,
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED",
             };
 
             _context.DbTemplates.Add(dbTemplateEntity);
             _context.SaveChanges();
+
+            return dbTemplateEntity;
+        }
+
+        public DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request)
+        {
+            var dbTemplateEntity = new DbTemplateEntity()
+            {
+                Id = request.Id,
+                TimeStamp = request.TimeStamp,
+                ModelDescription = request.Description,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            _context.DbTemplates.Attach(dbTemplateEntity);
+            _context.Entry(dbTemplateEntity).Property(x => x.ModelDescription).IsModified = true;
+            _context.SaveChanges();
+
+            return dbTemplateEntity;
         }
     }
 }
