@@ -1,0 +1,73 @@
+﻿
+@{
+    ViewData["Title"] = "Schemas";
+}
+
+<h1>Schemas</h1>
+
+<table class="table">
+    <thead class="thead-dark" id="table-header">
+        <tr id="database-table">
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Sql Script</th>
+            <th scope="col">Base data</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="table-body">
+        <tr>
+            <td>
+                <div class="description">
+                    <p style="float:left">Schema 1 &nbsp;&nbsp;&nbsp;</p>
+                    <button style="float:left" type="button" class="btn btn-outline-dark btn-sm">Edit</button>
+                </div>
+            </td>
+            <td><button type="button" class="btn btn-outline-dark btn-sm">Set</button></td>
+            <td><button type="button" class="btn btn-outline-dark btn-sm">Set</button></td>
+            <td><button type="button" class="btn btn-outline-dark btn-sm" disabled>Set</button></td>
+            <td>
+                <button type="button" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="description">
+                    <p style="float:left">Schema 2 &nbsp;&nbsp;&nbsp;</p>
+                    <button style="float:left" type="button" class="btn btn-outline-dark btn-sm">Edit</button>
+                </div>
+            </td>
+            <td>
+                <div class="description">
+                    <p style="float:left">This schema contains 4 tables... &nbsp;&nbsp;&nbsp;</p>
+                    <button style="float:left" type="button" class="btn btn-outline-dark btn-sm">Edit</button>
+                </div>
+            </td>
+            <td><button type="button" class="btn btn-outline-dark btn-sm">Edit</button></td>
+            <td><button type="button" class="btn btn-outline-dark btn-sm">Set</button></td>
+            <td>
+                <button type="button" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="description">
+                    <p style="float:left">Schema 3 &nbsp;&nbsp;&nbsp;</p>
+                    <button style="float:left" type="button" class="btn btn-outline-dark btn-sm">Edit</button>
+                </div>
+            </td>
+            <td>This schema contains 4 tables...</td>
+            <td><button type="button" class="btn btn-outline-dark btn-sm">Edit</button></td>
+            <td><button type="button" class="btn btn-outline-dark btn-sm">Edit</button></td>
+            <td>
+                <button type="button" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<button type="button" class="btn btn-outline-primary btn-sm">Create</button>
+
+
+@section Scripts {
+    <script src="~/js/schemas.js" asp-append-version="true"></script>
+}

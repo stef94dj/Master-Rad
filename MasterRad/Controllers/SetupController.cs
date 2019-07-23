@@ -10,17 +10,22 @@ namespace MasterRad.Controllers
 {
     public class SetupController : Controller
     {
-        public IActionResult Databases()
-        {
-            return View();
-        }
-
         public IActionResult Database()
         {
             return View();
         }
 
         public IActionResult ModifyData()
+        {
+            return View();
+        }
+
+        public IActionResult Schemas()
+        {
+            return View();
+        }
+
+        public IActionResult Tasks()
         {
             return View();
         }
