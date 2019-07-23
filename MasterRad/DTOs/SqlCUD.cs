@@ -24,11 +24,12 @@ namespace MasterRad.DTOs
 
     public class DataDeleteRQ : DataBaseRQ
     {
-        public List<Cell> Values { get; set; }
+        public List<Cell> ValuesUnmodified { get; set; }
     }
 
-    public class DataUpdateRQ : DataCreateRQ
+    public class DataUpdateRQ : DataBaseRQ
     {
-        public List<Cell> ValuesPrevious { get; set; }
+        public Cell ValueNew { get; set; }
+        public List<Cell> ValuesUnmodified { get; set; }
     }
 }

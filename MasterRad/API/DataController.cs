@@ -24,7 +24,7 @@ namespace MasterRad.API
             _config = config;
         }
 
-        [HttpPost, Route("insert/{dbName}/{tableName}")]
+        [HttpPost, Route("insert")]
         public ActionResult<Result<bool>> InsertRecord([FromBody] DataCreateRQ body)
         {
             var connParams = new ConnectionParams()
@@ -41,7 +41,7 @@ namespace MasterRad.API
             return Ok(res);
         }
 
-        [HttpPost, Route("update/{dbName}/{tableName}")]
+        [HttpPost, Route("update")]
         public ActionResult<Result<bool>> UpdateRecord([FromBody] DataUpdateRQ body)
         {
             var connParams = new ConnectionParams()
@@ -54,7 +54,7 @@ namespace MasterRad.API
             //var userName = string.Empty; //_profileService.GetUserName(token); 
             //var tableName = $"{body.TableName}_{userName}";
 
-            var res = _microsoftSQLService.UpdateRecord(body.TableName, body.ValuesNew, body.ValuesPrevious, connParams);
+            var res = _microsoftSQLService.UpdateRecord(body.TableName, body.ValueNew, body.ValuesUnmodified, connParams);
             return Ok(res);
         }
 
@@ -71,7 +71,7 @@ namespace MasterRad.API
             //var userName = string.Empty; //_profileService.GetUserName(token); 
             //var tableName = $"{body.TableName}_{userName}";
 
-            var res = _microsoftSQLService.DeleteRecord(body.TableName, body.Values, connParams);
+            var res = _microsoftSQLService.DeleteRecord(body.TableName, body.ValuesUnmodified, connParams);
             return Ok(res);
         }
 

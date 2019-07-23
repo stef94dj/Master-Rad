@@ -21,7 +21,7 @@ namespace MasterRad.Services
         IEnumerable<string> GetTableNames(ConnectionParams connParams);
         IEnumerable<ColumnInfo> GetColumnsData(string tableName, ConnectionParams connParams);
         Result<bool> InsertRecord(string table, List<Cell> record, ConnectionParams connParams);
-        Result<bool> UpdateRecord(string table, List<Cell> recordNew, List<Cell> recordPrevious, ConnectionParams connParams);
+        Result<bool> UpdateRecord(string table, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams);
         Result<bool> DeleteRecord(string table, List<Cell> record, ConnectionParams connParams);
     }
 
@@ -189,7 +189,7 @@ namespace MasterRad.Services
         public Result<bool> InsertRecord(string table, List<Cell> record, ConnectionParams connParams)
         {
             var columns = record.Select(x => $"[{x.ColumnName}]");
-            var cells = record.Select(x => x.Value);
+            var cells = record.Select(x => $"'{x.Value}'");
             var sqlCommand = $"INSERT INTO [{table}]({string.Join(", ", columns)}) VALUES ({string.Join(", ", cells)})";
 
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
@@ -199,16 +199,15 @@ namespace MasterRad.Services
             return Result<bool>.Success(true);
         }
 
-        public Result<bool> UpdateRecord(string table, List<Cell> recordNew, List<Cell> recordPrevious, ConnectionParams connParams)
+        public Result<bool> UpdateRecord(string table, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams)
         {
-            var columnValuesSet = recordNew.Select(x => $"[{x.ColumnName}] = '{x.Value}'");
-            var setExpr = string.Join(", ", columnValuesSet);
-
             if (!recordPrevious.Any())
                 return Result<bool>.Fail(new List<string>() { "Unable to identify record" });
 
-            var columnValuesWhere = recordPrevious.Select(x => $"[{x.ColumnName}] == '{x.Value}'");
+            var columnValuesWhere = recordPrevious.Select(x => $"[{x.ColumnName}] = '{x.Value}'");
             var whereExpr = string.Join(" and ", columnValuesWhere);
+
+            var setExpr = $"[{cellNew.ColumnName}] = '{cellNew.Value}'";
 
             var sqlCommand = $"UPDATE [{table}] SET {setExpr} WHERE {whereExpr}";
 

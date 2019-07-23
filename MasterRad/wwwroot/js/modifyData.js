@@ -1,8 +1,8 @@
 ﻿$(document).ready(function () {
-
     dropdownSelector = '#tableSelector';
     populateTableDropdown(dropdownSelector, '/api/Schema/tables/AdventureWorks2017');
     $(dropdownSelector).change(tableSelected);
+    $('input.editable-cell').blur(function () { alert('cell focus out'); });
 });
 
 function populateTableDropdown(selector, apiUrl) {
@@ -46,38 +46,56 @@ function drawTable(data) {
 
     //rows
     $.each(data.rows, function (rowIndex, row) {
-        var newRow = '<tr><td><button type="button" class="btn btn-danger btn-sm" onclick="deleteRecord(this)">-</button></td>';
+        var newRow = '<tr><td><button onclick="deleteRecord(this)" type="button" class="btn btn-danger btn-sm">-</button></td>';
         tableBody.append('<tr>');
         $.each(row, function (cellIndex, cell) {
             cell = cell.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/'/g, "&#39;");
-            newRow += '<td><input class="form-control form-control-sm" type="text" data-value-original="' + cell + '"value="' + cell + '"></td>';
+            newRow += '<td><input onblur="editCell(this)" class="form-control form-control-sm" type="text" data-value-original="' + cell + '"value="' + cell + '"></td>';
         });
         newRow += '</tr>';
         tableBody.append(newRow);
     });
 
     //final row
-    var finalRow = '<td><button type="button" class="btn btn-info btn-sm">+</button></td>';
+    var finalRow = '<tr><td><button onclick="insertRecord(this)" type="button" class="btn btn-info btn-sm">+</button></td>';
     $.each(data.columns, function (index, value) {
         finalRow += '<td><input class="form-control form-control-sm" type="text" value=""></td>';
     });
+    finalRow += '</tr>';
     tableBody.append(finalRow);
 }
 
-function deleteRecord(btnElem) {
-    var inputs = $(btnElem).parent().parent().find('td input');
+function getNewValue(element) {
+    return $(element).val();
+}
 
-    var requestValues = jQuery.map(inputs, function (item, index) {
-        return {
-            "ColumnName": $('#table-header th').eq(index + 1).text(),
-            "Value": $(item).attr('data-value-original')
-        };
+function getUnmodifiedValue(element) {
+    return $(element).data('value-original');
+}
+
+function getCell(inputElem, index, getData) {
+    return {
+        "ColumnName": $('#table-header th').eq(index + 1).text(),
+        "Value": getData(inputElem)
+    };
+}
+
+function getInputValues(trElem, getData) {
+    debugger;
+    var inputs = $(trElem).find('td input');
+
+    return jQuery.map(inputs, function (item, index) {
+        return getCell(item, index, getData);
     });
+}
+
+function deleteRecord(btnElem) {
+    var trElem = $(btnElem).parents().eq(1);
 
     var rqBody = {
         "DatabaseName": "AdventureWorks2017",
         "TableName": $('#tableSelector').val(),
-        "Values": requestValues
+        "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue)
     }
 
     $.ajax({
@@ -87,7 +105,57 @@ function deleteRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            debugger;
+            alert("success");
+        }
+    });
+}
+
+function insertRecord(btnElem) {
+    var trElem = $(btnElem).parents().eq(1);
+
+    var rqBody = {
+        "DatabaseName": "AdventureWorks2017",
+        "TableName": $('#tableSelector').val(),
+        "ValuesNew": getInputValues(trElem, getNewValue)
+    }
+
+    $.ajax({
+        url: '/api/Data/insert',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            alert("success");
+        }
+    });
+}
+
+function editCell(inputElem) {
+    var trElem = $(inputElem).parents().eq(1);
+    var inputIndex = trElem.find('td').index($(inputElem).parent()) - 1;
+
+    debugger;
+    var cellNew = getCell(inputElem, inputIndex, getNewValue);
+    var cellUnmodified = getCell(inputElem, inputIndex, getUnmodifiedValue);
+
+    if (cellNew.Value == cellUnmodified.Value)
+        return;
+
+    var rqBody = {
+        "DatabaseName": "AdventureWorks2017",
+        "TableName": $('#tableSelector').val(),
+        "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue),
+        "ValueNew": cellNew
+    }
+
+    $.ajax({
+        url: '/api/Data/update',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
             alert("success");
         }
     });
