@@ -25,12 +25,12 @@ namespace MasterRad.Repositories
             var dbTemplateEntity = new DbTemplateEntity()
             {
                 SqlScript = sqlScript,
-                DbName = dbName,
+                NameOnServer = dbName,
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED",
             };
 
-            _context.DbTemplate.Add(dbTemplateEntity);
+            _context.DbTemplates.Add(dbTemplateEntity);
             _context.SaveChanges();
         }
     }
