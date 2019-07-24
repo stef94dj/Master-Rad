@@ -1,4 +1,5 @@
 ﻿using MasterRad.DTOs;
+using MasterRad.Entities;
 using MasterRad.Models;
 using MasterRad.Repositories;
 using MasterRad.Services;
@@ -40,10 +41,6 @@ namespace MasterRad.API
         [HttpPost, Route("Create")]
         public ActionResult CreateTemplate([FromBody] DatabaseCreateRQ body)
         {
-            //UPDATE SQL SCRIPT 
-            //var sql = @"CREATE DATABASE [NovaBaza] CONTAINMENT = NONE ON  PRIMARY  ( NAME = N'NovaBaza', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\DATA\NovaBaza.mdf', SIZE = 270336KB, MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB ) LOG ON ( NAME = N'NovaBaza_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\DATA\NovaBaza_log.ldf' , SIZE = 73728KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )";
-            //var result = _microsoftSQLService.ExecuteSQLAsAdmin(sql); //body.SQLScript
-
             var result = _dbTemplateRepo.Create(body.Name);
             return Ok(result);
         }
@@ -52,6 +49,38 @@ namespace MasterRad.API
         public ActionResult UpdateDescription([FromBody] UpdateDescriptionRQ body)
         {
             var result = _dbTemplateRepo.UpdateDescription(body);
+            return Ok(result);
+        }
+
+        [HttpPost, Route("Update/Name")]
+        public ActionResult UpdateName([FromBody] UpdateNameRQ body)
+        {
+            var result = _dbTemplateRepo.UpdateName(body);
+            return Ok(result);
+        }
+
+        [HttpPost, Route("Set/SqlScript")]
+        public ActionResult<Result<DbTemplateEntity>> SetSqlScript([FromBody] SetSqlScriptRQ body)
+        {
+            var creatingDatabases = new List<string>() { "DatabaseNameaoidaiosdowqd" }; //queryService.GetCreatingDatabases();
+            if (creatingDatabases.Count() != 1)
+                return Ok(Result<DbTemplateEntity>.Fail($"The script should create exactly 1 database. Detected creating {creatingDatabases.Count()} databases."));
+
+            var dbName = creatingDatabases.Single();
+
+            var existsInDatabase = _dbTemplateRepo.DatabaseExists(dbName);
+            if (existsInDatabase)
+                return Ok(Result<DbTemplateEntity>.Fail($"Database name '{dbName}' already exists in the system"));
+
+            var existsOnSqlServer = _microsoftSQLService.DatabaseExists(dbName);
+            if (existsOnSqlServer)
+                return Ok(Result<DbTemplateEntity>.Fail($"Database name '{dbName}' already exists on the database server"));
+
+            var createResult = _microsoftSQLService.CreateDatabaseFromScript(dbName, body.SqlScript);
+            if (!createResult.IsSuccess())
+                return Ok(Result<DbTemplateEntity>.Fail(createResult.Errors));
+
+            var result = _dbTemplateRepo.UpdateSqlScript(body);
             return Ok(result);
         }
     }

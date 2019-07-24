@@ -26,8 +26,10 @@ SELECT name FROM sys.identity_columns WHERE object_id = OBJECT_ID('AWBuildVersio
 
 Schemas
 ===========
-- Create template: dto validation (Name not empty), db validations (ne postoji vec sa istim imenom u bazi i u sql serveru), responseDTO (umesto entity)
-- Update description: dto validation (Description not empty), db validations (ne postoji vec sa istim imenom), responseDTO (umesto entity)
+- Create template: dto validation (Name not empty), db validations (ne postoji vec sa istim imenom u bazi), responseDTO (umesto entity)
+- Update description: dto validation (Description not empty), responseDTO (umesto entity)
+- Update description: dto validation (Name not empty), db validations (ne postoji vec sa istim imenom), responseDTO (umesto entity)
+- Set SqlScript: dto validation (SqlScript: not empty), implement GetCreatingDatabases,  
 
 
 Code refactoring

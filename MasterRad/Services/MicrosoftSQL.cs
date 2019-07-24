@@ -19,10 +19,14 @@ namespace MasterRad.Services
         Result<bool> AssignSQLServerUserToDb(string userLogin, string dbName);
         Result<bool> DeleteSQLServerUser(string userLogin);
         IEnumerable<string> GetTableNames(ConnectionParams connParams);
+        IEnumerable<string> GetDatabaseNames();
         IEnumerable<ColumnInfo> GetColumnsData(string tableName, ConnectionParams connParams);
         Result<bool> InsertRecord(string table, List<Cell> record, ConnectionParams connParams);
         Result<bool> UpdateRecord(string table, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams);
         Result<bool> DeleteRecord(string table, List<Cell> record, ConnectionParams connParams);
+        Result<bool> CreateDatabaseFromScript(string dbName, string sqlScript);
+        bool DatabaseExists(string name);
+        bool DeleteDatabaseIfExists(string name);
     }
 
     public class MicrosoftSQL : IMicrosoftSQL
@@ -162,6 +166,18 @@ namespace MasterRad.Services
             return result;
         }
 
+        public IEnumerable<string> GetDatabaseNames()
+        {
+            var sqlCommand = "SELECT name FROM master.dbo.sysdatabases";
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand);
+
+            return sqlResult
+                    .Tables[0]
+                    .Rows
+                    .Select(x => x[0].ToString());
+        }
+
         public IEnumerable<ColumnInfo> GetColumnsData(string tableName, ConnectionParams connParams)
         {
             var sqlCommand = "SELECT COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH " +
@@ -241,6 +257,41 @@ namespace MasterRad.Services
             var sqlCommand = $"SELECT * FROM {tableName}";
 
             return ExecuteSQL(sqlCommand, connParams);
+        }
+
+        public Result<bool> CreateDatabaseFromScript(string dbName, string sqlScript)
+        {
+            var createResult = ExecuteSQLAsAdmin(sqlScript);
+
+            if (createResult.Messages.Any())
+            {
+                DeleteDatabaseIfExists(dbName);
+                return Result<bool>.Fail(createResult.Messages);
+            }
+
+            return Result<bool>.Success(true);
+        }
+
+        public bool DatabaseExists(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return false;
+
+            return GetDatabaseNames()
+                    .Where(x => x.ToLower().Equals(name.ToLower()))
+                    .Any();
+        }
+
+        public bool DeleteDatabaseIfExists(string name)
+        {
+            if (!DatabaseExists(name))
+                return true;
+
+            var sqlQuery = $"DROP DATABASE [{name}]";
+
+            var deleteResult = ExecuteSQLAsAdmin(sqlQuery);
+
+            return DatabaseExists(name);
         }
     }
 }

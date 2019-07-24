@@ -12,6 +12,9 @@ namespace MasterRad.Repositories
         List<DbTemplateEntity> Templates();
         DbTemplateEntity Create(string templateName);
         DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request);
+        DbTemplateEntity UpdateName(UpdateNameRQ request);
+        DbTemplateEntity UpdateSqlScript(SetSqlScriptRQ request);
+        bool DatabaseExists(string name);
     }
 
     public class DbTemplateRepository : IDbTemplateRepository
@@ -61,6 +64,52 @@ namespace MasterRad.Repositories
             _context.SaveChanges();
 
             return dbTemplateEntity;
+        }
+
+        public DbTemplateEntity UpdateName(UpdateNameRQ request)
+        {
+            var dbTemplateEntity = new DbTemplateEntity()
+            {
+                Id = request.Id,
+                TimeStamp = request.TimeStamp,
+                Name = request.Name,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            _context.DbTemplates.Attach(dbTemplateEntity);
+            _context.Entry(dbTemplateEntity).Property(x => x.Name).IsModified = true;
+            _context.SaveChanges();
+
+            return dbTemplateEntity;
+        }
+
+        public DbTemplateEntity UpdateSqlScript(SetSqlScriptRQ request)
+        {
+            var dbTemplateEntity = new DbTemplateEntity()
+            {
+                Id = request.Id,
+                TimeStamp = request.TimeStamp,
+                SqlScript = request.SqlScript,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            _context.DbTemplates.Attach(dbTemplateEntity);
+            _context.Entry(dbTemplateEntity).Property(x => x.SqlScript).IsModified = true;
+            _context.SaveChanges();
+
+            return dbTemplateEntity;
+        }
+
+        public bool DatabaseExists(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return false;
+
+            return _context.DbTemplates
+                .Where(t => t.Name.ToLower().Equals(name.ToLower()))
+                .Any();
         }
     }
 }
