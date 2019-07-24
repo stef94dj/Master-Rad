@@ -1,4 +1,5 @@
 ﻿using MasterRad.Entities;
+using MasterRad.Enums;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
@@ -46,11 +47,12 @@ namespace MasterRad.Middleware
                 rqBody = reader.ReadToEnd();
             };
 
-            var logEntity = new UnhandledExceptionLogEntity()
+            dbContext.DetachAllEntities();
+
+            var logEntity = new UnhandledExceptionLogEntity
             {
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED",
-                Exception = JsonConvert.SerializeObject(ex),
                 Body = rqBody,
                 Headers = JsonConvert.SerializeObject(context.Request.Headers),
                 Cookies = JsonConvert.SerializeObject(context.Request.Cookies),
@@ -60,6 +62,18 @@ namespace MasterRad.Middleware
                 Protocol = context.Request.Protocol,
                 QueryString = context.Request.QueryString.ToString(),
                 Query = JsonConvert.SerializeObject(context.Request.Query)
+            };
+
+            try
+            {
+                logEntity.LogMethod = ExceptionLogMethod.JsonSerialize;
+                logEntity.Exception = JsonConvert.SerializeObject(ex);
+            }
+            catch (Exception serializeException)
+            {
+                logEntity.LogMethod = ExceptionLogMethod.ToString;
+                logEntity.SerializeError = JsonConvert.SerializeObject(serializeException);
+                logEntity.Exception = ex.ToString();
             };
 
             dbContext.UnhandledExceptionLog.Add(logEntity);

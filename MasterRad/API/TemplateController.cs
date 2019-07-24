@@ -33,8 +33,8 @@ namespace MasterRad.API
         [HttpGet, Route("get")]
         public ActionResult GetTemplates()
         {
-            throw new NotImplementedException();
-            //return Ok(result);
+            var result = _dbTemplateRepo.Templates();
+            return Ok(result);
         }
 
         [HttpPost, Route("Create")]
@@ -44,15 +44,15 @@ namespace MasterRad.API
             //var sql = @"CREATE DATABASE [NovaBaza] CONTAINMENT = NONE ON  PRIMARY  ( NAME = N'NovaBaza', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\DATA\NovaBaza.mdf', SIZE = 270336KB, MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB ) LOG ON ( NAME = N'NovaBaza_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\DATA\NovaBaza_log.ldf' , SIZE = 73728KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )";
             //var result = _microsoftSQLService.ExecuteSQLAsAdmin(sql); //body.SQLScript
 
-            var dbTemplateEntity = _dbTemplateRepo.Create(body.Name);
-            return Ok(dbTemplateEntity);
+            var result = _dbTemplateRepo.Create(body.Name);
+            return Ok(result);
         }
 
         [HttpPost, Route("Update/Description")]
         public ActionResult UpdateDescription([FromBody] UpdateDescriptionRQ body)
         {
-            var dbTemplateEntity = _dbTemplateRepo.UpdateDescription(body);
-            return Ok(dbTemplateEntity);
+            var result = _dbTemplateRepo.UpdateDescription(body);
+            return Ok(result);
         }
     }
 }

@@ -1,11 +1,15 @@
 ﻿using MasterRad.DTOs;
 using MasterRad.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MasterRad.Repositories
 {
     public interface IDbTemplateRepository
     {
+        List<DbTemplateEntity> Templates();
         DbTemplateEntity Create(string templateName);
         DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request);
     }
@@ -19,6 +23,12 @@ namespace MasterRad.Repositories
             _context = context;
         }
 
+        public List<DbTemplateEntity> Templates()
+        {
+            return _context.DbTemplates
+                .Include(x => x.Tasks)
+                .ToList();
+        }
 
         public DbTemplateEntity Create(string templateName)
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MasterRad.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,6 +14,8 @@ namespace MasterRad.Entities
         public override int Id { get; set; }
 
         public string Exception { get; set; }
+        public ExceptionLogMethod LogMethod { get; set; }
+        public string SerializeError { get; set; }
 
         public string Body { get; set; }
         public string Headers { get; set; }
