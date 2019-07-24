@@ -20,7 +20,7 @@ namespace MasterRad.Controllers
             return View();
         }
 
-        public IActionResult Schemas()
+        public IActionResult Templates()
         {
             return View();
         }
