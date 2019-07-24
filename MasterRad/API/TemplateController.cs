@@ -59,8 +59,8 @@ namespace MasterRad.API
             return Ok(result);
         }
 
-        [HttpPost, Route("Set/SqlScript")]
-        public ActionResult<Result<DbTemplateEntity>> SetSqlScript([FromBody] SetSqlScriptRQ body)
+        [HttpPost, Route("Update/SqlScript")]
+        public ActionResult<Result<DbTemplateEntity>> UpdateSqlScript([FromBody] SetSqlScriptRQ body)
         {
             var creatingDatabases = new List<string>() { "DatabaseNameaoidaiosdowqd" }; //queryService.GetCreatingDatabases();
             if (creatingDatabases.Count() != 1)
