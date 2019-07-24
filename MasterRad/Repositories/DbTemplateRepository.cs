@@ -84,19 +84,21 @@ namespace MasterRad.Repositories
             return dbTemplateEntity;
         }
 
-        public DbTemplateEntity UpdateSqlScript(SetSqlScriptRQ request)
+        public DbTemplateEntity UpdateSqlScript(SetSqlScriptRQ request, string name)
         {
             var dbTemplateEntity = new DbTemplateEntity()
             {
                 Id = request.Id,
                 TimeStamp = request.TimeStamp,
                 SqlScript = request.SqlScript,
+                NameOnServer = name,
                 DateModified = DateTime.UtcNow,
                 ModifiedBy = "Current user - NOT IMPLEMENTED",
             };
 
             _context.DbTemplates.Attach(dbTemplateEntity);
             _context.Entry(dbTemplateEntity).Property(x => x.SqlScript).IsModified = true;
+            _context.Entry(dbTemplateEntity).Property(x => x.NameOnServer).IsModified = true;
             _context.SaveChanges();
 
             return dbTemplateEntity;
@@ -108,7 +110,7 @@ namespace MasterRad.Repositories
                 return false;
 
             return _context.DbTemplates
-                .Where(t => t.Name.ToLower().Equals(name.ToLower()))
+                .Where(t => t.NameOnServer.ToLower().Equals(name.ToLower()))
                 .Any();
         }
     }
