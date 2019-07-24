@@ -29,7 +29,7 @@ Schemas
 - Create template: dto validation (Name not empty), db validations (ne postoji vec sa istim imenom u bazi), responseDTO (umesto entity)
 - Update description: dto validation (Description not empty), responseDTO (umesto entity)
 - Update description: dto validation (Name not empty), db validations (ne postoji vec sa istim imenom), responseDTO (umesto entity)
-- Set SqlScript: dto validation (SqlScript: not empty), implement GetCreatingDatabases,  
+- Set SqlScript: dto validation (SqlScript: not empty), implement GetCreatingDatabases, 	 
 
 
 Code refactoring

@@ -31,7 +31,7 @@ namespace MasterRad.API
             _dbTemplateRepo = dbTemplateRepo;
         }
 
-        [HttpGet, Route("get")]
+        [HttpGet, Route("Get")]
         public ActionResult GetTemplates()
         {
             var result = _dbTemplateRepo.Templates();
