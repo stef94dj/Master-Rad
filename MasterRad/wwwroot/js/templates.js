@@ -42,7 +42,7 @@ function drawButton(buttonName, color, handlerName, id, timestamp, enabled) {
     var result = '<button ';
     if (!enabled)
         result += 'disabled ';
-    result += 'onclick="' + handlerName + '(' + id + ',' + timestamp + ')" type="button" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
+    result += 'onclick="' + handlerName + '(' + id + ',' + timestamp + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
     return result;
 }
 
