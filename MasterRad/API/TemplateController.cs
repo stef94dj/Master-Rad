@@ -80,7 +80,7 @@ namespace MasterRad.API
             if (!createResult.IsSuccess())
                 return Ok(Result<DbTemplateEntity>.Fail(createResult.Errors));
 
-            var result = _dbTemplateRepo.UpdateSqlScript(body);
+            var result = _dbTemplateRepo.UpdateSqlScript(body, dbName);
             return Ok(result);
         }
     }

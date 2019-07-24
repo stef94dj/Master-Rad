@@ -13,7 +13,7 @@ namespace MasterRad.Repositories
         DbTemplateEntity Create(string templateName);
         DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request);
         DbTemplateEntity UpdateName(UpdateNameRQ request);
-        DbTemplateEntity UpdateSqlScript(SetSqlScriptRQ request);
+        DbTemplateEntity UpdateSqlScript(SetSqlScriptRQ request, string name);
         bool DatabaseExists(string name);
     }
 
