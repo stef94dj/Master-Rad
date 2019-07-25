@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
     dropdownSelector = '#tableSelector';
-    populateTableDropdown(dropdownSelector, '/api/Schema/tables/AdventureWorks2017');
+    populateTableDropdown(dropdownSelector, '/api/Metadata/tables/' + $('#name-on-server').val());
     $(dropdownSelector).change(tableSelected);
     $('input.editable-cell').blur(function () { alert('cell focus out'); });
 });
@@ -49,7 +49,11 @@ function drawTable(data) {
         var newRow = '<tr><td><button onclick="deleteRecord(this)" type="button" class="btn btn-danger btn-sm">-</button></td>';
         tableBody.append('<tr>');
         $.each(row, function (cellIndex, cell) {
-            cell = cell.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/'/g, "&#39;");
+            if (cell == null)
+                cell = 'NULL';
+            else
+                cell = cell.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/'/g, "&#39;");
+
             newRow += '<td><input onblur="editCell(this)" class="form-control form-control-sm" type="text" data-value-original="' + cell + '"value="' + cell + '"></td>';
         });
         newRow += '</tr>';

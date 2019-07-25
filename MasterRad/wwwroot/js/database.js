@@ -42,17 +42,23 @@ function insertAtCursor(myField, myValue) {
 
 function saveSchema() {
 
-    var rqBody = { "SQLScript": $('.schema-text').val() };
+    var rqBody = {
+        "Id": $('#template-id').val(),
+        "TimeStamp": $('#template-timestamp').val(),
+        "SqlScript": $('#sql-script').val(),
+        "DbName": $('#db-name').val()
+    };
+
+    debugger;
 
     $.ajax({
-        url: '/api/Database/Create',
+        url: '/api/Template/Update/SqlScript',
         dataType: 'json',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            debugger;
-            alert("success");
+            window.location.replace('/Setup/Templates');
         }
     });
 }

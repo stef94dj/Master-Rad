@@ -9,7 +9,8 @@ namespace MasterRad.Repositories
 {
     public interface IDbTemplateRepository
     {
-        List<DbTemplateEntity> Templates();
+        DbTemplateEntity Get(int id);
+        List<DbTemplateEntity> Get();
         DbTemplateEntity Create(string templateName);
         DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request);
         DbTemplateEntity UpdateName(UpdateNameRQ request);
@@ -26,7 +27,13 @@ namespace MasterRad.Repositories
             _context = context;
         }
 
-        public List<DbTemplateEntity> Templates()
+
+        public DbTemplateEntity Get(int id)
+        {
+            return _context.DbTemplates.Where(x => x.Id == id).Single();
+        }
+
+        public List<DbTemplateEntity> Get()
         {
             return _context.DbTemplates //.Include(x => x.Tasks)
                 .OrderByDescending(t => t.DateCreated)
@@ -35,7 +42,7 @@ namespace MasterRad.Repositories
 
         public DbTemplateEntity Create(string templateName)
         {
-            var dbTemplateEntity = new DbTemplateEntity()
+            var dbTemplateEntity = new DbTemplateEntity() //AutoMapper
             {
                 Name = templateName,
                 DateCreated = DateTime.UtcNow,
@@ -50,7 +57,7 @@ namespace MasterRad.Repositories
 
         public DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request)
         {
-            var dbTemplateEntity = new DbTemplateEntity()
+            var dbTemplateEntity = new DbTemplateEntity() //AutoMapper
             {
                 Id = request.Id,
                 TimeStamp = request.TimeStamp,
@@ -68,7 +75,7 @@ namespace MasterRad.Repositories
 
         public DbTemplateEntity UpdateName(UpdateNameRQ request)
         {
-            var dbTemplateEntity = new DbTemplateEntity()
+            var dbTemplateEntity = new DbTemplateEntity() //AutoMapper
             {
                 Id = request.Id,
                 TimeStamp = request.TimeStamp,
@@ -86,7 +93,7 @@ namespace MasterRad.Repositories
 
         public DbTemplateEntity UpdateSqlScript(SetSqlScriptRQ request, string name)
         {
-            var dbTemplateEntity = new DbTemplateEntity()
+            var dbTemplateEntity = new DbTemplateEntity() //AutoMapper
             {
                 Id = request.Id,
                 TimeStamp = request.TimeStamp,

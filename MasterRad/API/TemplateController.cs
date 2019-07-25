@@ -34,7 +34,7 @@ namespace MasterRad.API
         [HttpGet, Route("Get")]
         public ActionResult GetTemplates()
         {
-            var result = _dbTemplateRepo.Templates();
+            var result = _dbTemplateRepo.Get();
             return Ok(result);
         }
 
@@ -62,11 +62,13 @@ namespace MasterRad.API
         [HttpPost, Route("Update/SqlScript")]
         public ActionResult<Result<DbTemplateEntity>> UpdateSqlScript([FromBody] SetSqlScriptRQ body)
         {
-            var creatingDatabases = new List<string>() { "DatabaseNameaoidaiosdowqd" }; //queryService.GetCreatingDatabases();
-            if (creatingDatabases.Count() != 1)
-                return Ok(Result<DbTemplateEntity>.Fail($"The script should create exactly 1 database. Detected creating {creatingDatabases.Count()} databases."));
+            //var creatingDatabases = new List<string>() { "DatabaseNameaoidaiosdowqd" }; //queryService.GetCreatingDatabases();
+            //if (creatingDatabases.Count() != 1)
+            //    return Ok(Result<DbTemplateEntity>.Fail($"The script should create exactly 1 database. Detected creating {creatingDatabases.Count()} databases."));
 
-            var dbName = creatingDatabases.Single();
+            //var dbName = creatingDatabases.Single();
+
+            var dbName = body.DbName;
 
             var existsInDatabase = _dbTemplateRepo.DatabaseExists(dbName);
             if (existsInDatabase)

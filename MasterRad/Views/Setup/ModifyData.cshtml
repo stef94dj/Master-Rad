@@ -1,9 +1,10 @@
-﻿
+﻿@model MasterRad.Models.ViewModels.ModifyDataVM
 @{
-    ViewData["Title"] = "ModifyData";
+    ViewData["Title"] = "Modify Data";
 }
 
-<h1>ModifyData</h1>
+<h1>@(Model.TemplateName)</h1>
+<input type="text" value="@(Model.NameOnServer)" id="name-on-server" hidden>
 
 <label for="sel1">Choose a table from the list:</label>
 <select class="form-control" id="tableSelector"></select>
@@ -12,73 +13,8 @@
 
 <div class="table-responsive">
     <table class="table table-sm">
-        <thead class="thead-dark" id="table-header">
-            <tr id="database-table">
-                <th scope="col">asd</th>
-                <th scope="col">Firstasdadsadsa</th>
-                <th scope="col">Firstasdadsadsa</th>
-                <th scope="col">Firstasdadsadsa</th>
-                <th scope="col">Firstasdadsadsa</th>
-                <th scope="col">Firstasdadsadsa</th>
-                <th scope="col">Firstasdadsadsa</th>
-                <th scope="col">Firstasdadsadsa</th>
-                <th scope="col">Firstasdadsadsa</th>
-            </tr>
-        </thead>
-        <tbody id="table-body">
-            <tr>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm">-</button>
-                </td>
-                <td><input id="monitorinput" class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-            </tr>
-            <tr>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm">-</button>
-                </td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-            </tr>
-            <tr>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm">-</button>
-                </td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-                <td><input class="form-control form-control-sm" type="text" value="Jacob"></td>
-            </tr>
-            <tr>
-                <td>
-                    <button type="button" class="btn btn-info btn-sm">+</button>
-                </td>
-                <td><input class="form-control form-control-sm" type="text" value=""></td>
-                <td><input class="form-control form-control-sm" type="text" value=""></td>
-                <td><input class="form-control form-control-sm" type="text" value=""></td>
-                <td><input class="form-control form-control-sm" type="text" value=""></td>
-                <td><input class="form-control form-control-sm" type="text" value=""></td>
-                <td><input class="form-control form-control-sm" type="text" value=""></td>
-                <td><input class="form-control form-control-sm" type="text" value=""></td>
-                <td><input class="form-control form-control-sm" type="text" value=""></td>
-            </tr>
-        </tbody>
+        <thead class="thead-dark" id="table-header" />
+        <tbody id="table-body" />
     </table>
 </div>
 

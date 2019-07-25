@@ -5,9 +5,13 @@ using System.Threading.Tasks;
 
 namespace MasterRad.DTOs
 {
-    public abstract class UpdateDTO
+    public class IdentifyDTO
     {
         public int Id { get; set; }
+    }
+
+    public abstract class UpdateDTO : IdentifyDTO
+    {
         public byte[] TimeStamp { get; set; }
     }
 }

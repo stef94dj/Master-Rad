@@ -5,19 +5,48 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MasterRad.Models;
+using MasterRad.Models.ViewModels;
+using MasterRad.Repositories;
+using MasterRad.DTOs;
+using MasterRad.Extensions;
 
 namespace MasterRad.Controllers
 {
     public class SetupController : Controller
     {
-        public IActionResult Database()
+        private readonly IDbTemplateRepository _dbTemplateRepo;
+
+        public SetupController(IDbTemplateRepository dbTemplateRepo)
         {
-            return View();
+            _dbTemplateRepo = dbTemplateRepo;
         }
 
-        public IActionResult ModifyData()
+        public IActionResult Database(int templateId)
         {
-            return View();
+            var templateEntity = _dbTemplateRepo.Get(templateId);
+
+            var vm = new TemplateSqlScriptVM() //AutoMapper
+            {
+                Id = templateEntity.Id,
+                TimeStamp = Convert.ToBase64String(templateEntity.TimeStamp),
+                TemplateName = templateEntity.Name,
+                SqlScript = templateEntity?.SqlScript ?? string.Empty,
+            };
+
+            return View(vm);
+        }
+
+        public IActionResult ModifyData(int templateId)
+        {
+            var templateEntity = _dbTemplateRepo.Get(templateId);
+
+            var vm = new ModifyDataVM()
+            {
+                TemplateName = templateEntity.Name,
+                NameOnServer = templateEntity.NameOnServer
+            };
+
+            return View(vm);
         }
 
         public IActionResult Templates()

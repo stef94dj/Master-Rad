@@ -37,3 +37,4 @@ Code refactoring
 - Sql Expression builder (ovaj kod se ponavlja):
 	var columnValuesWhere = recordPrevious.Select(x => $"[{x.ColumnName}] = '{x.Value}'");
 	var whereExpr = string.Join(" and ", columnValuesWhere);
+- //AutoMapper (add AutoMapper)

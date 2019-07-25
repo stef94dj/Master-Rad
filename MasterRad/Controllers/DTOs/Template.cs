@@ -26,6 +26,7 @@ namespace MasterRad.DTOs
 
     public class SetSqlScriptRQ : UpdateDTO
     {
+        public string DbName { get; set; }
         public string SqlScript { get; set; }
     }
     public class SetSqlScriptRS { }

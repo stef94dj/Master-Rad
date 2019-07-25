@@ -36,11 +36,11 @@ function drawTemplateTable(tbody, templates) {
         tbody.append(tableRow)
     });
 }
-function drawButton(buttonName, color, handlerName, id, timestamp, enabled) {
+function drawButton(buttonName, color, handlerName, id, enabled) {
     var result = '<button ';
     if (!enabled)
         result += 'disabled ';
-    result += 'onclick="' + handlerName + '(' + id + ',' + timestamp + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
+    result += 'onclick="' + handlerName + '(' + id + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
     return result;
 }
 function drawModalTriggerButton(buttonName, color, modalselector, id, timestamp, enabled) {
@@ -76,9 +76,9 @@ function drawDescriptionCell(template) {
 }
 function drawSqlScriptCell(template) {
     if (template.sqlScript == null || template.sqlScript == '')
-        return '<td>' + drawButton('Set', 'dark', 'updateSqlScript', template.id, template.timeStamp, true) + '</td>';
+        return '<td>' + drawButton('Set', 'dark', 'updateSqlScript', template.id, true) + '</td>';
     else
-        return '<td>' + drawButton('Edit', 'dark', 'updateSqlScript', template.id, template.timeStamp, true) + '</td>';
+        return '<td>' + drawButton('Edit', 'dark', 'updateSqlScript', template.id, true) + '</td>';
 }
 function drawBaseDataCell(template) {
     if (!template.isBaseDataSet) {
@@ -86,13 +86,13 @@ function drawBaseDataCell(template) {
         if (template.sqlScript == null || template.sqlScript == '')
             enabled = false;
 
-        return '<td>' + drawButton('Set', 'dark', 'updateSqlScript', template.id, template.timeStamp, enabled) + '</td>';
+        return '<td>' + drawButton('Set', 'dark', 'updateBaseData', template.id, enabled) + '</td>';
     }
     else
-        return '<td>' + drawButton('Edit', 'dark', 'updateSqlScript', template.id, template.timeStamp, true) + '</td>';
+        return '<td>' + drawButton('Edit', 'dark', 'updateBaseData', template.id, true) + '</td>';
 }
 function drawDeleteCell(template) {
-    return '<td>' + drawButton('Delete', 'danger', 'deleteTemplate', template.id, template.timeStamp, true) + '</td>';
+    return '<td>' + drawButton('Delete', 'danger', 'deleteTemplate', template.id, true) + '</td>';
 }
 
 //MODAL SHOW
@@ -148,7 +148,6 @@ function createTemplate() {
         }
     });
 }
-
 function updateName() {
     var modalBody = $('#update-name-modal').find('.modal-body');
 
@@ -170,7 +169,6 @@ function updateName() {
         }
     });
 }
-
 function updateDescription() {
     var modalBody = $('#update-description-modal').find('.modal-body');
 
@@ -192,11 +190,18 @@ function updateDescription() {
         }
     });
 }
-
-function updateSqlScript(id, timestamp) {
-
+function updateSqlScript(id) {
+    var form = $('#hidden-form');
+    form.find('#template-id').val(id);
+    form.attr('action', '/Setup/Database');
+    form.submit();
 }
-
-function deleteTemplate(id, timestamp) {
+function updateBaseData(id) {
+    var form = $('#hidden-form');
+    form.find('#template-id').val(id);
+    form.attr('action', '/Setup/ModifyData');
+    form.submit();
+}
+function deleteTemplate(id) {
 
 }
