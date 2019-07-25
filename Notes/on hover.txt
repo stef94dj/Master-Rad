@@ -1,0 +1,19 @@
+<td onmouseout="mouseOutHandler(this)" onmouseover="mouseOverHandler(this)">
+	<div class="description">
+		This schema contains 4 tables...
+	</div>
+	<div class="edit-btn" hidden>
+		<button type="button" class="btn btn-outline-dark btn-sm btn-block">Edit</button>
+	</div>
+</td>
+			
+			
+function mouseOverHandler(tdElem) {
+    $(tdElem).find('.description').attr("hidden", true);;
+    $(tdElem).find('.edit-btn').removeAttr('hidden');;
+}
+
+function mouseOutHandler(tdElem) {
+    $(tdElem).find('.edit-btn').attr("hidden", true);;
+    $(tdElem).find('.description').removeAttr('hidden');;
+}
