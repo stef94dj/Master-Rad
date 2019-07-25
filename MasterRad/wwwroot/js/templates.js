@@ -1,10 +1,11 @@
 ﻿$(document).ready(function () {
-    var templateTableBody = $('#templates-tbody');
-    populateTemplatesTable(templateTableBody, '/api/Template/Get');
+    loadTemplates($('#templates-tbody'), '/api/Template/Get');
+    bindModalOnShow('#update-name-modal', onNameModalShow);
+    bindModalOnShow('#update-description-modal', onDescriptionModalShow);
 });
 
 //DRAW TEMPLATES TABLE
-function populateTemplatesTable(tbody, apiUrl) {
+function loadTemplates(tbody, apiUrl) {
     tbody.html(drawTableMessage('Loading data...'));
     $.ajax({
         url: apiUrl,
@@ -17,11 +18,9 @@ function populateTemplatesTable(tbody, apiUrl) {
         }
     });
 }
-
 function drawTableMessage(message) {
     return '<tr><td align="center" colspan="5">' + message + '</td></tr>';
 }
-
 function drawTemplateTable(tbody, templates) {
     tbody.html('');
     $.each(templates, function (index, template) {
@@ -37,7 +36,6 @@ function drawTemplateTable(tbody, templates) {
         tbody.append(tableRow)
     });
 }
-
 function drawButton(buttonName, color, handlerName, id, timestamp, enabled) {
     var result = '<button ';
     if (!enabled)
@@ -45,57 +43,154 @@ function drawButton(buttonName, color, handlerName, id, timestamp, enabled) {
     result += 'onclick="' + handlerName + '(' + id + ',' + timestamp + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
     return result;
 }
-
+function drawModalTriggerButton(buttonName, color, modalselector, id, timestamp, enabled) {
+    var result = '<button ';
+    if (!enabled)
+        result += 'disabled ';
+    result += 'data-toggle="modal" data-target="' + modalselector + '" data-id="' + id + '" data-timestamp="' + timestamp + '" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
+    return result;
+}
 function drawNameCell(template) {
-    var result = '<td><div class="description">';
-    result += '<p style="float:left">' + template.name + ' &nbsp;&nbsp;&nbsp;</p>';
-    result += drawButton('Edit', 'dark', 'updateName', template.id, template.timestamp, true);
+    var result = '<td><div>';
+    result += '<p style="float:left">' + template.name + '</p>';
+    result += drawModalTriggerButton('Edit', 'dark', '#update-name-modal', template.id, template.timeStamp, true);
     result += '</div></td>';
     return result;
 }
-
 function drawDescriptionCell(template) {
-    if (template.modelDescription == null || template.modelDescription == '')
-        return '<td>' + drawButton('Set', 'dark', 'updateDescription', template.id, template.timestamp, true) + '</td>';
-    else
-        return '<td>' + drawButton('Edit', 'dark', 'updateDescription', template.id, template.timestamp, true) + '</td>';
-}
+    var result = '<td>';
 
+    result += '<p style="float:left">';
+    if (template.modelDescription != null)
+        result += template.modelDescription;
+    result += '</p>';
+
+    if (template.modelDescription == null || template.modelDescription == '')
+        result += drawModalTriggerButton('Set', 'dark', '#update-description-modal', template.id, template.timeStamp, true);
+    else
+        result += drawModalTriggerButton('Edit', 'dark', '#update-description-modal', template.id, template.timeStamp, true);
+
+    result += '</td>';
+
+    return result;
+}
 function drawSqlScriptCell(template) {
     if (template.sqlScript == null || template.sqlScript == '')
-        return '<td>' + drawButton('Set', 'dark', 'updateSqlScript', template.id, template.timestamp, true) + '</td>';
+        return '<td>' + drawButton('Set', 'dark', 'updateSqlScript', template.id, template.timeStamp, true) + '</td>';
     else
-        return '<td>' + drawButton('Edit', 'dark', 'updateSqlScript', template.id, template.timestamp, true) + '</td>';
+        return '<td>' + drawButton('Edit', 'dark', 'updateSqlScript', template.id, template.timeStamp, true) + '</td>';
 }
-
 function drawBaseDataCell(template) {
     if (!template.isBaseDataSet) {
         var enabled = true;
         if (template.sqlScript == null || template.sqlScript == '')
             enabled = false;
 
-        return '<td>' + drawButton('Set', 'dark', 'updateSqlScript', template.id, template.timestamp, enabled) + '</td>';
+        return '<td>' + drawButton('Set', 'dark', 'updateSqlScript', template.id, template.timeStamp, enabled) + '</td>';
     }
     else
-        return '<td>' + drawButton('Edit', 'dark', 'updateSqlScript', template.id, template.timestamp, true) + '</td>';
+        return '<td>' + drawButton('Edit', 'dark', 'updateSqlScript', template.id, template.timeStamp, true) + '</td>';
 }
-
 function drawDeleteCell(template) {
-    return '<td>' + drawButton('Delete', 'danger', 'deleteTemplate', template.id, template.timestamp, true) + '</td>';
+    return '<td>' + drawButton('Delete', 'danger', 'deleteTemplate', template.id, template.timeStamp, true) + '</td>';
 }
 
+//MODAL SHOW
+function bindModalOnShow(selector, handler) {
+    $(selector).on('show.bs.modal', function (event) {
+        handler(this, event);
+    })
+}
+function onNameModalShow(element, event) {
+    var button = $(event.relatedTarget)
 
-//ACTION HANDLERS
+    var name = button.parent().find('p').html();
+    var id = button.data('id');
+    var timestamp = button.data('timestamp');
+
+    var modal = $(element)
+
+    modal.find('#template-name').val(name);
+    modal.find('#template-id').val(id);
+    modal.find('#template-timestamp').val(timestamp);
+}
+function onDescriptionModalShow(element, event) {
+    var button = $(event.relatedTarget)
+
+    var name = button.parent().find('p').html();
+    var id = button.data('id');
+    var timestamp = button.data('timestamp');
+
+    var modal = $(element)
+
+    modal.find('#template-description').val(name);
+    modal.find('#template-id').val(id);
+    modal.find('#template-timestamp').val(timestamp);
+}
+
+//API CALLERS
 function createTemplate() {
+    var modalBody = $('#create-template-modal').find('.modal-body');
 
+    var rqBody = {
+        "Name": modalBody.find('#template-name').val()
+    }
+
+    $.ajax({
+        url: '/api/Template/Create',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            $('#create-template-modal').modal('toggle');
+            loadTemplates($('#templates-tbody'), '/api/Template/Get');
+        }
+    });
 }
 
-function updateName(id, timestamp) {
+function updateName() {
+    var modalBody = $('#update-name-modal').find('.modal-body');
 
+    var rqBody = {
+        "Id": parseInt(modalBody.find('#template-id').val()),
+        "TimeStamp": modalBody.find('#template-timestamp').val(),
+        "Name": modalBody.find('#template-name').val()
+    }
+
+    $.ajax({
+        url: '/api/Template/Update/Name',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            $('#update-name-modal').modal('toggle');
+            loadTemplates($('#templates-tbody'), '/api/Template/Get');
+        }
+    });
 }
 
-function updateDescription(id, timestamp) {
+function updateDescription() {
+    var modalBody = $('#update-description-modal').find('.modal-body');
 
+    var rqBody = {
+        "Id": parseInt(modalBody.find('#template-id').val()),
+        "TimeStamp": modalBody.find('#template-timestamp').val(),
+        "Description": modalBody.find('#template-description').val()
+    }
+
+    $.ajax({
+        url: '/api/Template/Update/Description',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            $('#update-description-modal').modal('toggle');
+            loadTemplates($('#templates-tbody'), '/api/Template/Get');
+        }
+    });
 }
 
 function updateSqlScript(id, timestamp) {

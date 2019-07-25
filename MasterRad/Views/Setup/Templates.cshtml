@@ -5,6 +5,8 @@
 
 <h1>Templates</h1>
 
+<!-- Templates table -->
+<br />
 <table class="table table-bordered table-striped">
     <thead class="thead-dark" id="table-header">
         <tr id="database-table">
@@ -12,12 +14,79 @@
             <th scope="col">Description</th>
             <th scope="col">Sql Script</th>
             <th scope="col">Base data</th>
-            <th></th>
+            <th><button data-toggle="modal" data-target="#create-template-modal" style="float:right" type="button" class="btn btn-primary btn-sm">Create</button></th>
         </tr>
     </thead>
     <tbody id="templates-tbody" />
 </table>
-<button onclick="createTemplate()" type="button" class="btn btn-outline-primary btn-sm">Create</button>
+
+<!-- New template modal  -->
+<div class="modal fade" id="create-template-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create new template</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="template-name" class="col-form-label">Name:</label>
+                    <input type="text" class="form-control" id="template-name">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="createTemplate()">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Name modal  -->
+<div class="modal fade" id="update-name-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Name</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="template-name" class="col-form-label">Name:</label>
+                    <input type="text" class="form-control" id="template-name">
+                    <input type="text" class="form-control" id="template-id" hidden>
+                    <input type="text" class="form-control" id="template-timestamp" hidden>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="updateName()">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Description modal  -->
+<div class="modal fade" id="update-description-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Description</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="template-description" class="col-form-label">Description:</label>
+                    <textarea class="form-control" id="template-description" rows="10"></textarea>
+                    <input type="text" class="form-control" id="template-id" hidden>
+                    <input type="text" class="form-control" id="template-timestamp" hidden>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="updateDescription()">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 @section Scripts {
