@@ -1,6 +1,7 @@
 ﻿using MasterRad.DTOs;
 using MasterRad.Entities;
 using MasterRad.Models;
+using MasterRad.Models.DTOs;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;

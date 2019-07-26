@@ -1,14 +1,9 @@
-﻿using MasterRad.DTOs;
-using MasterRad.Entities;
+﻿using MasterRad.Entities;
 using MasterRad.Models;
+using MasterRad.Models.DTOs;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MasterRad.API
 {
@@ -36,7 +31,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("Create")]
-        public ActionResult CreateTemplate([FromBody] DatabaseCreateRQ body)
+        public ActionResult CreateTemplate([FromBody] CreateTemplateRQ body)
         {
             var result = _dbTemplateRepo.Create(body.Name);
             return Ok(result);
