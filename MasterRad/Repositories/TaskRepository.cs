@@ -10,8 +10,10 @@ namespace MasterRad.Repositories
     public interface ITaskRepository
     {
         List<TaskEntity> Get();
+        TaskEntity Create(CreateTaskRQ request);
         TaskEntity UpdateName(UpdateNameRQ request);
         TaskEntity UpdateDescription(UpdateDescriptionRQ request);
+        TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request);
     }
 
     public class TaskRepository : ITaskRepository
@@ -21,6 +23,22 @@ namespace MasterRad.Repositories
         public TaskRepository(Context context)
         {
             _context = context;
+        }
+
+        public TaskEntity Create(CreateTaskRQ request)
+        {
+            var taskEntity = new TaskEntity() //AutoMapper
+            {
+                Name = request.Name,
+                DbTemplateId = request.TemplateId,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            _context.Tasks.Add(taskEntity);
+            _context.SaveChanges();
+
+            return taskEntity;
         }
 
         public List<TaskEntity> Get()
@@ -61,6 +79,24 @@ namespace MasterRad.Repositories
 
             _context.Tasks.Attach(taskEntity);
             _context.Entry(taskEntity).Property(x => x.Name).IsModified = true;
+            _context.SaveChanges();
+
+            return taskEntity;
+        }
+
+        public TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request)
+        {
+            var taskEntity = new TaskEntity() //AutoMapper
+            {
+                Id = request.Id,
+                TimeStamp = request.TimeStamp,
+                DbTemplateId = request.TemplateId,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            _context.Tasks.Attach(taskEntity);
+            _context.Entry(taskEntity).Property(x => x.DbTemplateId).IsModified = true;
             _context.SaveChanges();
 
             return taskEntity;

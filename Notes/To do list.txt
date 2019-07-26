@@ -25,6 +25,7 @@ SELECT name FROM sys.identity_columns WHERE object_id = OBJECT_ID('AWBuildVersio
 
 Tasks & Templates
 =================
+- created by, created date
 - uradi delete
 -izvuci zajednicko u htmlu u partial-e (modali za update name, updaate description, delete)
 -izvuci zajednicko u js-u u helper metode

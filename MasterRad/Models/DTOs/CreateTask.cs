@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace MasterRad.Models.DTOs
 {
-    public class CreateTaskRQ
+    public class CreateTemplateRQ
     {
         public string Name { get; set; }
-        public int TemplateId { get; set; }
     }
-    public class CreateTaskRS { }
+    public class CreateTemplateRS { }
 }

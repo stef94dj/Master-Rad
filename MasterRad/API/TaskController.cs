@@ -33,6 +33,13 @@ namespace MasterRad.API
             return Ok(result);
         }
 
+        [HttpPost, Route("Create")]
+        public ActionResult CreateTask([FromBody] CreateTaskRQ body)
+        {
+            var result = _taskRepo.Create(body);
+            return Ok(result);
+        }
+
         [HttpPost, Route("Update/Description")]
         public ActionResult UpdateDescription([FromBody] UpdateDescriptionRQ body)
         {
@@ -44,6 +51,13 @@ namespace MasterRad.API
         public ActionResult UpdateName([FromBody] UpdateNameRQ body)
         {
             var result = _taskRepo.UpdateName(body);
+            return Ok(result);
+        }
+
+        [HttpPost, Route("Update/Template")]
+        public ActionResult UpdateTemplate([FromBody] UpdateTaskTemplateRQ body)
+        {
+            var result = _taskRepo.UpdateTemplate(body);
             return Ok(result);
         }
     }

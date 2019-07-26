@@ -137,8 +137,8 @@ function onChangeTemplateModalShow(element, event) {
 
     var modal = $(element);
 
-    modal.find('#edit-template-task-id').val(taskId);
-    modal.find('#edit-template-task-timestamp').val(taskTimeStamp);
+    modal.find('#task-id').val(taskId);
+    modal.find('#task-timestamp').val(taskTimeStamp);
 
     var items = modal.find('#templates-list').find('a');
     $.each(items, function (index, item) {
@@ -178,11 +178,12 @@ function loadTemplates(apiUrl) {
     });
 }
 function createTask() {
-    var modalBody = $('#create-template-modal').find('.modal-body');
+    var modalBody = $('#create-task-modal').find('.modal-body');
 
     var rqBody = {
-        "Name": modalBody.find('#template-name').val()
-    }
+        "Name": modalBody.find('#task-name').val(),
+        "TemplateId": modalBody.find('#templates-list').find('a.active').data('template-id')
+    };
 
     $.ajax({
         url: '/api/Task/Create',
@@ -191,26 +192,7 @@ function createTask() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            $('#create-template-modal').modal('toggle');
-            loadTasks($('#tasks-tbody'), '/api/Task/Get');
-        }
-    });
-}
-function createTask() {
-    var modalBody = $('#create-template-modal').find('.modal-body');
-
-    var rqBody = {
-        "Name": modalBody.find('#template-name').val()
-    }
-
-    $.ajax({
-        url: '/api/Task/Create',
-        dataType: 'json',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(rqBody),
-        success: function (data, textStatus, jQxhr) {
-            $('#create-template-modal').modal('toggle');
+            $('#create-task-modal').modal('toggle');
             loadTasks($('#tasks-tbody'), '/api/Task/Get');
         }
     });
@@ -257,18 +239,33 @@ function updateDescription() {
         }
     });
 }
-function updateSqlScript(id) {
-    var form = $('#hidden-form');
-    form.find('#template-id').val(id);
-    form.attr('action', '/Setup/Database');
-    form.submit();
+function updateTemplate() {
+    var modalBody = $('#change-template-modal').find('.modal-body');
+
+    var rqBody = {
+        "Id": parseInt(modalBody.find('#task-id').val()),
+        "TimeStamp": modalBody.find('#task-timestamp').val(),
+        "TemplateId": modalBody.find('#templates-list').find('a.active').data('template-id')
+    }
+
+    $.ajax({
+        url: '/api/Task/Update/Template',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            $('#change-template-modal').modal('toggle');
+            loadTasks($('#tasks-tbody'), '/api/Task/Get');
+        }
+    });
 }
-function updateBaseData(id) {
-    var form = $('#hidden-form');
-    form.find('#template-id').val(id);
-    form.attr('action', '/Setup/ModifyData');
-    form.submit();
+function updateData(id) {
+    //var form = $('#hidden-form');
+    //form.find('#template-id').val(id);
+    //form.attr('action', '/Setup/ModifyData');
+    //form.submit();
 }
-function deleteTemplate(id) {
+function deleteTask(id) {
 
 }

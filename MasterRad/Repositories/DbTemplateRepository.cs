@@ -36,7 +36,8 @@ namespace MasterRad.Repositories
 
         public List<DbTemplateEntity> Get()
         {
-            return _context.DbTemplates //.Include(x => x.Tasks)
+            return _context.DbTemplates
+                .Include(x => x.Tasks)
                 .OrderByDescending(t => t.DateCreated)
                 .ToList();
         }
