@@ -1,0 +1,274 @@
+﻿$(document).ready(function () {
+    loadTasks($('#tasks-tbody'), '/api/Task/Get');
+    loadTemplates('/api/Template/Get');
+    bindModalOnShow('#update-name-modal', onNameModalShow);
+    bindModalOnShow('#update-description-modal', onDescriptionModalShow);
+    bindModalOnShow('#change-template-modal', onChangeTemplateModalShow);
+});
+
+//DRAW TEMPLATES TABLE
+function drawTableMessage(message) {
+    return '<tr><td align="center" colspan="5">' + message + '</td></tr>';
+}
+function drawTaskTable(tbody, tasks) {
+    tbody.html('');
+    $.each(tasks, function (index, task) {
+        var tableRow = '<tr>';
+
+        tableRow += drawNameCell(task);
+        tableRow += drawDescriptionCell(task);
+        tableRow += drawTemplateCell(task);
+        tableRow += drawDataCell(task);
+        tableRow += drawDeleteCell(task);
+
+        tableRow += '</tr>'
+        tbody.append(tableRow)
+    });
+}
+function drawButton(buttonName, color, handlerName, id, enabled) {
+    var result = '<button ';
+    if (!enabled)
+        result += 'disabled ';
+    result += 'onclick="' + handlerName + '(' + id + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
+    return result;
+}
+function drawModalTriggerButton(buttonName, color, modalselector, id, timestamp, enabled) {
+    var result = '<button ';
+    if (!enabled)
+        result += 'disabled ';
+    result += 'data-toggle="modal" data-target="' + modalselector + '" data-id="' + id + '" data-timestamp="' + timestamp + '" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
+    return result;
+}
+function drawNameCell(task) {
+    var result = '<td><div>';
+    result += '<p style="float:left">' + task.name + '</p>';
+    result += drawModalTriggerButton('Edit', 'dark', '#update-name-modal', task.id, task.timeStamp, true);
+    result += '</div></td>';
+    return result;
+}
+function drawDescriptionCell(task) {
+    var result = '<td>';
+
+    result += '<p style="float:left">';
+    if (task.description != null)
+        result += task.description;
+    result += '</p>';
+
+    if (task.description == null || task.description == '')
+        result += drawModalTriggerButton('Set', 'dark', '#update-description-modal', task.id, task.timeStamp, true);
+    else
+        result += drawModalTriggerButton('Edit', 'dark', '#update-description-modal', task.id, task.timeStamp, true);
+
+    result += '</td>';
+
+    return result;
+}
+function drawTemplateCell(task) {
+    var result = '<td data-template-id="' + task.template.id + '"><div>';
+    result += '<p style="float:left">' + task.template.name + '</p>';
+    result += drawModalTriggerButton('Edit', 'dark', '#change-template-modal', task.id, task.timeStamp, true);
+    result += '</div></td>';
+    return result;
+}
+function drawDataCell(task) {
+    if (!task.isDataSet)
+        return '<td>' + drawButton('Set', 'dark', 'updateBaseData', task.id, true) + '</td>';
+    else
+        return '<td>' + drawButton('Edit', 'dark', 'updateBaseData', task.id, true) + '</td>';
+}
+function drawDeleteCell(task) {
+    return '<td>' + drawButton('Delete', 'danger', 'deleteTemplate', task.id, true) + '</td>';
+}
+
+//DRAW TEMPLATES LIST
+function drawTemplatesList(data) {
+    var createTaskList = $('#create-task-modal').find('#templates-list');
+    var editTemplateList = $('#change-template-modal').find('#templates-list');
+
+    $.each(data, function (index, template) {
+        var item = '<a data-template-id="' + template.id + '"';
+        item += ' style="word-wrap: break-word" class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">';
+        item += template.name;
+        item += '</a>'
+
+        createTaskList.append(item);
+        editTemplateList.append(item);
+    });
+}
+
+//MODAL SHOW
+function bindModalOnShow(selector, handler) {
+    $(selector).on('show.bs.modal', function (event) {
+        handler(this, event);
+    })
+}
+function onNameModalShow(element, event) {
+    var button = $(event.relatedTarget)
+
+    var name = button.parent().find('p').html();
+    var id = button.data('id');
+    var timestamp = button.data('timestamp');
+
+    var modal = $(element)
+
+    modal.find('#template-name').val(name);
+    modal.find('#template-id').val(id);
+    modal.find('#template-timestamp').val(timestamp);
+}
+function onDescriptionModalShow(element, event) {
+    var button = $(event.relatedTarget)
+
+    var name = button.parent().find('p').html();
+    var id = button.data('id');
+    var timestamp = button.data('timestamp');
+
+    var modal = $(element)
+
+    modal.find('#template-description').val(name);
+    modal.find('#template-id').val(id);
+    modal.find('#template-timestamp').val(timestamp);
+}
+function onChangeTemplateModalShow(element, event) {
+    var button = $(event.relatedTarget)
+
+    var taskId = button.data('id');
+    var taskTimeStamp = button.data('timestamp');
+    var templateId = button.parents().eq(1).data('template-id');
+
+    var modal = $(element);
+
+    modal.find('#edit-template-task-id').val(taskId);
+    modal.find('#edit-template-task-timestamp').val(taskTimeStamp);
+
+    var items = modal.find('#templates-list').find('a');
+    $.each(items, function (index, item) {
+        $(item).removeClass('active');
+
+        if ($(item).data('template-id') == templateId)
+            $(item).addClass('active');
+    });
+
+}
+
+//API CALLERS
+function loadTasks(tbody, apiUrl) {
+    tbody.html(drawTableMessage('Loading data...'));
+    $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        success: function (data) {
+            drawTaskTable(tbody, data);
+        },
+        error: function () {
+            tbody.html(drawTableMessage('Error loading data.'));
+        }
+    });
+}
+function loadTemplates(apiUrl) {
+    //tbody.html(drawTableMessage('Loading data...'));
+    $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        success: function (data) {
+            drawTemplatesList(data);
+        },
+        error: function () {
+            //tbody.html(drawTableMessage('Error loading data.'));
+        }
+    });
+}
+function createTask() {
+    var modalBody = $('#create-template-modal').find('.modal-body');
+
+    var rqBody = {
+        "Name": modalBody.find('#template-name').val()
+    }
+
+    $.ajax({
+        url: '/api/Task/Create',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            $('#create-template-modal').modal('toggle');
+            loadTasks($('#tasks-tbody'), '/api/Task/Get');
+        }
+    });
+}
+function createTask() {
+    var modalBody = $('#create-template-modal').find('.modal-body');
+
+    var rqBody = {
+        "Name": modalBody.find('#template-name').val()
+    }
+
+    $.ajax({
+        url: '/api/Task/Create',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            $('#create-template-modal').modal('toggle');
+            loadTasks($('#tasks-tbody'), '/api/Task/Get');
+        }
+    });
+}
+function updateName() {
+    var modalBody = $('#update-name-modal').find('.modal-body');
+
+    var rqBody = {
+        "Id": parseInt(modalBody.find('#template-id').val()),
+        "TimeStamp": modalBody.find('#template-timestamp').val(),
+        "Name": modalBody.find('#template-name').val()
+    }
+
+    $.ajax({
+        url: '/api/Task/Update/Name',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            $('#update-name-modal').modal('toggle');
+            loadTasks($('#tasks-tbody'), '/api/Task/Get');
+        }
+    });
+}
+function updateDescription() {
+    var modalBody = $('#update-description-modal').find('.modal-body');
+
+    var rqBody = {
+        "Id": parseInt(modalBody.find('#template-id').val()),
+        "TimeStamp": modalBody.find('#template-timestamp').val(),
+        "Description": modalBody.find('#template-description').val()
+    }
+
+    $.ajax({
+        url: '/api/Task/Update/Description',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            $('#update-description-modal').modal('toggle');
+            loadTasks($('#tasks-tbody'), '/api/Task/Get');
+        }
+    });
+}
+function updateSqlScript(id) {
+    var form = $('#hidden-form');
+    form.find('#template-id').val(id);
+    form.attr('action', '/Setup/Database');
+    form.submit();
+}
+function updateBaseData(id) {
+    var form = $('#hidden-form');
+    form.find('#template-id').val(id);
+    form.attr('action', '/Setup/ModifyData');
+    form.submit();
+}
+function deleteTemplate(id) {
+
+}

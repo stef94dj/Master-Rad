@@ -44,6 +44,7 @@ namespace MasterRad
 
             services.AddScoped<IMicrosoftSQL, MicrosoftSQL>();
             services.AddScoped<IDbTemplateRepository, DbTemplateRepository>();
+            services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);

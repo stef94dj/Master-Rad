@@ -17,17 +17,14 @@ namespace MasterRad.API
     public class TemplateController : Controller
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
-        private readonly IConfiguration _config;
         private readonly IDbTemplateRepository _dbTemplateRepo;
 
         public TemplateController(
             IMicrosoftSQL microsoftSQLService,
-            IConfiguration config,
             IDbTemplateRepository dbTemplateRepo
         )
         {
             _microsoftSQLService = microsoftSQLService;
-            _config = config;
             _dbTemplateRepo = dbTemplateRepo;
         }
 
