@@ -22,5 +22,6 @@ namespace MasterRad.Entities
         public DbTemplateEntity Template { get; set; }
 
         public bool IsDataSet { get; set; }
+        public string NameOnServer { get; set; }
     }
 }

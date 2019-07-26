@@ -32,6 +32,8 @@ Tasks & Templates
 
 Tasks
 ===========
+- izvuci iz diplomskog i implementiraj kloniranje baze !!! + kod update template-a isto i dodatno brisanje postojece baze
+- gde god ima ovako brisanje baze treba da se nakon toga proveri da li baza postoji. Ako postoji (neuspesno brisanje) to treba da se uloguje negde !
 - Create template: dto validation (Name not empty), db validations (ne postoji vec sa istim imenom u bazi), responseDTO (umesto entity)
 - Update description: dto validation (Description not empty), responseDTO (umesto entity)
 - Update description: dto validation (Name not empty), db validations (ne postoji vec sa istim imenom), responseDTO (umesto entity)

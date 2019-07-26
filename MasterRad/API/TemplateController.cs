@@ -12,42 +12,42 @@ namespace MasterRad.API
     public class TemplateController : Controller
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
-        private readonly IDbTemplateRepository _dbTemplateRepo;
+        private readonly IDbTemplateRepository _templateRepo;
 
         public TemplateController(
             IMicrosoftSQL microsoftSQLService,
-            IDbTemplateRepository dbTemplateRepo
+            IDbTemplateRepository templateRepo
         )
         {
             _microsoftSQLService = microsoftSQLService;
-            _dbTemplateRepo = dbTemplateRepo;
+            _templateRepo = templateRepo;
         }
 
         [HttpGet, Route("Get")]
         public ActionResult GetTemplates()
         {
-            var result = _dbTemplateRepo.Get();
+            var result = _templateRepo.Get();
             return Ok(result);
         }
 
         [HttpPost, Route("Create")]
         public ActionResult CreateTemplate([FromBody] CreateTemplateRQ body)
         {
-            var result = _dbTemplateRepo.Create(body.Name);
+            var result = _templateRepo.Create(body.Name);
             return Ok(result);
         }
 
         [HttpPost, Route("Update/Description")]
         public ActionResult UpdateDescription([FromBody] UpdateDescriptionRQ body)
         {
-            var result = _dbTemplateRepo.UpdateDescription(body);
+            var result = _templateRepo.UpdateDescription(body);
             return Ok(result);
         }
 
         [HttpPost, Route("Update/Name")]
         public ActionResult UpdateName([FromBody] UpdateNameRQ body)
         {
-            var result = _dbTemplateRepo.UpdateName(body);
+            var result = _templateRepo.UpdateName(body);
             return Ok(result);
         }
 
@@ -62,7 +62,7 @@ namespace MasterRad.API
 
             var dbName = body.DbName;
 
-            var existsInDatabase = _dbTemplateRepo.DatabaseExists(dbName);
+            var existsInDatabase = _templateRepo.DatabaseExists(dbName);
             if (existsInDatabase)
                 return Ok(Result<DbTemplateEntity>.Fail($"Database name '{dbName}' already exists in the system"));
 
@@ -74,7 +74,7 @@ namespace MasterRad.API
             if (!createResult.IsSuccess())
                 return Ok(Result<DbTemplateEntity>.Fail(createResult.Errors));
 
-            var result = _dbTemplateRepo.UpdateSqlScript(body, dbName);
+            var result = _templateRepo.UpdateSqlScript(body, dbName);
             return Ok(result);
         }
     }

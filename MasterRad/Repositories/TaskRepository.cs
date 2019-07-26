@@ -10,10 +10,10 @@ namespace MasterRad.Repositories
     public interface ITaskRepository
     {
         List<TaskEntity> Get();
-        TaskEntity Create(CreateTaskRQ request);
+        TaskEntity Create(CreateTaskRQ request, string nameOnServer);
         TaskEntity UpdateName(UpdateNameRQ request);
         TaskEntity UpdateDescription(UpdateDescriptionRQ request);
-        TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request);
+        TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request, string nameOnServer);
     }
 
     public class TaskRepository : ITaskRepository
@@ -25,12 +25,13 @@ namespace MasterRad.Repositories
             _context = context;
         }
 
-        public TaskEntity Create(CreateTaskRQ request)
+        public TaskEntity Create(CreateTaskRQ request, string nameOnServer)
         {
             var taskEntity = new TaskEntity() //AutoMapper
             {
                 Name = request.Name,
                 DbTemplateId = request.TemplateId,
+                NameOnServer = nameOnServer,
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED",
             };
@@ -84,19 +85,21 @@ namespace MasterRad.Repositories
             return taskEntity;
         }
 
-        public TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request)
+        public TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request, string nameOnServer)
         {
             var taskEntity = new TaskEntity() //AutoMapper
             {
                 Id = request.Id,
                 TimeStamp = request.TimeStamp,
                 DbTemplateId = request.TemplateId,
+                NameOnServer = nameOnServer,
                 DateModified = DateTime.UtcNow,
                 ModifiedBy = "Current user - NOT IMPLEMENTED",
             };
 
             _context.Tasks.Attach(taskEntity);
             _context.Entry(taskEntity).Property(x => x.DbTemplateId).IsModified = true;
+            _context.Entry(taskEntity).Property(x => x.NameOnServer).IsModified = true;
             _context.SaveChanges();
 
             return taskEntity;
