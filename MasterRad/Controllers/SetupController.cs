@@ -15,10 +15,15 @@ namespace MasterRad.Controllers
     public class SetupController : Controller
     {
         private readonly IDbTemplateRepository _dbTemplateRepo;
+        private readonly ITaskRepository _taskRepo;
 
-        public SetupController(IDbTemplateRepository dbTemplateRepo)
+        public SetupController(
+            IDbTemplateRepository dbTemplateRepo,
+            ITaskRepository taskRepo
+            )
         {
             _dbTemplateRepo = dbTemplateRepo;
+            _taskRepo = taskRepo;
         }
 
         public IActionResult Database(int templateId)
@@ -36,17 +41,30 @@ namespace MasterRad.Controllers
             return View(vm);
         }
 
-        public IActionResult ModifyData(int templateId)
+        public IActionResult ModifyTemplateData(int templateId)
         {
             var templateEntity = _dbTemplateRepo.Get(templateId);
 
             var vm = new ModifyDataVM()
             {
-                TemplateName = templateEntity.Name,
+                DatabaseName = $"Template '{templateEntity.Name}'",
                 NameOnServer = templateEntity.NameOnServer
             };
 
-            return View(vm);
+            return View("ModifyData", vm);
+        }
+
+        public IActionResult ModifyTaskData(int taskId)
+        {
+            var taskEntity = _taskRepo.Get(taskId);
+
+            var vm = new ModifyDataVM()
+            {
+                DatabaseName = $"Task '{taskEntity.Name}'",
+                NameOnServer = taskEntity.NameOnServer
+            };
+
+            return View("ModifyData", vm);
         }
 
         public IActionResult Templates()

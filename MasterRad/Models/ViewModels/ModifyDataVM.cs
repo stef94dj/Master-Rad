@@ -7,7 +7,7 @@ namespace MasterRad.Models.ViewModels
 {
     public class ModifyDataVM
     {
-        public string TemplateName { get; set; }
+        public string DatabaseName { get; set; }
         public string NameOnServer { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace MasterRad.Repositories
     public interface ITaskRepository
     {
         List<TaskEntity> Get();
+        TaskEntity Get(int id);
         TaskEntity Create(CreateTaskRQ request, string nameOnServer);
         TaskEntity UpdateName(UpdateNameRQ request);
         TaskEntity UpdateDescription(UpdateDescriptionRQ request);
@@ -47,6 +48,11 @@ namespace MasterRad.Repositories
             return _context.Tasks.Include(x => x.Template)
                 .OrderByDescending(t => t.DateCreated)
                 .ToList();
+        }
+
+        public TaskEntity Get(int id)
+        {
+            return _context.Tasks.Where(x => x.Id == id).Single();
         }
 
         public TaskEntity UpdateDescription(UpdateDescriptionRQ request)

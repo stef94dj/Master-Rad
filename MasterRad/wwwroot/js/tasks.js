@@ -72,9 +72,9 @@ function drawTemplateCell(task) {
 }
 function drawDataCell(task) {
     if (!task.isDataSet)
-        return '<td>' + drawButton('Set', 'dark', 'updateBaseData', task.id, true) + '</td>';
+        return '<td>' + drawButton('Set', 'dark', 'updateData', task.id, true) + '</td>';
     else
-        return '<td>' + drawButton('Edit', 'dark', 'updateBaseData', task.id, true) + '</td>';
+        return '<td>' + drawButton('Edit', 'dark', 'updateData', task.id, true) + '</td>';
 }
 function drawDeleteCell(task) {
     return '<td>' + drawButton('Delete', 'danger', 'deleteTemplate', task.id, true) + '</td>';
@@ -261,10 +261,11 @@ function updateTemplate() {
     });
 }
 function updateData(id) {
-    //var form = $('#hidden-form');
-    //form.find('#template-id').val(id);
-    //form.attr('action', '/Setup/ModifyData');
-    //form.submit();
+    debugger;
+    var form = $('#hidden-form');
+    form.find('#task-id').val(id);
+    form.attr('action', '/Setup/ModifyTaskData');
+    form.submit();
 }
 function deleteTask(id) {
 

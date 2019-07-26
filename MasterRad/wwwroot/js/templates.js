@@ -199,7 +199,7 @@ function updateSqlScript(id) {
 function updateBaseData(id) {
     var form = $('#hidden-form');
     form.find('#template-id').val(id);
-    form.attr('action', '/Setup/ModifyData');
+    form.attr('action', '/Setup/ModifyTemplateData');
     form.submit();
 }
 function deleteTemplate(id) {
