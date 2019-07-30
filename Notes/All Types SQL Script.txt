@@ -36,3 +36,73 @@ create table AllTypes (
 	t_geometry geometry,
 	t_geom_as_text AS t_geometry.STAsText()
 	);
+	
+insert into AllTypes (
+t_bigint, 
+t_bit, 
+t_decimal, 
+t_int, 
+t_money,
+t_numeric, 
+t_smallint,
+t_smallmoney,
+t_tinyint, 
+t_float, 
+t_real, 
+t_date, 
+t_datetime2,
+t_datetime, 
+t_datetimeoffset, 
+t_smalldatetime, 
+t_time, 
+t_char, 
+t_varchar, 
+t_text, 
+t_nchar, 
+t_ntext, 
+t_nvarchar, 
+t_binary, 
+t_varbinary,
+t_hierarchyid, 
+t_sql_variant, 
+t_rowversion, 
+t_uniqueidentifier, 
+t_xml, 
+t_geography, 
+t_geog_as_text, 
+t_geometry, 
+t_geom_as_text)
+values (
+'9223372036854775807', --t_bigint
+'0', --t_bit
+'12345.12', --t_decimal
+'12', --t_int
+'$2.15', --money
+'12345.12',  --t_numeric
+'$2.15',  --t_smallmoney
+'12',  --t_tinyint
+'2.23E-308',  --t_float
+'3.40E + 38',  --t_real
+'2012-06-18T10:34:09',  --t_date https://stackoverflow.com/questions/12957635/sql-query-to-insert-datetime-in-sql-server/47249901
+GETDATE(),  --t_datetime2
+SYSDATETIMEOFFSET(),  --t_datetimeoffset https://stackoverflow.com/questions/19963879/datetimeoffset-sample-in-sql-2008r2
+GETUTCDATE(),  --t_smalldatetime
+GETUTCDATE(),  --t_time
+'c',  --t_char
+'aidnonqwod',  --t_varchar
+'',  --t_text
+'',  --t_nchar
+'',  --t_ntext
+'',  --t_nvarchar
+'',  --t_binary
+'',  --t_varbinary
+'',  --t_hierarchyid
+'',  --t_sql_variant
+'',  --t_rowversion
+'',  --t_uniqueidentifier
+'',  --t_xml
+'',  --t_geography
+'',  --t_geog_as_text
+'',  --t_geometry
+'',  --t_geom_as_text
+)	
