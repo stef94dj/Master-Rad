@@ -7,6 +7,8 @@ Create database
 
 Modify database data
 ===========================================================================
+- where statement po primarnom kljucu https://stackoverflow.com/questions/3930338/sql-server-get-table-primary-key-using-sql-query
+-modify.js hardkodovana imena baza (AdventureWorks2017, DataTypes)
 - bootstrap css - dropdown ne radi lepo (kada se spusti nema desne ivice) - kada se odzumira radi
 - treba search za dropdown
 - json optimizacija (jedan niz kolone i ostalo data - a ne "kolona":"data")
@@ -39,6 +41,8 @@ Tasks
 - Update description: dto validation (Name not empty), db validations (ne postoji vec sa istim imenom), responseDTO (umesto entity)
 - Set SqlScript: dto validation (SqlScript: not empty), implement GetCreatingDatabases, 	
 - FE validacije na modalima
+- Format resenja (lista imena kolona)
+- Tacan upit (prof. resenje) - pre nego sto se upit submituje provera (format izlaza i format resenja, bar jedan red u resenju)
 
 Templates
 ===========

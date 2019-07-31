@@ -22,7 +22,7 @@ function tableSelected() {
     var tableName = $(this).val();
 
     $.ajax({
-        url: '/api/Data/read/AdventureWorks2017/' + tableName,
+        url: '/api/Data/read/DataTypes/' + tableName,
         type: 'GET',
         success: function (data) {
             drawTable(data.tables[0]);
@@ -97,7 +97,7 @@ function deleteRecord(btnElem) {
     var trElem = $(btnElem).parents().eq(1);
 
     var rqBody = {
-        "DatabaseName": "AdventureWorks2017",
+        "DatabaseName": "DataTypes",
         "TableName": $('#tableSelector').val(),
         "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue)
     }
@@ -118,7 +118,7 @@ function insertRecord(btnElem) {
     var trElem = $(btnElem).parents().eq(1);
 
     var rqBody = {
-        "DatabaseName": "AdventureWorks2017",
+        "DatabaseName": "DataTypes",
         "TableName": $('#tableSelector').val(),
         "ValuesNew": getInputValues(trElem, getNewValue)
     }
@@ -147,7 +147,7 @@ function editCell(inputElem) {
         return;
 
     var rqBody = {
-        "DatabaseName": "AdventureWorks2017",
+        "DatabaseName": "DataTypes",
         "TableName": $('#tableSelector').val(),
         "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue),
         "ValueNew": cellNew

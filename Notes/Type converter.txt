@@ -1,0 +1,7 @@
+- Validations for unsuported types? 
+- neki tipovi (cursor,table) ne mogu da se koriste kao tipovi kolona
+- ne znam da podrzim: sql variant
+- mislim da ne treba da podrzim (bice izbaceni), mozda da validiram da se ne koriste:
+    * text, ntext, image: https://docs.microsoft.com/en-us/sql/t-sql/data-types/ntext-text-and-image-transact-sql?view=sql-server-2017
+	* timestamp: https://docs.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql?view=sql-server-2017
+- rowversion se izgleda automatski generise - ne treba ga editovati(kao primary key)

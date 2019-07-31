@@ -1,4 +1,4 @@
-create table AllTypes (
+﻿create table AllTypes (
     t_bigint bigint PRIMARY KEY,
     t_bit bit,
     t_decimal decimal,
@@ -17,16 +17,17 @@ create table AllTypes (
 	t_smalldatetime smalldatetime,
 	t_time time,
 	t_char char,
-	t_varchar varchar,
-	t_text text,
+	t_varchar varchar(max),
+	--t_text text,
+	--t_image image,
 	t_nchar nchar,
-	t_ntext ntext,
-	t_nvarchar nvarchar,
+	--t_ntext ntext,
+	t_nvarchar nvarchar(max),
 	t_binary binary,
 	t_varbinary varbinary,
 	--t_cursor cursor,
 	t_hierarchyid hierarchyid,
-	t_sql_variant sql_variant,
+	--t_sql_variant sql_variant,
 	--t_table table,
 	t_rowversion rowversion,
 	t_uniqueidentifier uniqueidentifier,
@@ -56,22 +57,17 @@ t_datetimeoffset,
 t_smalldatetime, 
 t_time, 
 t_char, 
-t_varchar, 
-t_text, 
-t_nchar, 
-t_ntext, 
+t_varchar,  
+t_nchar,  
 t_nvarchar, 
 t_binary, 
 t_varbinary,
 t_hierarchyid, 
-t_sql_variant, 
-t_rowversion, 
 t_uniqueidentifier, 
 t_xml, 
 t_geography, 
-t_geog_as_text, 
-t_geometry, 
-t_geom_as_text)
+t_geometry
+)
 values (
 '9223372036854775807', --t_bigint
 '0', --t_bit
@@ -79,30 +75,47 @@ values (
 '12', --t_int
 '$2.15', --money
 '12345.12',  --t_numeric
+'123', --t_smallint
 '$2.15',  --t_smallmoney
 '12',  --t_tinyint
 '2.23E-308',  --t_float
-'3.40E + 38',  --t_real
+3.40E + 38,  --t_real
 '2012-06-18T10:34:09',  --t_date https://stackoverflow.com/questions/12957635/sql-query-to-insert-datetime-in-sql-server/47249901
 GETDATE(),  --t_datetime2
+GETDATE(), --t_datetime
 SYSDATETIMEOFFSET(),  --t_datetimeoffset https://stackoverflow.com/questions/19963879/datetimeoffset-sample-in-sql-2008r2
 GETUTCDATE(),  --t_smalldatetime
 GETUTCDATE(),  --t_time
 'c',  --t_char
 'aidnonqwod',  --t_varchar
-'',  --t_text
-'',  --t_nchar
-'',  --t_ntext
-'',  --t_nvarchar
-'',  --t_binary
-'',  --t_varbinary
-'',  --t_hierarchyid
-'',  --t_sql_variant
-'',  --t_rowversion
-'',  --t_uniqueidentifier
-'',  --t_xml
-'',  --t_geography
-'',  --t_geog_as_text
-'',  --t_geometry
-'',  --t_geom_as_text
+N'あ',  --t_nchar
+N'ああ',  --t_nvarchar
+10,  --t_binary
+011,  --t_varbinary
+'/1/',  --t_hierarchyid
+--'',  --t_rowversion
+'0E984725-C51C-4BF4-9960-E1C80E27ABA0wrong',  --t_uniqueidentifier
+'<EVENT_INSTANCE>
+  <EventType>CREATE_TYPE</EventType>
+  <PostTime>2017-10-27T14:33:01.420</PostTime>
+  <SPID>56</SPID>
+  <ServerName>BARBKESS24\MSSQL2017RTM</ServerName>
+  <LoginName>REDMOND\barbkess</LoginName>
+  <UserName>dbo</UserName>
+  <DatabaseName>AdventureWorks2017</DatabaseName>
+  <SchemaName>dbo</SchemaName>
+  <ObjectName>Flag</ObjectName>
+  <ObjectType>TYPE</ObjectType>
+  <TSQLCommand>
+    <SetOptions ANSI_NULLS="ON" ANSI_NULL_DEFAULT="ON" ANSI_PADDING="ON" QUOTED_IDENTIFIER="ON" ENCRYPTED="FALSE" />
+    <CommandText>CREATE TYPE [Flag] FROM bit NOT NULL;
+</CommandText>
+  </TSQLCommand>
+</EVENT_INSTANCE>',  --t_xml
+geography::STGeomFromText('LINESTRING(-122.360 47.656, -122.343 47.656 )', 4326),  --t_geography
+geometry::STGeomFromText('LINESTRING (100 100, 20 180, 180 180)', 0)  --t_geometry
 )	
+
+	
+
+select * from AllTypes
