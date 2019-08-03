@@ -54,6 +54,7 @@ namespace MasterRad.API
         [HttpPost, Route("Update/SqlScript")]
         public ActionResult<Result<DbTemplateEntity>> UpdateSqlScript([FromBody] SetSqlScriptRQ body)
         {
+            _microsoftSQLService.ExecuteSQLAsAdmin(body.SqlScript);
             //var creatingDatabases = new List<string>() { "DatabaseNameaoidaiosdowqd" }; //queryService.GetCreatingDatabases();
             //if (creatingDatabases.Count() != 1)
             //    return Ok(Result<DbTemplateEntity>.Fail($"The script should create exactly 1 database. Detected creating {creatingDatabases.Count()} databases."));

@@ -1,0 +1,15 @@
+﻿
+.loadScreen {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgb( 238,238,238 ) 
+                url('../Media/loader1.gif') 
+                50% 50% 
+                no-repeat;
+    z-index :1400;
+}
