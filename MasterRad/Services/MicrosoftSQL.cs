@@ -8,6 +8,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using MasterRad.DTOs;
 using master_BE;
+using System.Globalization;
+using System.Xml;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+
 namespace MasterRad.Services
 {
     public interface IMicrosoftSQL : IPerWebRequest
@@ -71,6 +76,8 @@ namespace MasterRad.Services
 
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
+
+
                     rowsAffected = reader.RecordsAffected;
                     do
                     {
@@ -82,8 +89,52 @@ namespace MasterRad.Services
                             while (reader.Read())
                             {
                                 var tableRow = new List<object>();
-                                foreach (var col in columns)
-                                    tableRow.Add(reader[col.ColumnName] is DBNull ? null : reader[col.ColumnName].ToString());
+                                for (var colIndex = 0; colIndex < columns.Count(); colIndex++)
+                                {
+                                    var cell = reader[colIndex];
+                                    if (cell is DBNull)
+                                    {
+                                        tableRow.Add(null);
+                                        continue;
+                                    }
+
+                                    var value = string.Empty;
+                                    var columnName = columns[colIndex].ColumnName; // for debug
+                                    var sqlType = reader.GetDataTypeName(colIndex);
+
+                                    switch (sqlType)
+                                    {
+                                        case "date":
+                                            value = ((DateTime)cell).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                                            break;
+                                        case "time":
+                                            value = ((TimeSpan)cell).ToString(@"hh\:mm\:ss\.fffffff", CultureInfo.InvariantCulture);
+                                            break;
+                                        case "smalldatetime":
+                                            value = ((DateTime)cell).ToString("yyyy-MM-ddThh:mm:ss", CultureInfo.InvariantCulture);
+                                            break;
+                                        case "datetime":
+                                            value = ((DateTime)cell).ToString("yyyy-MM-ddThh:mm:ss.fff", CultureInfo.InvariantCulture);
+                                            break;
+                                        case "datetime2":
+                                            value = ((DateTime)cell).ToString("yyyy-MM-ddThh:mm:ss.fffffff", CultureInfo.InvariantCulture);
+                                            break;
+                                        case "datetimeoffset":
+                                            value = ((DateTimeOffset)cell).ToString("yyyy-MM-ddTHH:mm:ss.fffK", CultureInfo.InvariantCulture);
+                                            break;
+                                        case "binary":
+                                        case "varbinary":
+                                        case "timestamp":
+                                        case "rowversion":
+                                            value = $"0x{BitConverter.ToString((byte[])cell).Replace("-", "")}";
+                                            break;
+                                        default:
+                                            value = Convert.ToString(cell, CultureInfo.InvariantCulture);
+                                            break;
+                                    }
+
+                                    tableRow.Add(value);
+                                }
                                 table.Rows.Add(tableRow);
                             }
                         }
