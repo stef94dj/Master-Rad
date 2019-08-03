@@ -28,11 +28,23 @@ namespace MasterRad.DTOs
     {
         public Table()
         {
-            Columns = new List<string>();
+            Columns = new List<Column>();
             Rows = new List<List<object>>();
         }
 
-        public List<string> Columns { get; set; }
+        public List<Column> Columns { get; set; }
         public List<List<object>> Rows { get; set; }
+    }
+
+    public class Column
+    {
+        public Column(string name, string sqlType)
+        {
+            Name = name;
+            SqlType = sqlType;
+        }
+
+        public string Name { get; set; }
+        public string SqlType { get; set; }
     }
 }

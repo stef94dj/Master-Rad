@@ -37,11 +37,13 @@ namespace MasterRad.Services
     public class MicrosoftSQL : IMicrosoftSQL
     {
         private readonly IConfiguration _config;
+        private readonly IMsSqlQueryBuilder _msSqlQueryBuilder;
         private ConnectionParams connParams;
 
-        public MicrosoftSQL(IConfiguration config)
+        public MicrosoftSQL(IConfiguration config, IMsSqlQueryBuilder msSqlQueryBuilder)
         {
             _config = config;
+            _msSqlQueryBuilder = msSqlQueryBuilder;
         }
 
         private string BuildConnectionString(ConnectionParams connParams)
@@ -85,7 +87,8 @@ namespace MasterRad.Services
                         var columns = reader.GetColumnSchema();
                         if (columns.Any())
                         {
-                            table.Columns = columns.Select(c => c.ColumnName).ToList();
+                            table.Columns = columns.Select(c => new Column(c.ColumnName, c.DataTypeName)).ToList();
+
                             while (reader.Read())
                             {
                                 var tableRow = new List<object>();
@@ -99,28 +102,26 @@ namespace MasterRad.Services
                                     }
 
                                     var value = string.Empty;
-                                    var columnName = columns[colIndex].ColumnName; // for debug
-                                    var sqlType = reader.GetDataTypeName(colIndex);
-
-                                    switch (sqlType)
+                                    switch (reader.GetDataTypeName(colIndex))
                                     {
                                         case "date":
                                             value = ((DateTime)cell).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
                                             break;
                                         case "time":
                                             value = ((TimeSpan)cell).ToString(@"hh\:mm\:ss\.fffffff", CultureInfo.InvariantCulture);
+                                            //value = value.TrimEnd('0').TrimEnd('.');
                                             break;
                                         case "smalldatetime":
-                                            value = ((DateTime)cell).ToString("yyyy-MM-ddThh:mm:ss", CultureInfo.InvariantCulture);
+                                            value = ((DateTime)cell).ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
                                             break;
                                         case "datetime":
-                                            value = ((DateTime)cell).ToString("yyyy-MM-ddThh:mm:ss.fff", CultureInfo.InvariantCulture);
+                                            value = ((DateTime)cell).ToString("yyyy-MM-ddTHH:mm:ss.fff", CultureInfo.InvariantCulture);
                                             break;
                                         case "datetime2":
-                                            value = ((DateTime)cell).ToString("yyyy-MM-ddThh:mm:ss.fffffff", CultureInfo.InvariantCulture);
+                                            value = ((DateTime)cell).ToString("yyyy-MM-ddTHH:mm:ss.fffffff", CultureInfo.InvariantCulture);
                                             break;
                                         case "datetimeoffset":
-                                            value = ((DateTimeOffset)cell).ToString("yyyy-MM-ddTHH:mm:ss.fffK", CultureInfo.InvariantCulture);
+                                            value = ((DateTimeOffset)cell).ToString("yyyy-MM-ddTHH:mm:ss.fffffffK", CultureInfo.InvariantCulture);
                                             break;
                                         case "binary":
                                         case "varbinary":
@@ -271,14 +272,18 @@ namespace MasterRad.Services
             if (!recordPrevious.Any())
                 return Result<bool>.Fail(new List<string>() { "Unable to identify record" });
 
-            var columnValuesWhere = recordPrevious.Select(x => $"[{x.ColumnName}] = '{x.Value}'");
+            var columnValuesWhere = recordPrevious.Select(x => $"[{x.ColumnName}] = {_msSqlQueryBuilder.ToQuery(x.ColumnType, x.Value)}");
             var whereExpr = string.Join(" and ", columnValuesWhere);
 
-            var setExpr = $"[{cellNew.ColumnName}] = '{cellNew.Value}'";
+            var setExpr = $"[{cellNew.ColumnName}] = {_msSqlQueryBuilder.ToQuery(cellNew.ColumnType, cellNew.Value)}";
 
             var sqlCommand = $"UPDATE [{table}] SET {setExpr} WHERE {whereExpr}";
 
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
+
+            if (sqlResult.RowsAffected != 1)
+                sqlResult.Messages.Add($"Total of {sqlResult.RowsAffected} rows updated");
+
             if (sqlResult.Messages.Any())
                 return Result<bool>.Fail(sqlResult.Messages);
 

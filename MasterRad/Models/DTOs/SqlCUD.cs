@@ -8,6 +8,7 @@ namespace MasterRad.DTOs
     public class Cell
     {
         public string ColumnName { get; set; }
+        public string ColumnType { get; set; }
         public string Value { get; set; }
     }
 

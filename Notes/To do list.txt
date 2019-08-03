@@ -52,6 +52,7 @@ Templates
 
 Code refactoring
 =================
+- izvuci sql tipove u neki enum (na vise mesta hardkodovani stringovi tipova tipa "nvarchar")
 - Sql Expression builder (ovaj kod se ponavlja):
 	var columnValuesWhere = recordPrevious.Select(x => $"[{x.ColumnName}] = '{x.Value}'");
 	var whereExpr = string.Join(" and ", columnValuesWhere);

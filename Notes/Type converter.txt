@@ -4,4 +4,10 @@
 - mislim da ne treba da podrzim (bice izbaceni), mozda da validiram da se ne koriste:
     * text, ntext, image: https://docs.microsoft.com/en-us/sql/t-sql/data-types/ntext-text-and-image-transact-sql?view=sql-server-2017
 	* timestamp: https://docs.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql?view=sql-server-2017
+        *geography [t_geography] = 'LINESTRING (-122.36 47.656, -122.343 47.656)'
+ 
+        *geometry [t_geometry] = 'LINESTRING (100 100, 20 180, 180 180)'
+ 
+CAST([t_xml] AS nvarchar(max)) = '<EVENT_INSTANCE><EventType>CREATE_TYPE</EventType><PostTime>2017-10-27T14:33:01.420</PostTime><SPID>56</SPID><ServerName>BARBKESS24\MSSQL2017RTM</ServerName><LoginName>REDMOND\barbkess</LoginName><UserName>dbo</UserName><DatabaseName>AdventureWorks2017</DatabaseName><SchemaName>dbo</SchemaName><ObjectName>Flag</ObjectName><ObjectType>TYPE</ObjectType><TSQLCommand><SetOptions ANSI_NULLS="ON" ANSI_NULL_DEFAULT="ON" ANSI_PADDING="ON" QUOTED_IDENTIFIER="ON" ENCRYPTED="FALSE"/><CommandText>CREATE TYPE [Flag] FROM bit NOT NULL; </CommandText></TSQLCommand></EVENT_INSTANCE>'
+
 - rowversion se izgleda automatski generise - ne treba ga editovati(kao primary key)

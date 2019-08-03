@@ -41,7 +41,7 @@ function drawTable(data) {
     //columns
     tableHeader.append('<th scope="col"></th>');
     $.each(data.columns, function (index, value) {
-        tableHeader.append('<th scope="col">' + value + '</th>');
+        tableHeader.append('<th scope="col" data-sql-type="' + value.sqlType + '">' + value.name + '</th>');
     });
 
     //rows
@@ -78,8 +78,10 @@ function getUnmodifiedValue(element) {
 }
 
 function getCell(inputElem, index, getData) {
+    var th = $('#table-header th').eq(index + 1);
     return {
-        "ColumnName": $('#table-header th').eq(index + 1).text(),
+        "ColumnName": th.text(),
+        "ColumnType": th.data('sql-type'),
         "Value": getData(inputElem)
     };
 }
