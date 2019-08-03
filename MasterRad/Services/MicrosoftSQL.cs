@@ -28,6 +28,7 @@ namespace MasterRad.Services
         IEnumerable<ColumnInfo> GetColumnsData(string tableName, ConnectionParams connParams);
         Result<bool> InsertRecord(string table, List<Cell> record, ConnectionParams connParams);
         Result<bool> UpdateRecord(string table, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams);
+        int Count(string table, List<Cell> recordPrevious, ConnectionParams connParams);
         Result<bool> DeleteRecord(string table, List<Cell> record, ConnectionParams connParams);
         Result<bool> CreateDatabaseFromScript(string dbName, string sqlScript);
         bool DatabaseExists(string name);
@@ -78,8 +79,6 @@ namespace MasterRad.Services
 
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
-
-
                     rowsAffected = reader.RecordsAffected;
                     do
                     {
@@ -101,39 +100,7 @@ namespace MasterRad.Services
                                         continue;
                                     }
 
-                                    var value = string.Empty;
-                                    switch (reader.GetDataTypeName(colIndex))
-                                    {
-                                        case "date":
-                                            value = ((DateTime)cell).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-                                            break;
-                                        case "time":
-                                            value = ((TimeSpan)cell).ToString(@"hh\:mm\:ss\.fffffff", CultureInfo.InvariantCulture);
-                                            //value = value.TrimEnd('0').TrimEnd('.');
-                                            break;
-                                        case "smalldatetime":
-                                            value = ((DateTime)cell).ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
-                                            break;
-                                        case "datetime":
-                                            value = ((DateTime)cell).ToString("yyyy-MM-ddTHH:mm:ss.fff", CultureInfo.InvariantCulture);
-                                            break;
-                                        case "datetime2":
-                                            value = ((DateTime)cell).ToString("yyyy-MM-ddTHH:mm:ss.fffffff", CultureInfo.InvariantCulture);
-                                            break;
-                                        case "datetimeoffset":
-                                            value = ((DateTimeOffset)cell).ToString("yyyy-MM-ddTHH:mm:ss.fffffffK", CultureInfo.InvariantCulture);
-                                            break;
-                                        case "binary":
-                                        case "varbinary":
-                                        case "timestamp":
-                                        case "rowversion":
-                                            value = $"0x{BitConverter.ToString((byte[])cell).Replace("-", "")}";
-                                            break;
-                                        default:
-                                            value = Convert.ToString(cell, CultureInfo.InvariantCulture);
-                                            break;
-                                    }
-
+                                    var value = _msSqlQueryBuilder.ToDisplay(reader.GetDataTypeName(colIndex), cell);
                                     tableRow.Add(value);
                                 }
                                 table.Rows.Add(tableRow);
@@ -272,7 +239,9 @@ namespace MasterRad.Services
             if (!recordPrevious.Any())
                 return Result<bool>.Fail(new List<string>() { "Unable to identify record" });
 
-            var columnValuesWhere = recordPrevious.Select(x => $"[{x.ColumnName}] = {_msSqlQueryBuilder.ToQuery(x.ColumnType, x.Value)}");
+            var columnValuesWhere = recordPrevious.Select(x =>
+                x.Value.ToLower().Equals("null") ? $"[{x.ColumnName}] IS NULL" : $"[{x.ColumnName}] = {_msSqlQueryBuilder.ToQuery(x.ColumnType, x.Value)}"
+            );
             var whereExpr = string.Join(" and ", columnValuesWhere);
 
             var setExpr = $"[{cellNew.ColumnName}] = {_msSqlQueryBuilder.ToQuery(cellNew.ColumnType, cellNew.Value)}";
@@ -288,6 +257,23 @@ namespace MasterRad.Services
                 return Result<bool>.Fail(sqlResult.Messages);
 
             return Result<bool>.Success(true);
+        }
+
+        public int Count(string table, List<Cell> recordPrevious, ConnectionParams connParams)
+        {
+            if (!recordPrevious.Any())
+                return -1;
+
+            var columnValuesWhere = recordPrevious.Select(x =>
+                x.Value.ToLower().Equals("null") ? $"[{x.ColumnName}] IS NULL" : $"[{x.ColumnName}] = {_msSqlQueryBuilder.ToQuery(x.ColumnType, x.Value)}"
+            );
+            var whereExpr = string.Join(" and ", columnValuesWhere);
+
+            var sqlCommand = $"SELECT COUNT(*) FROM [{table}] WHERE {whereExpr}";
+            var sqlResult = ExecuteSQL(sqlCommand, connParams);
+
+            var count = sqlResult.Tables.First().Rows.First().First().ToString();
+            return int.Parse(count);
         }
 
         public Result<bool> DeleteRecord(string table, List<Cell> record, ConnectionParams connParams)

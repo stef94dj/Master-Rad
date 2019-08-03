@@ -54,6 +54,10 @@ namespace MasterRad.API
             //var userName = string.Empty; //_profileService.GetUserName(token); 
             //var tableName = $"{body.TableName}_{userName}";
 
+            var count = _microsoftSQLService.Count(body.TableName, body.ValuesUnmodified, connParams);
+            if (count != 1)
+                return Result<bool>.Fail($"The change would affect {count} records.");
+
             var res = _microsoftSQLService.UpdateRecord(body.TableName, body.ValueNew, body.ValuesUnmodified, connParams);
             return Ok(res);
         }
