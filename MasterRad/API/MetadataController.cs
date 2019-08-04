@@ -23,7 +23,7 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("databases")]
-        public ActionResult<IEnumerable<string>> GetDatabaseNames([FromHeader] string token)
+        public ActionResult<IEnumerable<string>> GetDatabaseNames()
         {
             //var tables = _profileService.GetDatabaseNames(token);
 
@@ -31,7 +31,7 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("tables/{dbName}")]
-        public ActionResult<IEnumerable<string>> GetTableNames([FromHeader] string token, [FromRoute] string dbName)
+        public ActionResult<IEnumerable<string>> GetTableNames([FromRoute] string dbName)
         {
             var conn = new ConnectionParams()
             {
@@ -46,11 +46,11 @@ namespace MasterRad.API
 
             //var result = tableNames.Where(tn => tn.ToLower().EndsWith(username.ToLower()));
 
-            return Ok(tableNames); 
+            return Ok(tableNames);
         }
 
-        [HttpGet, Route("columns/{dbName}/{tableName}")]
-        public ActionResult<IEnumerable<ColumnInfo>> GetColumnsData([FromHeader] string token, [FromRoute] string dbName, [FromRoute] string tableName)
+        [HttpGet, Route("columns/{dbName}/{schemaName}/{tableName}")]
+        public ActionResult<IEnumerable<ColumnInfo>> GetColumnsData([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
             //var conn = _profileService.GetConnectionsParams(token, dbName)
             var conn = new ConnectionParams()
@@ -60,8 +60,39 @@ namespace MasterRad.API
                 Password = "Tnation2019"
             };
 
-            var result = _microsoftSQLService.GetColumnsData(tableName, conn);
+            var result = _microsoftSQLService.GetColumnsData(schemaName, tableName, conn);
             return Ok(result);
+        }
+
+        [HttpGet, Route("constraints/{dbName}/{schemaName}/{tableName}")]
+        public ActionResult<IEnumerable<ColumnInfo>> GetConstraintData([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
+        {
+            var conn = new ConnectionParams()
+            {
+                DbName = dbName,
+                Login = "sa",
+                Password = "Tnation2019"
+            };
+
+            var result = _microsoftSQLService.GetConstraintData(schemaName, tableName, conn);
+            return Ok(result);
+        }
+
+        [HttpGet, Route("explore/{dbName}/{schemaName}/{tableName}")]
+        public ActionResult<TableInfoRS> ExploreTable ([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
+        {
+            var res = new TableInfoRS($"{schemaName}.{tableName}");
+            var conn = new ConnectionParams()
+            {
+                DbName = dbName,
+                Login = "sa",
+                Password = "Tnation2019"
+            };
+
+            res.Columns = _microsoftSQLService.GetColumnsData(schemaName, tableName, conn).ToList();
+            res.Constraints = _microsoftSQLService.GetConstraintData(schemaName, tableName, conn).ToList();
+
+            return Ok(res);
         }
     }
 }

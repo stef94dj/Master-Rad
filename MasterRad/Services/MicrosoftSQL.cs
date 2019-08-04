@@ -25,7 +25,8 @@ namespace MasterRad.Services
         Result<bool> DeleteSQLServerUser(string userLogin);
         IEnumerable<string> GetTableNames(ConnectionParams connParams);
         IEnumerable<string> GetDatabaseNames();
-        IEnumerable<ColumnInfo> GetColumnsData(string tableName, ConnectionParams connParams);
+        IEnumerable<ColumnInfo> GetColumnsData(string schemaName, string tableName, ConnectionParams connParams);
+        IEnumerable<ConstraintInfo> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams);
         Result<bool> InsertRecord(string table, List<Cell> record, ConnectionParams connParams);
         Result<bool> UpdateRecord(string table, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams);
         int Count(string table, List<Cell> recordPrevious, ConnectionParams connParams);
@@ -178,9 +179,8 @@ namespace MasterRad.Services
 
             var result = sqlResult.Tables[0].Rows
                 .Select(x =>
-                    (x[0].ToString().Equals("dbo") ? "" : (x[0].ToString() + ".")) +
-                    x[1].ToString())
-                .OrderBy(fullName => fullName);
+                    $"{x[0].ToString()}.{x[1].ToString()}")
+                    .OrderBy(fullName => fullName);
 
             return result;
         }
@@ -197,11 +197,11 @@ namespace MasterRad.Services
                     .Select(x => x[0].ToString());
         }
 
-        public IEnumerable<ColumnInfo> GetColumnsData(string tableName, ConnectionParams connParams)
+        public IEnumerable<ColumnInfo> GetColumnsData(string schemaName, string tableName, ConnectionParams connParams)
         {
             var sqlCommand = "SELECT COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH " +
                              "FROM INFORMATION_SCHEMA.COLUMNS " +
-                             $"WHERE TABLE_NAME = '{tableName}'";
+                             $"WHERE TABLE_SCHEMA = '{schemaName}' AND TABLE_NAME = '{tableName}'";
 
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
 
@@ -216,6 +216,27 @@ namespace MasterRad.Services
                 columnInfo.Type = record[3].ToString();
                 columnInfo.MaxLength = record[4] == null ? default(int?) : int.Parse(record[4].ToString());
                 result.Add(columnInfo);
+            }
+
+            return result;
+        }
+
+        public IEnumerable<ConstraintInfo> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams)
+        {
+            var sqlCommand = File.ReadAllText(@"SqlScripts\GetTableConstraints.sql");
+            sqlCommand = sqlCommand.Replace("#SCHEMATABLENAME",$"{schemaName}.{tableName}");
+
+            var sqlResult = ExecuteSQL(sqlCommand, connParams);
+
+            //AutoMapper
+            var result = new List<ConstraintInfo>();
+            foreach (var record in sqlResult.Tables[0].Rows)
+            {
+                var constraintInfo = new ConstraintInfo();
+                constraintInfo.Name = record[3].ToString();
+                constraintInfo.Type = record[2]?.ToString();
+                constraintInfo.Description = record[4].ToString();
+                result.Add(constraintInfo);
             }
 
             return result;

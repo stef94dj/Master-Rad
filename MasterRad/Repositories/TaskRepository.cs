@@ -1,4 +1,5 @@
-﻿using MasterRad.Entities;
+﻿using MasterRad.DTOs;
+using MasterRad.Entities;
 using MasterRad.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;

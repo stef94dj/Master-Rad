@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MasterRad.Models.DTOs
+namespace MasterRad.DTOs
 {
-    public class CreateTaskRQ
+    public class CreateTemplateRQ
     {
         public string Name { get; set; }
-        public int TemplateId { get; set; }
     }
-    public class CreateTaskRS { }
+    public class CreateTemplateRS { }
 }

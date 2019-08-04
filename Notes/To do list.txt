@@ -1,3 +1,15 @@
+Create template
+=======================
+_microsoftSQLService.CreateDatabase treba da uloguje poruku od sql servera ukoliko ne moze da kreira bazu na serveru
+
+Define template model
+=====================
+- izvrsavanje skripta nad postojecom bazom
+- prikaz trenutnog modela https://www.google.com/search?q=jquery+json+viewer&rlz=1C1GCEA_enRS826RS826&oq=jquery+json+vire&aqs=chrome.1.69i57j0l5.7072j0j7&sourceid=chrome&ie=UTF-8
+- sql sintaska
+- go (split u vise skripti) https://stackoverflow.com/questions/40814/execute-a-large-sql-script-with-go-commands
+
+
 Create database
 ===========================================================================
 - TEXTAREA: sql syntax, horizontal scroll, undo, responsive

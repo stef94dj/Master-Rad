@@ -4,15 +4,25 @@
 }
 
 <h1>Create a model for "@(Model.TemplateName)"</h1>
+<link href="~/css/jquery.json-viewer.css" rel="stylesheet">
 
 <div hidden>
     <input type="text" value="@(Model.Id)" id="template-id">
     <input type="text" value="@(Model.TimeStamp)" id="template-timestamp">
-    <input type="text" value="@(Model.DatabaseName)" id="db-name" >
+    <input type="text" value="@(Model.DatabaseName)" id="db-name">
 </div>
 <textarea id="sql-script" rows="14" cols="150" placeholder="Enter SQL script to modify the model"></textarea>
-<button type="button" class="save-schema">Execute</button>
+<button type="button" onclick="executeScript()">Execute</button>
+
+<br/><br />
+
+<label for="sel1">Choose a table from the list:</label>
+<select class="form-control" id="tableSelector"></select>
+
+<pre id="json-display"></pre>
 
 @section Scripts {
+    <script src="~/js/jquery.json-viewer.js"></script>
     <script src="~/js/model.js" asp-append-version="true"></script>
+    <script src="~/js/util.js" asp-append-version="true"></script>
 }
