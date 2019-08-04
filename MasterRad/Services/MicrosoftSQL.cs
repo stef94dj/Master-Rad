@@ -30,7 +30,7 @@ namespace MasterRad.Services
         Result<bool> UpdateRecord(string table, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams);
         int Count(string table, List<Cell> recordPrevious, ConnectionParams connParams);
         Result<bool> DeleteRecord(string table, List<Cell> record, ConnectionParams connParams);
-        Result<bool> CreateDatabaseFromScript(string dbName, string sqlScript);
+        bool CreateDatabase(string dbName);
         bool DatabaseExists(string name);
         bool DeleteDatabaseIfExists(string name);
     }
@@ -301,19 +301,6 @@ namespace MasterRad.Services
             return ExecuteSQL(sqlCommand, connParams);
         }
 
-        public Result<bool> CreateDatabaseFromScript(string dbName, string sqlScript)
-        {
-            var createResult = ExecuteSQLAsAdmin(sqlScript);
-
-            if (createResult.Messages.Any())
-            {
-                DeleteDatabaseIfExists(dbName);
-                return Result<bool>.Fail(createResult.Messages);
-            }
-
-            return Result<bool>.Success(true);
-        }
-
         public bool DatabaseExists(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -334,6 +321,18 @@ namespace MasterRad.Services
             var deleteResult = ExecuteSQLAsAdmin(sqlQuery);
 
             return DatabaseExists(name);
+        }
+
+        public bool CreateDatabase(string dbName)
+        {
+            var sqlCommand = $"CREATE DATABASE {dbName}";
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand);
+
+            //if (sqlResult.Messages.Any()) - CreateDatabase treba da uloguje gresku + Messages
+            //    Log
+
+            return DatabaseExists(dbName);
         }
     }
 }

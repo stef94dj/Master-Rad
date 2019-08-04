@@ -1,0 +1,18 @@
+﻿@model MasterRad.Models.ViewModels.TemplateModelVM
+@{
+    ViewData["Title"] = "ModifyData";
+}
+
+<h1>Create a model for "@(Model.TemplateName)"</h1>
+
+<div hidden>
+    <input type="text" value="@(Model.Id)" id="template-id">
+    <input type="text" value="@(Model.TimeStamp)" id="template-timestamp">
+    <input type="text" value="@(Model.DatabaseName)" id="db-name" >
+</div>
+<textarea id="sql-script" rows="14" cols="150" placeholder="Enter SQL script to modify the model"></textarea>
+<button type="button" class="save-schema">Execute</button>
+
+@section Scripts {
+    <script src="~/js/model.js" asp-append-version="true"></script>
+}

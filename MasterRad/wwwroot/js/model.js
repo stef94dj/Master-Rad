@@ -44,21 +44,21 @@ function saveSchema() {
 
     var rqBody = {
         "Id": $('#template-id').val(),
-        "TimeStamp": $('#template-timestamp').val(),
         "SqlScript": $('#sql-script').val(),
         "DbName": $('#db-name').val()
     };
 
-    debugger;
-
     $.ajax({
-        url: '/api/Template/Update/SqlScript',
+        url: '/api/Template/Update/Model',
         dataType: 'json',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            window.location.replace('/Setup/Templates');
+            if (data.hasOwnProperty('errors') && data.errors != null && data.errors.length > 0)
+                alert("Erorr: " + JSON.stringify(data.errors));
+            else
+                alert('ok');
         }
     });
 }

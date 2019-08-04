@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace MasterRad.Models.DTOs
 {
-    public class SetSqlScriptRQ : UpdateDTO
+    public class UpdateTemplateModelRQ : IdentifyDTO
     {
-        public string DbName { get; set; }
         public string SqlScript { get; set; }
     }
-    public class SetSqlScriptRS { }
+    public class UpdateTemplateModelRS { }
 }

@@ -28,8 +28,8 @@ function drawTemplateTable(tbody, templates) {
 
         tableRow += drawNameCell(template);
         tableRow += drawDescriptionCell(template);
-        tableRow += drawSqlScriptCell(template);
-        tableRow += drawBaseDataCell(template);
+        tableRow += drawModelCell(template);
+        tableRow += drawDataCell(template);
         tableRow += drawDeleteCell(template);
 
         tableRow += '</tr>'
@@ -74,22 +74,11 @@ function drawDescriptionCell(template) {
 
     return result;
 }
-function drawSqlScriptCell(template) {
-    if (template.sqlScript == null || template.sqlScript == '')
-        return '<td>' + drawButton('Set', 'dark', 'updateSqlScript', template.id, true) + '</td>';
-    else
-        return '<td>' + drawButton('Edit', 'dark', 'updateSqlScript', template.id, true) + '</td>';
+function drawModelCell(template) {
+    return '<td>' + drawButton('Edit', 'dark', 'updateModel', template.id, true) + '</td>';
 }
-function drawBaseDataCell(template) {
-    if (!template.isBaseDataSet) {
-        var enabled = true;
-        if (template.sqlScript == null || template.sqlScript == '')
-            enabled = false;
-
-        return '<td>' + drawButton('Set', 'dark', 'updateBaseData', template.id, enabled) + '</td>';
-    }
-    else
-        return '<td>' + drawButton('Edit', 'dark', 'updateBaseData', template.id, true) + '</td>';
+function drawDataCell(template) {
+    return '<td>' + drawButton('Edit', 'dark', 'updateData', template.id, true) + '</td>';
 }
 function drawDeleteCell(template) {
     return '<td>' + drawButton('Delete', 'danger', 'deleteTemplate', template.id, true) + '</td>';
@@ -190,13 +179,13 @@ function updateDescription() {
         }
     });
 }
-function updateSqlScript(id) {
+function updateModel(id) {
     var form = $('#hidden-form');
     form.find('#template-id').val(id);
-    form.attr('action', '/Setup/Database');
+    form.attr('action', '/Setup/Model');
     form.submit();
 }
-function updateBaseData(id) {
+function updateData(id) {
     var form = $('#hidden-form');
     form.find('#template-id').val(id);
     form.attr('action', '/Setup/ModifyTemplateData');

@@ -15,10 +15,8 @@ namespace MasterRad.Entities
         [Required, MaxLength(50)]
         public string Name { get; set; }
         public string ModelDescription { get; set; }
-        public string SqlScript { get; set; }
         [MaxLength(200)]
         public string NameOnServer { get; set; }
-        public bool IsBaseDataSet { get; set; }
 
         public List<TaskEntity> Tasks{ get; set; }
     }

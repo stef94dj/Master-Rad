@@ -26,16 +26,16 @@ namespace MasterRad.Controllers
             _taskRepo = taskRepo;
         }
 
-        public IActionResult Database(int templateId)
+        public IActionResult Model(int templateId)
         {
             var templateEntity = _dbTemplateRepo.Get(templateId);
 
-            var vm = new TemplateSqlScriptVM() //AutoMapper
+            var vm = new TemplateModelVM() //AutoMapper
             {
                 Id = templateEntity.Id,
                 TimeStamp = Convert.ToBase64String(templateEntity.TimeStamp),
                 TemplateName = templateEntity.Name,
-                SqlScript = templateEntity?.SqlScript ?? string.Empty,
+                DatabaseName = templateEntity.NameOnServer
             };
 
             return View(vm);

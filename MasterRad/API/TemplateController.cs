@@ -4,6 +4,7 @@ using MasterRad.Models.DTOs;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace MasterRad.API
 {
@@ -33,7 +34,25 @@ namespace MasterRad.API
         [HttpPost, Route("Create")]
         public ActionResult CreateTemplate([FromBody] CreateTemplateRQ body)
         {
-            var result = _templateRepo.Create(body.Name);
+            var dbName = $"Tmp_{body.Name}".Replace("\t", "_").Replace(" ", "_"); ;
+
+            var templateExists = _templateRepo.TemplateExists(body.Name);
+            if (templateExists)
+                return Ok(Result<DbTemplateEntity>.Fail($"Template '{body.Name}' already exists in the system"));
+
+            var alreadyRegistered = _templateRepo.DatabaseRegisteredAsTemplate(dbName);
+            if (alreadyRegistered)
+                return Ok(Result<DbTemplateEntity>.Fail($"Database '{dbName}' is bound to another template"));
+
+            var existsOnSqlServer = _microsoftSQLService.DatabaseExists(dbName);
+            if (existsOnSqlServer)
+                return Ok(Result<DbTemplateEntity>.Fail($"Database '{dbName}' already exists on database server"));
+
+            var dbCreateSuccess = _microsoftSQLService.CreateDatabase(dbName); //CreateDatabase treba da uloguje gresku
+            if(!dbCreateSuccess)
+                return Ok(Result<DbTemplateEntity>.Fail($"Failed to create databse '{dbName}' on database server"));
+
+            var result = _templateRepo.Create(body.Name, dbName);
             return Ok(result);
         }
 
@@ -47,36 +66,26 @@ namespace MasterRad.API
         [HttpPost, Route("Update/Name")]
         public ActionResult UpdateName([FromBody] UpdateNameRQ body)
         {
+            var templateExists = _templateRepo.TemplateExists(body.Name);
+            if (templateExists)
+                return Ok(Result<DbTemplateEntity>.Fail($"Template '{body.Name}' already exists in the system"));
+
             var result = _templateRepo.UpdateName(body);
             return Ok(result);
         }
 
-        [HttpPost, Route("Update/SqlScript")]
-        public ActionResult<Result<DbTemplateEntity>> UpdateSqlScript([FromBody] SetSqlScriptRQ body)
+        [HttpPost, Route("Update/Model")]
+        public ActionResult<Result<bool>> UpdateModel([FromBody] UpdateTemplateModelRQ body)
         {
-            _microsoftSQLService.ExecuteSQLAsAdmin(body.SqlScript);
-            //var creatingDatabases = new List<string>() { "DatabaseNameaoidaiosdowqd" }; //queryService.GetCreatingDatabases();
-            //if (creatingDatabases.Count() != 1)
-            //    return Ok(Result<DbTemplateEntity>.Fail($"The script should create exactly 1 database. Detected creating {creatingDatabases.Count()} databases."));
 
-            //var dbName = creatingDatabases.Single();
+            var templateEntity = _templateRepo.Get(body.Id);
 
-            var dbName = body.DbName;
+            var scriptExeRes = _microsoftSQLService.ExecuteSQLAsAdmin(body.SqlScript, templateEntity.NameOnServer);
 
-            var existsInDatabase = _templateRepo.DatabaseExists(dbName);
-            if (existsInDatabase)
-                return Ok(Result<DbTemplateEntity>.Fail($"Database name '{dbName}' already exists in the system"));
-
-            var existsOnSqlServer = _microsoftSQLService.DatabaseExists(dbName);
-            if (existsOnSqlServer)
-                return Ok(Result<DbTemplateEntity>.Fail($"Database name '{dbName}' already exists on the database server"));
-
-            var createResult = _microsoftSQLService.CreateDatabaseFromScript(dbName, body.SqlScript);
-            if (!createResult.IsSuccess())
-                return Ok(Result<DbTemplateEntity>.Fail(createResult.Errors));
-
-            var result = _templateRepo.UpdateSqlScript(body, dbName);
-            return Ok(result);
+            if (scriptExeRes.Messages.Any())
+                return Result<bool>.Fail(scriptExeRes.Messages);
+           
+            return Ok(Result<bool>.Success(true));
         }
     }
 }

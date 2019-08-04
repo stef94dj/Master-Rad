@@ -12,11 +12,11 @@ namespace MasterRad.Repositories
     {
         DbTemplateEntity Get(int id);
         List<DbTemplateEntity> Get();
-        DbTemplateEntity Create(string templateName);
+        DbTemplateEntity Create(string templateName, string dbName);
         DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request);
         DbTemplateEntity UpdateName(UpdateNameRQ request);
-        DbTemplateEntity UpdateSqlScript(SetSqlScriptRQ request, string name);
-        bool DatabaseExists(string name);
+        bool DatabaseRegisteredAsTemplate(string name);
+        bool TemplateExists(string templateName);
     }
 
     public class DbTemplateRepository : IDbTemplateRepository
@@ -42,11 +42,12 @@ namespace MasterRad.Repositories
                 .ToList();
         }
 
-        public DbTemplateEntity Create(string templateName)
+        public DbTemplateEntity Create(string templateName, string dbName)
         {
             var dbTemplateEntity = new DbTemplateEntity() //AutoMapper
             {
                 Name = templateName,
+                NameOnServer = dbName,
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED",
             };
@@ -93,33 +94,23 @@ namespace MasterRad.Repositories
             return dbTemplateEntity;
         }
 
-        public DbTemplateEntity UpdateSqlScript(SetSqlScriptRQ request, string name)
+        public bool TemplateExists(string templateName)
         {
-            var dbTemplateEntity = new DbTemplateEntity() //AutoMapper
-            {
-                Id = request.Id,
-                TimeStamp = request.TimeStamp,
-                SqlScript = request.SqlScript,
-                NameOnServer = name,
-                DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
-            };
-
-            _context.DbTemplates.Attach(dbTemplateEntity);
-            _context.Entry(dbTemplateEntity).Property(x => x.SqlScript).IsModified = true;
-            _context.Entry(dbTemplateEntity).Property(x => x.NameOnServer).IsModified = true;
-            _context.SaveChanges();
-
-            return dbTemplateEntity;
-        }
-
-        public bool DatabaseExists(string name)
-        {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(templateName))
                 return false;
 
             return _context.DbTemplates
-                .Where(t => t.NameOnServer.ToLower().Equals(name.ToLower()))
+                .Where(t => t.Name.ToLower().Equals(templateName.ToLower()))
+                .Any();
+        }
+
+        public bool DatabaseRegisteredAsTemplate(string dbName)
+        {
+            if (string.IsNullOrEmpty(dbName))
+                return false;
+
+            return _context.DbTemplates
+                .Where(t => t.NameOnServer.ToLower().Equals(dbName.ToLower()))
                 .Any();
         }
     }
