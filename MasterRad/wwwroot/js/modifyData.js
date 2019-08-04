@@ -20,9 +20,11 @@ function populateTableDropdown(selector, apiUrl) {
 
 function tableSelected() {
     var tableName = $(this).val();
+    var databaseName = $('#name-on-server').val();
+    var apiUrl = '/api/Data/read/' + databaseName + '/' + tableName
 
     $.ajax({
-        url: '/api/Data/read/DataTypes/' + tableName,
+        url: apiUrl,
         type: 'GET',
         success: function (data) {
             drawTable(data.tables[0]);
@@ -99,7 +101,7 @@ function deleteRecord(btnElem) {
     var trElem = $(btnElem).parents().eq(1);
 
     var rqBody = {
-        "DatabaseName": "DataTypes",
+        "DatabaseName": $('#name-on-server').val(),
         "TableName": $('#tableSelector').val(),
         "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue)
     }
@@ -120,7 +122,7 @@ function insertRecord(btnElem) {
     var trElem = $(btnElem).parents().eq(1);
 
     var rqBody = {
-        "DatabaseName": "DataTypes",
+        "DatabaseName": $('#name-on-server').val(),
         "TableName": $('#tableSelector').val(),
         "ValuesNew": getInputValues(trElem, getNewValue)
     }
@@ -149,7 +151,7 @@ function editCell(inputElem) {
         return;
 
     var rqBody = {
-        "DatabaseName": "DataTypes",
+        "DatabaseName": $('#name-on-server').val(),
         "TableName": $('#tableSelector').val(),
         "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue),
         "ValueNew": cellNew
