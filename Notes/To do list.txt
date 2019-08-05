@@ -63,4 +63,5 @@ Code refactoring
 - Sql Expression builder (ovaj kod se ponavlja):
 	var columnValuesWhere = recordPrevious.Select(x => $"[{x.ColumnName}] = '{x.Value}'");
 	var whereExpr = string.Join(" and ", columnValuesWhere);
+GetAdminConnParams - vidi gde se sve koristi, preispitaj
 - //AutoMapper (add AutoMapper)

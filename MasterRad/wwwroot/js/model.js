@@ -35,9 +35,8 @@ function executeScript() {
 //Table info
 function tableSelected() {
     var dbName = $('#db-name').val();
-    var tableFullName = $(this).val();
-    var splitTableName = tableFullName.split('.');
-    loadJson(dbName, splitTableName[0], splitTableName[1]);
+    var tableFullName = parseTableName($(this).val());
+    loadJson(dbName, tableFullName.schemaName, tableFullName.tableName);
 }
 function loadJson(dbName, schemaName, tableName) {
     var apiUrl = '/api/Metadata/explore/' + dbName + '/' + schemaName + '/' + tableName;

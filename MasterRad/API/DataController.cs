@@ -34,10 +34,7 @@ namespace MasterRad.API
                 Password = _config.GetSection("DbAdminConnection:Password").Value
             };
 
-            //var userName = string.Empty; //_profileService.GetUserName(token); 
-            //var tableName = $"{body.TableName}_{userName}";
-
-            var res = _microsoftSQLService.InsertRecord(body.TableName, body.ValuesNew, connParams);
+            var res = _microsoftSQLService.InsertRecord(body.SchemaName, body.TableName, body.ValuesNew, connParams);
             return Ok(res);
         }
 
@@ -54,11 +51,11 @@ namespace MasterRad.API
             //var userName = string.Empty; //_profileService.GetUserName(token); 
             //var tableName = $"{body.TableName}_{userName}";
 
-            var count = _microsoftSQLService.Count(body.TableName, body.ValuesUnmodified, connParams);
+            var count = _microsoftSQLService.Count(body.SchemaName, body.TableName, body.ValuesUnmodified, connParams);
             if (count != 1)
                 return Result<bool>.Fail($"The change would affect {count} records.");
 
-            var res = _microsoftSQLService.UpdateRecord(body.TableName, body.ValueNew, body.ValuesUnmodified, connParams);
+            var res = _microsoftSQLService.UpdateRecord(body.SchemaName, body.TableName, body.ValueNew, body.ValuesUnmodified, connParams);
             return Ok(res);
         }
 
@@ -75,15 +72,23 @@ namespace MasterRad.API
             //var userName = string.Empty; //_profileService.GetUserName(token); 
             //var tableName = $"{body.TableName}_{userName}";
 
-            var res = _microsoftSQLService.DeleteRecord(body.TableName, body.ValuesUnmodified, connParams);
+            var res = _microsoftSQLService.DeleteRecord(body.SchemaName, body.TableName, body.ValuesUnmodified, connParams);
             return Ok(res);
         }
 
-        [HttpGet, Route("read/{dbName}/{tableName}")]
-        public ActionResult<Result<bool>> ReadTable([FromRoute] string dbName, [FromRoute] string tableName)
+        [HttpGet, Route("read/{dbName}/{schemaName}/{tableName}")]
+        public ActionResult<Table> ReadTable([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
-            var res = _microsoftSQLService.ReadTable(dbName, tableName);
-            return Ok(res);
+            var connParams = new ConnectionParams()
+            {
+                DbName = dbName,
+                Login = _config.GetSection("DbAdminConnection:Login").Value,
+                Password = _config.GetSection("DbAdminConnection:Password").Value
+            };
+
+            var queryResult = _microsoftSQLService.ReadTable(dbName, schemaName, tableName); //ovo ide kao admin - connParams?
+            var table = queryResult.Tables.Single();
+            return Ok(table);
         }
     }
 }

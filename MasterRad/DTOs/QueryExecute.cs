@@ -46,5 +46,6 @@ namespace MasterRad.DTOs
 
         public string Name { get; set; }
         public string SqlType { get; set; }
+        public bool? IsPrimaryKey { get; set; }
     }
 }

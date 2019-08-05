@@ -19,7 +19,7 @@ namespace MasterRad.Services
     {
         QueryExecuteRS ExecuteSQLAsAdmin(string sqlQuery, string dbName = "master");
         QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams);
-        QueryExecuteRS ReadTable(string dbName, string tableName);
+        QueryExecuteRS ReadTable(string dbName, string schemaName, string tableName);
         Result<bool> CreateSQLServerUser(string login);
         Result<bool> AssignSQLServerUserToDb(string userLogin, string dbName);
         Result<bool> DeleteSQLServerUser(string userLogin);
@@ -27,10 +27,11 @@ namespace MasterRad.Services
         IEnumerable<string> GetDatabaseNames();
         IEnumerable<ColumnInfo> GetColumnsData(string schemaName, string tableName, ConnectionParams connParams);
         IEnumerable<ConstraintInfo> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams);
-        Result<bool> InsertRecord(string table, List<Cell> record, ConnectionParams connParams);
-        Result<bool> UpdateRecord(string table, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams);
-        int Count(string table, List<Cell> recordPrevious, ConnectionParams connParams);
-        Result<bool> DeleteRecord(string table, List<Cell> record, ConnectionParams connParams);
+        IEnumerable<string> GetIdentityColumns(string schemaName, string tableName, ConnectionParams connParams);
+        Result<bool> InsertRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams);
+        Result<bool> UpdateRecord(string schemaName, string tableName, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams);
+        int Count(string schemaName, string tableName, List<Cell> recordPrevious, ConnectionParams connParams);
+        Result<bool> DeleteRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams);
         bool CreateDatabase(string dbName);
         bool DatabaseExists(string name);
         bool DeleteDatabaseIfExists(string name);
@@ -224,7 +225,7 @@ namespace MasterRad.Services
         public IEnumerable<ConstraintInfo> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams)
         {
             var sqlCommand = File.ReadAllText(@"SqlScripts\GetTableConstraints.sql");
-            sqlCommand = sqlCommand.Replace("#SCHEMATABLENAME",$"{schemaName}.{tableName}");
+            sqlCommand = sqlCommand.Replace("#SCHEMATABLENAME", $"{schemaName}.{tableName}");
 
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
 
@@ -242,11 +243,23 @@ namespace MasterRad.Services
             return result;
         }
 
-        public Result<bool> InsertRecord(string table, List<Cell> record, ConnectionParams connParams)
+        public IEnumerable<string> GetIdentityColumns(string schemaName, string tableName, ConnectionParams connParams)
+        {
+            var sqlCommand = "SELECT COLUMN_NAME " +
+                             "FROM INFORMATION_SCHEMA.COLUMNS " +
+                             $"WHERE COLUMNPROPERTY(object_id('{schemaName}.{tableName}'), COLUMN_NAME, 'IsIdentity') = 1 AND TABLE_SCHEMA = '{schemaName}' AND TABLE_NAME = '{tableName}'";
+
+            var sqlResult = ExecuteSQL(sqlCommand, connParams);
+            var res = sqlResult.Tables[0].Rows.Select(r => r[0].ToString());
+
+            return res;
+        }
+
+        public Result<bool> InsertRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams)
         {
             var columns = record.Select(x => $"[{x.ColumnName}]");
             var cells = record.Select(x => $"'{x.Value}'");
-            var sqlCommand = $"INSERT INTO [{table}]({string.Join(", ", columns)}) VALUES ({string.Join(", ", cells)})";
+            var sqlCommand = $"INSERT INTO [{schemaName}].[{tableName}]({string.Join(", ", columns)}) VALUES ({string.Join(", ", cells)})";
 
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
             if (sqlResult.Messages.Any())
@@ -255,7 +268,7 @@ namespace MasterRad.Services
             return Result<bool>.Success(true);
         }
 
-        public Result<bool> UpdateRecord(string table, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams)
+        public Result<bool> UpdateRecord(string schemaName, string tableName, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams)
         {
             if (!recordPrevious.Any())
                 return Result<bool>.Fail(new List<string>() { "Unable to identify record" });
@@ -267,7 +280,7 @@ namespace MasterRad.Services
 
             var setExpr = $"[{cellNew.ColumnName}] = {_msSqlQueryBuilder.ToQuery(cellNew.ColumnType, cellNew.Value)}";
 
-            var sqlCommand = $"UPDATE [{table}] SET {setExpr} WHERE {whereExpr}";
+            var sqlCommand = $"UPDATE [{schemaName}].[{tableName}] SET {setExpr} WHERE {whereExpr}";
 
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
 
@@ -280,7 +293,7 @@ namespace MasterRad.Services
             return Result<bool>.Success(true);
         }
 
-        public int Count(string table, List<Cell> recordPrevious, ConnectionParams connParams)
+        public int Count(string schemaName, string tableName, List<Cell> recordPrevious, ConnectionParams connParams)
         {
             if (!recordPrevious.Any())
                 return -1;
@@ -290,14 +303,14 @@ namespace MasterRad.Services
             );
             var whereExpr = string.Join(" and ", columnValuesWhere);
 
-            var sqlCommand = $"SELECT COUNT(*) FROM [{table}] WHERE {whereExpr}";
+            var sqlCommand = $"SELECT COUNT(*) FROM [{schemaName}].[{tableName}] WHERE {whereExpr}";
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
 
             var count = sqlResult.Tables.First().Rows.First().First().ToString();
             return int.Parse(count);
         }
 
-        public Result<bool> DeleteRecord(string table, List<Cell> record, ConnectionParams connParams)
+        public Result<bool> DeleteRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams)
         {
             if (!record.Any())
                 return Result<bool>.Fail(new List<string>() { "Unable to identify record" });
@@ -305,7 +318,7 @@ namespace MasterRad.Services
             var columnValuesWhere = record.Select(x => $"[{x.ColumnName}] = '{x.Value}'");
             var whereExpr = string.Join(" and ", columnValuesWhere);
 
-            var sqlCommand = $"DELETE FROM [{table}] WHERE {whereExpr}";
+            var sqlCommand = $"DELETE FROM [{schemaName}].[{tableName}] WHERE {whereExpr}";
 
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
             if (sqlResult.Messages.Any())
@@ -314,10 +327,10 @@ namespace MasterRad.Services
             return Result<bool>.Success(true);
         }
 
-        public QueryExecuteRS ReadTable(string dbName, string tableName)
+        public QueryExecuteRS ReadTable(string dbName, string schemaName, string tableName)
         {
             var conn = GetAdminConnParams(dbName);
-            var sqlCommand = $"SELECT * FROM {tableName}";
+            var sqlCommand = $"SELECT * FROM [{schemaName}].[{tableName}]";
 
             return ExecuteSQL(sqlCommand, connParams);
         }

@@ -16,6 +16,7 @@ namespace MasterRad.DTOs
     {
         public string DatabaseName { get; set; }
         public string TableName { get; set; }
+        public string SchemaName { get; set; }
     }
 
     public class DataCreateRQ : DataBaseRQ

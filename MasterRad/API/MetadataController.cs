@@ -64,6 +64,20 @@ namespace MasterRad.API
             return Ok(result);
         }
 
+        [HttpGet, Route("identity_columns/{dbName}/{schemaName}/{tableName}")]
+        public ActionResult<IEnumerable<string>> GetIdentityColumns([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
+        {
+            var conn = new ConnectionParams()
+            {
+                DbName = dbName,
+                Login = "sa",
+                Password = "Tnation2019"
+            };
+
+            var result = _microsoftSQLService.GetIdentityColumns(schemaName, tableName, conn);
+            return Ok(result);
+        }
+
         [HttpGet, Route("constraints/{dbName}/{schemaName}/{tableName}")]
         public ActionResult<IEnumerable<ColumnInfo>> GetConstraintData([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
