@@ -33,6 +33,7 @@ namespace MasterRad.Services
         int Count(string schemaName, string tableName, List<Cell> recordPrevious, ConnectionParams connParams);
         Result<bool> DeleteRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams);
         bool CreateDatabase(string dbName);
+        bool CloneDatabase(string originDbName, string destDbName);
         bool DatabaseExists(string name);
         bool DeleteDatabaseIfExists(string name);
     }
@@ -350,11 +351,13 @@ namespace MasterRad.Services
             if (!DatabaseExists(name))
                 return true;
 
-            var sqlQuery = $"DROP DATABASE [{name}]";
+            var sqlQuery = $"ALTER DATABASE [{name}] SET single_user WITH ROLLBACK IMMEDIATE";
+            var sqlResult = ExecuteSQLAsAdmin(sqlQuery);
 
-            var deleteResult = ExecuteSQLAsAdmin(sqlQuery);
+            sqlQuery = $"DROP DATABASE [{name}]";
+            sqlResult = ExecuteSQLAsAdmin(sqlQuery);
 
-            return DatabaseExists(name);
+            return !DatabaseExists(name);
         }
 
         public bool CreateDatabase(string dbName)
@@ -368,5 +371,55 @@ namespace MasterRad.Services
 
             return DatabaseExists(dbName);
         }
+
+        public bool CloneDatabase(string originDbName, string destDbName)
+        {
+            var backupDestination = $"{AppContext.BaseDirectory}\\AppData\\{destDbName}_Temp.bak";
+
+            var backupToDiskCommand = $"BACKUP DATABASE {originDbName}  TO DISK = '{backupDestination}' WITH FORMAT, COPY_ONLY";
+            var sqlResult = ExecuteSQLAsAdmin(backupToDiskCommand);
+            if (!File.Exists(backupDestination) || !sqlResult.Messages.Where(x => x.StartsWith("BACKUP DATABASE successfully")).Any())
+            {
+                // LOG error(messages)
+                return false;
+            }
+
+            var restoreFromDiskCommand1 = $"RESTORE FILELISTONLY FROM DISK = '{backupDestination}'";
+            sqlResult = ExecuteSQLAsAdmin(restoreFromDiskCommand1);
+            if (sqlResult.Messages.Any())
+            {
+                // LOG error(messages)
+                File.Delete($"{backupDestination}_Temp.bak");
+                return false;
+            }
+
+            var logicalMDF = sqlResult.Tables.Single().Rows[0][0].ToString();
+            var logicalLDF = sqlResult.Tables.Single().Rows[1][0].ToString();
+
+            var backupDestinationTrimmed = backupDestination.Replace("_Temp.bak", "");
+            var restoreFromDiskCommand2 = $"RESTORE DATABASE {destDbName} FROM DISK = '{backupDestination}' WITH RECOVERY, " +
+                                          $"MOVE '{logicalMDF}' TO '{backupDestinationTrimmed}.mdf', " +
+                                          $"MOVE '{logicalLDF}' TO '{backupDestinationTrimmed}._log.ldf'";
+            sqlResult = ExecuteSQLAsAdmin(restoreFromDiskCommand2);
+            if (!sqlResult.Messages.Where(x => x.StartsWith("RESTORE DATABASE successfully")).Any())
+            {
+                // LOG error(messages)
+                File.Delete($"{backupDestination}_Temp.bak");
+                return false;
+            };
+
+            try
+            {
+                File.Delete($"{backupDestination}_Temp.bak");
+            }
+            catch (Exception ex)
+            {
+                //kloniranje je uspelo, cleanup nije - ako bih ovde vratio false imao bih bazu koja "visi" na sqlServeru jer se ona kasnije ne bi registrovala u bazu
+                //LOG(ex) - vodi racuna o kruznim referencama kod serijalizacije (vidi kako si resio u midleware-u)
+            }
+
+            return DatabaseExists(destDbName);
+        }
+
     }
 }

@@ -1,3 +1,12 @@
+LOGOVANJE: File sistem, sql server, baza - odvojeni sistemi koji nisu transakcija
+=================================================================================
+- uvek treba znati sta se desilo (sev 1)
+- kriticni scenariji (radi se update template-a na tasku, obrise se postojeci template, novi ne uspe da se klonira - npr neko je sa servera obrisao bazu novog templejta i nema odakle da se klonira) koji uzrokuju greske u sistemu treba da budu neki alert (nije dovoljno samo da se uloguju) ili makar da se izdvoje kao kriticne greske
+- pitanje da li se sve moze ulogovati (create ili update template, baza se klonira, ne uspe upis u bazu - task ostaje vezan za stari template)
+
+kod brisanja tasksa, mdf i ldf bi trebali da se obrisu (sa bazom). Brisu se kada se baza obrise iz sql servera (proveri da li se brisu i kada se obrise baza preko aplikacije)
+
+
 Create template
 =======================
 _microsoftSQLService.CreateDatabase treba da uloguje poruku od sql servera ukoliko ne moze da kreira bazu na serveru
@@ -59,6 +68,7 @@ Templates
 
 Code refactoring
 =================
+- postavi AsNoTracking da bude default
 - izvuci sql tipove u neki enum (na vise mesta hardkodovani stringovi tipova tipa "nvarchar")
 - Sql Expression builder (ovaj kod se ponavlja):
 	var columnValuesWhere = recordPrevious.Select(x => $"[{x.ColumnName}] = '{x.Value}'");

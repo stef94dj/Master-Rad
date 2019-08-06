@@ -12,6 +12,7 @@ namespace MasterRad.Repositories
     {
         DbTemplateEntity Get(int id);
         List<DbTemplateEntity> Get();
+        DbTemplateEntity GetWithTaks(int id);
         DbTemplateEntity Create(string templateName, string dbName);
         DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request);
         DbTemplateEntity UpdateName(UpdateNameRQ request);
@@ -32,6 +33,11 @@ namespace MasterRad.Repositories
         public DbTemplateEntity Get(int id)
         {
             return _context.DbTemplates.Where(x => x.Id == id).Single();
+        }
+
+        public DbTemplateEntity GetWithTaks(int id)
+        {
+            return _context.DbTemplates.Include(t => t.Tasks).Where(x => x.Id == id).Single();
         }
 
         public List<DbTemplateEntity> Get()

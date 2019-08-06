@@ -15,7 +15,7 @@ namespace MasterRad.Repositories
         TaskEntity Create(CreateTaskRQ request, string nameOnServer);
         TaskEntity UpdateName(UpdateNameRQ request);
         TaskEntity UpdateDescription(UpdateDescriptionRQ request);
-        TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request, string nameOnServer);
+        TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request);
     }
 
     public class TaskRepository : ITaskRepository
@@ -53,7 +53,7 @@ namespace MasterRad.Repositories
 
         public TaskEntity Get(int id)
         {
-            return _context.Tasks.Where(x => x.Id == id).Single();
+            return _context.Tasks.AsNoTracking().Where(x => x.Id == id).Single();
         }
 
         public TaskEntity UpdateDescription(UpdateDescriptionRQ request)
@@ -92,21 +92,19 @@ namespace MasterRad.Repositories
             return taskEntity;
         }
 
-        public TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request, string nameOnServer)
+        public TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request)
         {
             var taskEntity = new TaskEntity() //AutoMapper
             {
                 Id = request.Id,
                 TimeStamp = request.TimeStamp,
                 DbTemplateId = request.TemplateId,
-                NameOnServer = nameOnServer,
                 DateModified = DateTime.UtcNow,
                 ModifiedBy = "Current user - NOT IMPLEMENTED",
             };
 
             _context.Tasks.Attach(taskEntity);
             _context.Entry(taskEntity).Property(x => x.DbTemplateId).IsModified = true;
-            _context.Entry(taskEntity).Property(x => x.NameOnServer).IsModified = true;
             _context.SaveChanges();
 
             return taskEntity;

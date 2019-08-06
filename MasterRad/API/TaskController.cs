@@ -30,7 +30,7 @@ namespace MasterRad.API
             _taskRepo = taskRepo;
             _templateRepo = templateRepo;
             _microsoftSQLService = microsoftSQLService;
-    }
+        }
 
         [HttpGet, Route("Get")]
         public ActionResult GetTasks()
@@ -42,21 +42,14 @@ namespace MasterRad.API
         [HttpPost, Route("Create")]
         public ActionResult CreateTask([FromBody] CreateTaskRQ body)
         {
-
             var templateEntity = _templateRepo.Get(body.TemplateId);
 
-            var nameOnServer = "AdventureWorks2017";
-            try
-            {
-                //iz diplomskog
-                throw new NotImplementedException($"clone from database with name {templateEntity.NameOnServer} to a db with prefix of user and 'Task'");
-                //nameOnServer = templateEntity.NameOnServer, User.Name + "Task" + body.Name;
-                //_microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, nameOnServer)
-            }
-            catch (NotImplementedException){}
+            var taskNameOnServer = $"Tsk_{body.Name}".Replace("\t", "_").Replace(" ", "_");
+            var cloneSuccess = _microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, taskNameOnServer);
+            if (!cloneSuccess)
+                return Ok(new JsonResult(new { Message = "Unable to clone database" }));
 
-
-            var result = _taskRepo.Create(body, nameOnServer);
+            var result = _taskRepo.Create(body, taskNameOnServer);
             return Ok(result);
         }
 
@@ -77,25 +70,24 @@ namespace MasterRad.API
         [HttpPost, Route("Update/Template")]
         public ActionResult UpdateTemplate([FromBody] UpdateTaskTemplateRQ body)
         {
-            var nameOnServer = "AdventureWorks2017";
-            try
-            {
-                //iz diplomskog
-                throw new NotImplementedException("clone from database with name {templateEntity.NameOnServer} to a db with prefix of user and 'Task'");
-                //nameOnServer = templateEntity.NameOnServer, User.Name + "Task" + body.Name;
-                //_microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, nameOnServer)
-            }
-            catch (NotImplementedException) { }
-            //check if database created, if failed return with error
+            var templateEntity = _templateRepo.Get(body.TemplateId);
+            var taskEntity = _taskRepo.Get(body.Id); //mozda dupli entitet kod update-a (u get metodi treba _context.Tasks.AsNoTracking().Where...)
+            var oldTaskNameOnServer = taskEntity.NameOnServer;
 
-            try
-            {
-                throw new NotImplementedException("TRY Delete existing databasse");
-            }
-            catch (NotImplementedException) { }
-            //if delete failed, log database not deleted
+            var taskNameOnServer = $"Tsk_{taskEntity.Name}".Replace("\t", "_").Replace(" ", "_");
+            var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(taskNameOnServer);
+            if (!deleteSuccess)
+                return Ok(new JsonResult(new { Message = "Unable to drop current database from sql server" }));
 
-            var result = _taskRepo.UpdateTemplate(body, nameOnServer);
+            var cloneSuccess = _microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, taskNameOnServer);
+            if (!cloneSuccess)
+            {
+                //LOG $"Update task template failed - current database {taskNameOnServer} was remove but the system was unable to create a new one";
+                return Ok(new JsonResult(new { Message = "Unable to clone database" }));
+            }
+
+            var result = _taskRepo.UpdateTemplate(body); //sta ako kloniranje uspe a ne uspe upis u bazu (task ostaje vezan na stari template)
+
             return Ok(result);
         }
     }
