@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MasterRad.Extensions;
@@ -77,6 +78,10 @@ namespace MasterRad
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            var appDataPath = $"{AppContext.BaseDirectory}\\AppData";
+            if (!Directory.Exists(appDataPath))
+                Directory.CreateDirectory(appDataPath);
         }
     }
 }

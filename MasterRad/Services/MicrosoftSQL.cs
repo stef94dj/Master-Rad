@@ -374,7 +374,7 @@ namespace MasterRad.Services
 
         public bool CloneDatabase(string originDbName, string destDbName)
         {
-            var backupDestination = $"{AppContext.BaseDirectory}\\AppData\\{destDbName}_Temp.bak";
+            var backupDestination = $"{AppContext.BaseDirectory}AppData\\{destDbName}_Temp.bak";
 
             var backupToDiskCommand = $"BACKUP DATABASE {originDbName}  TO DISK = '{backupDestination}' WITH FORMAT, COPY_ONLY";
             var sqlResult = ExecuteSQLAsAdmin(backupToDiskCommand);
@@ -389,7 +389,7 @@ namespace MasterRad.Services
             if (sqlResult.Messages.Any())
             {
                 // LOG error(messages)
-                File.Delete($"{backupDestination}_Temp.bak");
+                File.Delete(backupDestination);
                 return false;
             }
 
@@ -404,13 +404,13 @@ namespace MasterRad.Services
             if (!sqlResult.Messages.Where(x => x.StartsWith("RESTORE DATABASE successfully")).Any())
             {
                 // LOG error(messages)
-                File.Delete($"{backupDestination}_Temp.bak");
+                File.Delete(backupDestination);
                 return false;
             };
 
             try
             {
-                File.Delete($"{backupDestination}_Temp.bak");
+                File.Delete(backupDestination);
             }
             catch (Exception ex)
             {

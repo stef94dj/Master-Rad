@@ -5,6 +5,13 @@
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="AppData\**" />
+    <Content Remove="AppData\**" />
+    <EmbeddedResource Remove="AppData\**" />
+    <None Remove="AppData\**" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
@@ -19,11 +26,6 @@
     <None Update="SqlScripts\GetTableConstraints.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="AppData\" />
   </ItemGroup>
 
 </Project>

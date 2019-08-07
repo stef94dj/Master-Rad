@@ -4,7 +4,6 @@ LOGOVANJE: File sistem, sql server, baza - odvojeni sistemi koji nisu transakcij
 - kriticni scenariji (radi se update template-a na tasku, obrise se postojeci template, novi ne uspe da se klonira - npr neko je sa servera obrisao bazu novog templejta i nema odakle da se klonira) koji uzrokuju greske u sistemu treba da budu neki alert (nije dovoljno samo da se uloguju) ili makar da se izdvoje kao kriticne greske
 - pitanje da li se sve moze ulogovati (create ili update template, baza se klonira, ne uspe upis u bazu - task ostaje vezan za stari template)
 
-kod brisanja tasksa, mdf i ldf bi trebali da se obrisu (sa bazom). Brisu se kada se baza obrise iz sql servera (proveri da li se brisu i kada se obrise baza preko aplikacije)
 
 
 Create template
@@ -30,7 +29,6 @@ Modify database data
 ===========================================================================
 - type converter (poseban fajl)
 - where statement po primarnom kljucu https://stackoverflow.com/questions/3930338/sql-server-get-table-primary-key-using-sql-query
--modify.js hardkodovana imena baza (AdventureWorks2017, DataTypes)
 - bootstrap css - dropdown ne radi lepo (kada se spusti nema desne ivice) - kada se odzumira radi
 - treba search za dropdown
 - json optimizacija (jedan niz kolone i ostalo data - a ne "kolona":"data")
@@ -43,8 +41,9 @@ SELECT name FROM sys.identity_columns WHERE object_id = OBJECT_ID('AWBuildVersio
 
 Tasks & Templates
 =================
+- na taskuovima, kada se radi update template-a (FE pozovi API samo ako izabraniTemplate != stariTemplate)
 - created by, created date
-- uradi delete
+- uradi delete (mdf i ldf bi trebali da se obrisu (sa bazom). Brisu se kada se baza obrise iz sql servera (proveri da li se brisu i kada se obrise baza preko aplikacije))
 -izvuci zajednicko u htmlu u partial-e (modali za update name, updaate description, delete)
 -izvuci zajednicko u js-u u helper metode
 
