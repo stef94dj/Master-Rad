@@ -90,5 +90,17 @@ namespace MasterRad.API
 
             return Ok(result);
         }
+
+        [HttpPost, Route("Update/Solution")]
+        public ActionResult UpdateSolution([FromBody] UpdateTaskTemplateRQ body)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost, Route("Update/Solution")]
+        public ActionResult UpdateSolution([FromBody] UpdateTaskTemplateRQ body)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

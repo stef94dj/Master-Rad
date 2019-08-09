@@ -26,6 +26,17 @@ namespace MasterRad.Controllers
             _taskRepo = taskRepo;
         }
 
+        public IActionResult Templates()
+        {
+            return View();
+        }
+
+        public IActionResult Tasks()
+        {
+            return View();
+        }
+
+        //Temlpate
         public IActionResult Model(int templateId)
         {
             var templateEntity = _dbTemplateRepo.Get(templateId);
@@ -54,6 +65,7 @@ namespace MasterRad.Controllers
             return View("ModifyData", vm);
         }
 
+        //Task
         public IActionResult ModifyTaskData(int taskId)
         {
             var taskEntity = _taskRepo.Get(taskId);
@@ -67,14 +79,19 @@ namespace MasterRad.Controllers
             return View("ModifyData", vm);
         }
 
-        public IActionResult Templates()
+        public IActionResult ModifyTaskSolution(int taskId)
         {
-            return View();
-        }
+            var taskEntity = _taskRepo.Get(taskId);
 
-        public IActionResult Tasks()
-        {
-            return View();
+            var vm = new TaskSolutionVM()
+            {
+                Id = taskEntity.Id,
+                TimeStamp = Convert.ToBase64String(taskEntity.TimeStamp),
+                TaskName = taskEntity.Name,
+                NameOnServer = taskEntity.NameOnServer
+            };
+
+            return View("TaskSolution", vm);
         }
     }
 }

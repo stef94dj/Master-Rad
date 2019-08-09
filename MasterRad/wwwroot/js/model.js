@@ -16,7 +16,7 @@ function executeScript() {
     };
 
     $.ajax({
-        url: '/api/Template/Update/Model',
+        url: '/api/Template/Query/Execute',
         dataType: 'json',
         type: 'POST',
         contentType: 'application/json',

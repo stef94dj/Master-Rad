@@ -1,0 +1,23 @@
+﻿@model MasterRad.Models.ViewModels.TaskSolutionVM
+@{
+    ViewData["Title"] = "Task solution";
+}
+
+<h1>@(Model.TaskName)</h1>
+
+<div hidden>
+    <input type="text" value="@(Model.Id)" id="tasks-id">
+    <input type="text" value="@(Model.TimeStamp)" id="tasks-timestamp">
+    <input type="text" value="@(Model.NameOnServer)" id="name-on-server">
+</div><br /><br />
+
+
+<textarea id="sql-script" rows="14" cols="150"></textarea>
+<button type="button" onclick="executeScript()">Execute</button>
+<button type="button" onclick="saveSolution()">Execute</button>
+
+
+@section Scripts {
+    <script src="~/js/taskSolution.js" asp-append-version="true"></script>
+    <script src="~/js/util.js" asp-append-version="true"></script>
+}

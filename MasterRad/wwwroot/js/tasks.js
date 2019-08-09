@@ -19,6 +19,7 @@ function drawTaskTable(tbody, tasks) {
         tableRow += drawDescriptionCell(task);
         tableRow += drawTemplateCell(task);
         tableRow += drawDataCell(task);
+        tableRow += drawSolutionCell(task);
         tableRow += drawDeleteCell(task);
 
         tableRow += '</tr>'
@@ -75,6 +76,9 @@ function drawDataCell(task) {
         return '<td>' + drawButton('Set', 'dark', 'updateData', task.id, true) + '</td>';
     else
         return '<td>' + drawButton('Edit', 'dark', 'updateData', task.id, true) + '</td>';
+}
+function drawSolutionCell(task) {
+    return '<td>' + drawButton('Set', 'dark', 'updateSolution', task.id, true) + '</td>';
 }
 function drawDeleteCell(task) {
     return '<td>' + drawButton('Delete', 'danger', 'deleteTemplate', task.id, true) + '</td>';
@@ -265,6 +269,13 @@ function updateData(id) {
     var form = $('#hidden-form');
     form.find('#task-id').val(id);
     form.attr('action', '/Setup/ModifyTaskData');
+    form.submit();
+}
+function updateSolution(id) {
+    debugger;
+    var form = $('#hidden-form');
+    form.find('#task-id').val(id);
+    form.attr('action', '/Setup/ModifyTaskSolution');
     form.submit();
 }
 function deleteTask(id) {
