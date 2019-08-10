@@ -1,9 +1,29 @@
 ﻿var editor = null;
 var nameOnServer = null;
+var saveScriptUI = {
+    lastRepresentedScript : null,
+    isScriptRepresentedByResult: function () {
+        debugger;
+        if (editor === null || this.lastRepresentedScript === null || this.lastRepresentedScript === "")
+            return false;
+
+        return editor.getValue() === this.lastRepresentedScript;
+    }
+}
+
 $(document).ready(function () {
     nameOnServer = $('#name-on-server').val();
     loadTableAndColumnNames();
 });
+
+function checkDisableSave() {
+    debugger;
+    var saveBtn = $('#save-sln-btn');
+    if (saveScriptUI.isScriptRepresentedByResult())
+        saveBtn.removeAttr('disabled');
+    else
+        saveBtn.attr('disabled', true);
+}
 
 function loadTableAndColumnNames() {
     var apiUrl = '/api/Metadata/table-names/column-names/' + nameOnServer
@@ -42,7 +62,11 @@ function initSqlEditor(tableAndColumnNames) {
             tables: tableAndColumnNames
         }
     });
+    editor.on("change", function (cm, change) {
+        checkDisableSave();
+    });
 }
+
 
 function executeScript() {
     var rqBody = {
@@ -50,7 +74,13 @@ function executeScript() {
         "DatabaseName": nameOnServer
     };
 
-    executeSqlScript(rqBody, drawReadonlyTable);
+    executeSqlScript(rqBody, executeScriptCallback);
+}
+
+function executeScriptCallback(data) {
+    saveScriptUI.lastRepresentedScript = editor.getValue();
+    drawReadonlyTable(data);
+    checkDisableSave();
 }
 
 function saveSolution() {
