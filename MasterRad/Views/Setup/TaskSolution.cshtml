@@ -11,12 +11,7 @@
 </div>
 
 <br /><br />
-@*<div style="border:solid 1px orange;">
-        <textarea id="sql-script" rows="14" cols="150"></textarea>
-    </div>*@
-<textarea id="sql-script" rows="14" cols="150" placeholder="Use 'CTRL' + 'Space' for hints and autocomplete"></textarea>
-<br />
-<button type="button" class="btn btn-primary" onclick="executeScript()">Execute</button>
+<partial name="../Partials/SqlEditor.cshtml" />
 <button disabled id="save-sln-btn" type="button" class="btn btn-primary" onclick="saveSolution()">Save</button>
 
 <br /><br />
@@ -30,14 +25,16 @@
 
 
 @section Styles {
-    @*<link rel=stylesheet href="~/css/CodeMirror/docs.css">*@
     <link rel="stylesheet" href="~/css/CodeMirror/codemirror-custom.css">
     <link rel="stylesheet" href="~/css/CodeMirror/codemirror.css">
     <link rel="stylesheet" href="~/css/CodeMirror/show-hint.css" />
 }
+
 @section Scripts {
     <script src="~/js/taskSolution.js" asp-append-version="true"></script>
     <script src="~/js/util.js" asp-append-version="true"></script>
+
+    <script src="~/js/sqlEditor.js" asp-append-version="true"></script>
     <script src="~/js/CodeMirror/codemirror.js" asp-append-version="false"></script>
     <script src="~/js/CodeMirror/sql.js" asp-append-version="false"></script>
     <script src="~/js/CodeMirror/show-hint.js" asp-append-version="false"></script>

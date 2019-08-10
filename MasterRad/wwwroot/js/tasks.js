@@ -8,7 +8,7 @@
 
 //DRAW TEMPLATES TABLE
 function drawTableMessage(message) {
-    return '<tr><td align="center" colspan="5">' + message + '</td></tr>';
+    return '<tr><td align="center" colspan="6">' + message + '</td></tr>';
 }
 function drawTaskTable(tbody, tasks) {
     tbody.html('');

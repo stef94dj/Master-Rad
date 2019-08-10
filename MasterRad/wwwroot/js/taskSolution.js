@@ -1,5 +1,5 @@
-﻿var editor = null;
-var nameOnServer = null;
+﻿var nameOnServer = null;
+var editor = null;
 var saveScriptUI = {
     lastRepresentedScript: null,
     isScriptRepresentedByResult: function () {
@@ -19,49 +19,8 @@ var saveScriptUI = {
 
 $(document).ready(function () {
     nameOnServer = $('#name-on-server').val();
-    loadTableAndColumnNames();
+    buildSqlEditor(nameOnServer); //sets value for "editor"
 });
-
-function loadTableAndColumnNames() {
-    var apiUrl = '/api/Metadata/table-names/column-names/' + nameOnServer
-
-    $.ajax({
-        url: apiUrl,
-        type: 'GET',
-        success: function (data) {
-            prepareTableAndColumNames(data);
-        }
-    });
-}
-function prepareTableAndColumNames(data) {
-    var res = {};
-
-    $.each(data, function (index, item) {
-        res[item.tableFullName] = item.columnNames;
-    });
-
-    initSqlEditor(res);
-}
-function initSqlEditor(tableAndColumnNames) {
-    var editorTextArea = document.getElementById('sql-script');
-    editor = CodeMirror.fromTextArea(editorTextArea, {
-        mode: 'text/x-mssql',
-        indentWithTabs: true,
-        smartIndent: true,
-        lineNumbers: true,
-        matchBrackets: true,
-        autofocus: true,
-        extraKeys: { "Ctrl-Space": "autocomplete" },
-        hint: CodeMirror.hint.sql,
-        hintOptions: {
-            tables: tableAndColumnNames
-        }
-    });
-    editor.on("change", function (cm, change) {
-        saveScriptUI.checkDisableSave();
-    });
-}
-
 
 function executeScript() {
     var rqBody = {

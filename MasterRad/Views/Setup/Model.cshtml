@@ -11,18 +11,34 @@
     <input type="text" value="@(Model.TimeStamp)" id="template-timestamp">
     <input type="text" value="@(Model.DatabaseName)" id="db-name">
 </div>
-<textarea id="sql-script" rows="14" cols="150" placeholder="Enter SQL script to modify the model"></textarea>
-<button type="button" onclick="executeScript()">Execute</button>
 
-<br/><br />
+@*<textarea id="sql-script" rows="14" cols="150" placeholder="Enter SQL script to modify the model"></textarea>
+    <button type="button" onclick="executeScript()">Execute</button>*@
+<partial name="../Partials/SqlEditor.cshtml" />
+
+<br /><br />
 
 <label for="sel1">Choose a table from the list:</label>
 <select class="form-control" id="tableSelector"></select>
 
 <pre id="json-display"></pre>
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/CodeMirror/codemirror-custom.css">
+    <link rel="stylesheet" href="~/css/CodeMirror/codemirror.css">
+    <link rel="stylesheet" href="~/css/CodeMirror/show-hint.css" />
+}
+
 @section Scripts {
     <script src="~/js/jquery.json-viewer.js"></script>
     <script src="~/js/model.js" asp-append-version="true"></script>
     <script src="~/js/util.js" asp-append-version="true"></script>
+
+    <script src="~/js/sqlEditor.js" asp-append-version="true"></script>
+    <script src="~/js/sqlEditor.js" asp-append-version="true"></script>
+    <script src="~/js/CodeMirror/codemirror.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/sql.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/show-hint.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/sql-hint.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/placeholder.js" asp-append-version="false"></script>
 }
