@@ -27,12 +27,12 @@ function tableSelected() {
         url: apiUrl,
         type: 'GET',
         success: function (data) {
-            getPrimaryKeys(databaseName, tableFullName, data);
+            getIdentityColumns(databaseName, tableFullName, data);
         }
     });
 }
 
-function getPrimaryKeys(databaseName, tableFullName, tableData) {
+function getIdentityColumns(databaseName, tableFullName, tableData) {
     var apiUrl = '/api/MetaData/identity_columns/' + databaseName + '/' + tableFullName.schemaName + '/' + tableFullName.tableName
     $.ajax({
         url: apiUrl,

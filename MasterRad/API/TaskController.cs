@@ -92,13 +92,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("Update/Solution")]
-        public ActionResult UpdateSolution([FromBody] UpdateTaskTemplateRQ body)
-        {
-            throw new NotImplementedException();
-        }
-
-        [HttpPost, Route("Update/Solution")]
-        public ActionResult UpdateSolution([FromBody] UpdateTaskTemplateRQ body)
+        public ActionResult UpdateSolution([FromBody] UpdateTaskSolutionRQ body)
         {
             throw new NotImplementedException();
         }

@@ -24,7 +24,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("execute")]
-        public ActionResult<Result<bool>> Execute([FromBody] QueryExecuteRQ body)
+        public ActionResult<Result<QueryExecuteRS>> Execute([FromBody] QueryExecuteRQ body)
         {
             var connParams = new ConnectionParams()
             {
@@ -36,9 +36,9 @@ namespace MasterRad.API
             var scriptExeRes = _microsoftSQLService.ExecuteSQL(body.SQLQuery, connParams);
 
             if (scriptExeRes.Messages.Any())
-                return Result<bool>.Fail(scriptExeRes.Messages);
+                return Result<QueryExecuteRS>.Fail(scriptExeRes.Messages);
 
-            return Ok(Result<bool>.Success(true));
+            return Ok(Result<QueryExecuteRS>.Success(scriptExeRes));
         }
 
         

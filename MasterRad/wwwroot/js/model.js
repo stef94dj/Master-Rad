@@ -8,28 +8,12 @@ $(document).ready(function () {
 
 //Script execution
 function executeScript() {
-
     var rqBody = {
-        "Id": $('#template-id').val(),
-        "SqlScript": $('#sql-script').val(),
-        "DbName": $('#db-name').val()
+        "SQLQuery": $('#sql-script').val(),
+        "DatabaseName": $('#db-name').val()
     };
 
-    $.ajax({
-        url: '/api/Template/Query/Execute',
-        dataType: 'json',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(rqBody),
-        success: function (data, textStatus, jQxhr) {
-            if (data.hasOwnProperty('errors') && data.errors != null && data.errors.length > 0)
-                alert("Erorr: " + JSON.stringify(data.errors));
-            else {
-                alert('ok');
-                populateDropdown(dropdownTableSelector, '/api/Metadata/tables/' + $('#db-name').val());
-            }
-        }
-    });
+    executeSqlScript(rqBody);
 }
 
 //Table info

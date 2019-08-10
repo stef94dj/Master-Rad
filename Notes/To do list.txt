@@ -67,7 +67,6 @@ Templates
 
 Code refactoring
 =================
-- TemplateController -UpdateModel ne treba da se zove var templateEntity = _templateRepo.Get(body.Id); vec sve sto treba kroz RQ da se posalje (a pre toga da se spusti na view)
 - postavi AsNoTracking da bude default
 - izvuci sql tipove u neki enum (na vise mesta hardkodovani stringovi tipova tipa "nvarchar")
 - Sql Expression builder (ovaj kod se ponavlja):
