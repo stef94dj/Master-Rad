@@ -11,9 +11,10 @@
 </div>
 
 <br /><br />
-<div style="border:solid 1px orange;">
-    <textarea id="sql-script" rows="14" cols="150"></textarea>
-</div>
+@*<div style="border:solid 1px orange;">
+        <textarea id="sql-script" rows="14" cols="150"></textarea>
+    </div>*@
+<textarea id="sql-script" rows="14" cols="150" placeholder="Use 'CTRL' + 'Space' for hints and autocomplete"></textarea>
 <br />
 <button type="button" onclick="executeScript()">Execute</button>
 <button type="button" onclick="saveSolution()">Save</button>
@@ -30,6 +31,7 @@
 
 @section Styles {
     @*<link rel=stylesheet href="~/css/CodeMirror/docs.css">*@
+    <link rel="stylesheet" href="~/css/CodeMirror/codemirror-custom.css">
     <link rel="stylesheet" href="~/css/CodeMirror/codemirror.css">
     <link rel="stylesheet" href="~/css/CodeMirror/show-hint.css" />
 }
@@ -40,4 +42,5 @@
     <script src="~/js/CodeMirror/sql.js" asp-append-version="false"></script>
     <script src="~/js/CodeMirror/show-hint.js" asp-append-version="false"></script>
     <script src="~/js/CodeMirror/sql-hint.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/placeholder.js" asp-append-version="false"></script>
 }

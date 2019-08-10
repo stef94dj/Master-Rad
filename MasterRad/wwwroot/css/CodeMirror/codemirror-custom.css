@@ -1,0 +1,11 @@
+﻿.CodeMirror {
+    border: 1px solid silver;
+}
+
+.CodeMirror-focused {
+    outline: 1px solid #00d8ff;
+}
+
+.CodeMirror pre.CodeMirror-placeholder {
+    color: #999;
+}
