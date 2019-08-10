@@ -4,14 +4,16 @@ using MasterRad;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MasterRad.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20190810153658_add-SolutionSqlScript-column-to-TaskEntity")]
+    partial class addSolutionSqlScriptcolumntoTaskEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,6 +66,10 @@ namespace MasterRad.Migrations
                     b.Property<string>("CreatedBy");
 
                     b.Property<DateTime?>("DateCreated");
+
+                    b.Property<DateTime?>("DateModified");
+
+                    b.Property<string>("ModifiedBy");
 
                     b.Property<int>("TaskId");
 

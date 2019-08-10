@@ -17,12 +17,15 @@ namespace MasterRad
         public DbSet<UnhandledExceptionLogEntity> UnhandledExceptionLog { get; set; }
         public DbSet<DbTemplateEntity> DbTemplates { get; set; }
         public DbSet<TaskEntity> Tasks { get; set; }
+        public DbSet<SolutionColumnEntity> SolutionColums { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UnhandledExceptionLogEntity>().ToTable("UnhandledExceptionLog");
             modelBuilder.Entity<DbTemplateEntity>().ToTable("DbTemplate");
             modelBuilder.Entity<TaskEntity>().ToTable("Task");
+            modelBuilder.Entity<SolutionColumnEntity>().ToTable("SolutionColumn");
         }
 
         public void DetachAllEntities()

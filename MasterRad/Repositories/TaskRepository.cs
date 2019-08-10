@@ -16,6 +16,7 @@ namespace MasterRad.Repositories
         TaskEntity UpdateName(UpdateNameRQ request);
         TaskEntity UpdateDescription(UpdateDescriptionRQ request);
         TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request);
+        TaskEntity UpdateSolution(UpdateTaskSolutionRQ request);
     }
 
     public class TaskRepository : ITaskRepository
@@ -107,6 +108,39 @@ namespace MasterRad.Repositories
             _context.Entry(taskEntity).Property(x => x.DbTemplateId).IsModified = true;
             _context.SaveChanges();
 
+            return taskEntity;
+        }
+
+        public TaskEntity UpdateSolution(UpdateTaskSolutionRQ request)
+        {
+            var taskEntity = new TaskEntity() //AutoMapper
+            {
+                Id = request.Id,
+                TimeStamp = request.TimeStamp,
+                SolutionSqlScript = request.SolutionSqlScript,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            var newColumnEntities = request.ColumnNames.Select(cn => new SolutionColumnEntity() //AutoMapper
+            {
+                ColumnName = cn,
+                TaskId = request.Id,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED"
+            });
+
+            _context.Tasks.Attach(taskEntity);
+            _context.Entry(taskEntity).Property(x => x.SolutionSqlScript).IsModified = true;
+
+            _context.Tasks.Where(t => t.Id == request.Id)
+                          .Include(i => i.SolutionColumns)
+                          .Single()
+                          .SolutionColumns.Clear();
+
+            _context.SolutionColums.AddRange(newColumnEntities);
+
+            _context.SaveChanges();
             return taskEntity;
         }
     }

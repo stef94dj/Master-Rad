@@ -4,14 +4,16 @@ using MasterRad;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MasterRad.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20190810153344_add-SolutionColumnEntity")]
+    partial class addSolutionColumnEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,6 +67,10 @@ namespace MasterRad.Migrations
 
                     b.Property<DateTime?>("DateCreated");
 
+                    b.Property<DateTime?>("DateModified");
+
+                    b.Property<string>("ModifiedBy");
+
                     b.Property<int>("TaskId");
 
                     b.Property<byte[]>("TimeStamp")
@@ -103,8 +109,6 @@ namespace MasterRad.Migrations
                         .HasMaxLength(50);
 
                     b.Property<string>("NameOnServer");
-
-                    b.Property<string>("SolutionSqlScript");
 
                     b.Property<byte[]>("TimeStamp")
                         .IsConcurrencyToken()

@@ -21,6 +21,9 @@ namespace MasterRad.Entities
         [ForeignKey("DbTemplateId")]
         public DbTemplateEntity Template { get; set; }
 
+        public string SolutionSqlScript { get; set; }
+        public List<SolutionColumnEntity> SolutionColumns { get; set; }
+
         public bool IsDataSet { get; set; }
         public string NameOnServer { get; set; }
     }

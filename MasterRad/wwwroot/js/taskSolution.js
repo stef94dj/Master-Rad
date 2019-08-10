@@ -1,13 +1,19 @@
 ﻿var editor = null;
 var nameOnServer = null;
 var saveScriptUI = {
-    lastRepresentedScript : null,
+    lastRepresentedScript: null,
     isScriptRepresentedByResult: function () {
-        debugger;
         if (editor === null || this.lastRepresentedScript === null || this.lastRepresentedScript === "")
             return false;
 
         return editor.getValue() === this.lastRepresentedScript;
+    },
+    checkDisableSave: function () {
+        var saveBtn = $('#save-sln-btn');
+        if (saveScriptUI.isScriptRepresentedByResult())
+            saveBtn.removeAttr('disabled');
+        else
+            saveBtn.attr('disabled', true);
     }
 }
 
@@ -15,15 +21,6 @@ $(document).ready(function () {
     nameOnServer = $('#name-on-server').val();
     loadTableAndColumnNames();
 });
-
-function checkDisableSave() {
-    debugger;
-    var saveBtn = $('#save-sln-btn');
-    if (saveScriptUI.isScriptRepresentedByResult())
-        saveBtn.removeAttr('disabled');
-    else
-        saveBtn.attr('disabled', true);
-}
 
 function loadTableAndColumnNames() {
     var apiUrl = '/api/Metadata/table-names/column-names/' + nameOnServer
@@ -36,7 +33,6 @@ function loadTableAndColumnNames() {
         }
     });
 }
-
 function prepareTableAndColumNames(data) {
     var res = {};
 
@@ -46,7 +42,6 @@ function prepareTableAndColumNames(data) {
 
     initSqlEditor(res);
 }
-
 function initSqlEditor(tableAndColumnNames) {
     var editorTextArea = document.getElementById('sql-script');
     editor = CodeMirror.fromTextArea(editorTextArea, {
@@ -63,7 +58,7 @@ function initSqlEditor(tableAndColumnNames) {
         }
     });
     editor.on("change", function (cm, change) {
-        checkDisableSave();
+        saveScriptUI.checkDisableSave();
     });
 }
 
@@ -76,32 +71,11 @@ function executeScript() {
 
     executeSqlScript(rqBody, executeScriptCallback);
 }
-
 function executeScriptCallback(data) {
     saveScriptUI.lastRepresentedScript = editor.getValue();
     drawReadonlyTable(data);
-    checkDisableSave();
+    saveScriptUI.checkDisableSave();
 }
-
-function saveSolution() {
-    var rqBody = {
-        "Id": $('#task-id').val(),
-        "TimeStamp": $('#task-timestamp').val(),
-        "SqlScript": $('#sql-script').val()
-    };
-
-    $.ajax({
-        url: '/api/Template/Update/Solution',
-        dataType: 'json',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(rqBody),
-        success: function (data, textStatus, jQxhr) {
-            drawReadonlyTable(data);
-        }
-    });
-}
-
 function drawReadonlyTable(data) {
     var tableData = data.value.tables[0];
     var tableHeader = $('#table-header');
@@ -130,3 +104,34 @@ function drawReadonlyTable(data) {
         tableBody.append(newRow);
     });
 }
+
+function saveSolution() {
+    var columnNames = $.map($('#table-header th'), function (item, index) {
+        return item.innerText;
+    });
+
+    if (columnNames === null || columnNames.length < 1) {
+        alert("Solution must define at least one column");
+        return;
+    }
+
+    var rqBody = {
+        "Id": $('#task-id').val(),
+        "TimeStamp": $('#task-timestamp').val(),
+        "SolutionSqlScript": editor.getValue(),
+        "ColumnNames": columnNames
+    };
+
+    $.ajax({
+        url: '/api/Task/Update/Solution',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            alert('success');
+            window.location.replace('/Setup/Tasks');
+        }
+    });
+}
+

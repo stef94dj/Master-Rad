@@ -8,7 +8,8 @@ namespace MasterRad.Models.DTOs
 {
     public class UpdateTaskSolutionRQ : UpdateDTO
     {
-        public int TemplateId { get; set; }
+        public string SolutionSqlScript { get; set; }
+        public List<string> ColumnNames { get; set; }
     }
     public class UpdateTaskSolutionRS { }
 }
