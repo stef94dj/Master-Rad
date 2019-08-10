@@ -1,5 +1,33 @@
 ﻿var editor = null;
+var nameOnServer = null;
 $(document).ready(function () {
+    nameOnServer = $('#name-on-server').val();
+    loadTableAndColumnNames();
+});
+
+function loadTableAndColumnNames() {
+    var apiUrl = '/api/Metadata/table-names/column-names/' + nameOnServer
+
+    $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        success: function (data) {
+            prepareTableAndColumNames(data);
+        }
+    });
+}
+
+function prepareTableAndColumNames(data) {
+    var res = {};
+
+    $.each(data, function (index, item) {
+        res[item.tableFullName] = item.columnNames;
+    });
+
+    initSqlEditor(res);
+}
+
+function initSqlEditor(tableAndColumnNames) {
     var editorTextArea = document.getElementById('sql-script');
     editor = CodeMirror.fromTextArea(editorTextArea, {
         mode: 'text/x-mssql',
@@ -8,21 +36,18 @@ $(document).ready(function () {
         lineNumbers: true,
         matchBrackets: true,
         autofocus: true,
-        extraKeys: { "Ctrl-Space": "autocomplete" }//,
-        //hint: CodeMirror.hint.sql,
-        //hintOptions: {
-        //    tables: {
-        //        "table1": ["col_A", "col_B", "col_C"],
-        //        "table2": ["other_columns1", "other_columns2"]
-        //    }
-        //}
+        extraKeys: { "Ctrl-Space": "autocomplete" },
+        hint: CodeMirror.hint.sql,
+        hintOptions: {
+            tables: tableAndColumnNames
+        }
     });
-});
+}
 
 function executeScript() {
     var rqBody = {
         "SQLQuery": editor.getValue(),
-        "DatabaseName": $('#name-on-server').val()
+        "DatabaseName": nameOnServer
     };
 
     executeSqlScript(rqBody, drawReadonlyTable);

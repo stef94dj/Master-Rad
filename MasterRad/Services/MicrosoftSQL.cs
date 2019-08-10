@@ -24,6 +24,7 @@ namespace MasterRad.Services
         Result<bool> AssignSQLServerUserToDb(string userLogin, string dbName);
         Result<bool> DeleteSQLServerUser(string userLogin);
         IEnumerable<string> GetTableNames(ConnectionParams connParams);
+        IEnumerable<TableWithColumns> GetTableNamesWithColumnNames(ConnectionParams connParams);
         IEnumerable<string> GetDatabaseNames();
         IEnumerable<ColumnInfo> GetColumnsData(string schemaName, string tableName, ConnectionParams connParams);
         IEnumerable<ConstraintInfo> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams);
@@ -183,6 +184,36 @@ namespace MasterRad.Services
                 .Select(x =>
                     $"{x[0].ToString()}.{x[1].ToString()}")
                     .OrderBy(fullName => fullName);
+
+            return result;
+        }
+
+        public IEnumerable<TableWithColumns> GetTableNamesWithColumnNames(ConnectionParams connParams)
+        {
+            var sqlCommand = "SELECT t.TABLE_SCHEMA, t.TABLE_NAME, c.COLUMN_NAME FROM INFORMATION_SCHEMA.TABLES " +
+                             "T INNER JOIN INFORMATION_SCHEMA.COLUMNS C ON t.TABLE_NAME = c.TABLE_NAME and t.TABLE_SCHEMA = c.TABLE_SCHEMA";
+
+            var sqlResult = ExecuteSQL(sqlCommand, connParams);
+
+            var queryResult = sqlResult.Tables[0].Rows
+                .Select(x => new TableColumnDataResult()
+                {
+                    SchemaName = x[0].ToString(),
+                    TableName = x[1].ToString(),
+                    ColumnName = x[2].ToString()
+                });
+
+            var result = queryResult
+                         .GroupBy(keyDef => new
+                         {
+                             keyDef.SchemaName,
+                             keyDef.TableName
+                         })
+                         .Select(group => new TableWithColumns()
+                         {
+                             TableFullName = $"{group.Key.SchemaName}.{group.Key.TableName}",
+                             ColumnNames = group.Select(groupItem => groupItem.ColumnName)
+                         });
 
             return result;
         }

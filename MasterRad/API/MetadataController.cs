@@ -49,6 +49,20 @@ namespace MasterRad.API
             return Ok(tableNames);
         }
 
+        [HttpGet, Route("table-names/column-names/{dbName}")]
+        public ActionResult<IEnumerable<TableWithColumns>> GetTableNamesWithColumnNames([FromRoute] string dbName)
+        {
+            var conn = new ConnectionParams()
+            {
+                DbName = dbName,
+                Login = "sa",
+                Password = "Tnation2019"
+            };
+
+            var result = _microsoftSQLService.GetTableNamesWithColumnNames(conn);
+            return Ok(result);
+        }
+
         [HttpGet, Route("columns/{dbName}/{schemaName}/{tableName}")]
         public ActionResult<IEnumerable<ColumnInfo>> GetColumnsData([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
