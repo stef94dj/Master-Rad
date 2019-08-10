@@ -1,10 +1,10 @@
-﻿var dropdownTableSelector = '#tableSelector';
-var editor = null;
+﻿var editor = null;
+var nameOnServer = null;
 
 $(document).ready(function () {
-    buildSqlEditor($('#db-name').val());
-    populateDropdown(dropdownTableSelector, '/api/Metadata/tables/' + $('#db-name').val());
-    $(dropdownTableSelector).change(tableSelected);
+    nameOnServer = $('#db-name').val();
+    buildSqlEditor(nameOnServer, sqlExeCallback);
+    buildTablesDropDown(nameOnServer, tableSelected);
 });
 
 //Script execution
@@ -14,7 +14,15 @@ function executeScript() {
         "DatabaseName": $('#db-name').val()
     };
 
-    executeSqlScript(rqBody);
+    executeSqlScript(rqBody, sqlExeCallback);
+}
+function sqlExeCallback(data) {
+    if (data.hasOwnProperty('errors') && data.errors != null && data.errors.length > 0)
+        alert("Erorr: " + JSON.stringify(data.errors));
+    else {
+        alert('ok');
+        populateDropdown(dropdownTableSelector, '/api/Metadata/tables/' + $('#db-name').val());
+    }
 }
 
 //Table info

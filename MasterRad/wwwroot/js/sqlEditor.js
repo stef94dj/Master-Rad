@@ -49,9 +49,18 @@ function executeSqlScript(dto, callback) {
         data: JSON.stringify(dto),
         success: function (data, textStatus, jQxhr) {
             if (callback == null || callback == undefined)
-                scriptExecuteSuccess(data);
+                defaultExecuteCallback(data);
             else
                 callback(data);
         }
     });
+}
+
+function defaultExecuteCallback(data) {
+    if (data.hasOwnProperty('errors') && data.errors != null && data.errors.length > 0)
+        alert("Erorr: " + JSON.stringify(data.errors));
+    else {
+        alert('ok');
+        //populateDropdown(dropdownTableSelector, '/api/Metadata/tables/' + $('#db-name').val());
+    }
 }

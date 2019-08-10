@@ -12,14 +12,11 @@
     <input type="text" value="@(Model.DatabaseName)" id="db-name">
 </div>
 
-@*<textarea id="sql-script" rows="14" cols="150" placeholder="Enter SQL script to modify the model"></textarea>
-    <button type="button" onclick="executeScript()">Execute</button>*@
 <partial name="../Partials/SqlEditor.cshtml" />
 
 <br /><br />
 
-<label for="sel1">Choose a table from the list:</label>
-<select class="form-control" id="tableSelector"></select>
+<partial name="../Partials/TablesDropdown.cshtml" />
 
 <pre id="json-display"></pre>
 
@@ -41,4 +38,6 @@
     <script src="~/js/CodeMirror/show-hint.js" asp-append-version="false"></script>
     <script src="~/js/CodeMirror/sql-hint.js" asp-append-version="false"></script>
     <script src="~/js/CodeMirror/placeholder.js" asp-append-version="false"></script>
+
+    <script src="~/js/tablesDropdown.js" asp-append-version="true"></script>
 }

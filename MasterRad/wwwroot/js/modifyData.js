@@ -1,7 +1,7 @@
-﻿$(document).ready(function () {
-    dropdownSelector = '#tableSelector';
-    populateDropdown(dropdownSelector, '/api/Metadata/tables/' + $('#name-on-server').val());
-    $(dropdownSelector).change(tableSelected);
+﻿var nameOnServer = null;
+$(document).ready(function () {
+    var nameOnServer = $('#name-on-server').val();
+    buildTablesDropDown(nameOnServer, tableSelected);
     $('input.editable-cell').blur(function () { alert('cell focus out'); });
 });
 
