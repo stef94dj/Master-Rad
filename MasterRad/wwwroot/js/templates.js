@@ -182,13 +182,13 @@ function updateDescription() {
 function updateModel(id) {
     var form = $('#hidden-form');
     form.find('#template-id').val(id);
-    form.attr('action', '/Setup/Model');
+    form.attr('action', '/Template/Model');
     form.submit();
 }
 function updateData(id) {
     var form = $('#hidden-form');
     form.find('#template-id').val(id);
-    form.attr('action', '/Setup/ModifyTemplateData');
+    form.attr('action', '/Template/ModifyTemplateData');
     form.submit();
 }
 function deleteTemplate(id) {

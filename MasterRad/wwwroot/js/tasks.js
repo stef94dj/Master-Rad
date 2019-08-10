@@ -268,14 +268,14 @@ function updateData(id) {
     debugger;
     var form = $('#hidden-form');
     form.find('#task-id').val(id);
-    form.attr('action', '/Setup/ModifyTaskData');
+    form.attr('action', '/Task/ModifyTaskData');
     form.submit();
 }
 function updateSolution(id) {
     debugger;
     var form = $('#hidden-form');
     form.find('#task-id').val(id);
-    form.attr('action', '/Setup/ModifyTaskSolution');
+    form.attr('action', '/Task/ModifyTaskSolution');
     form.submit();
 }
 function deleteTask(id) {
