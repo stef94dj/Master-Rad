@@ -1,4 +1,5 @@
 ﻿using MasterRad.DTOs;
+using MasterRad.Entities;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -26,6 +27,21 @@ namespace MasterRad.API
         {
             _microsoftSQLService.CreateSQLServerUser(body.Username);
 
+            return "test completed";
+        }
+
+        [HttpGet, Route("delete/temlpate/{templateId}/{timestamp}")]
+        public ActionResult<string> TestDeleteTemplate([FromRoute] int templateId, [FromRoute] byte[] timestamp)
+        {
+            var tmpEnt = new DbTemplateEntity() 
+            {
+                Id = templateId,
+                TimeStamp = timestamp
+            };
+
+            _dbContext.DbTemplates.Attach(tmpEnt);
+            _dbContext.DbTemplates.Remove(tmpEnt);
+            _dbContext.SaveChanges();
             return "test completed";
         }
 
