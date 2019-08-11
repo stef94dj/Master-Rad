@@ -4,14 +4,16 @@ using MasterRad;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MasterRad.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20190811193420_added-Name-to-Test-Entitites")]
+    partial class addedNametoTestEntitites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -351,7 +353,8 @@ namespace MasterRad.Migrations
                 {
                     b.HasOne("MasterRad.Entities.AnalysisTestEntity", "AnalysisTest")
                         .WithMany("AnalysisTestStudents")
-                        .HasForeignKey("AnalysisTestId");
+                        .HasForeignKey("AnalysisTestId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("MasterRad.Entities.StudentEntity", "Student")
                         .WithMany("AnalysisTestStudents")
@@ -390,7 +393,8 @@ namespace MasterRad.Migrations
 
                     b.HasOne("MasterRad.Entities.SynthesisTestEntity", "SynthesisTest")
                         .WithMany("SynthesisTestStudents")
-                        .HasForeignKey("SynthesisTestId");
+                        .HasForeignKey("SynthesisTestId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("MasterRad.Entities.TaskEntity", b =>

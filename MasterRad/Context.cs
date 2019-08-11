@@ -75,6 +75,12 @@ namespace MasterRad
                 .WithMany(s => s.SynthesisTestStudents)
                 .HasForeignKey(sts => sts.StudentId);
 
+            //delete SynthesisTest
+            modelBuilder.Entity<SynthesisTestEntity>()
+                .HasMany(st => st.SynthesisTestStudents)
+                .WithOne(sts => sts.SynthesisTest)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
             //delete SynthesisTestStudentEntity
             modelBuilder.Entity<SynthesisTestStudentEntity>()
                 .HasOne(sts => sts.SynthesisPaper)
@@ -94,6 +100,12 @@ namespace MasterRad
                 .HasOne(sts => sts.Student)
                 .WithMany(s => s.AnalysisTestStudents)
                 .HasForeignKey(sts => sts.StudentId);
+
+            //delete SynthesisTest
+            modelBuilder.Entity<AnalysisTestEntity>()
+                .HasMany(at => at.AnalysisTestStudents)
+                .WithOne(ats => ats.AnalysisTest)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             //delete AnalysisTestStudentEntity
             modelBuilder.Entity<AnalysisTestStudentEntity>()

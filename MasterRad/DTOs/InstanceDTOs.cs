@@ -14,4 +14,9 @@ namespace MasterRad.DTOs
     {
         public byte[] TimeStamp { get; set; }
     }
+
+    public class DeleteDTO : IdentifyDTO
+    {
+        public byte[] TimeStamp { get; set; }
+    }
 }

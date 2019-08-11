@@ -4,13 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MasterRad.Entities
 {
-    public class SynthesisTestEntity : BaseEntity<int>
+    public class SynthesisTestEntity : BaseTestEntity
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public override int Id { get; set; }
-
-        public bool IsActive { get; set; }
-
         public int TaskId { get; set; }
         public TaskEntity Task { get; set; }
 

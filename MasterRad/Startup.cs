@@ -43,10 +43,15 @@ namespace MasterRad
             var connString = $"server={conf.ServerName};database={conf.DbName};User ID={conf.Login};password={conf.Password};";
             services.AddDbContext<Context>(opts => opts.UseSqlServer(new SqlConnection(connString)));
 
+            //services
             services.AddScoped<IMicrosoftSQL, MicrosoftSQL>();
+            services.AddSingleton<IMsSqlQueryBuilder, MsSqlQueryBuilder>();
+            
+            //repositories
             services.AddScoped<IDbTemplateRepository, DbTemplateRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
-            services.AddSingleton<IMsSqlQueryBuilder, MsSqlQueryBuilder>();
+            services.AddScoped<ISynthesisRepository, SynthesisRepository>();
+
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
