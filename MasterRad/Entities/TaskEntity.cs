@@ -13,9 +13,12 @@ namespace MasterRad.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override int Id { get; set; }
 
-        [Required, MaxLength(50)]
+        [Required, MaxLength(63)]
         public string Name { get; set; }
+        [MaxLength(8191)]
         public string Description { get; set; }
+        [MaxLength(255)]
+        public string NameOnServer { get; set; }
 
         public int DbTemplateId { get; set; }
         public DbTemplateEntity Template { get; set; }
@@ -24,7 +27,6 @@ namespace MasterRad.Entities
         public List<SolutionColumnEntity> SolutionColumns { get; set; }
         public List<SynthesisTestEntity> SynthesisTests { get; set; }
 
-        public bool IsDataSet { get; set; }
-        public string NameOnServer { get; set; }
+        
     }
 }

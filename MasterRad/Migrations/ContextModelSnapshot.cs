@@ -67,7 +67,9 @@ namespace MasterRad.Migrations
 
                     b.Property<string>("ModifiedBy");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255);
 
                     b.Property<int>("SynthesisPaperId");
 
@@ -87,6 +89,10 @@ namespace MasterRad.Migrations
                     b.Property<int>("StudentId");
 
                     b.Property<int>("AnalysisTestId");
+
+                    b.Property<string>("NameOnServer")
+                        .IsRequired()
+                        .HasMaxLength(255);
 
                     b.HasKey("StudentId", "AnalysisTestId");
 
@@ -113,10 +119,10 @@ namespace MasterRad.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50);
+                        .HasMaxLength(63);
 
                     b.Property<string>("NameOnServer")
-                        .HasMaxLength(200);
+                        .HasMaxLength(255);
 
                     b.Property<byte[]>("TimeStamp")
                         .IsConcurrencyToken()
@@ -125,6 +131,14 @@ namespace MasterRad.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DbTemplate");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "template",
+                            NameOnServer = "Tmp_template"
+                        });
                 });
 
             modelBuilder.Entity("MasterRad.Entities.SolutionColumnEntity", b =>
@@ -167,7 +181,47 @@ namespace MasterRad.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Student");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "stud1@student.etf.bg.ac.rs"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "stud2@student.etf.bg.ac.rs"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "stud3@student.etf.bg.ac.rs"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Email = "stud4@student.etf.bg.ac.rs"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Email = "stud5@student.etf.bg.ac.rs"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Email = "stud6@student.etf.bg.ac.rs"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Email = "stud7@student.etf.bg.ac.rs"
+                        });
                 });
 
             modelBuilder.Entity("MasterRad.Entities.SynthesisPaperEntity", b =>
@@ -218,7 +272,9 @@ namespace MasterRad.Migrations
 
                     b.Property<string>("ModifiedBy");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255);
 
                     b.Property<int>("TaskId");
 
@@ -238,6 +294,10 @@ namespace MasterRad.Migrations
                     b.Property<int>("StudentId");
 
                     b.Property<int>("SynthesisTestId");
+
+                    b.Property<string>("NameOnServer")
+                        .IsRequired()
+                        .HasMaxLength(255);
 
                     b.HasKey("StudentId", "SynthesisTestId");
 
@@ -260,17 +320,17 @@ namespace MasterRad.Migrations
 
                     b.Property<int>("DbTemplateId");
 
-                    b.Property<string>("Description");
-
-                    b.Property<bool>("IsDataSet");
+                    b.Property<string>("Description")
+                        .HasMaxLength(8191);
 
                     b.Property<string>("ModifiedBy");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50);
+                        .HasMaxLength(63);
 
-                    b.Property<string>("NameOnServer");
+                    b.Property<string>("NameOnServer")
+                        .HasMaxLength(255);
 
                     b.Property<string>("SolutionSqlScript");
 
@@ -283,6 +343,15 @@ namespace MasterRad.Migrations
                     b.HasIndex("DbTemplateId");
 
                     b.ToTable("Task");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DbTemplateId = 1,
+                            Name = "task",
+                            NameOnServer = "Tsk_task"
+                        });
                 });
 
             modelBuilder.Entity("MasterRad.Entities.UnhandledExceptionLogEntity", b =>

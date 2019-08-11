@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace MasterRad.Entities
 {
-    public class BaseTestEntity : BaseEntity<int>
+    public abstract class BaseTestEntity : BaseEntity<int>
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override int Id { get; set; }
 
+        [Required, MaxLength(255)]
         public string Name { get; set; }
         public bool IsActive { get; set; }
     }

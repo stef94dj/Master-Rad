@@ -48,6 +48,7 @@ namespace MasterRad.Repositories
                 .Select(sid => new SynthesisTestStudentEntity()
                 {
                     StudentId = sid,
+                    NameOnServer = "To be implemented",
                     SynthesisTest = synthesisTestEntity
                 });
 

@@ -1,0 +1,9 @@
+﻿{
+  "templates": [
+    {
+      "Id": 1,
+      "Name": "template",
+      "NameOnServer": "Tmp_template"
+    }
+  ]
+}

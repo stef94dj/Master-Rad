@@ -1,4 +1,5 @@
 ﻿using MasterRad.Entities;
+using MasterRad.SeedData;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,21 @@ namespace MasterRad
             modelBuilder.Entity<AnalysisTestEntity>().ToTable("AnalysisTest");
             modelBuilder.Entity<AnalysisTestStudentEntity>().ToTable("AnalysisTestStudent");
             modelBuilder.Entity<AnalysisPaperEntity>().ToTable("AnalysisPaper");
+
+            //seed data - DEV ONLY (comment out for production)
+            modelBuilder.Entity<StudentEntity>() 
+                .HasData(SeedHelper.SeedData<StudentEntity>("students"));
+
+            modelBuilder.Entity<DbTemplateEntity>()
+               .HasData(SeedHelper.SeedData<DbTemplateEntity>("templates"));
+
+            modelBuilder.Entity<TaskEntity>()
+                .HasData(SeedHelper.SeedData<TaskEntity>("tasks"));
+
+            //students - temp solution for auth (comment out for production)
+            modelBuilder.Entity<StudentEntity>()
+               .HasIndex(s => s.Email)
+               .IsUnique();
 
             //delete template
             modelBuilder.Entity<DbTemplateEntity>()

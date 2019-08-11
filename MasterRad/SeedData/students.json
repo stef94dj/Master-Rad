@@ -1,0 +1,32 @@
+﻿{
+  "students": [
+    {
+      "Id": 1,
+      "Email": "stud1@student.etf.bg.ac.rs"
+    },
+    {
+      "Id": 2,
+      "Email": "stud2@student.etf.bg.ac.rs"
+    },
+    {
+      "Id": 3,
+      "Email": "stud3@student.etf.bg.ac.rs"
+    },
+    {
+      "Id": 4,
+      "Email": "stud4@student.etf.bg.ac.rs"
+    },
+    {
+      "Id": 5,
+      "Email": "stud5@student.etf.bg.ac.rs"
+    },
+    {
+      "Id": 6,
+      "Email": "stud6@student.etf.bg.ac.rs"
+    },
+    {
+      "Id": 7,
+      "Email": "stud7@student.etf.bg.ac.rs"
+    }
+  ]
+}
