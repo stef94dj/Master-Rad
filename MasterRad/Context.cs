@@ -22,10 +22,9 @@ namespace MasterRad
         public DbSet<SynthesisTestEntity> SynthesisTests { get; set; }
         public DbSet<SynthesisTestStudentEntity> SynthesysTestStudents { get; set; }
         public DbSet<SynthesisPaperEntity> SynthesisPapers { get; set; }
-        public DbSet<SynthesisPaperStudentEntity> AnalysisTestStudents { get; set; }
+        public DbSet<AnalysisTestEntity> AnalysisTests { get; set; }
+        public DbSet<AnalysisTestStudentEntity> AnalysisTestStudents { get; set; }
         public DbSet<AnalysisPaperEntity> AnalysisPapers { get; set; }
-        
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,20 +36,30 @@ namespace MasterRad
             modelBuilder.Entity<SynthesisTestEntity>().ToTable("SynthesisTest");
             modelBuilder.Entity<SynthesisTestStudentEntity>().ToTable("SynthesisTestStudent");
             modelBuilder.Entity<SynthesisPaperEntity>().ToTable("SynthesisPaper");
-            modelBuilder.Entity<SynthesisPaperStudentEntity>().ToTable("SynthesisPaperStudent");
+            modelBuilder.Entity<AnalysisTestEntity>().ToTable("AnalysisTest");
+            modelBuilder.Entity<AnalysisTestStudentEntity>().ToTable("AnalysisTestStudent");
             modelBuilder.Entity<AnalysisPaperEntity>().ToTable("AnalysisPaper");
 
             //delete template
             modelBuilder.Entity<DbTemplateEntity>()
                 .HasMany(tm => tm.Tasks)
                 .WithOne(ts => ts.Template)
+                .HasForeignKey(ts => ts.DbTemplateId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
-            //delete task
+            //delete task (SynthesisTest)
             modelBuilder.Entity<TaskEntity>()
                 .HasMany(ts => ts.SynthesisTests)
                 .WithOne(st => st.Task)
+                .HasForeignKey(st => st.TaskId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+
+            //delete task (SolutionColumn)
+            modelBuilder.Entity<TaskEntity>()
+                .HasMany(ts => ts.SolutionColumns)
+                .WithOne(sc => sc.Task)
+                .HasForeignKey(sc => sc.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             //SynthesisTestStudentEntity: SynthesisTestEntity-many2many-StudentEntity
             modelBuilder.Entity<SynthesisTestStudentEntity>()
@@ -63,33 +72,43 @@ namespace MasterRad
 
             modelBuilder.Entity<SynthesisTestStudentEntity>()
                 .HasOne(sts => sts.Student)
-                .WithMany()
-                .HasForeignKey(sts => sts.StudentId)
-                .OnDelete(DeleteBehavior.ClientSetNull); 
+                .WithMany(s => s.SynthesisTestStudents)
+                .HasForeignKey(sts => sts.StudentId);
 
-            //SynthesisPaperStudentEntity: SynthesisPaperEntity-many2many-StudentEntity
-            modelBuilder.Entity<SynthesisPaperStudentEntity>()
-                .HasKey(sts => new { sts.StudentId, sts.SynthesisPaperId });
-
-            modelBuilder.Entity<SynthesisPaperStudentEntity>()
+            //delete SynthesisTestStudentEntity
+            modelBuilder.Entity<SynthesisTestStudentEntity>()
                 .HasOne(sts => sts.SynthesisPaper)
-                .WithMany(st => st.SynthesisPaperStudents)
-                .HasForeignKey(sts => sts.SynthesisPaperId);
+                .WithOne(sp => sp.SynthesisTestStudent)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
-            modelBuilder.Entity<SynthesisPaperStudentEntity>()
+            //AnalysisTestStudentEntity: AnalysisTest-many2many-StudentEntity
+            modelBuilder.Entity<AnalysisTestStudentEntity>()
+                .HasKey(sts => new { sts.StudentId, sts.AnalysisTestId });
+
+            modelBuilder.Entity<AnalysisTestStudentEntity>()
+                .HasOne(sts => sts.AnalysisTest)
+                .WithMany(st => st.AnalysisTestStudents)
+                .HasForeignKey(sts => sts.AnalysisTestId);
+
+            modelBuilder.Entity<AnalysisTestStudentEntity>()
                 .HasOne(sts => sts.Student)
-                .WithMany()
-                .HasForeignKey(sts => sts.StudentId)
+                .WithMany(s => s.AnalysisTestStudents)
+                .HasForeignKey(sts => sts.StudentId);
+
+            //delete AnalysisTestStudentEntity
+            modelBuilder.Entity<AnalysisTestStudentEntity>()
+                .HasOne(sts => sts.AnalysisPaper)
+                .WithOne(sp => sp.AnalysisTestStudent)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
             //delete student
             modelBuilder.Entity<StudentEntity>()
-                .HasMany(s => s.SynthesisPaperStudents)
+                .HasMany(s => s.SynthesisTestStudents)
                 .WithOne(sps => sps.Student)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<StudentEntity>()
-                .HasMany(s => s.SynthesisTestStudents)
+                .HasMany(s => s.AnalysisTestStudents)
                 .WithOne(sts => sts.Student)
                 .OnDelete(DeleteBehavior.Restrict);
         }

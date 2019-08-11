@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace MasterRad.Entities
 {
-    public class SynthesisPaperStudentEntity
+    public class AnalysisTestStudentEntity
     {
         public int StudentId { get; set; }
         public StudentEntity Student { get; set; }
 
-        public int SynthesisPaperId { get; set; }
-        public SynthesisPaperEntity SynthesisPaper{ get; set; }
+        public int AnalysisTestId { get; set; }
+        public AnalysisTestEntity AnalysisTest{ get; set; }
         
         public AnalysisPaperEntity AnalysisPaper { get; set; }
     }

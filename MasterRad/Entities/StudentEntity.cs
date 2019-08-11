@@ -13,7 +13,7 @@ namespace MasterRad.Entities
         public DateTime? DateCreated { get; set; }
 
         public List<SynthesisTestStudentEntity> SynthesisTestStudents { get; set; }
-        public List<SynthesisPaperStudentEntity> SynthesisPaperStudents { get; set; }
+        public List<AnalysisTestStudentEntity> AnalysisTestStudents { get; set; }
 
         [EmailAddress, Required]
         public string Email { get; set; }

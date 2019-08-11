@@ -16,10 +16,9 @@ namespace MasterRad.Entities
 
         public int STS_SynthesisTestId { get; set; }
         public int STS_StudentId { get; set; }
-
         [ForeignKey("STS_SynthesisTestId,STS_StudentId")]
         public SynthesisTestStudentEntity SynthesisTestStudent { get; set; }
 
-        public List<SynthesisPaperStudentEntity> SynthesisPaperStudents { get; set; }
+        public List<AnalysisTestEntity> AnalysisTests { get; set; }
     }
 }

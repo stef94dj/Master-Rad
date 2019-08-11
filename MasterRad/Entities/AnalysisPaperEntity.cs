@@ -14,10 +14,10 @@ namespace MasterRad.Entities
 
         public string SqlScript { get; set; }
 
-        public int SPS_SynthesisPaperId { get; set; }
-        public int SPS_StudentId { get; set; }
+        public int ATS_AnalysisTestId { get; set; }
+        public int ATS_StudentId { get; set; }
 
-        [ForeignKey("SPS_SynthesisPaperId,SPS_StudentId")]
-        public SynthesisPaperStudentEntity SynthesisPaperStudent { get; set; }
+        [ForeignKey("ATS_AnalysisTestId,ATS_StudentId")]
+        public AnalysisTestStudentEntity AnalysisTestStudent { get; set; }
     }
 }

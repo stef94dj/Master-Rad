@@ -25,6 +25,10 @@ namespace MasterRad.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("ATS_AnalysisTestId");
+
+                    b.Property<int>("ATS_StudentId");
+
                     b.Property<string>("CreatedBy");
 
                     b.Property<DateTime?>("DateCreated");
@@ -32,10 +36,6 @@ namespace MasterRad.Migrations
                     b.Property<DateTime?>("DateModified");
 
                     b.Property<string>("ModifiedBy");
-
-                    b.Property<int>("SPS_StudentId");
-
-                    b.Property<int>("SPS_SynthesisPaperId");
 
                     b.Property<string>("SqlScript");
 
@@ -45,10 +45,52 @@ namespace MasterRad.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SPS_SynthesisPaperId", "SPS_StudentId")
+                    b.HasIndex("ATS_AnalysisTestId", "ATS_StudentId")
                         .IsUnique();
 
                     b.ToTable("AnalysisPaper");
+                });
+
+            modelBuilder.Entity("MasterRad.Entities.AnalysisTestEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTime?>("DateCreated");
+
+                    b.Property<DateTime?>("DateModified");
+
+                    b.Property<bool>("IsActive");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<int>("SynthesisPaperId");
+
+                    b.Property<byte[]>("TimeStamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SynthesisPaperId");
+
+                    b.ToTable("AnalysisTest");
+                });
+
+            modelBuilder.Entity("MasterRad.Entities.AnalysisTestStudentEntity", b =>
+                {
+                    b.Property<int>("StudentId");
+
+                    b.Property<int>("AnalysisTestId");
+
+                    b.HasKey("StudentId", "AnalysisTestId");
+
+                    b.HasIndex("AnalysisTestId");
+
+                    b.ToTable("AnalysisTestStudent");
                 });
 
             modelBuilder.Entity("MasterRad.Entities.DbTemplateEntity", b =>
@@ -158,19 +200,6 @@ namespace MasterRad.Migrations
                     b.ToTable("SynthesisPaper");
                 });
 
-            modelBuilder.Entity("MasterRad.Entities.SynthesisPaperStudentEntity", b =>
-                {
-                    b.Property<int>("StudentId");
-
-                    b.Property<int>("SynthesisPaperId");
-
-                    b.HasKey("StudentId", "SynthesisPaperId");
-
-                    b.HasIndex("SynthesisPaperId");
-
-                    b.ToTable("SynthesisPaperStudent");
-                });
-
             modelBuilder.Entity("MasterRad.Entities.SynthesisTestEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -241,15 +270,13 @@ namespace MasterRad.Migrations
 
                     b.Property<string>("SolutionSqlScript");
 
-                    b.Property<int?>("TemplateId");
-
                     b.Property<byte[]>("TimeStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TemplateId");
+                    b.HasIndex("DbTemplateId");
 
                     b.ToTable("Task");
                 });
@@ -303,10 +330,30 @@ namespace MasterRad.Migrations
 
             modelBuilder.Entity("MasterRad.Entities.AnalysisPaperEntity", b =>
                 {
-                    b.HasOne("MasterRad.Entities.SynthesisPaperStudentEntity", "SynthesisPaperStudent")
+                    b.HasOne("MasterRad.Entities.AnalysisTestStudentEntity", "AnalysisTestStudent")
                         .WithOne("AnalysisPaper")
-                        .HasForeignKey("MasterRad.Entities.AnalysisPaperEntity", "SPS_SynthesisPaperId", "SPS_StudentId")
+                        .HasForeignKey("MasterRad.Entities.AnalysisPaperEntity", "ATS_AnalysisTestId", "ATS_StudentId");
+                });
+
+            modelBuilder.Entity("MasterRad.Entities.AnalysisTestEntity", b =>
+                {
+                    b.HasOne("MasterRad.Entities.SynthesisPaperEntity", "SynthesisPaper")
+                        .WithMany("AnalysisTests")
+                        .HasForeignKey("SynthesisPaperId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("MasterRad.Entities.AnalysisTestStudentEntity", b =>
+                {
+                    b.HasOne("MasterRad.Entities.AnalysisTestEntity", "AnalysisTest")
+                        .WithMany("AnalysisTestStudents")
+                        .HasForeignKey("AnalysisTestId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MasterRad.Entities.StudentEntity", "Student")
+                        .WithMany("AnalysisTestStudents")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("MasterRad.Entities.SolutionColumnEntity", b =>
@@ -321,21 +368,7 @@ namespace MasterRad.Migrations
                 {
                     b.HasOne("MasterRad.Entities.SynthesisTestStudentEntity", "SynthesisTestStudent")
                         .WithOne("SynthesisPaper")
-                        .HasForeignKey("MasterRad.Entities.SynthesisPaperEntity", "STS_SynthesisTestId", "STS_StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("MasterRad.Entities.SynthesisPaperStudentEntity", b =>
-                {
-                    b.HasOne("MasterRad.Entities.StudentEntity", "Student")
-                        .WithMany("SynthesisPaperStudents")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("MasterRad.Entities.SynthesisPaperEntity", "SynthesisPaper")
-                        .WithMany("SynthesisPaperStudents")
-                        .HasForeignKey("SynthesisPaperId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("MasterRad.Entities.SynthesisPaperEntity", "STS_SynthesisTestId", "STS_StudentId");
                 });
 
             modelBuilder.Entity("MasterRad.Entities.SynthesisTestEntity", b =>
@@ -362,7 +395,7 @@ namespace MasterRad.Migrations
                 {
                     b.HasOne("MasterRad.Entities.DbTemplateEntity", "Template")
                         .WithMany("Tasks")
-                        .HasForeignKey("TemplateId");
+                        .HasForeignKey("DbTemplateId");
                 });
 #pragma warning restore 612, 618
         }

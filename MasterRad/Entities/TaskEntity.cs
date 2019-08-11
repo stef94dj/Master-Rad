@@ -22,7 +22,6 @@ namespace MasterRad.Entities
 
         public string SolutionSqlScript { get; set; }
         public List<SolutionColumnEntity> SolutionColumns { get; set; }
-
         public List<SynthesisTestEntity> SynthesisTests { get; set; }
 
         public bool IsDataSet { get; set; }

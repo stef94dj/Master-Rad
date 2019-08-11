@@ -85,7 +85,6 @@ namespace MasterRad.Migrations
                     Name = table.Column<string>(maxLength: 50, nullable: false),
                     Description = table.Column<string>(nullable: true),
                     DbTemplateId = table.Column<int>(nullable: false),
-                    TemplateId = table.Column<int>(nullable: true),
                     SolutionSqlScript = table.Column<string>(nullable: true),
                     IsDataSet = table.Column<bool>(nullable: false),
                     NameOnServer = table.Column<string>(nullable: true)
@@ -94,8 +93,8 @@ namespace MasterRad.Migrations
                 {
                     table.PrimaryKey("PK_Task", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Task_DbTemplate_TemplateId",
-                        column: x => x.TemplateId,
+                        name: "FK_Task_DbTemplate_DbTemplateId",
+                        column: x => x.DbTemplateId,
                         principalTable: "DbTemplate",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -196,31 +195,56 @@ namespace MasterRad.Migrations
                         columns: x => new { x.STS_SynthesisTestId, x.STS_StudentId },
                         principalTable: "SynthesisTestStudent",
                         principalColumns: new[] { "StudentId", "SynthesisTestId" },
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SynthesisPaperStudent",
+                name: "AnalysisTest",
                 columns: table => new
                 {
-                    StudentId = table.Column<int>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
+                    DateCreated = table.Column<DateTime>(nullable: true),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    DateModified = table.Column<DateTime>(nullable: true),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    IsActive = table.Column<bool>(nullable: false),
                     SynthesisPaperId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SynthesisPaperStudent", x => new { x.StudentId, x.SynthesisPaperId });
+                    table.PrimaryKey("PK_AnalysisTest", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SynthesisPaperStudent_Student_StudentId",
-                        column: x => x.StudentId,
-                        principalTable: "Student",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_SynthesisPaperStudent_SynthesisPaper_SynthesisPaperId",
+                        name: "FK_AnalysisTest_SynthesisPaper_SynthesisPaperId",
                         column: x => x.SynthesisPaperId,
                         principalTable: "SynthesisPaper",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AnalysisTestStudent",
+                columns: table => new
+                {
+                    StudentId = table.Column<int>(nullable: false),
+                    AnalysisTestId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AnalysisTestStudent", x => new { x.StudentId, x.AnalysisTestId });
+                    table.ForeignKey(
+                        name: "FK_AnalysisTestStudent_AnalysisTest_AnalysisTestId",
+                        column: x => x.AnalysisTestId,
+                        principalTable: "AnalysisTest",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AnalysisTestStudent_Student_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Student",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -235,25 +259,35 @@ namespace MasterRad.Migrations
                     DateModified = table.Column<DateTime>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
                     SqlScript = table.Column<string>(nullable: true),
-                    SPS_SynthesisPaperId = table.Column<int>(nullable: false),
-                    SPS_StudentId = table.Column<int>(nullable: false)
+                    ATS_AnalysisTestId = table.Column<int>(nullable: false),
+                    ATS_StudentId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AnalysisPaper", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AnalysisPaper_SynthesisPaperStudent_SPS_SynthesisPaperId_SPS_StudentId",
-                        columns: x => new { x.SPS_SynthesisPaperId, x.SPS_StudentId },
-                        principalTable: "SynthesisPaperStudent",
-                        principalColumns: new[] { "StudentId", "SynthesisPaperId" },
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_AnalysisPaper_AnalysisTestStudent_ATS_AnalysisTestId_ATS_StudentId",
+                        columns: x => new { x.ATS_AnalysisTestId, x.ATS_StudentId },
+                        principalTable: "AnalysisTestStudent",
+                        principalColumns: new[] { "StudentId", "AnalysisTestId" },
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AnalysisPaper_SPS_SynthesisPaperId_SPS_StudentId",
+                name: "IX_AnalysisPaper_ATS_AnalysisTestId_ATS_StudentId",
                 table: "AnalysisPaper",
-                columns: new[] { "SPS_SynthesisPaperId", "SPS_StudentId" },
+                columns: new[] { "ATS_AnalysisTestId", "ATS_StudentId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AnalysisTest_SynthesisPaperId",
+                table: "AnalysisTest",
+                column: "SynthesisPaperId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AnalysisTestStudent_AnalysisTestId",
+                table: "AnalysisTestStudent",
+                column: "AnalysisTestId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SolutionColumn_TaskId",
@@ -267,11 +301,6 @@ namespace MasterRad.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_SynthesisPaperStudent_SynthesisPaperId",
-                table: "SynthesisPaperStudent",
-                column: "SynthesisPaperId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_SynthesisTest_TaskId",
                 table: "SynthesisTest",
                 column: "TaskId");
@@ -282,9 +311,9 @@ namespace MasterRad.Migrations
                 column: "SynthesisTestId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Task_TemplateId",
+                name: "IX_Task_DbTemplateId",
                 table: "Task",
-                column: "TemplateId");
+                column: "DbTemplateId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -299,7 +328,10 @@ namespace MasterRad.Migrations
                 name: "UnhandledExceptionLog");
 
             migrationBuilder.DropTable(
-                name: "SynthesisPaperStudent");
+                name: "AnalysisTestStudent");
+
+            migrationBuilder.DropTable(
+                name: "AnalysisTest");
 
             migrationBuilder.DropTable(
                 name: "SynthesisPaper");
