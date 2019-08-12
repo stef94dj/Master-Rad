@@ -11,9 +11,9 @@ namespace MasterRad.Repositories
     public interface ISynthesisRepository
     {
         IEnumerable<SynthesisTestEntity> Get();
+        IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId);
         SynthesisTestEntity Create(SynthesisCreateRQ request);
         void Delete(DeleteDTO request);
-
         SynthesisTestEntity UpdateName(UpdateNameRQ request);
     }
 
@@ -29,8 +29,16 @@ namespace MasterRad.Repositories
         public IEnumerable<SynthesisTestEntity> Get()
         {
             return _context.SynthesisTests
-                           .Include(st => st.SynthesisTestStudents)
+                           .Include(st => new { st.SynthesisTestStudents, st.Task })
                            .OrderByDescending(t => t.DateCreated);
+        }
+
+        public IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId)
+        {
+            return _context.SynthesysTestStudents
+                           .Include(sts => sts.SynthesisTest)
+                           .Where(sts => sts.StudentId == studentId);
+            //.OrderByDescending(sts => sts.DateCreated);
         }
 
         public SynthesisTestEntity Create(SynthesisCreateRQ request)
