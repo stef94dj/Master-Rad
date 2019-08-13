@@ -29,7 +29,8 @@ namespace MasterRad.Repositories
         public IEnumerable<SynthesisTestEntity> Get()
         {
             return _context.SynthesisTests
-                           .Include(st => new { st.SynthesisTestStudents, st.Task })
+                           .Include(st => st.Task)
+                           .ThenInclude(t => t.Template)
                            .OrderByDescending(t => t.DateCreated);
         }
 
@@ -46,6 +47,7 @@ namespace MasterRad.Repositories
             var synthesisTestEntity = new SynthesisTestEntity() //AutoMapper
             {
                 Name = request.Name,
+                Status = TestStatus.Scheduled,
                 TaskId = request.TaskId,
                 SynthesisTestStudents = new List<SynthesisTestStudentEntity>(),
                 DateCreated = DateTime.UtcNow,

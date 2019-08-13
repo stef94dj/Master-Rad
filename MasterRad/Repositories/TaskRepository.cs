@@ -33,7 +33,7 @@ namespace MasterRad.Repositories
             var taskEntity = new TaskEntity() //AutoMapper
             {
                 Name = request.Name,
-                DbTemplateId = request.TemplateId,
+                TemplateId = request.TemplateId,
                 NameOnServer = nameOnServer,
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED",
@@ -99,13 +99,13 @@ namespace MasterRad.Repositories
             {
                 Id = request.Id,
                 TimeStamp = request.TimeStamp,
-                DbTemplateId = request.TemplateId,
+                TemplateId = request.TemplateId,
                 DateModified = DateTime.UtcNow,
                 ModifiedBy = "Current user - NOT IMPLEMENTED",
             };
 
             _context.Tasks.Attach(taskEntity);
-            _context.Entry(taskEntity).Property(x => x.DbTemplateId).IsModified = true;
+            _context.Entry(taskEntity).Property(x => x.TemplateId).IsModified = true;
             _context.SaveChanges();
 
             return taskEntity;

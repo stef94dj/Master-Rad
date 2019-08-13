@@ -14,16 +14,16 @@ namespace MasterRad.Controllers
 {
     public class TemplateController : Controller
     {
-        private readonly IDbTemplateRepository _dbTemplateRepo;
+        private readonly ITemplateRepository _templateRepo;
 
-        public TemplateController(IDbTemplateRepository dbTemplateRepo)
+        public TemplateController(ITemplateRepository templateRepo)
         {
-            _dbTemplateRepo = dbTemplateRepo;
+            _templateRepo = templateRepo;
         }
 
         public IActionResult Model(int templateId)
         {
-            var templateEntity = _dbTemplateRepo.Get(templateId);
+            var templateEntity = _templateRepo.Get(templateId);
 
             var vm = new TemplateModelVM() //AutoMapper
             {
@@ -38,7 +38,7 @@ namespace MasterRad.Controllers
 
         public IActionResult ModifyTemplateData(int templateId)
         {
-            var templateEntity = _dbTemplateRepo.Get(templateId);
+            var templateEntity = _templateRepo.Get(templateId);
 
             var vm = new ModifyDataVM()
             {

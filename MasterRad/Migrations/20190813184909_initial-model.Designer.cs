@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MasterRad.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20190811212854_inital-model")]
-    partial class initalmodel
+    [Migration("20190813184909_initial-model")]
+    partial class initialmodel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -65,13 +65,13 @@ namespace MasterRad.Migrations
 
                     b.Property<DateTime?>("DateModified");
 
-                    b.Property<bool>("IsActive");
-
                     b.Property<string>("ModifiedBy");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255);
+
+                    b.Property<int>("Status");
 
                     b.Property<int>("SynthesisPaperId");
 
@@ -80,6 +80,9 @@ namespace MasterRad.Migrations
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.HasIndex("SynthesisPaperId");
 
@@ -101,46 +104,6 @@ namespace MasterRad.Migrations
                     b.HasIndex("AnalysisTestId");
 
                     b.ToTable("AnalysisTestStudent");
-                });
-
-            modelBuilder.Entity("MasterRad.Entities.DbTemplateEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<DateTime?>("DateCreated");
-
-                    b.Property<DateTime?>("DateModified");
-
-                    b.Property<string>("ModelDescription");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(63);
-
-                    b.Property<string>("NameOnServer")
-                        .HasMaxLength(255);
-
-                    b.Property<byte[]>("TimeStamp")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DbTemplate");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "template",
-                            NameOnServer = "Tmp_template"
-                        });
                 });
 
             modelBuilder.Entity("MasterRad.Entities.SolutionColumnEntity", b =>
@@ -270,13 +233,13 @@ namespace MasterRad.Migrations
 
                     b.Property<DateTime?>("DateModified");
 
-                    b.Property<bool>("IsActive");
-
                     b.Property<string>("ModifiedBy");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255);
+
+                    b.Property<int>("Status");
 
                     b.Property<int>("TaskId");
 
@@ -285,6 +248,9 @@ namespace MasterRad.Migrations
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.HasIndex("TaskId");
 
@@ -320,8 +286,6 @@ namespace MasterRad.Migrations
 
                     b.Property<DateTime?>("DateModified");
 
-                    b.Property<int>("DbTemplateId");
-
                     b.Property<string>("Description")
                         .HasMaxLength(8191);
 
@@ -336,13 +300,18 @@ namespace MasterRad.Migrations
 
                     b.Property<string>("SolutionSqlScript");
 
+                    b.Property<int>("TemplateId");
+
                     b.Property<byte[]>("TimeStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DbTemplateId");
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("TemplateId");
 
                     b.ToTable("Task");
 
@@ -350,9 +319,52 @@ namespace MasterRad.Migrations
                         new
                         {
                             Id = 1,
-                            DbTemplateId = 1,
                             Name = "task",
-                            NameOnServer = "Tsk_task"
+                            NameOnServer = "Tsk_task",
+                            TemplateId = 1
+                        });
+                });
+
+            modelBuilder.Entity("MasterRad.Entities.TemplateEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTime?>("DateCreated");
+
+                    b.Property<DateTime?>("DateModified");
+
+                    b.Property<string>("ModelDescription");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(63);
+
+                    b.Property<string>("NameOnServer")
+                        .HasMaxLength(255);
+
+                    b.Property<byte[]>("TimeStamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Template");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "template",
+                            NameOnServer = "Tmp_template"
                         });
                 });
 
@@ -466,9 +478,9 @@ namespace MasterRad.Migrations
 
             modelBuilder.Entity("MasterRad.Entities.TaskEntity", b =>
                 {
-                    b.HasOne("MasterRad.Entities.DbTemplateEntity", "Template")
+                    b.HasOne("MasterRad.Entities.TemplateEntity", "Template")
                         .WithMany("Tasks")
-                        .HasForeignKey("DbTemplateId");
+                        .HasForeignKey("TemplateId");
                 });
 #pragma warning restore 612, 618
         }

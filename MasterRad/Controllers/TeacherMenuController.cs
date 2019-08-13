@@ -23,5 +23,15 @@ namespace MasterRad.Controllers
         {
             return View();
         }
+
+        public IActionResult SynthesisTests()
+        {
+            return View();
+        }
+
+        public IActionResult AnalysisTests()
+        {
+            return View();
+        }
     }
 }

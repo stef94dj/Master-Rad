@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MasterRad.Entities
 {
-    public class DbTemplateEntity : BaseEntity<int>
+    public class TemplateEntity : BaseEntity<int>
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override int Id { get; set; }

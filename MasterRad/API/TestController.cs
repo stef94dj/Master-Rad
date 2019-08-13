@@ -22,12 +22,26 @@ namespace MasterRad.API
             _synthesisRepository = synthesisRepository;
         }
 
-        [HttpGet, Route("get/assigned")]
-        public ActionResult<IEnumerable<SynthesisTestEntity>> GetTests()
+        [HttpGet, Route("get/student/assigned")]
+        public ActionResult<IEnumerable<SynthesisTestEntity>> GetAssignedToMe()
         {
-            var res = _synthesisRepository.GetAssigned(1);
+            var res = _synthesisRepository.GetAssigned(1); //ukljuci i analysis tests (LINQ project to)
             return Ok(res);
         }
 
+        [HttpGet, Route("get/synthesis")]
+        public ActionResult<IEnumerable<SynthesisTestEntity>> GetSynthesis()
+        {
+            var res = _synthesisRepository.Get(); //ukljuci i analysis tests (LINQ project to)
+            return Ok(res);
+        }
+
+        [HttpGet, Route("get/analysis")]
+        public ActionResult<IEnumerable<SynthesisTestEntity>> GetAnalysis()
+        {
+            throw new NotImplementedException();
+            //var res = _synthesisRepository.Get(); //ukljuci i analysis tests (LINQ project to)
+            //return Ok(res);
+        }
     }
 }

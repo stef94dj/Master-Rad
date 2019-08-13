@@ -20,8 +20,8 @@ namespace MasterRad.Entities
         [MaxLength(255)]
         public string NameOnServer { get; set; }
 
-        public int DbTemplateId { get; set; }
-        public DbTemplateEntity Template { get; set; }
+        public int TemplateId { get; set; }
+        public TemplateEntity Template { get; set; }
 
         public string SolutionSqlScript { get; set; }
         public List<SolutionColumnEntity> SolutionColumns { get; set; }

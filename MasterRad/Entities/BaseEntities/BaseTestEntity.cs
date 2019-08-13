@@ -14,6 +14,6 @@ namespace MasterRad.Entities
 
         [Required, MaxLength(255)]
         public string Name { get; set; }
-        public bool IsActive { get; set; }
+        public TestStatus Status { get; set; }
     }
 }

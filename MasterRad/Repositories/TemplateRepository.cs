@@ -8,49 +8,49 @@ using System.Linq;
 
 namespace MasterRad.Repositories
 {
-    public interface IDbTemplateRepository
+    public interface ITemplateRepository
     {
-        DbTemplateEntity Get(int id);
-        List<DbTemplateEntity> Get();
-        DbTemplateEntity GetWithTaks(int id);
-        DbTemplateEntity Create(string templateName, string dbName);
-        DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request);
-        DbTemplateEntity UpdateName(UpdateNameRQ request);
+        TemplateEntity Get(int id);
+        List<TemplateEntity> Get();
+        TemplateEntity GetWithTaks(int id);
+        TemplateEntity Create(string templateName, string dbName);
+        TemplateEntity UpdateDescription(UpdateDescriptionRQ request);
+        TemplateEntity UpdateName(UpdateNameRQ request);
         bool DatabaseRegisteredAsTemplate(string name);
         bool TemplateExists(string templateName);
     }
 
-    public class DbTemplateRepository : IDbTemplateRepository
+    public class TemplateRepository : ITemplateRepository
     {
         private readonly Context _context;
 
-        public DbTemplateRepository(Context context)
+        public TemplateRepository(Context context)
         {
             _context = context;
         }
 
 
-        public DbTemplateEntity Get(int id)
+        public TemplateEntity Get(int id)
         {
-            return _context.DbTemplates.Where(x => x.Id == id).Single();
+            return _context.Templates.Where(x => x.Id == id).Single();
         }
 
-        public DbTemplateEntity GetWithTaks(int id)
+        public TemplateEntity GetWithTaks(int id)
         {
-            return _context.DbTemplates.Include(t => t.Tasks).Where(x => x.Id == id).Single();
+            return _context.Templates.Include(t => t.Tasks).Where(x => x.Id == id).Single();
         }
 
-        public List<DbTemplateEntity> Get()
+        public List<TemplateEntity> Get()
         {
-            return _context.DbTemplates
+            return _context.Templates
                 .Include(x => x.Tasks)
                 .OrderByDescending(t => t.DateCreated)
                 .ToList();
         }
 
-        public DbTemplateEntity Create(string templateName, string dbName)
+        public TemplateEntity Create(string templateName, string dbName)
         {
-            var dbTemplateEntity = new DbTemplateEntity() //AutoMapper
+            var templateEntity = new TemplateEntity() //AutoMapper
             {
                 Name = templateName,
                 NameOnServer = dbName,
@@ -58,15 +58,15 @@ namespace MasterRad.Repositories
                 CreatedBy = "Current user - NOT IMPLEMENTED",
             };
 
-            _context.DbTemplates.Add(dbTemplateEntity);
+            _context.Templates.Add(templateEntity);
             _context.SaveChanges();
 
-            return dbTemplateEntity;
+            return templateEntity;
         }
 
-        public DbTemplateEntity UpdateDescription(UpdateDescriptionRQ request)
+        public TemplateEntity UpdateDescription(UpdateDescriptionRQ request)
         {
-            var dbTemplateEntity = new DbTemplateEntity() //AutoMapper
+            var templateEntity = new TemplateEntity() //AutoMapper
             {
                 Id = request.Id,
                 TimeStamp = request.TimeStamp,
@@ -75,16 +75,16 @@ namespace MasterRad.Repositories
                 ModifiedBy = "Current user - NOT IMPLEMENTED",
             };
 
-            _context.DbTemplates.Attach(dbTemplateEntity);
-            _context.Entry(dbTemplateEntity).Property(x => x.ModelDescription).IsModified = true;
+            _context.Templates.Attach(templateEntity);
+            _context.Entry(templateEntity).Property(x => x.ModelDescription).IsModified = true;
             _context.SaveChanges();
 
-            return dbTemplateEntity;
+            return templateEntity;
         }
 
-        public DbTemplateEntity UpdateName(UpdateNameRQ request)
+        public TemplateEntity UpdateName(UpdateNameRQ request)
         {
-            var dbTemplateEntity = new DbTemplateEntity() //AutoMapper
+            var templateEntity = new TemplateEntity() //AutoMapper
             {
                 Id = request.Id,
                 TimeStamp = request.TimeStamp,
@@ -93,11 +93,11 @@ namespace MasterRad.Repositories
                 ModifiedBy = "Current user - NOT IMPLEMENTED",
             };
 
-            _context.DbTemplates.Attach(dbTemplateEntity);
-            _context.Entry(dbTemplateEntity).Property(x => x.Name).IsModified = true;
+            _context.Templates.Attach(templateEntity);
+            _context.Entry(templateEntity).Property(x => x.Name).IsModified = true;
             _context.SaveChanges();
 
-            return dbTemplateEntity;
+            return templateEntity;
         }
 
         public bool TemplateExists(string templateName)
@@ -105,7 +105,7 @@ namespace MasterRad.Repositories
             if (string.IsNullOrEmpty(templateName))
                 return false;
 
-            return _context.DbTemplates
+            return _context.Templates
                 .Where(t => t.Name.ToLower().Equals(templateName.ToLower()))
                 .Any();
         }
@@ -115,7 +115,7 @@ namespace MasterRad.Repositories
             if (string.IsNullOrEmpty(dbName))
                 return false;
 
-            return _context.DbTemplates
+            return _context.Templates
                 .Where(t => t.NameOnServer.ToLower().Equals(dbName.ToLower()))
                 .Any();
         }

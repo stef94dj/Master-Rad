@@ -16,7 +16,7 @@ namespace MasterRad
         }
 
         public DbSet<UnhandledExceptionLogEntity> UnhandledExceptionLog { get; set; }
-        public DbSet<DbTemplateEntity> DbTemplates { get; set; }
+        public DbSet<TemplateEntity> Templates { get; set; }
         public DbSet<TaskEntity> Tasks { get; set; }
         public DbSet<SolutionColumnEntity> SolutionColums { get; set; }
         public DbSet<StudentEntity> Students { get; set; }
@@ -30,7 +30,7 @@ namespace MasterRad
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UnhandledExceptionLogEntity>().ToTable("UnhandledExceptionLog");
-            modelBuilder.Entity<DbTemplateEntity>().ToTable("DbTemplate");
+            modelBuilder.Entity<TemplateEntity>().ToTable("Template");
             modelBuilder.Entity<TaskEntity>().ToTable("Task");
             modelBuilder.Entity<SolutionColumnEntity>().ToTable("SolutionColumn");
             modelBuilder.Entity<StudentEntity>().ToTable("Student");
@@ -45,8 +45,8 @@ namespace MasterRad
             modelBuilder.Entity<StudentEntity>() 
                 .HasData(SeedHelper.SeedData<StudentEntity>("students"));
 
-            modelBuilder.Entity<DbTemplateEntity>()
-               .HasData(SeedHelper.SeedData<DbTemplateEntity>("templates"));
+            modelBuilder.Entity<TemplateEntity>()
+               .HasData(SeedHelper.SeedData<TemplateEntity>("templates"));
 
             modelBuilder.Entity<TaskEntity>()
                 .HasData(SeedHelper.SeedData<TaskEntity>("tasks"));
@@ -56,11 +56,28 @@ namespace MasterRad
                .HasIndex(s => s.Email)
                .IsUnique();
 
+            //unique constraints
+            modelBuilder.Entity<TemplateEntity>()
+               .HasIndex(s => s.Name)
+               .IsUnique();
+
+            modelBuilder.Entity<TaskEntity>()
+               .HasIndex(s => s.Name)
+               .IsUnique();
+
+            modelBuilder.Entity<SynthesisTestEntity>()
+               .HasIndex(s => s.Name)
+               .IsUnique();
+
+            modelBuilder.Entity<AnalysisTestEntity>()
+              .HasIndex(s => s.Name)
+              .IsUnique();
+
             //delete template
-            modelBuilder.Entity<DbTemplateEntity>()
+            modelBuilder.Entity<TemplateEntity>()
                 .HasMany(tm => tm.Tasks)
                 .WithOne(ts => ts.Template)
-                .HasForeignKey(ts => ts.DbTemplateId)
+                .HasForeignKey(ts => ts.TemplateId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
             //delete task (SynthesisTest)

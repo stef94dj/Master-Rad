@@ -4,12 +4,26 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MasterRad.Migrations
 {
-    public partial class initalmodel : Migration
+    public partial class initialmodel : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "DbTemplate",
+                name: "Student",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    DateCreated = table.Column<DateTime>(nullable: true),
+                    Email = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Student", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Template",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -25,21 +39,7 @@ namespace MasterRad.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DbTemplate", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Student",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    DateCreated = table.Column<DateTime>(nullable: true),
-                    Email = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Student", x => x.Id);
+                    table.PrimaryKey("PK_Template", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -85,16 +85,16 @@ namespace MasterRad.Migrations
                     Name = table.Column<string>(maxLength: 63, nullable: false),
                     Description = table.Column<string>(maxLength: 8191, nullable: true),
                     NameOnServer = table.Column<string>(maxLength: 255, nullable: true),
-                    DbTemplateId = table.Column<int>(nullable: false),
+                    TemplateId = table.Column<int>(nullable: false),
                     SolutionSqlScript = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Task", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Task_DbTemplate_DbTemplateId",
-                        column: x => x.DbTemplateId,
-                        principalTable: "DbTemplate",
+                        name: "FK_Task_Template_TemplateId",
+                        column: x => x.TemplateId,
+                        principalTable: "Template",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -134,7 +134,7 @@ namespace MasterRad.Migrations
                     DateModified = table.Column<DateTime>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
                     Name = table.Column<string>(maxLength: 255, nullable: false),
-                    IsActive = table.Column<bool>(nullable: false),
+                    Status = table.Column<int>(nullable: false),
                     TaskId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -211,7 +211,7 @@ namespace MasterRad.Migrations
                     DateModified = table.Column<DateTime>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
                     Name = table.Column<string>(maxLength: 255, nullable: false),
-                    IsActive = table.Column<bool>(nullable: false),
+                    Status = table.Column<int>(nullable: false),
                     SynthesisPaperId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -277,11 +277,6 @@ namespace MasterRad.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "DbTemplate",
-                columns: new[] { "Id", "CreatedBy", "DateCreated", "DateModified", "ModelDescription", "ModifiedBy", "Name", "NameOnServer" },
-                values: new object[] { 1, null, null, null, null, null, "template", "Tmp_template" });
-
-            migrationBuilder.InsertData(
                 table: "Student",
                 columns: new[] { "Id", "DateCreated", "Email" },
                 values: new object[,]
@@ -296,14 +291,25 @@ namespace MasterRad.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Template",
+                columns: new[] { "Id", "CreatedBy", "DateCreated", "DateModified", "ModelDescription", "ModifiedBy", "Name", "NameOnServer" },
+                values: new object[] { 1, null, null, null, null, null, "template", "Tmp_template" });
+
+            migrationBuilder.InsertData(
                 table: "Task",
-                columns: new[] { "Id", "CreatedBy", "DateCreated", "DateModified", "DbTemplateId", "Description", "ModifiedBy", "Name", "NameOnServer", "SolutionSqlScript" },
-                values: new object[] { 1, null, null, null, 1, null, null, "task", "Tsk_task", null });
+                columns: new[] { "Id", "CreatedBy", "DateCreated", "DateModified", "Description", "ModifiedBy", "Name", "NameOnServer", "SolutionSqlScript", "TemplateId" },
+                values: new object[] { 1, null, null, null, null, null, "task", "Tsk_task", null, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AnalysisPaper_ATS_AnalysisTestId_ATS_StudentId",
                 table: "AnalysisPaper",
                 columns: new[] { "ATS_AnalysisTestId", "ATS_StudentId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AnalysisTest_Name",
+                table: "AnalysisTest",
+                column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -334,6 +340,12 @@ namespace MasterRad.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_SynthesisTest_Name",
+                table: "SynthesisTest",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SynthesisTest_TaskId",
                 table: "SynthesisTest",
                 column: "TaskId");
@@ -344,9 +356,21 @@ namespace MasterRad.Migrations
                 column: "SynthesisTestId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Task_DbTemplateId",
+                name: "IX_Task_Name",
                 table: "Task",
-                column: "DbTemplateId");
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Task_TemplateId",
+                table: "Task",
+                column: "TemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Template_Name",
+                table: "Template",
+                column: "Name",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -382,7 +406,7 @@ namespace MasterRad.Migrations
                 name: "Task");
 
             migrationBuilder.DropTable(
-                name: "DbTemplate");
+                name: "Template");
         }
     }
 }

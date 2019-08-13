@@ -18,12 +18,12 @@ namespace MasterRad.API
     public class TaskController : Controller
     {
         private readonly ITaskRepository _taskRepo;
-        private readonly IDbTemplateRepository _templateRepo;
+        private readonly ITemplateRepository _templateRepo;
         private readonly IMicrosoftSQL _microsoftSQLService;
 
         public TaskController(
             ITaskRepository taskRepo,
-            IDbTemplateRepository templateRepo,
+            ITemplateRepository templateRepo,
             IMicrosoftSQL microsoftSQLService
         )
         {
