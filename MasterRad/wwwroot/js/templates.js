@@ -36,24 +36,10 @@ function drawTemplateTable(tbody, templates) {
         tbody.append(tableRow)
     });
 }
-function drawButton(buttonName, color, handlerName, id, enabled) {
-    var result = '<button ';
-    if (!enabled)
-        result += 'disabled ';
-    result += 'onclick="' + handlerName + '(' + id + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
-    return result;
-}
-function drawModalTriggerButton(buttonName, color, modalselector, id, timestamp, enabled) {
-    var result = '<button ';
-    if (!enabled)
-        result += 'disabled ';
-    result += 'data-toggle="modal" data-target="' + modalselector + '" data-id="' + id + '" data-timestamp="' + timestamp + '" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
-    return result;
-}
 function drawNameCell(template) {
     var result = '<td><div>';
     result += '<p style="float:left">' + template.name + '</p>';
-    result += drawModalTriggerButton('Edit', 'dark', '#update-name-modal', template.id, template.timeStamp, true);
+    result += drawCellEditModalButton('Edit', 'dark', '#update-name-modal', template.id, template.timeStamp, true);
     result += '</div></td>';
     return result;
 }
@@ -66,22 +52,22 @@ function drawDescriptionCell(template) {
     result += '</p>';
 
     if (template.modelDescription == null || template.modelDescription == '')
-        result += drawModalTriggerButton('Set', 'dark', '#update-description-modal', template.id, template.timeStamp, true);
+        result += drawCellEditModalButton('Set', 'dark', '#update-description-modal', template.id, template.timeStamp, true);
     else
-        result += drawModalTriggerButton('Edit', 'dark', '#update-description-modal', template.id, template.timeStamp, true);
+        result += drawCellEditModalButton('Edit', 'dark', '#update-description-modal', template.id, template.timeStamp, true);
 
     result += '</td>';
 
     return result;
 }
 function drawModelCell(template) {
-    return '<td>' + drawButton('Edit', 'dark', 'updateModel', template.id, true) + '</td>';
+    return '<td>' + drawCellEditNavigationButton('Edit', 'dark', 'updateModel', template.id, true) + '</td>';
 }
 function drawDataCell(template) {
-    return '<td>' + drawButton('Edit', 'dark', 'updateData', template.id, true) + '</td>';
+    return '<td>' + drawCellEditNavigationButton('Edit', 'dark', 'updateData', template.id, true) + '</td>';
 }
 function drawDeleteCell(template) {
-    return '<td>' + drawButton('Delete', 'danger', 'deleteTemplate', template.id, true) + '</td>';
+    return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', template.id, template.timeStamp, true) + '</td>';
 }
 
 //MODAL SHOW

@@ -53,7 +53,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("update/name")]
-        public ActionResult<SynthesisTestEntity> DeleteTest([FromBody] UpdateNameRQ body)
+        public ActionResult<SynthesisTestEntity> UpdateTestName([FromBody] UpdateNameRQ body)
         {
             var res = _synthesisRepository.UpdateName(body);
             return Ok(res);

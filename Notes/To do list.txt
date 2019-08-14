@@ -74,3 +74,4 @@ Code refactoring
 	var whereExpr = string.Join(" and ", columnValuesWhere);
 GetAdminConnParams - vidi gde se sve koristi, preispitaj
 - //AutoMapper (add AutoMapper)
+- FE profesor: (template, tasks, synthesis test i vrv analysis) - svi imaju update name modal (centralizuj kod)

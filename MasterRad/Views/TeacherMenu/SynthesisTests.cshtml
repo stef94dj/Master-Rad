@@ -5,8 +5,98 @@
 
 <h1>Synthesis Tests</h1>
 
-<div id="tests-list"></div>
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark" id="table-header">
+        <tr id="database-table">
+            <th scope="col">Template -> Task</th>
+            <th scope="col">Name</th>
+            <th scope="col">Created at</th>
+            <th scope="col">Created by</th>
+            <th scope="col">State</th>
+            <th><button data-toggle="modal" data-target="#create-template-modal" style="float:right" type="button" class="btn btn-primary btn-sm">Create</button></th>
+        </tr>
+    </thead>
+    <tbody id="tasks-tbody">
+        <tr>
+            <td>
+                Template 1 -> task
+            </td>
+            <td>
+                <div>
+                    <p style="float:left">template</p>
+                    <button data-toggle="modal" data-target="#update-name-modal" data-id="1" data-timestamp="AAAAAAAAB9E=" type="button" style="float:right" class="btn btn-outline-dark btn-sm">Edit</button>
+                </div>
+            </td>
+            <td>
+                18/05/2018 15:37
+            </td>
+            <td>
+                prof. John Smith
+            </td>
+            <td>
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-dark">
+                        <input type="radio" name="options" id="option1" autocomplete="off" checked> Scheduled
+                    </label>
+                    <label class="btn btn-info">
+                        <input type="radio" name="options" id="option2" autocomplete="off"> Active
+                    </label>
+                    <label class="btn btn-dark">
+                        <input type="radio" name="options" id="option3" autocomplete="off"> Completed
+                    </label>
+                </div>
+            </td>
+            <td>
+                <button onclick="deleteTest(1)" type="button" style="float:right" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
+<!-- Name modal  -->
+<div class="modal fade" id="update-name-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Name</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="template-name" class="col-form-label">Name:</label>
+                    <input type="text" class="form-control" id="test-name">
+                    <input type="text" class="form-control" id="test-id" hidden>
+                    <input type="text" class="form-control" id="test-timestamp" hidden>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="updateName()">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status modal  -->
+<div class="modal fade" id="update-staus-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Change state</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="test-id" id ="change-status-message" class="col-form-label">Are you sure you want to change the state?</label>
+                    <input type="text" class="form-control" id="test-id" hidden>
+                    <input type="text" class="form-control" id="test-timestamp" hidden>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="updateName()">Yes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Form -->
 <form action="" hidden id="hidden-form" method="post">
@@ -15,6 +105,7 @@
 </form>
 
 @section Scripts {
-    @*<script src="~/js/teacherTests.js" asp-append-version="true"></script>*@
+    <script src="~/js/teacherTests.js" asp-append-version="true"></script>
     <script src="~/js/enums.js" asp-append-version="true"></script>
+    <script src="~/js/util.js" asp-append-version="true"></script>
 }

@@ -15,6 +15,7 @@ namespace MasterRad
     {
         Scheduled = 1,
         InProgress = 2,
-        Completed = 3
+        Completed = 3,
+        Graded = 4
     }
 }
