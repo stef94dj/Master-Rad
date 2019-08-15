@@ -7,8 +7,8 @@
 });
 
 //DRAW TEMPLATES TABLE
-function drawTableMessage(message) {
-    return '<tr><td align="center" colspan="6">' + message + '</td></tr>';
+function drawTaskTableMessage(message) {
+    return drawTableMessage(message, 6)
 }
 function drawTaskTable(tbody, tasks) {
     tbody.html('');
@@ -87,11 +87,6 @@ function drawTemplatesList(data) {
 }
 
 //MODAL SHOW
-function bindModalOnShow(selector, handler) {
-    $(selector).on('show.bs.modal', function (event) {
-        handler(this, event);
-    })
-}
 function onNameModalShow(element, event) {
     var button = $(event.relatedTarget)
 
@@ -142,7 +137,7 @@ function onChangeTemplateModalShow(element, event) {
 
 //API CALLERS
 function loadTasks(tbody, apiUrl) {
-    tbody.html(drawTableMessage('Loading data...'));
+    tbody.html(drawTaskTableMessage('Loading data...'));
     $.ajax({
         url: apiUrl,
         type: 'GET',
@@ -150,12 +145,12 @@ function loadTasks(tbody, apiUrl) {
             drawTaskTable(tbody, data);
         },
         error: function () {
-            tbody.html(drawTableMessage('Error loading data.'));
+            tbody.html(drawTaskTableMessage('Error loading data.'));
         }
     });
 }
 function loadTemplates(apiUrl) {
-    //tbody.html(drawTableMessage('Loading data...'));
+    //tbody.html(drawTaskTableMessage('Loading data...'));
     $.ajax({
         url: apiUrl,
         type: 'GET',
@@ -163,7 +158,7 @@ function loadTemplates(apiUrl) {
             drawTemplatesList(data);
         },
         error: function () {
-            //tbody.html(drawTableMessage('Error loading data.'));
+            //tbody.html(drawTaskTableMessage('Error loading data.'));
         }
     });
 }

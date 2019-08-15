@@ -6,7 +6,7 @@
 
 //DRAW TEMPLATES TABLE
 function loadTemplates(tbody, apiUrl) {
-    tbody.html(drawTableMessage('Loading data...'));
+    tbody.html(drawTemplateTableMessage('Loading data...'));
     $.ajax({
         url: apiUrl,
         type: 'GET',
@@ -14,12 +14,12 @@ function loadTemplates(tbody, apiUrl) {
             drawTemplateTable(tbody, data);
         },
         error: function () {
-            tbody.html(drawTableMessage('Error loading data.'));
+            tbody.html(drawTemplateTableMessage('Error loading data.'));
         }
     });
 }
-function drawTableMessage(message) {
-    return '<tr><td align="center" colspan="5">' + message + '</td></tr>';
+function drawTemplateTableMessage(message) {
+    return drawTableMessage(message, 5);
 }
 function drawTemplateTable(tbody, templates) {
     tbody.html('');
@@ -71,11 +71,6 @@ function drawDeleteCell(template) {
 }
 
 //MODAL SHOW
-function bindModalOnShow(selector, handler) {
-    $(selector).on('show.bs.modal', function (event) {
-        handler(this, event);
-    })
-}
 function onNameModalShow(element, event) {
     var button = $(event.relatedTarget)
 

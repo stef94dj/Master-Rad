@@ -21,3 +21,13 @@ function drawCellEditModalButton(buttonName, color, modalselector, id, timestamp
     result += 'data-toggle="modal" data-target="' + modalselector + '" data-id="' + id + '" data-timestamp="' + timestamp + '" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
     return result;
 }
+
+function drawTableMessage(message, colspan) {
+    return '<tr><td align="center" colspan="' + colspan + '">' + message + '</td></tr>';
+}
+
+function bindModalOnShow(selector, handler) {
+    $(selector).on('show.bs.modal', function (event) {
+        handler(this, event);
+    })
+}
