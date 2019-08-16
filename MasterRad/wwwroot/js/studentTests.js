@@ -23,7 +23,7 @@ function loadTest() {
 function drawTestsList(data) {
     testsList.html('');
     $.each(data, function (index, synthesisTestStudent) {
-        var testItem = '<div class="card text-center">';
+        var testItem = '<div class="card text-center ">';
 
         var stsEntity = synthesisTestStudent;
         var testEntity = synthesisTestStudent.synthesisTest;
@@ -31,36 +31,48 @@ function drawTestsList(data) {
         //header
         switch (testEntity.status) {
             case TestStatus.Scheduled:
-                testItem += '<div class="card-header font-weight-bold">' + 'Scheduled' + '</div>';
+                testItem += '<div class="card-header font-weight-bold bg-dark text-light">' + 'Scheduled' + '</div>';
                 break;
             case TestStatus.InProgress:
-                testItem += '<div class="card-header font-weight-bold text-white bg-success">' + 'In progress' + '</div>';
+                testItem += '<div class="card-header font-weight-bold text-white bg-primary">' + 'In progress' + '</div>';
                 break;
             case TestStatus.Completed:
-                testItem += '<div class="card-header font-weight-bold">' + 'Scheduled' + '</div>';
+            case TestStatus.Graded:
+                if (testEntity.synthesisPaper == null)
+                    testItem += '<div class="card-header font-weight-bold text-danger">' + 'Missed' + '</div>';
+                else if (test.status == TestStatus.Completed)
+                    testItem += '<div class="card-header font-weight-bold bg-dark text-light">' + 'Pending review' + '</div>';
+                else if (test.status == TestStatus.Graded)
+                    testItem += '<div class="card-header font-weight-bold bg-dark text-light">' + 'Completed' + '</div>';
                 break;
         }
 
         //body
-        testItem += '<div class="card-body">';
+        testItem += '<div class="card-body bg-light text-dark">';
         testItem += '<h5 class="card-title">' + testEntity.name + '</h5>';
-        testItem += '<p class="card-text">' + 'With supporting text below as a natural lead-in to additional content.' + '</p>';
+        testItem += '<p class="card-text">' + 'Test description text' + '</p>';
 
         switch (testEntity.status) {
             case TestStatus.Scheduled:
-                testItem += '<a href="#" class="btn btn-primary" onclick="startTest(' + stsEntity.studentId + ',' + stsEntity.synthesisTestId + ')">' + 'Start test' + '</a>';
+                testItem += '<a href="#" class="btn btn-dark disabled"  onclick="startTest(' + stsEntity.studentId + ',' + stsEntity.synthesisTestId + ')">' + 'Take test' + '</a>';
                 break;
             case TestStatus.InProgress:
-                testItem += '<a href="#" class="btn btn-primary disabled">' + 'Start test' + '</a>';
+                testItem += '<a href="#" class="btn btn-dark">' + 'Take test' + '</a>';
                 break;
             case TestStatus.Completed:
-                testItem += '<a href="#" class="btn btn-primary disabled">' + 'vidi rez ili da pise da nije polagao' + '</a>';
+            case TestStatus.Graded:
+                if (testEntity.synthesisPaper == null)
+                    break
+                else if (test.status == TestStatus.Completed)
+                    testItem += '<a href="#" class="btn btn-primary disabled">' + 'vidi rez ili da pise da nije polagao' + '</a>';
+                else if (test.status == TestStatus.Graded)
+                    testItem += '<a href="#" class="btn btn-primary">' + 'Results' + '</a>';
                 break;
         }
         testItem += '</div>';
 
         //footer
-        testItem += '<div class="card-footer text-muted">' + '2 days ago' + '</div>';
+        //testItem += '<div class="card-footer text-muted bg-dark">' + '2 days ago' + '</div>';
 
         testItem += '</div><br/>';
         testsList.append(testItem);
