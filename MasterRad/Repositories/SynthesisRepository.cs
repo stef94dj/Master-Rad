@@ -10,11 +10,13 @@ namespace MasterRad.Repositories
 {
     public interface ISynthesisRepository
     {
+        SynthesisTestEntity Get(int testId);
         IEnumerable<SynthesisTestEntity> Get();
         IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId);
         SynthesisTestEntity Create(SynthesisCreateRQ request);
         void Delete(DeleteDTO request);
         SynthesisTestEntity UpdateName(UpdateNameRQ request);
+        SynthesisTestEntity StatusNext(UpdateDTO request);
     }
 
     public class SynthesisRepository : ISynthesisRepository
@@ -24,6 +26,14 @@ namespace MasterRad.Repositories
         public SynthesisRepository(Context context)
         {
             _context = context;
+        }
+
+        public SynthesisTestEntity Get(int testId)
+        {
+            return _context.SynthesisTests
+                        .Where(t => t.Id == testId)
+                        .AsNoTracking()
+                        .SingleOrDefault();
         }
 
         public IEnumerable<SynthesisTestEntity> Get()
@@ -100,5 +110,24 @@ namespace MasterRad.Repositories
             return synthesisTestEntity;
         }
 
+        public SynthesisTestEntity StatusNext(UpdateDTO request)
+        {
+            var currentStatus = Get(request.Id).Status;
+
+            var synthesisTestEntity = new SynthesisTestEntity() //AutoMapper
+            {
+                Id = request.Id,
+                TimeStamp = request.TimeStamp,
+                Status = currentStatus + 1,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            _context.SynthesisTests.Attach(synthesisTestEntity);
+            _context.Entry(synthesisTestEntity).Property(x => x.Status).IsModified = true;
+            _context.SaveChanges();
+
+            return synthesisTestEntity;
+        }
     }
 }

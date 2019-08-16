@@ -10,7 +10,7 @@ namespace MasterRad.DTOs
         public int Id { get; set; }
     }
 
-    public abstract class UpdateDTO : IdentifyDTO
+    public class UpdateDTO : IdentifyDTO
     {
         public byte[] TimeStamp { get; set; }
     }

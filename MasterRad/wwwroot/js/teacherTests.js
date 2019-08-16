@@ -67,9 +67,7 @@ function drawCreatedByCell(test) {
 function drawStateCell(test) {
     var result = '<td><div>';
     result += '<p style="float:left">' + TestStatus.ToString(test.status) + '</p>';
-    if (test.status < TestStatus.Graded) {
-        result += drawChangeStatusModalButton('dark', test, true);
-    }
+    result += drawChangeStatusModalButton('dark', test, true);
     result += '</div></td>';
     return result;
 }
@@ -79,7 +77,7 @@ function drawChangeStatusModalButton(color, test, enabled) {
     if (!enabled)
         result += 'disabled ';
     debugger;
-    if (test.status == TestStatus.Graded) 
+    if (test.status == TestStatus.Graded)
         result += ' onclick="viewResults(' + test.id + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">Results</button>';
     else
         result += 'data-toggle="modal" onclick="openStatusModal(this,' + newStatus + ')" data-id="' + test.id + '" data-timestamp="' + test.timeStamp + '" data-news-tatus-code="' + newStatus + '" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + TestStatus.ActionName(test.status) + '</button>'
@@ -140,7 +138,6 @@ function openStatusModal(btn, nextStatus) {
     modal.modal('show');
     return false;
 }
-
 function statusNext() {
     var modalBody = $(statusModalSelector).find('.modal-body');
 

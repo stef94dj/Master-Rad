@@ -27,12 +27,12 @@
     },
     ActionWarningText: function (statusCode) {
         switch (statusCode) {
-            case TestStatus.Scheduled:
-                return "This will enable students start taking the test.";
             case TestStatus.InProgress:
-                return "This will disable students from submiting new answers.";
+                return "This will enable students start taking the test.";
             case TestStatus.Completed:
-                return "This will start the the automatic process of evaluating answers submited by the student. This may take some time to complete.";
+                return "This will disable students from submiting new answers.";
+            case TestStatus.Graded:
+                return "This will start the the process of evaluating answers submited by the student. This may take some time to complete.";
         }
     }
 }

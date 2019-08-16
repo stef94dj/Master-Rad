@@ -58,5 +58,12 @@ namespace MasterRad.API
             var res = _synthesisRepository.UpdateName(body);
             return Ok(res);
         }
+
+        [HttpPost, Route("status/next")]
+        public ActionResult<SynthesisTestEntity> GoToNextStatus([FromBody] UpdateDTO body)
+        {
+            var res = _synthesisRepository.StatusNext(body);
+            return Ok(res);
+        }
     }
 }
