@@ -1,3 +1,4 @@
-﻿<textarea id="sql-script" rows="14" cols="150" placeholder="Use 'CTRL' + 'Space' for hints and autocomplete"></textarea>
+﻿@model string
+<textarea id="sql-script" rows="14" cols="150" placeholder="Use 'CTRL' + 'Space' for hints and autocomplete">@(Model ?? string.Empty)</textarea>
 <br />
 <button type="button" class="btn btn-primary" onclick="executeScript()">Execute</button>

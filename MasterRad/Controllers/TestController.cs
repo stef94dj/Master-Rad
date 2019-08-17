@@ -27,13 +27,16 @@ namespace MasterRad.Controllers
             if (testAssignment == null)
                 return Unauthorized();
 
-            var stsTimeStamp = testAssignment?.SynthesisPaper?.TimeStamp;
+            var stsTimeStamp = testAssignment.SynthesisPaper?.TimeStamp;
             var vm = new SynthesisExamVM()
             {
                 TestId = testId,
-                SynthesisPaperId = testAssignment?.SynthesisPaper?.Id ?? 0,
+                SynthesisPaperId = testAssignment.SynthesisPaper?.Id ?? 0,
                 SynthesisPaperTimeStamp = stsTimeStamp == null ? string.Empty : Convert.ToBase64String(stsTimeStamp),
-                NameOnServer = testAssignment.NameOnServer
+                NameOnServer = testAssignment.NameOnServer,
+                SqlScript = testAssignment.SynthesisPaper?.SqlScript ?? string.Empty,
+                TaskDescription = testAssignment.SynthesisTest.Task.Description,
+                ModelDescription = testAssignment.SynthesisTest.Task.Template.ModelDescription
             };
 
             return View(vm);

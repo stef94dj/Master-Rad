@@ -11,8 +11,52 @@
     <input type="text" value="@(Model.NameOnServer)" id="name-on-server">
 </div>
 
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modelDescription">
+    Model
+</button>
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#taskDescription">
+    Task
+</button>
+
+<!-- Model Description Modal -->
+<div class="modal fade" id="modelDescription" tabindex="-1" role="dialog" aria-labelledby="modelDescriptionTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Model description</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-wrap: break-word;">
+                @(Model.ModelDescription)
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Task Description Modal -->
+<div class="modal fade" id="taskDescription" tabindex="-1" role="dialog" aria-labelledby="taskDescriptionTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Task description</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="word-wrap: break-word;">
+                @(Model.TaskDescription)
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <br /><br />
-<partial name="../Partials/SqlEditor.cshtml" />
+<partial name="../Partials/SqlEditor.cshtml" model="(Model.SqlScript)" />
 <button disabled id="save-sln-btn" type="button" class="btn btn-primary" onclick="submitAnswer()">Submit answer</button>
 
 <br /><br />

@@ -54,6 +54,9 @@ namespace MasterRad.Repositories
             return _context.SynthesysTestStudents
                            .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
                            .Include(sts => sts.SynthesisPaper)
+                           .Include(sts => sts.SynthesisTest)
+                           .ThenInclude(test => test.Task)
+                           .ThenInclude(task => task.Template)
                            .SingleOrDefault();
         }
 

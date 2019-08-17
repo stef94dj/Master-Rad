@@ -12,6 +12,7 @@ namespace MasterRad.Models.ViewModels
         public string SynthesisPaperTimeStamp { get; set; }
         public string NameOnServer { get; set; }
 
+        public string SqlScript { get; set; }
         public string ModelDescription { get; set; }
         public string TaskDescription { get; set; }
     }
