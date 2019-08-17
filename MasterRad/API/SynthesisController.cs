@@ -29,6 +29,13 @@ namespace MasterRad.API
             return Ok(res);
         }
 
+        [HttpGet, Route("Solution/Format/{testId}")]
+        public ActionResult<IEnumerable<string>> GetSolutionFormat([FromRoute] int testId)
+        {
+            var res = _synthesisRepository.GetSolutionFormat(testId);
+            return Ok(res);
+        }
+
         [HttpPost, Route("create/test")]
         public ActionResult<SynthesisTestEntity> CreateTest([FromBody] SynthesisCreateRQ body)
         {

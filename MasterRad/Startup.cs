@@ -46,6 +46,7 @@ namespace MasterRad
             //services
             services.AddScoped<IMicrosoftSQL, MicrosoftSQL>();
             services.AddSingleton<IMsSqlQueryBuilder, MsSqlQueryBuilder>();
+            services.AddScoped<IUser, User>();
             
             //repositories
             services.AddScoped<ITemplateRepository, TemplateRepository>();

@@ -23,5 +23,10 @@ namespace MasterRad.Controllers
         {
             return View();
         }
+
+        public IActionResult StartTest()
+        {
+            return View("~/Views/StudentMenu/Exercises.cshtml");
+        }
     }
 }

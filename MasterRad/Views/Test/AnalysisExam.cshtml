@@ -1,0 +1,43 @@
+﻿@model MasterRad.Models.ViewModels.TaskSolutionVM
+@{
+    ViewData["Title"] = "Task solution";
+}
+
+<h1>@(Model.TaskName)</h1>
+<div hidden>
+    <input type="text" value="@(Model.Id)" id="task-id">
+    <input type="text" value="@(Model.TimeStamp)" id="task-timestamp">
+    <input type="text" value="@(Model.NameOnServer)" id="name-on-server">
+</div>
+
+<br /><br />
+<partial name="../Partials/SqlEditor.cshtml" />
+<button disabled id="save-sln-btn" type="button" class="btn btn-primary" onclick="saveSolution()">Save</button>
+
+<br /><br />
+
+<div class="table-responsive">
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark" id="table-header" />
+        <tbody id="table-body" />
+    </table>
+</div>
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/CodeMirror/codemirror-custom.css">
+    <link rel="stylesheet" href="~/css/CodeMirror/codemirror.css">
+    <link rel="stylesheet" href="~/css/CodeMirror/show-hint.css" />
+}
+
+@section Scripts {
+    <script src="~/js/taskSolution.js" asp-append-version="true"></script>
+    <script src="~/js/util.js" asp-append-version="true"></script>
+
+    <script src="~/js/sqlEditor.js" asp-append-version="true"></script>
+    <script src="~/js/CodeMirror/codemirror.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/sql.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/show-hint.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/sql-hint.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/placeholder.js" asp-append-version="false"></script>
+}

@@ -246,14 +246,12 @@ function updateTemplate() {
     });
 }
 function updateData(id) {
-    debugger;
     var form = $('#hidden-form');
     form.find('#task-id').val(id);
     form.attr('action', '/Task/ModifyTaskData');
     form.submit();
 }
 function updateSolution(id) {
-    debugger;
     var form = $('#hidden-form');
     form.find('#task-id').val(id);
     form.attr('action', '/Task/ModifyTaskSolution');

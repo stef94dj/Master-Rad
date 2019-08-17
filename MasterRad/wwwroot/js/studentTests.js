@@ -23,15 +23,15 @@ function loadTest() {
 function drawTestsList(data) {
     testsList.html('');
     $.each(data, function (index, synthesisTestStudent) {
-        var testItem = '<div class="card text-center ">';
+        var testItem = '<div class="card text-center">';
 
         var stsEntity = synthesisTestStudent;
         var testEntity = synthesisTestStudent.synthesisTest;
-        debugger;
+
         //header
         switch (testEntity.status) {
             case TestStatus.Scheduled:
-                testItem += '<div class="card-header font-weight-bold bg-dark text-light">' + 'Scheduled' + '</div>';
+                testItem += '<div class="card-header font-weight-bold bg-light text-primary">' + 'Scheduled' + '</div>';
                 break;
             case TestStatus.InProgress:
                 testItem += '<div class="card-header font-weight-bold text-white bg-primary">' + 'In progress' + '</div>';
@@ -54,10 +54,10 @@ function drawTestsList(data) {
 
         switch (testEntity.status) {
             case TestStatus.Scheduled:
-                testItem += '<a href="#" class="btn btn-dark disabled"  onclick="startTest(' + stsEntity.studentId + ',' + stsEntity.synthesisTestId + ')">' + 'Take test' + '</a>';
+                testItem += '<a href="javascript:;" class="btn btn-dark disabled">' + 'Take test' + '</a>';
                 break;
             case TestStatus.InProgress:
-                testItem += '<a href="#" class="btn btn-dark">' + 'Take test' + '</a>';
+                testItem += '<a href="javascript:;" class="btn btn-dark" onclick="startTest(' + stsEntity.studentId + ',' + stsEntity.synthesisTestId +')">' + 'Take test' + '</a>';
                 break;
             case TestStatus.Completed:
             case TestStatus.Graded:
@@ -77,6 +77,11 @@ function drawTestsList(data) {
         testItem += '</div><br/>';
         testsList.append(testItem);
     });
+}
 
-    //testsList.html(JSON.stringify(data));
+function startTest(studentId, synthesisTestId) {
+    var form = $('#hidden-form');
+    form.find('#test-id').val(synthesisTestId);
+    form.attr('action', '/Test/SynthesisExam');
+    form.submit();
 }

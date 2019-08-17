@@ -12,7 +12,10 @@ namespace MasterRad.Repositories
     {
         SynthesisTestEntity Get(int testId);
         IEnumerable<SynthesisTestEntity> Get();
+        SynthesisTestStudentEntity GetAssignment(int studentId, int testId);
         IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId);
+        IEnumerable<string> GetSolutionFormat(int testId);
+        bool IsAssigned(int studentId, int testId);
         SynthesisTestEntity Create(SynthesisCreateRQ request);
         void Delete(DeleteDTO request);
         SynthesisTestEntity UpdateName(UpdateNameRQ request);
@@ -43,6 +46,12 @@ namespace MasterRad.Repositories
                            .ThenInclude(t => t.Template)
                            .OrderByDescending(t => t.DateCreated);
         }
+        public SynthesisTestStudentEntity GetAssignment(int studentId, int testId)
+        {
+            return _context.SynthesysTestStudents
+                           .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
+                           .SingleOrDefault();
+        }
 
         public IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId)
         {
@@ -50,6 +59,25 @@ namespace MasterRad.Repositories
                            .Include(sts => sts.SynthesisTest)
                            .Where(sts => sts.StudentId == studentId);
             //.OrderByDescending(sts => sts.DateCreated);
+        }
+
+        public IEnumerable<string> GetSolutionFormat(int testId)
+        {
+            return _context.SynthesisTests
+                           .Where(st => st.Id == testId)
+                           .Include(st => st.Task)
+                           .ThenInclude(t => t.SolutionColumns)
+                           .Single()
+                           .Task
+                           .SolutionColumns
+                           .Select(sc => sc.ColumnName);
+        }
+
+        public bool IsAssigned(int studentId, int testId)
+        {
+            return _context.SynthesysTestStudents
+                            .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
+                            .Any();
         }
 
         public SynthesisTestEntity Create(SynthesisCreateRQ request)
