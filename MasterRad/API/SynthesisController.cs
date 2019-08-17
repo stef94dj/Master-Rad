@@ -84,7 +84,7 @@ namespace MasterRad.API
             if (!_synthesisRepository.HasAnswer(body.TestId, _userService.UserId))
                 return Ok(_synthesisRepository.SubmitAnswer(body.TestId, _userService.UserId, body.SqlScript));
             else
-                return Ok(_synthesisRepository.UpdateAnswer(body.TestId, _userService.UserId, body.SynthesisPaperId, body.SynthesisPaperTimeStamp, body.SqlScript));
+                return Ok(_synthesisRepository.UpdateAnswer(body.SynthesisPaperId, body.SynthesisPaperTimeStamp, body.SqlScript));
         }
     }
 }

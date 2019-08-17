@@ -21,7 +21,7 @@ namespace MasterRad.Repositories
         SynthesisTestEntity UpdateName(UpdateNameRQ request);
         SynthesisTestEntity StatusNext(UpdateDTO request);
         SynthesisPaperEntity SubmitAnswer(int testId, int studentId, string sqlScript);
-        SynthesisPaperEntity UpdateAnswer(int testId, int studentId, int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript);
+        SynthesisPaperEntity UpdateAnswer(int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript);
         bool HasAnswer(int testId, int userId);
     }
 
@@ -198,14 +198,12 @@ namespace MasterRad.Repositories
             return synthesisPaperEntity;
         }
 
-        public SynthesisPaperEntity UpdateAnswer(int testId, int studentId, int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript)
+        public SynthesisPaperEntity UpdateAnswer(int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript)
         {
             var synthesisPaperEntity = new SynthesisPaperEntity() //AutoMapper
             {
                 Id = synthesisPaperId,
                 TimeStamp = synthesisPaperTimeStamp,
-                STS_SynthesisTestId = testId,
-                STS_StudentId = studentId,
                 SqlScript = sqlScript,
                 DateModified = DateTime.UtcNow,
                 ModifiedBy = "Current user - NOT IMPLEMENTED",
