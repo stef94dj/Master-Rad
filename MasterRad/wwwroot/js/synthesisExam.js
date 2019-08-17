@@ -3,17 +3,24 @@ var editor = null;
 var tableHeader = null;
 var tableBody = null;
 var solutionFormat = null;
+var testId = null;
+var paperId = null;
+var paperTimeStamp = null;
 
 $(document).ready(function () {
+    testId = $('#test-id').val();
     tableHeader = $('#table-header');
     tableBody = $('#table-body');
     nameOnServer = $('#name-on-server').val();
+    paperId = $('#paper-id').val();
+    paperTimeStamp = $('#paper-timestamp').val();
+
     buildSqlEditor(nameOnServer); //sets value for "editor"
     loadSolutionFormat();
 });
 
 function loadSolutionFormat() {
-    var apiUrl = '/api/Synthesis/Solution/Format/' + $('#test-id').val()
+    var apiUrl = '/api/Synthesis/Solution/Format/' + testId
 
     $.ajax({
         url: apiUrl,
@@ -23,7 +30,6 @@ function loadSolutionFormat() {
         }
     });
 }
-
 
 function executeScript() {
     var rqBody = {
@@ -38,27 +44,28 @@ function executeScriptCallback(data) {
     drawReadonlyTable(data);
     submitScriptUI.checkDisableSubmit();
 }
+
 function submitAnswer() {
 
     //upit, test id, (student id sa servera)
     //api da odradi validaciju
 
     var rqBody = {
-        "Id": $('#task-id').val(),
-        "TimeStamp": $('#task-timestamp').val(),
-        "SolutionSqlScript": editor.getValue(),
-        "ColumnNames": columnNames
+        "TestId": testId,
+        "SynthesisPaperId": paperId,
+        "SynthesisPaperTimeStamp": paperTimeStamp,
+        "SqlScript": editor.getValue()
     };
 
     $.ajax({
-        url: '/api/Syntheis/Submit/Answer',
+        url: '/api/Synthesis/Submit/Answer',
         dataType: 'json',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
             alert('success');
-            window.location.replace('/Setup/Tasks');
+            paperTimeStamp = data.timeStamp;
         }
     });
 }

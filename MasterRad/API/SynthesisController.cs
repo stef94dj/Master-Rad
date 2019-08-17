@@ -15,10 +15,12 @@ namespace MasterRad.API
     [ApiController]
     public class SynthesisController : ControllerBase
     {
+        private readonly IUser _userService;
         private readonly ISynthesisRepository _synthesisRepository;
 
-        public SynthesisController(ISynthesisRepository synthesisRepository)
+        public SynthesisController(IUser userService, ISynthesisRepository synthesisRepository)
         {
+            _userService = userService;
             _synthesisRepository = synthesisRepository;
         }
 
@@ -71,6 +73,18 @@ namespace MasterRad.API
         {
             var res = _synthesisRepository.StatusNext(body);
             return Ok(res);
+        }
+
+        [HttpPost, Route("Submit/Answer")]
+        public ActionResult<SynthesisPaperEntity> SubmitAnswer([FromBody] AnswerSynthesisRQ body)
+        {
+            if (!_userService.IsAssigned(body.TestId))
+                return Unauthorized();
+
+            if (!_synthesisRepository.HasAnswer(body.TestId, _userService.UserId))
+                return Ok(_synthesisRepository.SubmitAnswer(body.TestId, _userService.UserId, body.SqlScript));
+            else
+                return Ok(_synthesisRepository.UpdateAnswer(body.TestId, _userService.UserId, body.SynthesisPaperId, body.SynthesisPaperTimeStamp, body.SqlScript));
         }
     }
 }

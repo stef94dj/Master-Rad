@@ -70,8 +70,10 @@ namespace MasterRad.Repositories
 
             _context.Tasks.Attach(taskEntity);
             _context.Entry(taskEntity).Property(x => x.Description).IsModified = true;
-            _context.SaveChanges();
+            _context.Entry(taskEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(taskEntity).Property(x => x.ModifiedBy).IsModified = true;
 
+            _context.SaveChanges();
             return taskEntity;
         }
 
@@ -88,8 +90,10 @@ namespace MasterRad.Repositories
 
             _context.Tasks.Attach(taskEntity);
             _context.Entry(taskEntity).Property(x => x.Name).IsModified = true;
-            _context.SaveChanges();
+            _context.Entry(taskEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(taskEntity).Property(x => x.ModifiedBy).IsModified = true;
 
+            _context.SaveChanges();
             return taskEntity;
         }
 
@@ -106,8 +110,10 @@ namespace MasterRad.Repositories
 
             _context.Tasks.Attach(taskEntity);
             _context.Entry(taskEntity).Property(x => x.TemplateId).IsModified = true;
-            _context.SaveChanges();
+            _context.Entry(taskEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(taskEntity).Property(x => x.ModifiedBy).IsModified = true;
 
+            _context.SaveChanges();
             return taskEntity;
         }
 
@@ -132,6 +138,8 @@ namespace MasterRad.Repositories
 
             _context.Tasks.Attach(taskEntity);
             _context.Entry(taskEntity).Property(x => x.SolutionSqlScript).IsModified = true;
+            _context.Entry(taskEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(taskEntity).Property(x => x.ModifiedBy).IsModified = true;
 
             _context.Tasks.Where(t => t.Id == request.Id)
                           .Include(i => i.SolutionColumns)

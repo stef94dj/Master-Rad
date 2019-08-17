@@ -77,8 +77,10 @@ namespace MasterRad.Repositories
 
             _context.Templates.Attach(templateEntity);
             _context.Entry(templateEntity).Property(x => x.ModelDescription).IsModified = true;
-            _context.SaveChanges();
+            _context.Entry(templateEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(templateEntity).Property(x => x.ModifiedBy).IsModified = true;
 
+            _context.SaveChanges();
             return templateEntity;
         }
 
@@ -95,8 +97,10 @@ namespace MasterRad.Repositories
 
             _context.Templates.Attach(templateEntity);
             _context.Entry(templateEntity).Property(x => x.Name).IsModified = true;
-            _context.SaveChanges();
+            _context.Entry(templateEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(templateEntity).Property(x => x.ModifiedBy).IsModified = true;
 
+            _context.SaveChanges();
             return templateEntity;
         }
 

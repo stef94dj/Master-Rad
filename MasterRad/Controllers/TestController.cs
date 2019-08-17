@@ -27,9 +27,12 @@ namespace MasterRad.Controllers
             if (testAssignment == null)
                 return Unauthorized();
 
+            var stsTimeStamp = testAssignment?.SynthesisPaper?.TimeStamp;
             var vm = new SynthesisExamVM()
             {
                 TestId = testId,
+                SynthesisPaperId = testAssignment?.SynthesisPaper?.Id ?? 0,
+                SynthesisPaperTimeStamp = stsTimeStamp == null ? string.Empty : Convert.ToBase64String(stsTimeStamp),
                 NameOnServer = testAssignment.NameOnServer
             };
 

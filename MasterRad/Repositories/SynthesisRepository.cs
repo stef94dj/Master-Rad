@@ -20,6 +20,9 @@ namespace MasterRad.Repositories
         void Delete(DeleteDTO request);
         SynthesisTestEntity UpdateName(UpdateNameRQ request);
         SynthesisTestEntity StatusNext(UpdateDTO request);
+        SynthesisPaperEntity SubmitAnswer(int testId, int studentId, string sqlScript);
+        SynthesisPaperEntity UpdateAnswer(int testId, int studentId, int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript);
+        bool HasAnswer(int testId, int userId);
     }
 
     public class SynthesisRepository : ISynthesisRepository
@@ -50,6 +53,7 @@ namespace MasterRad.Repositories
         {
             return _context.SynthesysTestStudents
                            .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
+                           .Include(sts => sts.SynthesisPaper)
                            .SingleOrDefault();
         }
 
@@ -77,6 +81,7 @@ namespace MasterRad.Repositories
         {
             return _context.SynthesysTestStudents
                             .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
+                            .AsNoTracking()
                             .Any();
         }
 
@@ -133,8 +138,10 @@ namespace MasterRad.Repositories
 
             _context.SynthesisTests.Attach(synthesisTestEntity);
             _context.Entry(synthesisTestEntity).Property(x => x.Name).IsModified = true;
-            _context.SaveChanges();
+            _context.Entry(synthesisTestEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(synthesisTestEntity).Property(x => x.ModifiedBy).IsModified = true;
 
+            _context.SaveChanges();
             return synthesisTestEntity;
         }
 
@@ -153,9 +160,64 @@ namespace MasterRad.Repositories
 
             _context.SynthesisTests.Attach(synthesisTestEntity);
             _context.Entry(synthesisTestEntity).Property(x => x.Status).IsModified = true;
+            _context.Entry(synthesisTestEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(synthesisTestEntity).Property(x => x.ModifiedBy).IsModified = true;
+
+            _context.SaveChanges();
+            return synthesisTestEntity;
+        }
+
+        public bool HasAnswer(int testId, int userId)
+        {
+            var sqlAnswer = _context.SynthesysTestStudents
+                                               .Where(sts => sts.SynthesisTestId == testId && sts.StudentId == userId)
+                                               .Include(sts => sts.SynthesisPaper)
+                                               .AsNoTracking()
+                                               .Single()
+                                               .SynthesisPaper
+                                               ?.SqlScript;
+
+            return !string.IsNullOrEmpty(sqlAnswer);
+        }
+
+        public SynthesisPaperEntity SubmitAnswer(int testId, int studentId, string sqlScript)
+        {
+
+            var synthesisPaperEntity = new SynthesisPaperEntity() //AutoMapper
+            {
+                STS_SynthesisTestId = testId,
+                STS_StudentId = studentId,
+                SqlScript = sqlScript,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            _context.SynthesisPapers.Add(synthesisPaperEntity);
             _context.SaveChanges();
 
-            return synthesisTestEntity;
+            return synthesisPaperEntity;
+        }
+
+        public SynthesisPaperEntity UpdateAnswer(int testId, int studentId, int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript)
+        {
+            var synthesisPaperEntity = new SynthesisPaperEntity() //AutoMapper
+            {
+                Id = synthesisPaperId,
+                TimeStamp = synthesisPaperTimeStamp,
+                STS_SynthesisTestId = testId,
+                STS_StudentId = studentId,
+                SqlScript = sqlScript,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            _context.SynthesisPapers.Attach(synthesisPaperEntity);
+            _context.Entry(synthesisPaperEntity).Property(x => x.SqlScript).IsModified = true;
+            _context.Entry(synthesisPaperEntity).Property(x => x.ModifiedBy).IsModified = true;
+            _context.Entry(synthesisPaperEntity).Property(x => x.DateModified).IsModified = true;
+
+            _context.SaveChanges();
+            return synthesisPaperEntity;
         }
     }
 }

@@ -1,3 +1,7 @@
+Logical validations
+====================
+- profesorovo resenje za sintezu (sql) ne trebalo da se menja nakon sto pocne bar jedan test (zbog imena kolona tj. formata resenja)
+
 LOGOVANJE: File sistem, sql server, baza - odvojeni sistemi koji nisu transakcija
 =================================================================================
 - uvek treba znati sta se desilo (sev 1)
