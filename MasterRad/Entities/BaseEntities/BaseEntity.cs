@@ -20,4 +20,12 @@ namespace MasterRad.Entities
         public DateTime? DateModified { get; set; }
         public string ModifiedBy { get; set; }
     }
+
+    public abstract class BaseManyToManyEntity
+    {
+        [Timestamp]
+        public virtual byte[] TimeStamp { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public string CreatedBy { get; set; }
+    }
 }

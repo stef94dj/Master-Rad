@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MasterRad.Entities
 {
-    public abstract class BaseTestStudentEntity
+    public abstract class BaseTestStudentEntity : BaseManyToManyEntity
     {
         public int StudentId { get; set; }
         public StudentEntity Student { get; set; }
