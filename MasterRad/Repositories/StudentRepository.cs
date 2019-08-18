@@ -11,11 +11,12 @@ namespace MasterRad.Repositories
     public interface IStudentRepository
     {
         IEnumerable<StudentEntity> SearchStudents(SearchStudentRQ request);
-        IEnumerable<StudentEntity> GetAssignedSynthesis(int testId);
-        IEnumerable<StudentEntity> GetAssignedAnalysis(int testId);
+        IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId);
+        IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId);
         IEnumerable<SynthesisTestStudentEntity> AssignSynthesisTest(List<int> studentIds, int testId);
         IEnumerable<AnalysisTestStudentEntity> AssignAnalysisTest(List<int> studentIds, int testId);
-
+        void RemoveSynthesis(int studentId, byte[] timeStamp, int testId);
+        void RemoveAnalysis(int studentId, byte[] timeStamp, int testId);
     }
 
     public class StudentRepository : IStudentRepository
@@ -27,20 +28,18 @@ namespace MasterRad.Repositories
             _context = context;
         }
 
-        public IEnumerable<StudentEntity> GetAssignedSynthesis(int testId)
+        public IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId)
         {
             return _context.SynthesysTestStudents
                            .Where(sts => sts.SynthesisTestId == testId)
-                           .Include(sts => sts.Student)
-                           .Select(sts => sts.Student);
+                           .Include(sts => sts.Student);
         }
 
-        public IEnumerable<StudentEntity> GetAssignedAnalysis(int testId)
+        public IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId)
         {
             return _context.AnalysisTestStudents
                            .Where(sts => sts.AnalysisTestId == testId)
-                           .Include(sts => sts.Student)
-                           .Select(sts => sts.Student);
+                           .Include(sts => sts.Student);
         }
 
         public IEnumerable<AnalysisTestStudentEntity> AssignAnalysisTest(List<int> studentIds, int testId)
@@ -95,6 +94,25 @@ namespace MasterRad.Repositories
                 qry = qry.Where(s => !string.IsNullOrEmpty(s.Email) && s.Email.ToLower().Contains(rq.Email.ToLower()));
 
             return qry.AsNoTracking().ToList();
+        }
+
+        public void RemoveSynthesis(int studentId, byte[] timeStamp, int testId)
+        {
+            var stsEntity = new SynthesisTestStudentEntity()
+            {
+                StudentId = studentId,
+                SynthesisTestId = testId,
+                TimeStamp = timeStamp
+            };
+
+            _context.SynthesysTestStudents.Attach(stsEntity);
+            _context.SynthesysTestStudents.Remove(stsEntity);
+            _context.SaveChanges();
+        }
+
+        public void RemoveAnalysis(int studentId, byte[] timeStamp, int testId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

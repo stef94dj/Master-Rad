@@ -34,7 +34,7 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("get/assigned/{testType}/{testId}")]
-        public ActionResult<IEnumerable<StudentEntity>> GetAssignedToTest([FromRoute]TestType testType, int testId)
+        public ActionResult<IEnumerable<BaseTestStudentEntity>> GetAssignedToTest([FromRoute]TestType testType, int testId)
         {
             switch (testType)
             {
@@ -66,6 +66,31 @@ namespace MasterRad.API
                 default:
                     return StatusCode(500);
             }
+        }
+
+        [HttpPost, Route("remove/assigned")]
+        public ActionResult RemoveFromTest([FromBody] RemoveAssignedRQ body)
+        {
+            switch (body.TestType)
+            {
+                case TestType.Synthesis:
+                    if (_synthesisRepository.Get(body.TestId).Status >= TestStatus.InProgress)
+                        return StatusCode(500);
+
+                    _studentRepository.RemoveSynthesis(body.StudentId, body.TimeStamp, body.TestId);
+                    break;
+                case TestType.Analysis:
+                    throw new NotImplementedException();
+                //if (_analysisRepository.Get(body.TestId).Status >= TestStatus.InProgress)
+                //    return StatusCode(500);
+
+                //_studentRepository.AssignAnalysisTest(body.StudentId, body.TimeStamp, body.TestId);
+                //break;
+                default:
+                    return StatusCode(500);
+            }
+
+            return Ok(true);
         }
     }
 }

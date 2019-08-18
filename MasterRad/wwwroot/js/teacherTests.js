@@ -58,7 +58,8 @@ function drawNameCell(test) {
     return result;
 }
 function drawStudentsCell(test) {
-    return '<td>' + drawCellEditNavigationButton('Assign', 'dark', 'assignStudents', test.id, true) + '</td>';
+    var enabled = test.status >= TestStatus.Completed;
+    return '<td>' + drawCellEditNavigationButton('Assign', 'dark', 'assignStudents', test.id, enabled) + '</td>';
 }
 function drawTemplateCell(test) {
     return '<td>' + test.task.template.name + '</td>';

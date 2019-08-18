@@ -23,7 +23,6 @@ function loadAssignedStudents() {
         }
     });
 }
-
 function searchStudents() {
     searchResList.html('');;
 
@@ -51,7 +50,6 @@ function searchStudents() {
         }
     });
 }
-
 function populateStudentSearchResult(data) {
     searchResList.html('');
 
@@ -66,7 +64,6 @@ function populateStudentSearchResult(data) {
         searchResList.append(optionHtml);
     });
 }
-
 function assign() {
     var selectedStudents = searchResList.find('option:selected');
 
@@ -92,35 +89,44 @@ function assign() {
         }
     });
 }
-
-function renderAssignedListItem(id, email, firstName, lastName) {
+function renderAssignedListItem(id, timestamp, email, firstName, lastName) {
     var result = '<tr data-id="' + id + '">'
 
     result += '<td>' + email + '</td>';
     result += '<td>' + firstName + '</td>';
     result += '<td>' + lastName + '</td>'
-    result += '<td><button onclick="removeStudent(' + id + ')" type="button" class="btn btn-outline-danger btn-sm" style="float:right">Remove</button></td>';
+    result += '<td><button onclick="removeStudent(' + id + ',' + "'" + timestamp + "'" + ')" type="button" class="btn btn-outline-danger btn-sm" style="float:right">Remove</button></td>';
     result += '</tr>';
 
     return result;
 }
-
 function displayAssignedStudents(data) {
     assignedStudents.html('');
 
-    $.each(data, function (index, student) {
-        var studentRow = renderAssignedListItem(student.id, student.email, student.firstName, student.lastName);
+    $.each(data, function (index, sts) {
+        var studentRow = renderAssignedListItem(sts.studentId, sts.timeStamp, sts.student.email, sts.student.firstName, sts.student.lastName);
         assignedStudents.append(studentRow);
     });
 }
-
-
 function removeFromSearchResultsList(students) {
     searchResList.remove(students);
 }
+function removeStudent(studentId, timestamp) {
+    var rqBody = {
+        "TestType": testType,
+        "TestId": testId,
+        "StudentId": studentId,
+        "TimeStamp": timestamp
+    };
 
-function remove() {
-    //call api to remove from assigned
-    //remove from assigned table
-    //add to search result table if maches criteria
+    $.ajax({
+        url: '/api/Student/remove/assigned',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            loadAssignedStudents();
+        }
+    });
 }

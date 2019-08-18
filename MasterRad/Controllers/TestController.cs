@@ -48,6 +48,21 @@ namespace MasterRad.Controllers
 
         public IActionResult AssignStudents(int testId, TestType testType)
         {
+            switch (testType)
+            {
+                case TestType.Synthesis:
+                    if (_synthesisRepository.Get(testId).Status >= TestStatus.Completed)
+                        return StatusCode(500);
+                    break;
+                case TestType.Analysis:
+                    throw new NotImplementedException();
+                    //if (_analysisRepository.Get(testId).Status >= TestStatus.Completed)
+                    //    return StatusCode(500);
+                    //break;
+                default:
+                    return StatusCode(500);
+            }
+
             var vm = new AssignStudentsVM
             {
                 TestId = testId,
