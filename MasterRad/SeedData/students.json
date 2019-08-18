@@ -2,19 +2,27 @@
   "students": [
     {
       "Id": 1,
-      "Email": "stud1@student.etf.bg.ac.rs"
+      "Email": "stud1@student.etf.bg.ac.rs",
+      "FirstName": "John",
+      "LastName": "Smith"
     },
     {
       "Id": 2,
-      "Email": "stud2@student.etf.bg.ac.rs"
+      "Email": "stud2@student.etf.bg.ac.rs",
+      "FirstName": "Jane",
+      "LastName": "Rogers"
     },
     {
       "Id": 3,
-      "Email": "stud3@student.etf.bg.ac.rs"
+      "Email": "stud3@student.etf.bg.ac.rs",
+      "FirstName": "John",
+      "LastName": "Rogers"
     },
     {
       "Id": 4,
-      "Email": "stud4@student.etf.bg.ac.rs"
+      "Email": "stud4@student.etf.bg.ac.rs",
+      "FirstName": "Jane",
+      "LastName": "Smith"
     },
     {
       "Id": 5,

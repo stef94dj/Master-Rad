@@ -15,7 +15,11 @@ namespace MasterRad.Entities
         public List<SynthesisTestStudentEntity> SynthesisTestStudents { get; set; }
         public List<AnalysisTestStudentEntity> AnalysisTestStudents { get; set; }
 
-        [EmailAddress, Required]
+        [EmailAddress, Required, MaxLength(255)]
         public string Email { get; set; }
+        [MaxLength(255)]
+        public string FirstName { get; set; }
+        [MaxLength(255)]
+        public string LastName { get; set; }
     }
 }

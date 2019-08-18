@@ -1,0 +1,82 @@
+﻿@model MasterRad.Models.ViewModels.AssignStudentsVM
+@{
+    ViewData["Title"] = "Students";
+}
+
+<h1>Assign students</h1>
+<div hidden>
+    <input type="text" value="@(Model.TestId)" id="test-id">
+    <input type="text" value="@((int)Model.TestType)" id="test-type">
+</div>
+
+<br />
+
+<div class="row">
+    <div class="col">
+        <input type="text" class="form-control" placeholder="First name" id="search-first-name">
+    </div>
+    <div class="col">
+        <input type="text" class="form-control" placeholder="Last name" id="search-last-name">
+    </div>
+    <div class="col">
+        <input type="text" class="form-control" placeholder="Email" id="search-email">
+    </div>
+    <div class="col">
+        <button onclick="searchStudents()" type="button" class="btn btn-outline-primary">Search</button>
+    </div>
+</div>
+
+<br />
+
+<div class="form-group">
+    <label for="student-search-res">Hold 'CTRL' to select multiple students</label>
+    <select multiple class="form-control" id="student-search-res">
+        @*<option data-id="1">1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>*@
+    </select>
+</div>
+<button onclick="assign()" type="button" class="btn btn-outline-primary">Assign</button>
+<br/><br />
+
+<table class="table table-striped table-sm table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Email</th>
+            <th scope="col">First name</th>
+            <th scope="col">Last name</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody id="assigned-students">
+        @for (int i = 0; i < 30; i++)
+        {
+            <tr data-id="@(i)">
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>mdo</td>
+                <td><button type="button" class="btn btn-outline-danger btn-sm" style="float:right">Remove</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@section Scripts {
+    <script src="~/js/assignStudents.js" asp-append-version="true"></script>
+    <script src="~/js/util.js" asp-append-version="true"></script>
+}

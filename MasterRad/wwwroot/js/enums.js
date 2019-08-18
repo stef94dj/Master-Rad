@@ -36,3 +36,8 @@
         }
     }
 }
+
+var TestType = {
+    Synthesis: 1,
+    Analysis: 2
+}

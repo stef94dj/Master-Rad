@@ -18,4 +18,10 @@ namespace MasterRad
         Completed = 3,
         Graded = 4
     }
+
+    public enum TestType
+    {
+        Synthesis = 1,
+        Analysis = 2
+    }
 }

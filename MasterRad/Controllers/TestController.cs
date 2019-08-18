@@ -46,5 +46,14 @@ namespace MasterRad.Controllers
             return View();
         }
 
+        public IActionResult AssignStudents(int testId, TestType testType)
+        {
+            var vm = new AssignStudentsVM
+            {
+                TestId = testId,
+                TestType = testType
+            };
+            return View(vm);
+        }
     }
 }

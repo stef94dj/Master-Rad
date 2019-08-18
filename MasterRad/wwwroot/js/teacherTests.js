@@ -27,7 +27,7 @@ function loadTest() {
     });
 }
 function drawSynthesisTestsTableMessage(message) {
-    return drawTableMessage(message, 6);
+    return drawTableMessage(message, 8);
 }
 function drawTestsList(data) {
     testsList.html('');
@@ -36,8 +36,10 @@ function drawTestsList(data) {
         var template = task.template;
 
         var testItem = '<tr>';
-        testItem += drawPathCell(template.name, task.name);
         testItem += drawNameCell(test);
+        testItem += drawTemplateCell(test);
+        testItem += drawTaskCell(test);
+        testItem += drawStudentsCell(test);
         testItem += drawCreatedAtCell(test);
         testItem += drawCreatedByCell(test);
         testItem += drawStateCell(test);
@@ -48,15 +50,21 @@ function drawTestsList(data) {
         testsList.append(testItem);
     });
 }
-function drawPathCell(templateName, taskName) {
-    return '<td>' + templateName + ' -> ' + taskName + '</td>';
-}
 function drawNameCell(test) {
     var result = '<td><div>';
     result += '<p style="float:left">' + test.name + '</p>';
     result += drawCellEditModalButton('Edit', 'dark', '#update-name-modal', test.id, test.timeStamp, true);
     result += '</div></td>';
     return result;
+}
+function drawStudentsCell(test) {
+    return '<td>' + drawCellEditNavigationButton('Assign', 'dark', 'assignStudents', test.id, true) + '</td>';
+}
+function drawTemplateCell(test) {
+    return '<td>' + test.task.template.name + '</td>';
+}
+function drawTaskCell(test) {
+    return '<td>' + test.task.name + '</td>';
 }
 function drawCreatedAtCell(test) {
     return '<td>' + test.dateCreated + '</td>';
@@ -157,4 +165,12 @@ function statusNext() {
             loadTest();
         }
     });
+}
+
+function assignStudents(testId) {
+    var form = $('#hidden-form');
+    form.find('#test-id').val(testId);
+    form.find('#test-type').val(TestType.Synthesis);
+    form.attr('action', '/Test/AssignStudents');
+    form.submit();
 }

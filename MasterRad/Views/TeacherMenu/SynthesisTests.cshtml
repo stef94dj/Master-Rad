@@ -8,8 +8,10 @@
 <table class="table table-bordered table-striped">
     <thead class="thead-dark" id="table-header">
         <tr id="database-table">
-            <th scope="col">Template -> Task</th>
             <th scope="col">Name</th>
+            <th scope="col">Template</th>
+            <th scope="col">Task</th>
+            <th scope="col">Students</th>
             <th scope="col">Created at</th>
             <th scope="col">Created by</th>
             <th scope="col">State</th>
@@ -67,7 +69,8 @@
 
 <!-- Form -->
 <form action="" hidden id="hidden-form" method="post">
-    <input type="number" name="taskId" id="task-id">
+    <input type="number" name="testId" id="test-id">
+    <input type="number" name="testType" id="test-type">
     <input type="submit" value="Submit" id="submit-btn">
 </form>
 
