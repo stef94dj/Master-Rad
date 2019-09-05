@@ -37,6 +37,7 @@ namespace MasterRad.Services
         bool CloneDatabase(string originDbName, string destDbName);
         bool DatabaseExists(string name);
         bool DeleteDatabaseIfExists(string name);
+        ConnectionParams GetAdminConnParams(string dbName);
     }
 
     public class MicrosoftSQL : IMicrosoftSQL
@@ -164,7 +165,7 @@ namespace MasterRad.Services
             return Result<bool>.Success(true);
         }
 
-        private ConnectionParams GetAdminConnParams(string dbName)
+        public ConnectionParams GetAdminConnParams(string dbName)
         {
             return connParams = new ConnectionParams()
             {

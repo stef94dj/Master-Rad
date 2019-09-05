@@ -45,11 +45,11 @@ namespace MasterRad
             modelBuilder.Entity<StudentEntity>() 
                 .HasData(SeedHelper.SeedData<StudentEntity>("students"));
 
-            modelBuilder.Entity<TemplateEntity>()
-               .HasData(SeedHelper.SeedData<TemplateEntity>("templates"));
+            //modelBuilder.Entity<TemplateEntity>()
+            //   .HasData(SeedHelper.SeedData<TemplateEntity>("templates"));
 
-            modelBuilder.Entity<TaskEntity>()
-                .HasData(SeedHelper.SeedData<TaskEntity>("tasks"));
+            //modelBuilder.Entity<TaskEntity>()
+            //    .HasData(SeedHelper.SeedData<TaskEntity>("tasks"));
 
             //students - temp solution for auth (comment out for production)
             modelBuilder.Entity<StudentEntity>()

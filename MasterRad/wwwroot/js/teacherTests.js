@@ -58,7 +58,7 @@ function drawNameCell(test) {
     return result;
 }
 function drawStudentsCell(test) {
-    var enabled = test.status >= TestStatus.Completed;
+    var enabled = test.status < TestStatus.Completed;
     return '<td>' + drawCellEditNavigationButton('Assign', 'dark', 'assignStudents', test.id, enabled) + '</td>';
 }
 function drawTemplateCell(test) {

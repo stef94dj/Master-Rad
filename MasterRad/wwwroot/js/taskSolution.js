@@ -47,7 +47,7 @@ function saveSolution() {
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
             alert('success');
-            window.location.replace('/Setup/Tasks');
+            window.location.replace('/TeacherMenu/Tasks');
         }
     });
 }

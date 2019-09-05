@@ -27,12 +27,7 @@ namespace MasterRad.API
         [HttpPost, Route("insert")]
         public ActionResult<Result<bool>> InsertRecord([FromBody] DataCreateRQ body)
         {
-            var connParams = new ConnectionParams()
-            {
-                DbName = body.DatabaseName,
-                Login = _config.GetSection("DbAdminConnection:Login").Value,
-                Password = _config.GetSection("DbAdminConnection:Password").Value
-            };
+            var connParams = _microsoftSQLService.GetAdminConnParams(body.DatabaseName);
 
             var res = _microsoftSQLService.InsertRecord(body.SchemaName, body.TableName, body.ValuesNew, connParams);
             return Ok(res);
@@ -41,12 +36,7 @@ namespace MasterRad.API
         [HttpPost, Route("update")]
         public ActionResult<Result<bool>> UpdateRecord([FromBody] DataUpdateRQ body)
         {
-            var connParams = new ConnectionParams()
-            {
-                DbName = body.DatabaseName,
-                Login = _config.GetSection("DbAdminConnection:Login").Value,
-                Password = _config.GetSection("DbAdminConnection:Password").Value
-            };
+            var connParams = _microsoftSQLService.GetAdminConnParams(body.DatabaseName);
 
             //var userName = string.Empty; //_profileService.GetUserName(token); 
             //var tableName = $"{body.TableName}_{userName}";
@@ -62,12 +52,7 @@ namespace MasterRad.API
         [HttpPost, Route("delete")]
         public ActionResult<Result<bool>> DeleteRecord([FromBody] DataDeleteRQ body)
         {
-            var connParams = new ConnectionParams()
-            {
-                DbName = body.DatabaseName,
-                Login = _config.GetSection("DbAdminConnection:Login").Value,
-                Password = _config.GetSection("DbAdminConnection:Password").Value
-            };
+            var connParams = _microsoftSQLService.GetAdminConnParams(body.DatabaseName);
 
             //var userName = string.Empty; //_profileService.GetUserName(token); 
             //var tableName = $"{body.TableName}_{userName}";
@@ -79,12 +64,7 @@ namespace MasterRad.API
         [HttpGet, Route("read/{dbName}/{schemaName}/{tableName}")]
         public ActionResult<Table> ReadTable([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
-            var connParams = new ConnectionParams()
-            {
-                DbName = dbName,
-                Login = _config.GetSection("DbAdminConnection:Login").Value,
-                Password = _config.GetSection("DbAdminConnection:Password").Value
-            };
+            var connParams = _microsoftSQLService.GetAdminConnParams(dbName);
 
             var queryResult = _microsoftSQLService.ReadTable(dbName, schemaName, tableName); //ovo ide kao admin - connParams?
             var table = queryResult.Tables.Single();

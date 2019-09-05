@@ -26,12 +26,7 @@ namespace MasterRad.API
         [HttpPost, Route("execute")]
         public ActionResult<Result<QueryExecuteRS>> Execute([FromBody] QueryExecuteRQ body)
         {
-            var connParams = new ConnectionParams()
-            {
-                DbName = body.DatabaseName,
-                Login = _config.GetSection("DbAdminConnection:Login").Value,
-                Password = _config.GetSection("DbAdminConnection:Password").Value
-            };
+            var connParams = _microsoftSQLService.GetAdminConnParams(body.DatabaseName); 
 
             var scriptExeRes = _microsoftSQLService.ExecuteSQL(body.SQLQuery, connParams);
 

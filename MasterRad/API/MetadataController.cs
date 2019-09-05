@@ -33,12 +33,7 @@ namespace MasterRad.API
         [HttpGet, Route("tables/{dbName}")]
         public ActionResult<IEnumerable<string>> GetTableNames([FromRoute] string dbName)
         {
-            var conn = new ConnectionParams()
-            {
-                DbName = dbName,
-                Login = "sa",
-                Password = "Tnation2019"
-            };
+            var conn = _microsoftSQLService.GetAdminConnParams(dbName);
 
             var tableNames = _microsoftSQLService.GetTableNames(conn);
 
@@ -52,12 +47,7 @@ namespace MasterRad.API
         [HttpGet, Route("table-names/column-names/{dbName}")]
         public ActionResult<IEnumerable<TableWithColumns>> GetTableNamesWithColumnNames([FromRoute] string dbName)
         {
-            var conn = new ConnectionParams()
-            {
-                DbName = dbName,
-                Login = "sa",
-                Password = "Tnation2019"
-            };
+            var conn = _microsoftSQLService.GetAdminConnParams(dbName);
 
             var result = _microsoftSQLService.GetTableNamesWithColumnNames(conn);
             return Ok(result);
@@ -67,12 +57,7 @@ namespace MasterRad.API
         public ActionResult<IEnumerable<ColumnInfo>> GetColumnsData([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
             //var conn = _profileService.GetConnectionsParams(token, dbName)
-            var conn = new ConnectionParams()
-            {
-                DbName = dbName,
-                Login = "sa",
-                Password = "Tnation2019"
-            };
+            var conn = _microsoftSQLService.GetAdminConnParams(dbName);
 
             var result = _microsoftSQLService.GetColumnsData(schemaName, tableName, conn);
             return Ok(result);
@@ -81,12 +66,7 @@ namespace MasterRad.API
         [HttpGet, Route("identity_columns/{dbName}/{schemaName}/{tableName}")]
         public ActionResult<IEnumerable<string>> GetIdentityColumns([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
-            var conn = new ConnectionParams()
-            {
-                DbName = dbName,
-                Login = "sa",
-                Password = "Tnation2019"
-            };
+            var conn = _microsoftSQLService.GetAdminConnParams(dbName);
 
             var result = _microsoftSQLService.GetIdentityColumns(schemaName, tableName, conn);
             return Ok(result);
@@ -95,12 +75,7 @@ namespace MasterRad.API
         [HttpGet, Route("constraints/{dbName}/{schemaName}/{tableName}")]
         public ActionResult<IEnumerable<ColumnInfo>> GetConstraintData([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
-            var conn = new ConnectionParams()
-            {
-                DbName = dbName,
-                Login = "sa",
-                Password = "Tnation2019"
-            };
+            var conn = _microsoftSQLService.GetAdminConnParams(dbName);
 
             var result = _microsoftSQLService.GetConstraintData(schemaName, tableName, conn);
             return Ok(result);
@@ -110,12 +85,7 @@ namespace MasterRad.API
         public ActionResult<TableInfoRS> ExploreTable ([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
             var res = new TableInfoRS($"{schemaName}.{tableName}");
-            var conn = new ConnectionParams()
-            {
-                DbName = dbName,
-                Login = "sa",
-                Password = "Tnation2019"
-            };
+            var conn = _microsoftSQLService.GetAdminConnParams(dbName);
 
             res.Columns = _microsoftSQLService.GetColumnsData(schemaName, tableName, conn).ToList();
             res.Constraints = _microsoftSQLService.GetConstraintData(schemaName, tableName, conn).ToList();
