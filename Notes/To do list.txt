@@ -1,5 +1,5 @@
 1-clone dbs on assigning to students
-2- create btn on Synthesis Tests page
+2- create btn on Synthesis Tests page (endpoint already implemented, sample request in postman)
 
 
 Logical validations
