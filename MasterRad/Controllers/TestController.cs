@@ -22,7 +22,7 @@ namespace MasterRad.Controllers
 
         public IActionResult SynthesisExam(int testId)
         {
-            var testAssignment = _synthesisRepository.GetAssignment(_userService.UserId, testId);
+            var testAssignment = _synthesisRepository.GetAssignmentWithTaskAndTemplate(_userService.UserId, testId);
 
             if (testAssignment == null)
                 return Unauthorized();

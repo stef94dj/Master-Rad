@@ -14,6 +14,7 @@ namespace MasterRad.Repositories
         SynthesisTestEntity GetWithTask(int testId);
         IEnumerable<SynthesisTestEntity> Get();
         SynthesisTestStudentEntity GetAssignment(int studentId, int testId);
+        SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(int studentId, int testId);
         IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId);
         IEnumerable<string> GetSolutionFormat(int testId);
         bool IsAssigned(int studentId, int testId);
@@ -60,6 +61,13 @@ namespace MasterRad.Repositories
                            .OrderByDescending(t => t.DateCreated);
         }
         public SynthesisTestStudentEntity GetAssignment(int studentId, int testId)
+        {
+            return _context.SynthesysTestStudents
+                           .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
+                           .AsNoTracking()
+                           .SingleOrDefault();
+        }
+        public SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(int studentId, int testId)
         {
             return _context.SynthesysTestStudents
                            .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)

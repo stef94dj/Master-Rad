@@ -91,6 +91,12 @@ namespace MasterRad.API
                     if (_synthesisRepository.Get(body.TestId).Status >= TestStatus.InProgress)
                         return StatusCode(500);
 
+                    var assignment = _synthesisRepository.GetAssignment(body.StudentId, body.TestId);
+
+                    var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(assignment.NameOnServer);
+                    if (!deleteSuccess)
+                        return StatusCode(500);
+
                     _studentRepository.RemoveSynthesis(body.StudentId, body.TimeStamp, body.TestId);
                     break;
                 case TestType.Analysis:
