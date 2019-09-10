@@ -35,6 +35,7 @@ namespace MasterRad.Services
         Result<bool> DeleteRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams);
         bool CreateDatabase(string dbName);
         bool CloneDatabase(string originDbName, string destDbName);
+        IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbName);
         bool DatabaseExists(string name);
         bool DeleteDatabaseIfExists(string name);
         ConnectionParams GetAdminConnParams(string dbName);
@@ -402,6 +403,20 @@ namespace MasterRad.Services
             //    Log
 
             return DatabaseExists(dbName);
+        }
+
+        public IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbNames)
+        {
+            var successfullyCloned = new List<string>();
+
+            foreach (var destName in destDbNames)
+            {
+                var cloneSucces = CloneDatabase(originDbName, destName);
+                if (cloneSucces)
+                    successfullyCloned.Add(destName);
+            }
+
+            return successfullyCloned;
         }
 
         public bool CloneDatabase(string originDbName, string destDbName)

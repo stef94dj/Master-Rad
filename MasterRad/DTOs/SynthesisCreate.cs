@@ -9,7 +9,6 @@ namespace MasterRad.DTOs
     {
         public string Name { get; set; }
         public int TaskId { get; set; }
-        public List<int> StudentIds { get; set; }
     }
 
     public class SynthesisCreateRS

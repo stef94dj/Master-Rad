@@ -18,11 +18,13 @@ namespace MasterRad.API
     {
         private readonly IStudentRepository _studentRepository;
         private readonly ISynthesisRepository _synthesisRepository;
+        private readonly IMicrosoftSQL _microsoftSQLService;
 
-        public StudentController(IStudentRepository studentRepository, ISynthesisRepository synthesisRepository)
+        public StudentController(IStudentRepository studentRepository, ISynthesisRepository synthesisRepository, IMicrosoftSQL microsoftSQLService)
         {
             _studentRepository = studentRepository;
             _synthesisRepository = synthesisRepository;
+            _microsoftSQLService = microsoftSQLService;
         }
 
         [HttpPost, Route("search")]
@@ -53,10 +55,22 @@ namespace MasterRad.API
             switch (body.TestType)
             {
                 case TestType.Synthesis:
-                    if (_synthesisRepository.Get(body.TestId).Status >= TestStatus.Completed)
+                    var test = _synthesisRepository.GetWithTask(body.TestId);
+
+                    if (test.Status >= TestStatus.Completed)
                         return StatusCode(500);
 
-                    return Ok(_studentRepository.AssignSynthesisTest(body.StudentIds, body.TestId));
+                    var studenDbNamePairs = body.StudentIds.Select(sid => new KeyValuePair<int, string>(sid, $"ST_{test.Id}_{sid}"));
+
+                    var succesfullyCloned = _microsoftSQLService.CloneDatabases(test.Task.NameOnServer, studenDbNamePairs.Select(snp => snp.Value));
+
+                    if (succesfullyCloned.Count() != studenDbNamePairs.Count())
+                    {
+                        studenDbNamePairs = studenDbNamePairs.Where(snp => succesfullyCloned.Contains(snp.Value));
+                        throw new NotImplementedException("Return error message to client: assign failed for some students");
+                    }
+
+                    return Ok(_studentRepository.AssignSynthesisTest(studenDbNamePairs, body.TestId));
                 case TestType.Analysis:
                     throw new NotImplementedException();
                     //if (_analysisRepository.Get(body.TestId).Status >= TestStatus.Completed)

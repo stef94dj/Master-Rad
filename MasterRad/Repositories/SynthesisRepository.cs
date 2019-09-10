@@ -11,6 +11,7 @@ namespace MasterRad.Repositories
     public interface ISynthesisRepository
     {
         SynthesisTestEntity Get(int testId);
+        SynthesisTestEntity GetWithTask(int testId);
         IEnumerable<SynthesisTestEntity> Get();
         SynthesisTestStudentEntity GetAssignment(int studentId, int testId);
         IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId);
@@ -38,6 +39,15 @@ namespace MasterRad.Repositories
         {
             return _context.SynthesisTests
                         .Where(t => t.Id == testId)
+                        .AsNoTracking()
+                        .SingleOrDefault();
+        }
+
+        public SynthesisTestEntity GetWithTask(int testId)
+        {
+            return _context.SynthesisTests
+                        .Where(t => t.Id == testId)
+                        .Include(t => t.Task)
                         .AsNoTracking()
                         .SingleOrDefault();
         }
@@ -95,20 +105,9 @@ namespace MasterRad.Repositories
                 Name = request.Name,
                 Status = TestStatus.Scheduled,
                 TaskId = request.TaskId,
-                SynthesisTestStudents = new List<SynthesisTestStudentEntity>(),
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED",
             };
-
-            var synthesisTestStudentEntities = request.StudentIds
-                .Select(sid => new SynthesisTestStudentEntity()
-                {
-                    StudentId = sid,
-                    NameOnServer = "To be implemented",
-                    SynthesisTest = synthesisTestEntity
-                });
-
-            synthesisTestEntity.SynthesisTestStudents.AddRange(synthesisTestStudentEntities);
 
             _context.SynthesisTests.Add(synthesisTestEntity);
             _context.SaveChanges();

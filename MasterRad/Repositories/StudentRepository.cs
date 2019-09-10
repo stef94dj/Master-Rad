@@ -13,7 +13,7 @@ namespace MasterRad.Repositories
         IEnumerable<StudentEntity> SearchStudents(SearchStudentRQ request);
         IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId);
         IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId);
-        IEnumerable<SynthesisTestStudentEntity> AssignSynthesisTest(List<int> studentIds, int testId);
+        IEnumerable<SynthesisTestStudentEntity> AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId);
         IEnumerable<AnalysisTestStudentEntity> AssignAnalysisTest(List<int> studentIds, int testId);
         void RemoveSynthesis(int studentId, byte[] timeStamp, int testId);
         void RemoveAnalysis(int studentId, byte[] timeStamp, int testId);
@@ -60,13 +60,13 @@ namespace MasterRad.Repositories
             throw new NotImplementedException();
         }
 
-        public IEnumerable<SynthesisTestStudentEntity> AssignSynthesisTest(List<int> studentIds, int testId)
+        public IEnumerable<SynthesisTestStudentEntity> AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId)
         {
-            var stsEntities = studentIds.Select(studentId => new SynthesisTestStudentEntity()
+            var stsEntities = studDbNamePairs.Select(pair => new SynthesisTestStudentEntity()
             {
                 SynthesisTestId = testId,
-                StudentId = studentId,
-                NameOnServer = "Not implemented",
+                StudentId = pair.Key,
+                NameOnServer = pair.Value,
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED"
             });
