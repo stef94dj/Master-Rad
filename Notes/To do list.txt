@@ -1,6 +1,5 @@
-1-clone dbs on assigning to students
-1.1 - delete database on removing student from test
-2- create btn on Synthesis Tests page (endpoint already implemented, sample request in postman)
+
+-create btn on Synthesis Tests page (endpoint already implemented: api/SynthesisController/create/test)
 
 
 Logical validations
