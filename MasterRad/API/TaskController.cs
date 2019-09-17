@@ -44,7 +44,7 @@ namespace MasterRad.API
         {
             var templateEntity = _templateRepo.Get(body.TemplateId);
 
-            var taskNameOnServer = $"Tsk_{body.Name}".Replace("\t", "_").Replace(" ", "_");
+            var taskNameOnServer = $"Task_{body.Name}".Replace("\t", "_").Replace(" ", "_");
             var cloneSuccess = _microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, taskNameOnServer);
             if (!cloneSuccess)
                 return Ok(new JsonResult(new { Message = "Unable to clone database" }));
@@ -74,7 +74,7 @@ namespace MasterRad.API
             var taskEntity = _taskRepo.Get(body.Id); //mozda dupli entitet kod update-a (u get metodi treba _context.Tasks.AsNoTracking().Where...)
             var oldTaskNameOnServer = taskEntity.NameOnServer;
 
-            var taskNameOnServer = $"Tsk_{taskEntity.Name}".Replace("\t", "_").Replace(" ", "_");
+            var taskNameOnServer = $"Task_{taskEntity.Name}".Replace("\t", "_").Replace(" ", "_");
             var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(taskNameOnServer);
             if (!deleteSuccess)
                 return Ok(new JsonResult(new { Message = "Unable to drop current database from sql server" }));

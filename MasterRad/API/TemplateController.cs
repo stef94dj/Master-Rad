@@ -35,7 +35,7 @@ namespace MasterRad.API
         [HttpPost, Route("Create")]
         public ActionResult CreateTemplate([FromBody] CreateTemplateRQ body)
         {
-            var dbName = $"Tmp_{body.Name}".Replace("\t", "_").Replace(" ", "_");
+            var dbName = $"Template_{body.Name}".Replace("\t", "_").Replace(" ", "_");
 
             var templateExists = _templateRepo.TemplateExists(body.Name);
             if (templateExists)
