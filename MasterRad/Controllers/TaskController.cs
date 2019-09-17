@@ -43,7 +43,8 @@ namespace MasterRad.Controllers
                 Id = taskEntity.Id,
                 TimeStamp = Convert.ToBase64String(taskEntity.TimeStamp),
                 TaskName = taskEntity.Name,
-                NameOnServer = taskEntity.NameOnServer
+                NameOnServer = taskEntity.NameOnServer,
+                Solution = taskEntity.SolutionSqlScript
             };
 
             return View("TaskSolution", vm);

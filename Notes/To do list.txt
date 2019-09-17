@@ -1,4 +1,5 @@
-
+- reload tabele nakon dodavanja red-a (data na task i template)
+- load profesorovog resenja nakon sto je sacuvano
 -create btn on Synthesis Tests page (endpoint already implemented: api/SynthesisController/create/test)
 -verovatno da se izbaci edit template (na taskovima)
 

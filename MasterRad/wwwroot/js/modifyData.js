@@ -1,25 +1,18 @@
 ﻿var nameOnServer = null;
+var tableDropdown = null;
 $(document).ready(function () {
     var nameOnServer = $('#name-on-server').val();
-    buildTablesDropDown(nameOnServer, tableSelected);
-    $('input.editable-cell').blur(function () { alert('cell focus out'); });
+    tableDropdown = $('#tableSelector');
+    buildTablesDropDown(nameOnServer, tableSelected, afterPopulate);
+    //$('input.editable-cell').blur(function () { alert('cell focus out'); });
 });
 
-function populateTableDropdown(selector, apiUrl) {
-    $.ajax({
-        url: apiUrl,
-        type: 'GET',
-        success: function (data) {
-            $('#tableSelector').html('');
-            $.each(data, function (index, value) {
-                $(selector).append('<option value="' + value + '">' + value + '</option>')
-            });
-        }
-    });
+function afterPopulate() {
+    tableSelected();
 }
 
 function tableSelected() {
-    var tableFullName = parseTableName($(this).val());
+    var tableFullName = parseTableName(tableDropdown.val());
     var databaseName = $('#name-on-server').val();
     var apiUrl = '/api/Data/read/' + databaseName + '/' + tableFullName.schemaName + '/' + tableFullName.tableName
 
@@ -131,7 +124,7 @@ function deleteRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            alert("success");
+            tableSelected();
         }
     });
 }
@@ -187,7 +180,7 @@ function editCell(inputElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            alert("success");
+            tableSelected();
         }
     });
 }

@@ -11,5 +11,6 @@ namespace MasterRad.Models.ViewModels
         public string TimeStamp { get; set; }
         public string TaskName { get; set; }
         public string NameOnServer { get; set; }
+        public string Solution { get; set; }
     }
 }

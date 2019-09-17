@@ -1,11 +1,11 @@
 ﻿var dropdownTableSelector = '#tableSelector';
 
-function buildTablesDropDown(databaseName, onChangeHandler) {
-    populateDropdown(dropdownTableSelector, '/api/Metadata/tables/' + databaseName);
+function buildTablesDropDown(databaseName, onChangeHandler, callback) {
     $(dropdownTableSelector).change(onChangeHandler);
+    populateDropdown(dropdownTableSelector, '/api/Metadata/tables/' + databaseName, callback);
 }
 
-function populateDropdown(selector, apiUrl) {
+function populateDropdown(selector, apiUrl, callback) {
     $.ajax({
         url: apiUrl,
         type: 'GET',
@@ -14,6 +14,7 @@ function populateDropdown(selector, apiUrl) {
             $.each(data, function (index, value) {
                 $(selector).append('<option value="' + value + '">' + value + '</option>')
             });
+            callback();
         }
     });
 }
