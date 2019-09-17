@@ -15,12 +15,40 @@
             <th scope="col">Created at</th>
             <th scope="col">Created by</th>
             <th scope="col">State</th>
-            <th><button data-toggle="modal" data-target="#create-template-modal" style="float:right" type="button" class="btn btn-primary btn-sm">Create</button></th>
+            <th><button data-toggle="modal" data-target="#create-test-modal" style="float:right" type="button" class="btn btn-primary btn-sm">Create</button></th>
         </tr>
     </thead>
     <tbody id="tests-tbody">
     </tbody>
 </table>
+
+<!-- New test modal  -->
+<div class="modal fade" id="create-test-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create new test</h5>
+            </div>
+            <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
+                <div class="form-group" style="margin: auto; max-width: 300px;">
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="test-name" class="col-form-label">Name:</label>
+                            <input type="text" class="form-control" id="test-name">
+                            <br />
+                            <label for="task-list" class="col-form-label">Task:</label>
+                            <div class="list-group" id="task-list" role="tablist"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="createTest()">Create</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Name modal  -->
 <div class="modal fade" id="update-name-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

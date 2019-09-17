@@ -3,15 +3,15 @@ var statusModalSelector = null;
 var nameModalSelector = null;
 $(document).ready(function () {
     testsList = $('#tests-tbody');
-    loadTest();
-
+    loadTests();
+    loadTasks('/api/Task/Get');
     statusModalSelector = '#update-staus-modal';
     nameModalSelector = '#update-name-modal';
     bindModalOnShow(nameModalSelector, onNameModalShow);
 });
 
 //DRAW TABLE
-function loadTest() {
+function loadTests() {
     testsList.html(drawSynthesisTestsTableMessage('Loading data...'));
 
     var apiUrl = '/api/Synthesis/get';
@@ -127,7 +127,7 @@ function updateName() {
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
             $(nameModalSelector).modal('toggle');
-            loadTest();
+            loadTests();
         }
     });
 }
@@ -163,7 +163,51 @@ function statusNext() {
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
             $(statusModalSelector).modal('toggle');
-            loadTest();
+            loadTests();
+        }
+    });
+}
+
+//CREATE TEST MODAL
+function loadTasks(apiUrl) {
+    //tbody.html(drawTaskTableMessage('Loading data...'));
+    $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        success: function (data) {
+            drawTaskList(data);
+        }
+    });
+}
+function drawTaskList(data) {
+    var taskList = $('#create-test-modal').find('#task-list');
+
+    $.each(data, function (index, task) {
+        var item = '<a data-task-id="' + task.id + '"';
+        item += ' style="word-wrap: break-word" class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">';
+        item += task.name;
+        item += '</a>'
+
+        taskList.append(item);
+    });
+}
+function createTest() {
+    var modalBody = $('#create-test-modal').find('.modal-body');
+
+    var rqBody = {
+        "Name": modalBody.find('#test-name').val(),
+        "TaskId": modalBody.find('#task-list').find('a.active').data('task-id')
+    };
+
+    $.ajax({
+        url: '/api/Synthesis/Create/Test',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            $('#create-test-modal').modal('toggle');
+            loadTests();
         }
     });
 }

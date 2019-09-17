@@ -41,15 +41,6 @@ namespace MasterRad.API
         [HttpPost, Route("create/test")]
         public ActionResult<SynthesisTestEntity> CreateTest([FromBody] SynthesisCreateRQ body)
         {
-
-            try
-            {
-                throw new NotImplementedException();
-                //clone DB and return name on server FOR EACH STUDENT
-                //pass the list of pairs (nameOnServer, studentId) to _synthesisRepository.Create
-            }
-            catch (Exception) { };
-
             var res = _synthesisRepository.Create(body);
             return Ok(res);
         }

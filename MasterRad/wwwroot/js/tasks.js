@@ -156,9 +156,6 @@ function loadTemplates(apiUrl) {
         type: 'GET',
         success: function (data) {
             drawTemplatesList(data);
-        },
-        error: function () {
-            //tbody.html(drawTaskTableMessage('Error loading data.'));
         }
     });
 }
