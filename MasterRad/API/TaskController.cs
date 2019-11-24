@@ -67,30 +67,6 @@ namespace MasterRad.API
             return Ok(result);
         }
 
-        [HttpPost, Route("Update/Template")]
-        public ActionResult UpdateTemplate([FromBody] UpdateTaskTemplateRQ body)
-        {
-            var templateEntity = _templateRepo.Get(body.TemplateId);
-            var taskEntity = _taskRepo.Get(body.Id); //mozda dupli entitet kod update-a (u get metodi treba _context.Tasks.AsNoTracking().Where...)
-            var oldTaskNameOnServer = taskEntity.NameOnServer;
-
-            var taskNameOnServer = $"Task_{taskEntity.Name}".Replace("\t", "_").Replace(" ", "_");
-            var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(taskNameOnServer);
-            if (!deleteSuccess)
-                return Ok(new JsonResult(new { Message = "Unable to drop current database from sql server" }));
-
-            var cloneSuccess = _microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, taskNameOnServer);
-            if (!cloneSuccess)
-            {
-                //LOG $"Update task template failed - current database {taskNameOnServer} was remove but the system was unable to create a new one";
-                return Ok(new JsonResult(new { Message = "Unable to clone database" }));
-            }
-
-            var result = _taskRepo.UpdateTemplate(body); //sta ako kloniranje uspe a ne uspe upis u bazu (task ostaje vezan na stari template)
-
-            return Ok(result);
-        }
-
         [HttpPost, Route("Update/Solution")]
         public ActionResult UpdateSolution([FromBody] UpdateTaskSolutionRQ body)
         {

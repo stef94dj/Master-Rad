@@ -48,32 +48,6 @@
         </div>
     </div>
 </div>
-<!--Change template modal-->
-<div class="modal fade" id="change-template-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Change template</h5>
-            </div>
-            <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
-                <div class="form-group" style="margin: auto; max-width: 300px;">
-                    <div class="row">
-                        <div class="col-12">
-                            <input type="number" id="task-id" hidden>
-                            <input type="text" id="task-timestamp" hidden>
-                            <label for="templates-list" class="col-form-label">Template:</label>
-                            <div class="list-group" id="templates-list" role="tablist"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="updateTemplate()">Save changes</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
 <!-- Name modal  -->
 <div class="modal fade" id="update-name-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">

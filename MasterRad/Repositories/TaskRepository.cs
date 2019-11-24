@@ -15,7 +15,6 @@ namespace MasterRad.Repositories
         TaskEntity Create(CreateTaskRQ request, string nameOnServer);
         TaskEntity UpdateName(UpdateNameRQ request);
         TaskEntity UpdateDescription(UpdateDescriptionRQ request);
-        TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request);
         TaskEntity UpdateSolution(UpdateTaskSolutionRQ request);
     }
 
@@ -90,26 +89,6 @@ namespace MasterRad.Repositories
 
             _context.Tasks.Attach(taskEntity);
             _context.Entry(taskEntity).Property(x => x.Name).IsModified = true;
-            _context.Entry(taskEntity).Property(x => x.DateModified).IsModified = true;
-            _context.Entry(taskEntity).Property(x => x.ModifiedBy).IsModified = true;
-
-            _context.SaveChanges();
-            return taskEntity;
-        }
-
-        public TaskEntity UpdateTemplate(UpdateTaskTemplateRQ request)
-        {
-            var taskEntity = new TaskEntity() //AutoMapper
-            {
-                Id = request.Id,
-                TimeStamp = request.TimeStamp,
-                TemplateId = request.TemplateId,
-                DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
-            };
-
-            _context.Tasks.Attach(taskEntity);
-            _context.Entry(taskEntity).Property(x => x.TemplateId).IsModified = true;
             _context.Entry(taskEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(taskEntity).Property(x => x.ModifiedBy).IsModified = true;
 

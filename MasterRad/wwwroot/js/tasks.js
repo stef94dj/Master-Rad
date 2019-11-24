@@ -51,11 +51,7 @@ function drawDescriptionCell(task) {
     return result;
 }
 function drawTemplateCell(task) {
-    var result = '<td data-template-id="' + task.template.id + '"><div>';
-    result += '<p style="float:left">' + task.template.name + '</p>';
-    result += drawCellEditModalButton('Edit', 'dark', '#change-template-modal', task.id, task.timeStamp, true);
-    result += '</div></td>';
-    return result;
+    return '<td>' + task.template.name + '</td>';
 }
 function drawDataCell(task) {
     if (!task.isDataSet)
@@ -230,27 +226,6 @@ function updateDescription() {
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
             $('#update-description-modal').modal('toggle');
-            loadTasks($('#tasks-tbody'), '/api/Task/Get');
-        }
-    });
-}
-function updateTemplate() {
-    var modalBody = $('#change-template-modal').find('.modal-body');
-
-    var rqBody = {
-        "Id": parseInt(modalBody.find('#task-id').val()),
-        "TimeStamp": modalBody.find('#task-timestamp').val(),
-        "TemplateId": modalBody.find('#templates-list').find('a.active').data('template-id')
-    }
-
-    $.ajax({
-        url: '/api/Task/Update/Template',
-        dataType: 'json',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(rqBody),
-        success: function (data, textStatus, jQxhr) {
-            $('#change-template-modal').modal('toggle');
             loadTasks($('#tasks-tbody'), '/api/Task/Get');
         }
     });

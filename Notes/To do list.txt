@@ -1,9 +1,7 @@
 Data celija (templates i tasks tabele): 5 records in 3 tables
 Model celija (templates tablela): 4 columns in 2 tables 
-Ukloni edit template na Tasks
 Delete: Templates, Tasks, Synthesis Tests
 ekran Kreiranje resenja(Tasks -> solution): mozda staviti rezultat upita i struktura baze u 2 taba
-sta je SolutionColumnEntity
 
 ===================================================================================================================================================
 ***************************************************************************************************************************************************
