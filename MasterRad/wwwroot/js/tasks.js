@@ -64,7 +64,20 @@ function drawDataCell(task) {
         return '<td>' + drawCellEditNavigationButton('Edit', 'dark', 'updateData', task.id, true) + '</td>';
 }
 function drawSolutionCell(task) {
-    return '<td>' + drawCellEditNavigationButton('Set', 'dark', 'updateSolution', task.id, true) + '</td>';
+    var result = '<td>';
+
+    result += '<p style="float:left">';
+    if (task.solutionSqlScript != null)
+        result += task.solutionSqlScript;
+    result += '</p>';
+
+    if (task.solutionSqlScript == null || task.solutionSqlScript == '')
+        result += drawCellEditNavigationButton('Set', 'dark', 'updateSolution', task.id, true);
+    else
+        result += drawCellEditNavigationButton('Edit', 'dark', 'updateSolution', task.id, true);
+
+    result += '</td>';
+    return result;
 }
 function drawDeleteCell(task) {
     return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', task.id, task.timestamp, true) + '</td>';
@@ -79,7 +92,7 @@ function drawTemplatesList(data) {
         var item = '<a data-template-id="' + template.id + '"';
         item += ' style="word-wrap: break-word" class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">';
         item += template.name;
-        item += '</a>'
+        item += '</a>'  
 
         createTaskList.append(item);
         editTemplateList.append(item);
