@@ -8,7 +8,14 @@ $(document).ready(function () {
     tableBody = $('#table-body');
     nameOnServer = $('#name-on-server').val();
     buildSqlEditor(nameOnServer); //sets value for "editor"
+    buildTablesDropDown(nameOnServer, tableSelected, null);
 });
+
+function tableSelected() {
+    var dbName = $('#name-on-server').val();
+    var tableFullName = parseTableName($(this).val());
+    loadJson(dbName, tableFullName.schemaName, tableFullName.tableName);
+}
 
 function executeScript() {
     var rqBody = {

@@ -1,7 +1,17 @@
-- reload tabele nakon dodavanja red-a (data na task i template)
-- load profesorovog resenja nakon sto je sacuvano
--create btn on Synthesis Tests page (endpoint already implemented: api/SynthesisController/create/test)
--verovatno da se izbaci edit template (na taskovima)
+Solution celija (tasks): da se vidi pocetak resenja (kada postoji), Set/edit
+Data celija (templates i tasks tabele): 5 records in 3 tables
+Model celija (templates tablela): 4 columns in 2 tables 
+Ukloni edit template na Tasks
+Delete: Templates, Tasks, Synthesis Tests
+ekran Kreiranje resenja(Tasks -> solution): mozda staviti rezultat upita i struktura baze u 2 taba
+
+
+===================================================================================================================================================
+***************************************************************************************************************************************************
+===================================================================================================================================================
+
+-??? load profesorovog resenja nakon sto je sacuvano
+-verovatno da se izbaci edit template (na taskovima) - delete pa pravi novi
 
 
 Logical validations
@@ -37,6 +47,7 @@ Create database
 
 Modify database data
 ===========================================================================
+- UX: kada se radi insert edit delete da kratko zasvetli novi red, editovana celija ili red koji se brise (ili samo wait screen preko cele tabele)
 - type converter (poseban fajl)
 - where statement po primarnom kljucu https://stackoverflow.com/questions/3930338/sql-server-get-table-primary-key-using-sql-query
 - bootstrap css - dropdown ne radi lepo (kada se spusti nema desne ivice) - kada se odzumira radi

@@ -14,7 +14,8 @@ function populateDropdown(selector, apiUrl, callback) {
             $.each(data, function (index, value) {
                 $(selector).append('<option value="' + value + '">' + value + '</option>')
             });
-            callback();
+            if (callback != null)
+                callback();
         }
     });
 }

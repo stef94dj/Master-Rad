@@ -4,7 +4,7 @@ var nameOnServer = null;
 $(document).ready(function () {
     nameOnServer = $('#db-name').val();
     buildSqlEditor(nameOnServer, sqlExeCallback);
-    buildTablesDropDown(nameOnServer, tableSelected);
+    buildTablesDropDown(nameOnServer, tableSelected, null);
 });
 
 //Script execution
@@ -31,21 +31,4 @@ function tableSelected() {
     var tableFullName = parseTableName($(this).val());
     loadJson(dbName, tableFullName.schemaName, tableFullName.tableName);
 }
-function loadJson(dbName, schemaName, tableName) {
-    var apiUrl = '/api/Metadata/explore/' + dbName + '/' + schemaName + '/' + tableName;
 
-    $.ajax({
-        url: apiUrl,
-        type: 'GET',
-        success: function (data) {
-            displayJson(data);
-        }
-    });
-}
-function displayJson(jsonData) {
-    var input = eval('(' + JSON.stringify(jsonData) + ')');
-    $('#json-display').jsonViewer(input, {
-        collapsed: true,
-        rootCollapsable: false
-    });
-}
