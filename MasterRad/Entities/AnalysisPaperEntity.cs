@@ -17,7 +17,7 @@ namespace MasterRad.Entities
         public int ATS_AnalysisTestId { get; set; }
         public int ATS_StudentId { get; set; }
 
-        [ForeignKey("ATS_AnalysisTestId,ATS_StudentId")]
+        [ForeignKey("ATS_StudentId,ATS_AnalysisTestId")]
         public AnalysisTestStudentEntity AnalysisTestStudent { get; set; }
     }
 }

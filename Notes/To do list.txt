@@ -1,15 +1,18 @@
-Data celija (templates i tasks tabele): 5 records in 3 tables
-Model celija (templates tablela): 4 columns in 2 tables 
+MVP:
+---
 Delete: Templates, Tasks, Synthesis Tests
+
+Nice to have:
+------------
+Data celija (templates i tasks tabele): 5 records in 3 tables
+Model celija (templates tablela): 4 columns in 2 tables
 ekran Kreiranje resenja(Tasks -> solution): mozda staviti rezultat upita i struktura baze u 2 taba
+wait screen kada se modifikuje data neke tabele (Data.cshtml)(ne iscrtavati ponovo table header)
 
 ===================================================================================================================================================
 ***************************************************************************************************************************************************
 ===================================================================================================================================================
-
 -??? load profesorovog resenja nakon sto je sacuvano
--verovatno da se izbaci edit template (na taskovima) - delete pa pravi novi
-
 
 Logical validations
 ====================
@@ -20,8 +23,6 @@ LOGOVANJE: File sistem, sql server, baza - odvojeni sistemi koji nisu transakcij
 - uvek treba znati sta se desilo (sev 1)
 - kriticni scenariji (radi se update template-a na tasku, obrise se postojeci template, novi ne uspe da se klonira - npr neko je sa servera obrisao bazu novog templejta i nema odakle da se klonira) koji uzrokuju greske u sistemu treba da budu neki alert (nije dovoljno samo da se uloguju) ili makar da se izdvoje kao kriticne greske
 - pitanje da li se sve moze ulogovati (create ili update template, baza se klonira, ne uspe upis u bazu - task ostaje vezan za stari template)
-
-
 
 Create template
 =======================
