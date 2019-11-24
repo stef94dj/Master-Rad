@@ -149,7 +149,7 @@ function insertRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            alert("success");
+            tableSelected();
         }
     });
 }
