@@ -35,7 +35,5 @@ namespace MasterRad.API
 
             return Ok(Result<QueryExecuteRS>.Success(scriptExeRes));
         }
-
-        
     }
 }

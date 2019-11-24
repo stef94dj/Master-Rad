@@ -25,6 +25,7 @@ namespace MasterRad.Repositories
         SynthesisPaperEntity SubmitAnswer(int testId, int studentId, string sqlScript);
         SynthesisPaperEntity UpdateAnswer(int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript);
         bool HasAnswer(int testId, int userId);
+        SynthesisTestStudentEntity GetEvaluationData();
     }
 
     public class SynthesisRepository : ISynthesisRepository
@@ -226,6 +227,11 @@ namespace MasterRad.Repositories
 
             _context.SaveChanges();
             return synthesisPaperEntity;
+        }
+
+        public SynthesisTestStudentEntity GetEvaluationData()
+        {
+            throw new NotImplementedException();
         }
     }
 }

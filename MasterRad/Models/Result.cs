@@ -33,9 +33,9 @@ namespace MasterRad.Models
             return Fail(new List<string>() { error });
         }
 
-        public bool IsSuccess()
+        public bool IsSuccess
         {
-            return Errors == null || !Errors.Any();
+            get { return Errors == null || !Errors.Any(); }
         }
     }
 }

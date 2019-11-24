@@ -1,9 +1,18 @@
 MVP:
 ---
+API/StudentController/AssignStudents: _microsoftSQLService.CloneDatabases(test.Task.NameOnServer !!!! - zar ne bi trebalo test.task.TEMPLATE.NameOnServer + jos jedna instanca 
+mozda ne klonirati na assign - klonirace se i za studente koji ne dodju
+klonirati kada student pocne - veliki load ako 30 studenata pocne u isto vreme
+
+cleanup nakon ocenjivanja!
+
+Handle syntax errors in sql editor (in response)
 Delete: Templates, Tasks, Synthesis Tests
 
 Nice to have:
 ------------
+napisi lambde umesto {} u metodama gde postoji samo jedan poziv: =>  Ok(false); umesto {var res = false; return Ok(res)}
+FE (create Template/Task/Test + set Template/Task description): FE validations (name/description not empty or taken + Template/Task selected when creating Task/Test)
 Data celija (templates i tasks tabele): 5 records in 3 tables
 Model celija (templates tablela): 4 columns in 2 tables
 ekran Kreiranje resenja(Tasks -> solution): mozda staviti rezultat upita i struktura baze u 2 taba
