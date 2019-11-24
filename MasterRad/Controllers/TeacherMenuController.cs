@@ -15,23 +15,15 @@ namespace MasterRad.Controllers
     public class TeacherMenuController : Controller
     {
         public IActionResult Templates()
-        {
-            return View();
-        }
+            => View();
 
         public IActionResult Tasks()
-        {
-            return View();
-        }
+            => View();
 
         public IActionResult SynthesisTests()
-        {
-            return View();
-        }
+            => View();
 
         public IActionResult AnalysisTests()
-        {
-            return View();
-        }
+            => View();
     }
 }

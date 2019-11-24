@@ -34,10 +34,7 @@ namespace MasterRad.API
 
         [HttpGet, Route("Get")]
         public ActionResult GetTasks()
-        {
-            var result = _taskRepo.Get();
-            return Ok(result);
-        }
+            => Ok(_taskRepo.Get());
 
         [HttpPost, Route("Create")]
         public ActionResult CreateTask([FromBody] CreateTaskRQ body)
@@ -55,23 +52,14 @@ namespace MasterRad.API
 
         [HttpPost, Route("Update/Description")]
         public ActionResult UpdateDescription([FromBody] UpdateDescriptionRQ body)
-        {
-            var result = _taskRepo.UpdateDescription(body);
-            return Ok(result);
-        }
+            => Ok(_taskRepo.UpdateDescription(body));
 
         [HttpPost, Route("Update/Name")]
         public ActionResult UpdateName([FromBody] UpdateNameRQ body)
-        {
-            var result = _taskRepo.UpdateName(body);
-            return Ok(result);
-        }
+            => Ok(_taskRepo.UpdateName(body));
 
         [HttpPost, Route("Update/Solution")]
         public ActionResult UpdateSolution([FromBody] UpdateTaskSolutionRQ body)
-        {
-            var result = _taskRepo.UpdateSolution(body);
-            return Ok(result);
-        }
+            => Ok(_taskRepo.UpdateSolution(body));
     }
 }

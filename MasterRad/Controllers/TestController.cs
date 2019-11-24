@@ -42,9 +42,7 @@ namespace MasterRad.Controllers
             return View(vm);
         }
         public IActionResult AnalysisExam(int testId)
-        {
-            return View();
-        }
+            => View();
 
         public IActionResult AssignStudents(int testId, TestType testType)
         {

@@ -27,10 +27,7 @@ namespace MasterRad.API
 
         [HttpGet, Route("Get")]
         public ActionResult GetTemplates()
-        {
-            var result = _templateRepo.Get();
-            return Ok(result);
-        }
+            => Ok(_templateRepo.Get());
 
         [HttpPost, Route("Create")]
         public ActionResult CreateTemplate([FromBody] CreateTemplateRQ body)
@@ -50,7 +47,7 @@ namespace MasterRad.API
                 return Ok(Result<TemplateEntity>.Fail($"Database '{dbName}' already exists on database server"));
 
             var dbCreateSuccess = _microsoftSQLService.CreateDatabase(dbName); //CreateDatabase treba da uloguje gresku
-            if(!dbCreateSuccess)
+            if (!dbCreateSuccess)
                 return Ok(Result<TemplateEntity>.Fail($"Failed to create databse '{dbName}' on database server"));
 
             var result = _templateRepo.Create(body.Name, dbName);
@@ -59,10 +56,7 @@ namespace MasterRad.API
 
         [HttpPost, Route("Update/Description")]
         public ActionResult UpdateDescription([FromBody] UpdateDescriptionRQ body)
-        {
-            var result = _templateRepo.UpdateDescription(body);
-            return Ok(result);
-        }
+            => Ok(_templateRepo.UpdateDescription(body));
 
         [HttpPost, Route("Update/Name")]
         public ActionResult UpdateName([FromBody] UpdateNameRQ body)
@@ -85,7 +79,7 @@ namespace MasterRad.API
 
             if (scriptExeRes.Messages.Any())
                 return Result<bool>.Fail(scriptExeRes.Messages);
-           
+
             return Ok(Result<bool>.Success(true));
         }
     }

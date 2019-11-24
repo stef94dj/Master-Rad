@@ -33,17 +33,11 @@ namespace MasterRad.API
 
         [HttpGet, Route("Solution/Format/{testId}")]
         public ActionResult<IEnumerable<string>> GetSolutionFormat([FromRoute] int testId)
-        {
-            var res = _synthesisRepository.GetSolutionFormat(testId);
-            return Ok(res);
-        }
+            => Ok(_synthesisRepository.GetSolutionFormat(testId));
 
         [HttpPost, Route("create/test")]
         public ActionResult<SynthesisTestEntity> CreateTest([FromBody] SynthesisCreateRQ body)
-        {
-            var res = _synthesisRepository.Create(body);
-            return Ok(res);
-        }
+            => Ok(_synthesisRepository.Create(body));
 
         [HttpPost, Route("delete/test")]
         public ActionResult<SynthesisTestEntity> DeleteTest([FromBody] DeleteDTO body)
@@ -54,17 +48,11 @@ namespace MasterRad.API
 
         [HttpPost, Route("update/name")]
         public ActionResult<SynthesisTestEntity> UpdateTestName([FromBody] UpdateNameRQ body)
-        {
-            var res = _synthesisRepository.UpdateName(body);
-            return Ok(res);
-        }
+            => Ok(_synthesisRepository.UpdateName(body));
 
         [HttpPost, Route("status/next")]
         public ActionResult<SynthesisTestEntity> GoToNextStatus([FromBody] UpdateDTO body)
-        {
-            var res = _synthesisRepository.StatusNext(body);
-            return Ok(res);
-        }
+            => Ok(_synthesisRepository.StatusNext(body));
 
         [HttpPost, Route("Submit/Answer")]
         public ActionResult<SynthesisPaperEntity> SubmitAnswer([FromBody] AnswerSynthesisRQ body)

@@ -38,74 +38,60 @@ namespace MasterRad.Repositories
         }
 
         public SynthesisTestEntity Get(int testId)
-        {
-            return _context.SynthesisTests
-                        .Where(t => t.Id == testId)
-                        .AsNoTracking()
-                        .SingleOrDefault();
-        }
+            => _context.SynthesisTests
+                       .Where(t => t.Id == testId)
+                       .AsNoTracking()
+                       .SingleOrDefault();
+
 
         public SynthesisTestEntity GetWithTask(int testId)
-        {
-            return _context.SynthesisTests
-                        .Where(t => t.Id == testId)
-                        .Include(t => t.Task)
-                        .AsNoTracking()
-                        .SingleOrDefault();
-        }
+            => _context.SynthesisTests
+                       .Where(t => t.Id == testId)
+                       .Include(t => t.Task)
+                       .AsNoTracking()
+                       .SingleOrDefault();
 
         public IEnumerable<SynthesisTestEntity> Get()
-        {
-            return _context.SynthesisTests
-                           .Include(st => st.Task)
-                           .ThenInclude(t => t.Template)
-                           .OrderByDescending(t => t.DateCreated);
-        }
+            => _context.SynthesisTests
+                       .Include(st => st.Task)
+                       .ThenInclude(t => t.Template)
+                       .OrderByDescending(t => t.DateCreated);
+
         public SynthesisTestStudentEntity GetAssignment(int studentId, int testId)
-        {
-            return _context.SynthesysTestStudents
-                           .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
-                           .AsNoTracking()
-                           .SingleOrDefault();
-        }
+            => _context.SynthesysTestStudents
+                       .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
+                       .AsNoTracking()
+                       .SingleOrDefault();
+
         public SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(int studentId, int testId)
-        {
-            return _context.SynthesysTestStudents
-                           .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
-                           .Include(sts => sts.SynthesisPaper)
-                           .Include(sts => sts.SynthesisTest)
-                           .ThenInclude(test => test.Task)
-                           .ThenInclude(task => task.Template)
-                           .SingleOrDefault();
-        }
+            => _context.SynthesysTestStudents
+                       .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
+                       .Include(sts => sts.SynthesisPaper)
+                       .Include(sts => sts.SynthesisTest)
+                       .ThenInclude(test => test.Task)
+                       .ThenInclude(task => task.Template)
+                       .SingleOrDefault();
 
         public IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId)
-        {
-            return _context.SynthesysTestStudents
-                           .Include(sts => sts.SynthesisTest)
-                           .Where(sts => sts.StudentId == studentId);
-            //.OrderByDescending(sts => sts.DateCreated);
-        }
+            => _context.SynthesysTestStudents
+                       .Include(sts => sts.SynthesisTest)
+                       .Where(sts => sts.StudentId == studentId);
 
         public IEnumerable<string> GetSolutionFormat(int testId)
-        {
-            return _context.SynthesisTests
-                           .Where(st => st.Id == testId)
-                           .Include(st => st.Task)
-                           .ThenInclude(t => t.SolutionColumns)
-                           .Single()
-                           .Task
-                           .SolutionColumns
-                           .Select(sc => sc.ColumnName);
-        }
+            => _context.SynthesisTests
+                       .Where(st => st.Id == testId)
+                       .Include(st => st.Task)
+                       .ThenInclude(t => t.SolutionColumns)
+                       .Single()
+                       .Task
+                       .SolutionColumns
+                       .Select(sc => sc.ColumnName);
 
         public bool IsAssigned(int studentId, int testId)
-        {
-            return _context.SynthesysTestStudents
-                            .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
-                            .AsNoTracking()
-                            .Any();
-        }
+            => _context.SynthesysTestStudents
+                       .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
+                       .AsNoTracking()
+                       .Any();
 
         public SynthesisTestEntity Create(SynthesisCreateRQ request)
         {

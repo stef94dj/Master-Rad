@@ -31,10 +31,7 @@ namespace MasterRad.API
 
         [HttpGet, Route("get/synthesis")]
         public ActionResult<IEnumerable<SynthesisTestEntity>> GetSynthesis()
-        {
-            var res = _synthesisRepository.Get(); //ukljuci i analysis tests (LINQ project to)
-            return Ok(res);
-        }
+            => Ok(_synthesisRepository.Get());
 
         [HttpGet, Route("get/analysis")]
         public ActionResult<IEnumerable<SynthesisTestEntity>> GetAnalysis()

@@ -45,16 +45,16 @@ namespace MasterRad.Repositories
         }
 
         public List<TaskEntity> Get()
-        {
-            return _context.Tasks.Include(x => x.Template)
-                .OrderByDescending(t => t.DateCreated)
-                .ToList();
-        }
+            => _context.Tasks.Include(x => x.Template)
+                             .OrderByDescending(t => t.DateCreated)
+                             .ToList();
 
         public TaskEntity Get(int id)
-        {
-            return _context.Tasks.AsNoTracking().Where(x => x.Id == id).Single();
-        }
+            => _context.Tasks
+                       .AsNoTracking()
+                       .Where(x => x.Id == id)
+                       .Single();
+
 
         public TaskEntity UpdateDescription(UpdateDescriptionRQ request)
         {

@@ -31,22 +31,21 @@ namespace MasterRad.Repositories
 
 
         public TemplateEntity Get(int id)
-        {
-            return _context.Templates.Where(x => x.Id == id).Single();
-        }
+            => _context.Templates
+                       .Where(x => x.Id == id)
+                       .Single();
 
         public TemplateEntity GetWithTaks(int id)
-        {
-            return _context.Templates.Include(t => t.Tasks).Where(x => x.Id == id).Single();
-        }
+            => _context.Templates
+                       .Include(t => t.Tasks)
+                       .Where(x => x.Id == id)
+                       .Single();
 
         public List<TemplateEntity> Get()
-        {
-            return _context.Templates
-                .Include(x => x.Tasks)
-                .OrderByDescending(t => t.DateCreated)
-                .ToList();
-        }
+            => _context.Templates
+                       .Include(x => x.Tasks)
+                       .OrderByDescending(t => t.DateCreated)
+                       .ToList();
 
         public TemplateEntity Create(string templateName, string dbName)
         {

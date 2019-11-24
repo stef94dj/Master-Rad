@@ -15,18 +15,13 @@ namespace MasterRad.Controllers
     public class StudentMenuController : Controller
     {
         public IActionResult Exercises()
-        {
-            return View();
-        }
+            => View();
 
         public IActionResult Tests()
-        {
-            return View();
-        }
+            => View();
 
         public IActionResult StartTest()
-        {
-            return View("~/Views/StudentMenu/Exercises.cshtml");
-        }
+            => View("~/Views/StudentMenu/Exercises.cshtml");
+
     }
 }

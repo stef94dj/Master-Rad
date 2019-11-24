@@ -29,11 +29,7 @@ namespace MasterRad.API
 
         [HttpPost, Route("search")]
         public ActionResult<IEnumerable<StudentEntity>> SearchStudents([FromBody] SearchStudentRQ body)
-        {
-
-            var res = _studentRepository.SearchStudents(body);
-            return Ok(res);
-        }
+            => Ok(_studentRepository.SearchStudents(body));
 
         [HttpGet, Route("get/assigned/{testType}/{testId}")]
         public ActionResult<IEnumerable<BaseTestStudentEntity>> GetAssignedToTest([FromRoute]TestType testType, int testId)
