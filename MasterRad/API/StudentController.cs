@@ -1,5 +1,6 @@
 ﻿using MasterRad.DTOs;
 using MasterRad.Entities;
+using MasterRad.Helpers;
 using MasterRad.Models;
 using MasterRad.Repositories;
 using MasterRad.Services;
@@ -46,7 +47,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("assign")]
-        public ActionResult<IEnumerable<BaseTestStudentEntity>> AssignStudents([FromBody] AssignStudentsRQ body)
+        public ActionResult<Result<bool>> AssignStudents([FromBody] AssignStudentsRQ body)
         {
             switch (body.TestType)
             {
@@ -56,17 +57,18 @@ namespace MasterRad.API
                     if (test.Status >= TestStatus.Completed)
                         return StatusCode(500);
 
-                    var studenDbNamePairs = body.StudentIds.Select(sid => new KeyValuePair<int, string>(sid, $"ST_{test.Id}_{sid}"));
+                    var studenDbNamePairs = DatabaseNameHelper.SynthesisTestExam(body.StudentIds, test.Id);
 
-                    var succesfullyCloned = _microsoftSQLService.CloneDatabases(test.Task.NameOnServer, studenDbNamePairs.Select(snp => snp.Value));
+                    var succesfullyCloned = _microsoftSQLService.CloneDatabases(test.Task.NameOnServer, studenDbNamePairs.Select(snp => snp.Value), false);
 
-                    if (succesfullyCloned.Count() != studenDbNamePairs.Count())
-                    {
-                        studenDbNamePairs = studenDbNamePairs.Where(snp => succesfullyCloned.Contains(snp.Value));
-                        throw new NotImplementedException("Return error message to client: assign failed for some students");
-                    }
+                    studenDbNamePairs = studenDbNamePairs.Where(x => succesfullyCloned.Contains(x.Value));
 
-                    return Ok(_studentRepository.AssignSynthesisTest(studenDbNamePairs, body.TestId));
+                    var assigned = _studentRepository.AssignSynthesisTest(studenDbNamePairs, body.TestId);
+
+                    if (assigned != body.StudentIds.Count())
+                        return Result<bool>.Fail("One or more students have not been assigned");
+                    else
+                        return Result<bool>.Success(true);
                 case TestType.Analysis:
                     throw new NotImplementedException();
                     //if (_analysisRepository.Get(body.TestId).Status >= TestStatus.Completed)

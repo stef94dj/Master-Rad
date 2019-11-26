@@ -34,8 +34,8 @@ namespace MasterRad.Services
         int Count(string schemaName, string tableName, List<Cell> recordPrevious, ConnectionParams connParams);
         Result<bool> DeleteRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams);
         bool CreateDatabase(string dbName);
-        bool CloneDatabase(string originDbName, string destDbName);
-        IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbName);
+        bool CloneDatabase(string originDbName, string destDbName, bool failIfExists);
+        IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbName, bool failIfExists);
         bool DatabaseExists(string name);
         bool DeleteDatabaseIfExists(string name);
         ConnectionParams GetAdminConnParams(string dbName);
@@ -405,13 +405,13 @@ namespace MasterRad.Services
             return DatabaseExists(dbName);
         }
 
-        public IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbNames)
+        public IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbNames, bool failIfExists)
         {
             var successfullyCloned = new List<string>();
 
             foreach (var destName in destDbNames)
             {
-                var cloneSucces = CloneDatabase(originDbName, destName);
+                var cloneSucces = CloneDatabase(originDbName, destName, failIfExists);
                 if (cloneSucces)
                     successfullyCloned.Add(destName);
             }
@@ -419,8 +419,11 @@ namespace MasterRad.Services
             return successfullyCloned;
         }
 
-        public bool CloneDatabase(string originDbName, string destDbName)
+        public bool CloneDatabase(string originDbName, string destDbName, bool failIfExists)
         {
+            if (DatabaseExists(destDbName))
+                return !failIfExists;
+
             var backupDestination = $"{AppContext.BaseDirectory}AppData\\{destDbName}_Temp.bak";
 
             var backupToDiskCommand = $"BACKUP DATABASE {originDbName}  TO DISK = '{backupDestination}' WITH FORMAT, COPY_ONLY";

@@ -1,17 +1,33 @@
 MVP:
 ---
-API/StudentController/AssignStudents: _microsoftSQLService.CloneDatabases(test.Task.NameOnServer !!!! - zar ne bi trebalo test.task.TEMPLATE.NameOnServer + jos jedna instanca 
+
+BUG: pisanje resenja: validacija da zahteva ime kolone (neophodno je da bi se lakse radilo poredjenje rezultata)
+BUG: create template model - kada se kreira prva tabela ona se pojavi u dropdown-u ali ne moze da se selektuje (ili je vec selektovana) da se vidi njena struktura.
+     verovatno je slicno kada se pise resenje za bazu koja ima samo jednu tabelu
+
+UX improvement: brisanje (umesto dugmeta selektabilni red i delete na tastaturi), dodavanje (enter dok je neko od polja iz poslednjeg reda tj. iz reda za insert u fokusu)
+
+razmisli o 2 vrste resulta kao response na front:
+ - data result (kada se radi neki get podataka IsSuccess, Data, Errors)
+ - operation result kada se radi neki update ili insert (IsSuccess, Errors) - data treba da se update-uje novim get-om
+
+review CloneDatabase sa failIf exist true (tu je verovatno problem sto nije reentrant - ako clone uspe a db save failuje zaglavljeni smo i ne mozemo da probamo opet)		
+
+API/StudentController/AssignStudents: _microsoftSQLService.CloneDatabases(test.Task.NameOnServer !!!! - zar ne bi trebalo test.task.TEMPLATE.NameOnServer)
+sta ako neki assgnmenti ne uspeju
+	- ako failuje clone
+
+
 mozda ne klonirati na assign - klonirace se i za studente koji ne dodju
 klonirati kada student pocne - veliki load ako 30 studenata pocne u isto vreme
 
-cleanup nakon ocenjivanja!
+cleanup viska baza nakon ocenjivanja (ili kada prodje uvid)!
 
 Handle syntax errors in sql editor (in response)
 Delete: Templates, Tasks, Synthesis Tests
 
 Nice to have:
 ------------
-napisi lambde umesto {} u metodama gde postoji samo jedan poziv: =>  Ok(false); umesto {var res = false; return Ok(res)}
 FE (create Template/Task/Test + set Template/Task description): FE validations (name/description not empty or taken + Template/Task selected when creating Task/Test)
 Data celija (templates i tasks tabele): 5 records in 3 tables
 Model celija (templates tablela): 4 columns in 2 tables

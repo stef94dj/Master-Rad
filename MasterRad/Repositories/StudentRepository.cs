@@ -13,7 +13,7 @@ namespace MasterRad.Repositories
         IEnumerable<StudentEntity> SearchStudents(SearchStudentRQ request);
         IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId);
         IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId);
-        IEnumerable<SynthesisTestStudentEntity> AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId);
+        int AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId);
         IEnumerable<AnalysisTestStudentEntity> AssignAnalysisTest(List<int> studentIds, int testId);
         void RemoveSynthesis(int studentId, byte[] timeStamp, int testId);
         void RemoveAnalysis(int studentId, byte[] timeStamp, int testId);
@@ -56,7 +56,7 @@ namespace MasterRad.Repositories
             throw new NotImplementedException();
         }
 
-        public IEnumerable<SynthesisTestStudentEntity> AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId)
+        public int AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId)
         {
             var stsEntities = studDbNamePairs.Select(pair => new SynthesisTestStudentEntity()
             {
@@ -68,9 +68,7 @@ namespace MasterRad.Repositories
             });
 
             _context.SynthesysTestStudents.AddRange(stsEntities);
-            _context.SaveChanges();
-
-            return stsEntities;
+            return _context.SaveChanges();
         }
 
         public IEnumerable<StudentEntity> SearchStudents(SearchStudentRQ rq)
