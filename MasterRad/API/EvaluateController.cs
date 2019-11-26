@@ -36,20 +36,29 @@ namespace MasterRad.API
         {
             var sts = _synthesisRepository.GetEvaluationData();
 
-            var nameOnServer = "NOT IMPLEMENTED - clone of task instance";
-
-            //exec students sql
-            var studentResult = _microsoftSQLService.ExecuteSQLAsAdmin(sts.SynthesisPaper.SqlScript, nameOnServer);
-
-            //execute teachers sql
-            var teacherResult = _microsoftSQLService.ExecuteSQLAsAdmin(sts.SynthesisTest.Task.SolutionSqlScript, nameOnServer);
-
             //get solution format
             var solutionFormat = sts.SynthesisTest.Task.SolutionColumns.Select(sc => sc.ColumnName);
 
+            var templateDatabaseNameOnServer = "clone template db";
+            //exec students sql
+            var studentTemplateResult = _microsoftSQLService.ExecuteSQLAsAdmin(sts.SynthesisPaper.SqlScript, templateDatabaseNameOnServer);
+            //execute teachers sql
+            var teacherTemplateResult = _microsoftSQLService.ExecuteSQLAsAdmin(sts.SynthesisTest.Task.SolutionSqlScript, templateDatabaseNameOnServer);
             //evaluate
-            var res = _evaluatorService.EvaluateSynthesisPaper(studentResult, teacherResult, solutionFormat);
-            return Ok(res);
+            var templateEvalRes = _evaluatorService.EvaluateSynthesisPaper(studentTemplateResult, teacherTemplateResult, solutionFormat);
+
+            var taskDatabaseNameOnServer = "clone task db";
+            //exec students sql
+            var studentTaskResult = _microsoftSQLService.ExecuteSQLAsAdmin(sts.SynthesisPaper.SqlScript, taskDatabaseNameOnServer);
+            //execute teachers sql
+            var tacherTaskResult = _microsoftSQLService.ExecuteSQLAsAdmin(sts.SynthesisTest.Task.SolutionSqlScript, taskDatabaseNameOnServer);
+            //evaluate
+            var taskEvalRes = _evaluatorService.EvaluateSynthesisPaper(studentTaskResult, tacherTaskResult, solutionFormat);
+
+            //store evaluate results
+
+            throw new NotImplementedException();
+            return Ok(true);
         }
 
         [HttpGet, Route("analysis/{id}")]
