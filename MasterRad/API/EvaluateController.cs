@@ -1,4 +1,5 @@
 ﻿using MasterRad.DTOs;
+using MasterRad.Helpers;
 using MasterRad.Models;
 using MasterRad.Repositories;
 using MasterRad.Services;
@@ -31,34 +32,47 @@ namespace MasterRad.API
             _microsoftSQLService = microsoftSQLService;
         }
 
-        [HttpGet, Route("synthesis/{synthesisTestStudentId}")]
-        public ActionResult<Result<bool>> EvaluateSynthesisPaper([FromRoute] int synthesisTestStudentId)
+        [HttpPost]
+        public ActionResult<Result<bool>> EvaluateSynthesisPaper([FromBody] EvaluateSynthesisTest model)
         {
-            var sts = _synthesisRepository.GetEvaluationData();
+            var sts = _synthesisRepository.GetEvaluationData(model.SynthesisTestId, model.StudentId);
 
-            //get solution format
+            var originalDataNameOnServer = model.EvaluateWithSecretData ? sts.SynthesisTest.Task.NameOnServer : sts.SynthesisTest.Task.Template.NameOnServer;
+            var cloneDataNameOnServer = DatabaseNameHelper.SynthesisTestEvaluation(model.StudentId, model.SynthesisTestId, model.EvaluateWithSecretData);
+
+            var solutionScript = sts.SynthesisTest.Task.SolutionSqlScript;
             var solutionFormat = sts.SynthesisTest.Task.SolutionColumns.Select(sc => sc.ColumnName);
+            var studentScript = sts.SynthesisPaper.SqlScript;
 
-            var templateDatabaseNameOnServer = "clone template db";
-            //exec students sql
-            var studentTemplateResult = _microsoftSQLService.ExecuteSQLAsAdmin(sts.SynthesisPaper.SqlScript, templateDatabaseNameOnServer);
-            //execute teachers sql
-            var teacherTemplateResult = _microsoftSQLService.ExecuteSQLAsAdmin(sts.SynthesisTest.Task.SolutionSqlScript, templateDatabaseNameOnServer);
-            //evaluate
-            var templateEvalRes = _evaluatorService.EvaluateSynthesisPaper(studentTemplateResult, teacherTemplateResult, solutionFormat);
+            var cloneSuccess = _microsoftSQLService.CloneDatabase(originalDataNameOnServer, cloneDataNameOnServer, false);
+            if (!cloneSuccess)
+                return Result<bool>.Fail("Unexpected error");
 
-            var taskDatabaseNameOnServer = "clone task db";
-            //exec students sql
-            var studentTaskResult = _microsoftSQLService.ExecuteSQLAsAdmin(sts.SynthesisPaper.SqlScript, taskDatabaseNameOnServer);
-            //execute teachers sql
-            var tacherTaskResult = _microsoftSQLService.ExecuteSQLAsAdmin(sts.SynthesisTest.Task.SolutionSqlScript, taskDatabaseNameOnServer);
-            //evaluate
-            var taskEvalRes = _evaluatorService.EvaluateSynthesisPaper(studentTaskResult, tacherTaskResult, solutionFormat);
+            SynthesisEvaluationResult result;
+            var studentResult = _microsoftSQLService.ExecuteSQLAsAdmin(studentScript, cloneDataNameOnServer);
+            if (studentResult.Messages.Any())
+            {
+                result = new SynthesisEvaluationResult() { Pass = false, FailReason = $"Sql execution failed with errors:{string.Join(", ", studentResult.Messages)}" };
+            }
+            else
+            {
+                var teacherResult = _microsoftSQLService.ExecuteSQLAsAdmin(solutionScript, originalDataNameOnServer);
+                if (teacherResult.Messages.Any())
+                    return Result<bool>.Fail("Unexpected error");
 
-            //store evaluate results
+                result = _evaluatorService.EvaluateSynthesisPaper(studentResult, teacherResult, solutionFormat);
+            }
 
-            throw new NotImplementedException();
-            return Ok(true);
+            var saveSuccess = _synthesisRepository.SaveEvaluation(sts.SynthesisPaper.Id, model.EvaluateWithSecretData, result);
+
+            var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(cloneDataNameOnServer);
+            if (!deleteSuccess)
+                Console.WriteLine($"NOT implemented: log delete database {cloneDataNameOnServer} failed");
+
+            if (saveSuccess)
+                return Ok(Result<bool>.Success(true));
+            else
+                return Ok(Result<bool>.Fail("Unexpected error"));
         }
 
         [HttpGet, Route("analysis/{id}")]

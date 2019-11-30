@@ -14,6 +14,12 @@ namespace MasterRad.Entities
 
         public string SqlScript { get; set; }
 
+        public bool? PassPublicTest { get; set; }
+        public string PublicTestFailReason { get; set; }
+
+        public bool? PassSecretTest { get; set; }
+        public string SecretTestFailReason { get; set; }
+
         public int STS_SynthesisTestId { get; set; }
         public int STS_StudentId { get; set; }
         [ForeignKey("STS_StudentId,STS_SynthesisTestId")]

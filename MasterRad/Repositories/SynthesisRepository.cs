@@ -1,5 +1,6 @@
 ﻿using MasterRad.DTOs;
 using MasterRad.Entities;
+using MasterRad.Models;
 using MasterRad.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -25,7 +26,8 @@ namespace MasterRad.Repositories
         SynthesisPaperEntity SubmitAnswer(int testId, int studentId, string sqlScript);
         SynthesisPaperEntity UpdateAnswer(int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript);
         bool HasAnswer(int testId, int userId);
-        SynthesisTestStudentEntity GetEvaluationData();
+        SynthesisTestStudentEntity GetEvaluationData(int testId, int studentId);
+        bool SaveEvaluation(int synthesisPaperId, bool isSecret, SynthesisEvaluationResult result);
     }
 
     public class SynthesisRepository : ISynthesisRepository
@@ -217,9 +219,56 @@ namespace MasterRad.Repositories
             return synthesisPaperEntity;
         }
 
-        public SynthesisTestStudentEntity GetEvaluationData()
+        public SynthesisTestStudentEntity GetEvaluationData(int testId, int studentId)
+        =>
+            _context.SynthesysTestStudents.Where(sts => sts.SynthesisTestId == testId && sts.StudentId == studentId)
+                                          .Include(sts => sts.SynthesisPaper)
+                                          .Include(sts => sts.SynthesisTest)
+                                          .ThenInclude(st => st.Task)
+                                          .ThenInclude(task => task.Template)
+                                          .Include(sts => sts.SynthesisTest)
+                                          .ThenInclude(st => st.Task)
+                                          .ThenInclude(task => task.SolutionColumns)
+                                          .Single();
+
+        public bool SaveEvaluation(int synthesisPaperId, bool isSecret, SynthesisEvaluationResult result)
         {
-            throw new NotImplementedException();
+            var synthesisPaperEntity = new SynthesisPaperEntity() //AutoMapper
+            {
+                Id = synthesisPaperId,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            if (isSecret)
+            {
+                synthesisPaperEntity.PassSecretTest = result.Pass;
+                synthesisPaperEntity.SecretTestFailReason = result.FailReason;
+            }
+            else
+            {
+                synthesisPaperEntity.PassPublicTest = result.Pass;
+                synthesisPaperEntity.PublicTestFailReason = result.FailReason;
+            }
+
+            _context.SynthesisPapers.Attach(synthesisPaperEntity);
+
+            if (isSecret)
+            {
+                _context.Entry(synthesisPaperEntity).Property(x => x.PassSecretTest).IsModified = true;
+                _context.Entry(synthesisPaperEntity).Property(x => x.SecretTestFailReason).IsModified = true;
+            }
+            else
+            {
+                _context.Entry(synthesisPaperEntity).Property(x => x.PassPublicTest).IsModified = true;
+                _context.Entry(synthesisPaperEntity).Property(x => x.PublicTestFailReason).IsModified = true;
+            }
+
+            _context.Entry(synthesisPaperEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(synthesisPaperEntity).Property(x => x.ModifiedBy).IsModified = true;
+            
+            var affectedRecords = _context.SaveChanges();
+            return affectedRecords == 1;
         }
     }
 }

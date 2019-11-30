@@ -48,7 +48,7 @@ LOGOVANJE: File sistem, sql server, baza - odvojeni sistemi koji nisu transakcij
 - uvek treba znati sta se desilo (sev 1)
 - kriticni scenariji (radi se update template-a na tasku, obrise se postojeci template, novi ne uspe da se klonira - npr neko je sa servera obrisao bazu novog templejta i nema odakle da se klonira) koji uzrokuju greske u sistemu treba da budu neki alert (nije dovoljno samo da se uloguju) ili makar da se izdvoje kao kriticne greske
 - pitanje da li se sve moze ulogovati (create ili update template, baza se klonira, ne uspe upis u bazu - task ostaje vezan za stari template)
-
+- search: Console.WriteLine($"NOT implemented: log delete database {cloneDataNameOnServer} failed")
 Create template
 =======================
 _microsoftSQLService.CreateDatabase treba da uloguje poruku od sql servera ukoliko ne moze da kreira bazu na serveru
