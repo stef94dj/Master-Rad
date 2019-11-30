@@ -52,14 +52,14 @@ namespace MasterRad.API
             switch (body.TestType)
             {
                 case TestType.Synthesis:
-                    var test = _synthesisRepository.GetWithTask(body.TestId);
+                    var test = _synthesisRepository.GetWithTaskAndTemplate(body.TestId);
 
                     if (test.Status >= TestStatus.Completed)
                         return StatusCode(500);
 
                     var studenDbNamePairs = DatabaseNameHelper.SynthesisTestExam(body.StudentIds, test.Id);
 
-                    var succesfullyCloned = _microsoftSQLService.CloneDatabases(test.Task.NameOnServer, studenDbNamePairs.Select(snp => snp.Value), false);
+                    var succesfullyCloned = _microsoftSQLService.CloneDatabases(test.Task.Template.NameOnServer, studenDbNamePairs.Select(snp => snp.Value), false);
 
                     studenDbNamePairs = studenDbNamePairs.Where(x => succesfullyCloned.Contains(x.Value));
 

@@ -4,14 +4,10 @@ MVP:
 BUG: pisanje resenja: validacija da zahteva ime kolone (neophodno je da bi se lakse radilo poredjenje rezultata)
 BUG: create template model - kada se kreira prva tabela ona se pojavi u dropdown-u ali ne moze da se selektuje (ili je vec selektovana) da se vidi njena struktura.
      verovatno je slicno kada se pise resenje za bazu koja ima samo jednu tabelu
+     Isto i kada se radi edit modela (cak i kada ima vise tabela)- prva je selektovana ali se ne vidi json ispod
 
-UX improvement: brisanje (umesto dugmeta selektabilni red i delete na tastaturi), dodavanje (enter dok je neko od polja iz poslednjeg reda tj. iz reda za insert u fokusu)
-
-razmisli o 2 vrste resulta kao response na front:
- - data result (kada se radi neki get podataka IsSuccess, Data, Errors)
- - operation result kada se radi neki update ili insert (IsSuccess, Errors) - data treba da se update-uje novim get-om
-
-review CloneDatabase sa failIf exist true (tu je verovatno problem sto nije reentrant - ako clone uspe a db save failuje zaglavljeni smo i ne mozemo da probamo opet)		
+review CloneDatabase sa fail if exist true (tu je verovatno problem sto nije reentrant - ako clone uspe a db save failuje zaglavljeni smo i ne mozemo da probamo opet)
+verovatno svi pozivi treba da imaju false		
 
 API/StudentController/AssignStudents: _microsoftSQLService.CloneDatabases(test.Task.NameOnServer !!!! - zar ne bi trebalo test.task.TEMPLATE.NameOnServer)
 sta ako neki assgnmenti ne uspeju
@@ -28,11 +24,15 @@ Delete: Templates, Tasks, Synthesis Tests
 
 Nice to have:
 ------------
+UX improvement: brisanje (umesto dugmeta selektabilni red i delete na tastaturi), dodavanje (enter dok je neko od polja iz poslednjeg reda tj. iz reda za insert u fokusu)
 FE (create Template/Task/Test + set Template/Task description): FE validations (name/description not empty or taken + Template/Task selected when creating Task/Test)
 Data celija (templates i tasks tabele): 5 records in 3 tables
 Model celija (templates tablela): 4 columns in 2 tables
 ekran Kreiranje resenja(Tasks -> solution): mozda staviti rezultat upita i struktura baze u 2 taba
 wait screen kada se modifikuje data neke tabele (Data.cshtml)(ne iscrtavati ponovo table header)
+razmisli o 2 vrste resulta kao response na front:
+ - data result (kada se radi neki get podataka IsSuccess, Data, Errors)
+ - operation result kada se radi neki update ili insert (IsSuccess, Errors) - data treba da se update-uje novim get-om
 
 ===================================================================================================================================================
 ***************************************************************************************************************************************************

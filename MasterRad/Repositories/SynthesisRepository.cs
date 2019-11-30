@@ -11,7 +11,7 @@ namespace MasterRad.Repositories
     public interface ISynthesisRepository
     {
         SynthesisTestEntity Get(int testId);
-        SynthesisTestEntity GetWithTask(int testId);
+        SynthesisTestEntity GetWithTaskAndTemplate(int testId);
         IEnumerable<SynthesisTestEntity> Get();
         SynthesisTestStudentEntity GetAssignment(int studentId, int testId);
         SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(int studentId, int testId);
@@ -44,10 +44,11 @@ namespace MasterRad.Repositories
                        .SingleOrDefault();
 
 
-        public SynthesisTestEntity GetWithTask(int testId)
+        public SynthesisTestEntity GetWithTaskAndTemplate(int testId)
             => _context.SynthesisTests
                        .Where(t => t.Id == testId)
                        .Include(t => t.Task)
+                       .ThenInclude(t => t.Template)
                        .AsNoTracking()
                        .SingleOrDefault();
 
@@ -74,6 +75,7 @@ namespace MasterRad.Repositories
 
         public IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId)
             => _context.SynthesysTestStudents
+                       .Include(sts => sts.SynthesisPaper)
                        .Include(sts => sts.SynthesisTest)
                        .Where(sts => sts.StudentId == studentId);
 

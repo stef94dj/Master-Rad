@@ -38,11 +38,11 @@ function drawTestsList(data) {
                 break;
             case TestStatus.Completed:
             case TestStatus.Graded:
-                if (testEntity.synthesisPaper == null)
+                if (stsEntity.synthesisPaper == null)
                     testItem += '<div class="card-header font-weight-bold text-danger">' + 'Missed' + '</div>';
-                else if (test.status == TestStatus.Completed)
+                else if (testEntity.status == TestStatus.Completed)
                     testItem += '<div class="card-header font-weight-bold bg-dark text-light">' + 'Pending review' + '</div>';
-                else if (test.status == TestStatus.Graded)
+                else if (testEntity.status == TestStatus.Graded)
                     testItem += '<div class="card-header font-weight-bold bg-dark text-light">' + 'Completed' + '</div>';
                 break;
         }
