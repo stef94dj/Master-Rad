@@ -85,7 +85,8 @@ namespace MasterRad.Controllers
             var vm = new TestResultsVM
             {
                 TestId = testId,
-                TestType = testType
+                TestType = testType,
+                JobId = 123
             };
             return View(vm);
         }

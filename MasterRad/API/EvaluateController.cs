@@ -90,13 +90,13 @@ namespace MasterRad.API
             return Ok(res);
         }
 
-        [HttpPost]
-        public IActionResult StartProgress()
+        [HttpPost, Route("StartProgress")]
+        public ActionResult StartProgress()
         {
             string jobId = Guid.NewGuid().ToString("N");
             _queue.QueueAsyncTask(() => PerformBackgroundJob(jobId));
 
-            return RedirectToAction("Results", new { jobId });
+            return Ok();
         }
 
         private async Task PerformBackgroundJob(string jobId)

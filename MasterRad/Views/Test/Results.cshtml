@@ -10,6 +10,8 @@
 
 <h1>Test results</h1>
 
+<div>"@Model.JobId"</div>
+
 <br />
 <br />
 
@@ -17,9 +19,7 @@
     <div class="col-md-12">
         <h2>Start background process</h2>
         <p>Start a long running process by clicking on the button below:</p>
-        <form asp-controller="" asp-action="StartProgress">
-            <button class="btn btn-primary btn-lg">Queue Background Job</button>
-        </form>
+        <button onclick="startProgress()" class="btn btn-primary btn-lg">Queue Background Job</button>
     </div>
 </div>
 
@@ -35,6 +35,7 @@
             .withUrl("/jobprogress")
             .configureLogging(signalR.LogLevel.Information)
             .build();
+
         connection.on("progress",
             (percent) => {
                 if (percent === 100) {
@@ -43,8 +44,22 @@
                     document.getElementById("job-status").innerText = `${percent}%`;
                 }
             });
+
         connection.start()
-            .then(_ => connection.invoke("AssociateJob", "@ViewBag.JobId"))
+            .then(_ => connection.invoke("AssociateJob", "@Model.JobId"))
             .catch(err => console.error(err.toString()));
+
+        function startProgress() {
+            $.ajax({
+                url: '/api/Evaluate/StartProgress',
+                dataType: 'json',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({}),
+                success: function (data, textStatus, jQxhr) {
+                    alert('started');
+                }
+            });
+        }
     </script>
 }
