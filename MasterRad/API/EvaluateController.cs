@@ -91,12 +91,13 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("StartProgress")]
-        public ActionResult StartProgress()
+        public ActionResult<Result<bool>> StartProgress()
         {
             string jobId = Guid.NewGuid().ToString("N");
-            _queue.QueueAsyncTask(() => PerformBackgroundJob(jobId));
+            _queue.QueueAsyncTask(() => PerformBackgroundJob("123"));
 
-            return Ok();
+            var res = Result<bool>.Fail("");
+            return Ok(res);
         }
 
         private async Task PerformBackgroundJob(string jobId)
