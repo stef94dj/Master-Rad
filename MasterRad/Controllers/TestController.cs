@@ -68,5 +68,26 @@ namespace MasterRad.Controllers
             };
             return View(vm);
         }
+
+        public IActionResult Results(int testId, TestType testType)
+        {
+            switch (testType)
+            {
+                case TestType.Synthesis:
+                    
+                    break;
+                case TestType.Analysis:
+                    throw new NotImplementedException();
+                default:
+                    return StatusCode(500);
+            }
+
+            var vm = new TestResultsVM
+            {
+                TestId = testId,
+                TestType = testType
+            };
+            return View(vm);
+        }
     }
 }

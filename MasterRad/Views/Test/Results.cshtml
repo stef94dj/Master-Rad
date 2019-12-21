@@ -1,0 +1,50 @@
+﻿@model MasterRad.Models.ViewModels.TestResultsVM
+@{
+    ViewData["Title"] = "Test results";
+}
+
+<div hidden>
+    <input type="text" value="@(Model.TestId)" id="test-id">
+    <input type="text" value="@((int)Model.TestType)" id="test-type">
+</div>
+
+<h1>Test results</h1>
+
+<br />
+<br />
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>Start background process</h2>
+        <p>Start a long running process by clicking on the button below:</p>
+        <form asp-controller="" asp-action="StartProgress">
+            <button class="btn btn-primary btn-lg">Queue Background Job</button>
+        </form>
+    </div>
+</div>
+
+<br />
+<br />
+
+<p>Status of your background job: <strong><span id="job-status">Waiting to start...</span></strong></p>
+
+@section Scripts {
+    <script src="~/lib/signalr/signalr.js"></script>
+    <script>
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl("/jobprogress")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+        connection.on("progress",
+            (percent) => {
+                if (percent === 100) {
+                    document.getElementById("job-status").innerText = "Finished!";
+                } else {
+                    document.getElementById("job-status").innerText = `${percent}%`;
+                }
+            });
+        connection.start()
+            .then(_ => connection.invoke("AssociateJob", "@ViewBag.JobId"))
+            .catch(err => console.error(err.toString()));
+    </script>
+}

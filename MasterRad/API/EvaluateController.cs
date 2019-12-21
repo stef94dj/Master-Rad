@@ -1,9 +1,11 @@
-﻿using MasterRad.DTOs;
+﻿using Coravel.Queuing.Interfaces;
+using MasterRad.DTOs;
 using MasterRad.Helpers;
 using MasterRad.Models;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -19,17 +21,23 @@ namespace MasterRad.API
         private readonly IEvaluator _evaluatorService;
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IMicrosoftSQL _microsoftSQLService;
+        private readonly IHubContext<JobProgressHub> _hubContext;
+        private readonly IQueue _queue;
 
         public EvaluateController
         (
             IEvaluator evaluatorService,
             ISynthesisRepository synthesisRepository,
-            IMicrosoftSQL microsoftSQLService
+            IMicrosoftSQL microsoftSQLService,
+            IQueue queue,
+            IHubContext<JobProgressHub> hubContext
         )
         {
             _evaluatorService = evaluatorService;
             _synthesisRepository = synthesisRepository;
             _microsoftSQLService = microsoftSQLService;
+            _queue = queue;
+            _hubContext = hubContext;
         }
 
         [HttpPost]
@@ -80,6 +88,25 @@ namespace MasterRad.API
         {
             var res = _evaluatorService.EvaluateAnalysisPaper(id);
             return Ok(res);
+        }
+
+        [HttpPost]
+        public IActionResult StartProgress()
+        {
+            string jobId = Guid.NewGuid().ToString("N");
+            _queue.QueueAsyncTask(() => PerformBackgroundJob(jobId));
+
+            return RedirectToAction("Results", new { jobId });
+        }
+
+        private async Task PerformBackgroundJob(string jobId)
+        {
+            for (int i = 0; i <= 100; i += 1)
+            {
+                await _hubContext.Clients.Group(jobId).SendAsync("progress", i);
+
+                await Task.Delay(1000);
+            }
         }
     }
 }

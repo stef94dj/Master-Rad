@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Coravel;
 using MasterRad.Extensions;
 using MasterRad.Models;
 using MasterRad.Repositories;
@@ -58,6 +59,9 @@ namespace MasterRad
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+            services.AddQueue();
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -79,6 +83,8 @@ namespace MasterRad
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+
+            app.UseSignalR(routes => { routes.MapHub<JobProgressHub>("/jobprogress"); });
 
             app.UseMvc(routes =>
             {

@@ -86,7 +86,7 @@ function drawChangeStatusModalButton(color, test, enabled) {
     if (!enabled)
         result += 'disabled ';
     debugger;
-    if (test.status == TestStatus.Graded)
+    if (test.status == TestStatus.Completed)
         result += ' onclick="viewResults(' + test.id + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">Results</button>';
     else
         result += 'data-toggle="modal" onclick="openStatusModal(this,' + newStatus + ')" data-id="' + test.id + '" data-timestamp="' + test.timeStamp + '" data-news-tatus-code="' + newStatus + '" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + TestStatus.ActionName(test.status) + '</button>'
@@ -166,6 +166,16 @@ function statusNext() {
             loadTests();
         }
     });
+}
+
+//VIEW RESULTS
+
+function viewResults(testId) {
+    var form = $('#hidden-form');
+    form.find('#test-id').val(testId);
+    form.find('#test-type').val(TestType.Synthesis);
+    form.attr('action', '/Test/Results');
+    form.submit();  
 }
 
 //CREATE TEST MODAL

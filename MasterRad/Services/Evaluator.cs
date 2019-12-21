@@ -17,6 +17,8 @@ namespace MasterRad.Services
     {
         public SynthesisEvaluationResult EvaluateSynthesisPaper(QueryExecuteRS studentResult, QueryExecuteRS teacherResult, IEnumerable<string> expectedFormat)
         {
+            throw new NotImplementedException();
+
             if (studentResult.Tables.Count() != 1)
                 return new SynthesisEvaluationResult() { Pass = false, FailReason = $"Query returned {studentResult.Tables.Count()} tables" };
 
