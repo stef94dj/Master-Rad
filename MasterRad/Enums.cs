@@ -24,4 +24,14 @@ namespace MasterRad
         Synthesis = 1,
         Analysis = 2
     }
+
+    public enum EvaluationProgress
+    {
+        NotSubmited = 0,
+        Ready = 1,
+        Queued = 2,
+        Evaluating = 3,
+        Failed = 4,
+        Passed = 5
+    }
 }

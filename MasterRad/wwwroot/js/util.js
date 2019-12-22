@@ -31,3 +31,8 @@ function bindModalOnShow(selector, handler) {
         handler(this, event);
     })
 }
+
+function disableButton(button) {
+    if (button.length == 1)
+        $(button).attr('disabled', 'disabled').addClass('disabled');
+}

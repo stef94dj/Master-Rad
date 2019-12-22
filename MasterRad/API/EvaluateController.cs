@@ -104,7 +104,19 @@ namespace MasterRad.API
         {
             for (int i = 0; i <= 100; i += 1)
             {
-                await _hubContext.Clients.Group(jobId).SendAsync("progress", i);
+                var status = i % 10;
+
+                if (status > (int)EvaluationProgress.Passed)
+                    status = (int)EvaluationProgress.NotSubmited;
+
+                var progressUpdate = new
+                {
+                    id = 101,
+                    secret = false,
+                    status = status
+                };
+
+                await _hubContext.Clients.Group(jobId).SendAsync("progress", progressUpdate);
 
                 await Task.Delay(1000);
             }

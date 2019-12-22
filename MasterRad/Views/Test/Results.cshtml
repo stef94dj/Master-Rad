@@ -14,13 +14,9 @@
 
 <div class="row">
     <div class="col-md-12">
-        <button onclick="startProgress()" class="btn btn-primary btn-lg">Start evaluation</button>
+        <button id="start-evaluation-btn" onclick="startProgress()" class="btn btn-primary btn-lg">Start evaluation</button>
     </div>
 </div>
-
-<br />
-
-<p>Status of your background job: <strong><span id="job-status">Waiting to start...</span></strong></p>
 
 <br />
 <!-- Results table -->
@@ -34,42 +30,69 @@
         </tr>
     </thead>
     <tbody id="test-evaluations-tbody">
-        <tr student-id="101">
+        <tr data-student-id="101">
+            <td>Marko Markovic</td>
+            <td class="public-data-progress">
+                <svg height="24" viewBox="0 0 12 12" width="24" data-toggle="tooltip" data-placement="right" title="Not submited">
+                    <circle cx="6" cy="6" r="6" fill="#b2b2b2"></circle>
+                    <path d="M3.64 3.64a.75.75 0 0 1 1.06 0l1.294 1.294L7.288 3.64a.75.75 0 0 1 1.06 1.06L7.056 5.994l1.292 1.292a.75.75 0 0 1-1.06 1.06l-1.295-1.29-1.291 1.291a.75.75 0 1 1-1.06-1.06l1.292-1.293L3.64 4.7a.75.75 0 0 1 0-1.06z" fill="#fff"></path>
+                </svg>
+            </td>
+            <td class="secret-data-progress">
+                <svg height="24" viewBox="0 0 12 12" width="24" data-toggle="tooltip" data-placement="right" title="Not submited">
+                    <circle cx="6" cy="6" r="6" fill="#b2b2b2"></circle>
+                    <path d="M3.64 3.64a.75.75 0 0 1 1.06 0l1.294 1.294L7.288 3.64a.75.75 0 0 1 1.06 1.06L7.056 5.994l1.292 1.292a.75.75 0 0 1-1.06 1.06l-1.295-1.29-1.291 1.291a.75.75 0 1 1-1.06-1.06l1.292-1.293L3.64 4.7a.75.75 0 0 1 0-1.06z" fill="#fff"></path>
+                </svg>
+            </td>
+        </tr>
+        <tr data-student-id="102">
+            <td>Milos Milosevic</td> 
+            <td class="public-data-progress">
+
+                <svg height="24" width="24" viewBox="0 0 12 12" data-toggle="tooltip" data-placement="right" title="Ready">
+                    <circle cx="6" cy="6" r="5" fill="#fff"></circle>
+                    <path fill-rule="evenodd" fill="#b2b2b2" clip-rule="evenodd" d="M6 12A6 6 0 1 0 6 0a6 6 0 0 0 0 12zm0-1.25a4.75 4.75 0 1 0 0-9.5 4.75 4.75 0 0 0 0 9.5z">
+                    </path>
+                </svg>
+            </td>
+            <td class="secret-data-progress">
+                <svg height="24" width="24" viewBox="0 0 12 12" data-toggle="tooltip" data-placement="right" title="Queued">
+                    <circle cx="6" cy="6" r="6" fill="#007bfe"></circle>
+                    <path d="M6 2.6a.75.75 0 0 1 .75.75v2.439L8.122 7.16a.75.75 0 1 1-1.06 1.06L5.487 6.648A.747.747 0 0 1 5.25 6.1V3.35A.75.75 0 0 1 6 2.6z" fill="#fff"></path>
+                </svg>
+            </td>
+        </tr>
+        <tr data-student-id="103">
             <td>Petar Petrovic</td>
-            <td>
-                <div @*class="pipe-subtext*@">
-                    <div @*class="active-rd-subtext flex-row flex-center"*@>
-                        <svg @*class="bolt-status flex-noshrink active active-rd-left-pane-status-icon pending-icon"*@ height="24" @*role="presentation"*@ viewBox="0 0 12 12" width="24" @*xmlns="http://www.w3.org/2000/svg"*@>
-                            <circle cx="6" cy="6" r="6" fill="red"></circle>
-                            <path d="M6 2.6a.75.75 0 0 1 .75.75v2.439L8.122 7.16a.75.75 0 1 1-1.06 1.06L5.487 6.648A.747.747 0 0 1 5.25 6.1V3.35A.75.75 0 0 1 6 2.6z" fill="#ff2"></path>
-                        </svg>
-                        <div class="active-rd-approval-subtext pending-subtext">Queued</div>
-                    </div>
-                </div>
+            <td class="public-data-progress">
+                <div class="spinner-border text-warning" role="status" style="width: 24px; height: 24px; font-size: 10px" data-toggle="tooltip" data-placement="right" title="Evaluating..."/>
             </td>
-            <td>
-                <div class="active-rd-subtext flex-row flex-center"><svg class="bolt-status flex-noshrink success active-rd-left-pane-status-icon flex-noshrink" height="12" role="presentation" viewBox="0 0 12 12" width="12" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="6" r="6"></circle><path d="M4.74 8.19l-.002-.002-1.29-1.29a.677.677 0 1 1 .958-.957l.813.812 2.804-2.805a.678.678 0 0 1 .959.958L5.7 8.188l-.002.002a.678.678 0 0 1-.958 0z" fill="#fff"></path></svg><div class="active-rd-environment-name-tooltip active-rd-subtitle-overflow">Pass</div></div>
+            <td class="secret-data-progress">
+                <div class="spinner-border text-warning" role="status" style="width: 24px; height: 24px; font-size: 10px" data-toggle="tooltip" data-placement="right" title="Evaluating..." />
             </td>
         </tr>
-        <tr student-id="102">
+        <tr data-student-id="104">
             <td>Jana Janic</td>
-            <td>
-                <div class="active-rd-subtext flex-row flex-center"><svg class="bolt-status flex-noshrink failed active-rd-left-pane-status-icon flex-noshrink" height="12" role="presentation" viewBox="0 0 12 12" width="12" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="6" r="6"></circle><path d="M3.64 3.64a.75.75 0 0 1 1.06 0l1.294 1.294L7.288 3.64a.75.75 0 0 1 1.06 1.06L7.056 5.994l1.292 1.292a.75.75 0 0 1-1.06 1.06l-1.295-1.29-1.291 1.291a.75.75 0 1 1-1.06-1.06l1.292-1.293L3.64 4.7a.75.75 0 0 1 0-1.06z" fill="#fff"></path></svg><div class="active-rd-environment-name-tooltip active-rd-subtitle-overflow">Fail</div></div>
+            <td class="public-data-progress">
+                <svg height="24" viewBox="0 0 12 12" width="24" data-toggle="tooltip" data-placement="right" title="Passed">
+                    <circle cx="6" cy="6" r="6" fill="#27a745"></circle>
+                    <path d="M4.74 8.19l-.002-.002-1.29-1.29a.677.677 0 1 1 .958-.957l.813.812 2.804-2.805a.678.678 0 0 1 .959.958L5.7 8.188l-.002.002a.678.678 0 0 1-.958 0z" fill="#fff"></path>
+                </svg>
             </td>
-            <td>
+            <td class="secret-data-progress">
+                <svg height="24" viewBox="0 0 12 12" width="24" data-toggle="tooltip" data-placement="right" title="Failed">
+                    <circle cx="6" cy="6" r="6" fill="#DC3545"></circle>
+                    <path d="M3.64 3.64a.75.75 0 0 1 1.06 0l1.294 1.294L7.288 3.64a.75.75 0 0 1 1.06 1.06L7.056 5.994l1.292 1.292a.75.75 0 0 1-1.06 1.06l-1.295-1.29-1.291 1.291a.75.75 0 1 1-1.06-1.06l1.292-1.293L3.64 4.7a.75.75 0 0 1 0-1.06z" fill="#fff"></path>
+                </svg>
             </td>
         </tr>
-        <tr student-id="103">
-            <td>Milos Milosevic</td>
-            <td>
-            </td>
-            <td>
-            </td>
-        </tr>
+
     </tbody>
 </table>
 
 @section Scripts {
     <script src="~/lib/signalr/signalr.js"></script>
+    <script src="~/js/util.js"></script>
+    <script src="~/js/enums.js"></script>
     <script src="~/js/results.js"></script>
 }
