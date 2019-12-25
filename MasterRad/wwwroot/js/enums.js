@@ -44,7 +44,7 @@ var TestType = {
 
 var EvaluationStatus = {
     NotSubmited : 0,
-    Ready : 1,
+    NotEvaluated : 1,
     Queued : 2,
     Evaluating : 3,
     Failed : 4,

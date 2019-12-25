@@ -1,6 +1,8 @@
 ﻿$(document).ready(function () {
     initializeTooltips();
-    connectToSignalR();
+    var testId = $('#test-id').val();
+    loadEvaluationResults($('#evaluation-results-tbody'), `/api/evaluate/get/papers/synthesis/${testId}`);
+    //connectToSignalR(); - needs to execute after loadEvaluationResults finishes ????
 });
 
 function initializeTooltips() {
@@ -9,6 +11,59 @@ function initializeTooltips() {
     })
 }
 
+//DRAW PAPERS TABLE
+function loadEvaluationResults(tbody, apiUrl) {
+    tbody.html(drawEvaluationResultsTableMessage('Loading data...'));
+    $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        success: function (data) {
+            drawEvaluationResultsTable(tbody, data);
+        },
+        error: function () {
+            tbody.html(drawEvaluationResultsTableMessage('Error loading data.'));
+        }
+    });
+}
+
+function drawEvaluationResultsTableMessage(message) {
+    return drawTableMessage(message, 3);
+}
+
+function drawEvaluationResultsTable(tbody, studentPapers) {
+    tbody.html('');
+    $.each(studentPapers, function (index, studentPaper) {
+        var student = studentPaper.student;
+        var tableRow = `<tr data-student-id="${student.Id}">`;
+
+        tableRow += drawStudentCell(student);
+        tableRow += drawPublicEvaluationCell(studentPaper.synthesisPaper);
+        tableRow += drawSecretEvaluationCell(studentPaper.synthesisPaper);
+
+        tableRow += '</tr>'
+        tbody.append(tableRow)
+    });
+}
+
+function drawStudentCell(student) {
+    return `<td>${student.firstName} ${student.lastName}</td>`;
+};
+
+function drawPublicEvaluationCell(paper) {
+    var cellContent = evaluationProgressUI.drawEvaluationStatus(EvaluationStatus.NotSubmited);
+    if (paper != null)
+        cellContent = evaluationProgressUI.drawEvaluationStatus(paper.publicDataEvaluationStatus)
+    return `<td class="public-data-progress">${cellContent}</td>`;
+}
+
+function drawSecretEvaluationCell(paper) {
+    var cellContent = evaluationProgressUI.drawEvaluationStatus(EvaluationStatus.NotSubmited);
+    if (paper != null)
+        cellContent = evaluationProgressUI.drawEvaluationStatus(paper.secretDataEvaluationStatus)
+    return `<td class="secret-data-progress">${cellContent}</td>`;
+}
+
+//SIGNAL R
 function connectToSignalR() {
     var connection = new signalR.HubConnectionBuilder()
         .withUrl("/jobprogress")
@@ -56,8 +111,8 @@ var evaluationProgressUI = {
             case EvaluationStatus.NotSubmited:
                 return this.drawStatusIcon("Not submited", ColorCodes.Grey, ColorCodes.White, Shapes.X_Mark, false);
                 break;
-            case EvaluationStatus.Ready:
-                return this.drawStatusIcon("Ready", ColorCodes.White, ColorCodes.Grey, Shapes.Circle, true);
+            case EvaluationStatus.NotEvaluated:
+                return this.drawStatusIcon("Not evaluated", ColorCodes.White, ColorCodes.Grey, Shapes.Circle, true);
                 break;
             case EvaluationStatus.Queued:
                 return this.drawStatusIcon("Queued", ColorCodes.Blue, ColorCodes.White, Shapes.Clock, false);

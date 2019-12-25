@@ -14,11 +14,11 @@ namespace MasterRad.Entities
 
         public string SqlScript { get; set; }
 
-        public bool? PassPublicTest { get; set; }
-        public string PublicTestFailReason { get; set; }
+        public EvaluationProgress PublicDataEvaluationStatus { get; set; }
+        public string PublicDataEvaluationInfo { get; set; }
 
-        public bool? PassSecretTest { get; set; }
-        public string SecretTestFailReason { get; set; }
+        public EvaluationProgress SecretDataEvaluationStatus { get; set; }
+        public string SecretDataEvaluationInfo { get; set; }
 
         public int STS_SynthesisTestId { get; set; }
         public int STS_StudentId { get; set; }

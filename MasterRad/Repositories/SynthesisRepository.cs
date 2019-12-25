@@ -28,6 +28,7 @@ namespace MasterRad.Repositories
         bool HasAnswer(int testId, int userId);
         SynthesisTestStudentEntity GetEvaluationData(int testId, int studentId);
         bool SaveEvaluation(int synthesisPaperId, bool isSecret, SynthesisEvaluationResult result);
+        IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId);
     }
 
     public class SynthesisRepository : ISynthesisRepository
@@ -242,26 +243,26 @@ namespace MasterRad.Repositories
 
             if (isSecret)
             {
-                synthesisPaperEntity.PassSecretTest = result.Pass;
-                synthesisPaperEntity.SecretTestFailReason = result.FailReason;
+                synthesisPaperEntity.SecretDataEvaluationStatus = result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Failed;
+                synthesisPaperEntity.SecretDataEvaluationInfo = result.FailReason;
             }
             else
             {
-                synthesisPaperEntity.PassPublicTest = result.Pass;
-                synthesisPaperEntity.PublicTestFailReason = result.FailReason;
+                synthesisPaperEntity.PublicDataEvaluationStatus = result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Failed;
+                synthesisPaperEntity.PublicDataEvaluationInfo = result.FailReason;
             }
 
             _context.SynthesisPapers.Attach(synthesisPaperEntity);
 
             if (isSecret)
             {
-                _context.Entry(synthesisPaperEntity).Property(x => x.PassSecretTest).IsModified = true;
-                _context.Entry(synthesisPaperEntity).Property(x => x.SecretTestFailReason).IsModified = true;
+                _context.Entry(synthesisPaperEntity).Property(x => x.SecretDataEvaluationStatus).IsModified = true;
+                _context.Entry(synthesisPaperEntity).Property(x => x.SecretDataEvaluationInfo).IsModified = true;
             }
             else
             {
-                _context.Entry(synthesisPaperEntity).Property(x => x.PassPublicTest).IsModified = true;
-                _context.Entry(synthesisPaperEntity).Property(x => x.PublicTestFailReason).IsModified = true;
+                _context.Entry(synthesisPaperEntity).Property(x => x.PublicDataEvaluationStatus).IsModified = true;
+                _context.Entry(synthesisPaperEntity).Property(x => x.PublicDataEvaluationInfo).IsModified = true;
             }
 
             _context.Entry(synthesisPaperEntity).Property(x => x.DateModified).IsModified = true;
@@ -270,5 +271,11 @@ namespace MasterRad.Repositories
             var affectedRecords = _context.SaveChanges();
             return affectedRecords == 1;
         }
+    
+        public IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId)
+            => _context.SynthesysTestStudents
+                       .Include(sts => sts.SynthesisPaper)
+                       .Include(sts => sts.Student)
+                       .Where(sts => sts.SynthesisTestId == testId);
     }
 }
