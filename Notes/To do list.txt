@@ -1,7 +1,7 @@
 MVP:
 ---
 
-SignalR: if connection fails warning (live updates not avaliable)
+SignalR: if connection fails warning (live updates not avaliable) + connect to signalR after data has loaded
 BUG: pisanje resenja: validacija da zahteva ime kolone (neophodno je da bi se lakse radilo poredjenje rezultata)
 BUG: create template model - kada se kreira prva tabela ona se pojavi u dropdown-u ali ne moze da se selektuje (ili je vec selektovana) da se vidi njena struktura.
      verovatno je slicno kada se pise resenje za bazu koja ima samo jednu tabelu
