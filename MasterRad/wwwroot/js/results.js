@@ -1,8 +1,11 @@
-﻿$(document).ready(function () {
+﻿var testId;
+$(document).ready(function () {
     initializeTooltips();
-    var testId = $('#test-id').val();
+    testId = $('#test-id').val();
     loadEvaluationResults($('#evaluation-results-tbody'), `/api/evaluate/get/papers/synthesis/${testId}`);
-    //connectToSignalR(); - needs to execute after loadEvaluationResults finishes ????
+
+    $.when(loadEvaluationResults($('#evaluation-results-tbody'), `/api/evaluate/get/papers/synthesis/${testId}`))
+        .then(connectToSignalR());
 });
 
 function initializeTooltips() {
@@ -25,16 +28,19 @@ function loadEvaluationResults(tbody, apiUrl) {
         }
     });
 }
-
 function drawEvaluationResultsTableMessage(message) {
     return drawTableMessage(message, 3);
 }
-
 function drawEvaluationResultsTable(tbody, studentPapers) {
     tbody.html('');
     $.each(studentPapers, function (index, studentPaper) {
         var student = studentPaper.student;
-        var tableRow = `<tr data-student-id="${student.Id}">`;
+
+        var paperNotSubmitedData = "";
+        if (studentPaper.synthesisPaper == null)
+            paperNotSubmitedData = ' data-not-submited="true"';
+
+        var tableRow = `<tr data-student-id="${student.id}"${paperNotSubmitedData}>`;
 
         tableRow += drawStudentCell(student);
         tableRow += drawPublicEvaluationCell(studentPaper.synthesisPaper);
@@ -44,18 +50,15 @@ function drawEvaluationResultsTable(tbody, studentPapers) {
         tbody.append(tableRow)
     });
 }
-
 function drawStudentCell(student) {
     return `<td>${student.firstName} ${student.lastName}</td>`;
 };
-
 function drawPublicEvaluationCell(paper) {
     var cellContent = evaluationProgressUI.drawEvaluationStatus(EvaluationStatus.NotSubmited);
     if (paper != null)
         cellContent = evaluationProgressUI.drawEvaluationStatus(paper.publicDataEvaluationStatus)
     return `<td class="public-data-progress">${cellContent}</td>`;
 }
-
 function drawSecretEvaluationCell(paper) {
     var cellContent = evaluationProgressUI.drawEvaluationStatus(EvaluationStatus.NotSubmited);
     if (paper != null)
@@ -70,29 +73,44 @@ function connectToSignalR() {
         .configureLogging(signalR.LogLevel.Information)
         .build();
 
-    connection.on("progress",
+    connection.on("synthesisEvaluationUpdate",
         (data) => {
             evaluationProgressUI.setCellStatus(data.id, data.secret, data.status)
         });
 
     connection.start()
-        .then(_ => connection.invoke("AssociateJob", "123"))
+        .then(_ => connection.invoke("AssociateJob", `evaluate_synthesis_${testId}`))
         .catch(err => console.error(err.toString()));
 }
-
 function startProgress() {
+    var tableRows = $('#evaluation-results-tbody tr');
+
+    tableRows = $.grep(tableRows, function (v) {
+        return $(v).data('not-submited') === undefined;
+    });
+
+    var studentIds = $.map(tableRows, function (val, i) {
+        return $(val).data('student-id');
+    });
+
+    var data = {
+        TestId: testId,
+        StudentIds: studentIds
+    }
+
     $.ajax({
-        url: '/api/Evaluate/StartProgress',
+        url: '/api/Evaluate/Start/Evaluation/Synthesis',
         dataType: 'json',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({}),
+        data: JSON.stringify(data),
         success: function (data, textStatus, jQxhr) {
             disableButton($('#start-evaluation-btn'));
         }
     });
 }
 
+//UI
 var evaluationProgressUI = {
     setCellStatus: function (studentId, secret, status) {
         var selector = `tr[data-student-id='${studentId}']`;

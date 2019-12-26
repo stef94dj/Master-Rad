@@ -27,6 +27,7 @@ namespace MasterRad.Repositories
         SynthesisPaperEntity UpdateAnswer(int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript);
         bool HasAnswer(int testId, int userId);
         SynthesisTestStudentEntity GetEvaluationData(int testId, int studentId);
+        bool SetStatus(int synthesisPaperId, bool isSecret, EvaluationProgress status);
         bool SaveEvaluation(int synthesisPaperId, bool isSecret, SynthesisEvaluationResult result);
         IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId);
     }
@@ -232,6 +233,35 @@ namespace MasterRad.Repositories
                                           .ThenInclude(task => task.SolutionColumns)
                                           .Single();
 
+        public bool SetStatus(int synthesisPaperId, bool isSecret, EvaluationProgress status)
+        {
+            var synthesisPaperEntity = new SynthesisPaperEntity() //AutoMapper
+            {
+                Id = synthesisPaperId,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            if (isSecret)
+                synthesisPaperEntity.SecretDataEvaluationStatus = status;
+            else
+                synthesisPaperEntity.PublicDataEvaluationStatus = status;
+
+
+            _context.SynthesisPapers.Attach(synthesisPaperEntity);
+
+            if (isSecret)
+                _context.Entry(synthesisPaperEntity).Property(x => x.SecretDataEvaluationStatus).IsModified = true;
+            else
+                _context.Entry(synthesisPaperEntity).Property(x => x.PublicDataEvaluationStatus).IsModified = true;
+
+            _context.Entry(synthesisPaperEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(synthesisPaperEntity).Property(x => x.ModifiedBy).IsModified = true;
+
+            var affectedRecords = _context.SaveChanges();
+            return affectedRecords == 1;
+        }
+
         public bool SaveEvaluation(int synthesisPaperId, bool isSecret, SynthesisEvaluationResult result)
         {
             var synthesisPaperEntity = new SynthesisPaperEntity() //AutoMapper
@@ -267,11 +297,11 @@ namespace MasterRad.Repositories
 
             _context.Entry(synthesisPaperEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(synthesisPaperEntity).Property(x => x.ModifiedBy).IsModified = true;
-            
+
             var affectedRecords = _context.SaveChanges();
             return affectedRecords == 1;
         }
-    
+
         public IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId)
             => _context.SynthesysTestStudents
                        .Include(sts => sts.SynthesisPaper)
