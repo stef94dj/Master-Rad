@@ -27,8 +27,8 @@ namespace MasterRad.Repositories
         SynthesisPaperEntity UpdateAnswer(int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript);
         bool HasAnswer(int testId, int userId);
         SynthesisTestStudentEntity GetEvaluationData(int testId, int studentId);
-        bool SetStatus(int synthesisPaperId, bool isSecret, EvaluationProgress status);
-        bool SaveEvaluation(int synthesisPaperId, bool isSecret, SynthesisEvaluationResult result);
+        bool SetStatus(SynthesisPaperEntity entity, bool isSecret, EvaluationProgress status);
+        bool SaveEvaluation(SynthesisPaperEntity entity, bool isSecret, SynthesisEvaluationResult result);
         IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId);
     }
 
@@ -233,70 +233,36 @@ namespace MasterRad.Repositories
                                           .ThenInclude(task => task.SolutionColumns)
                                           .Single();
 
-        public bool SetStatus(int synthesisPaperId, bool isSecret, EvaluationProgress status)
+        public bool SetStatus(SynthesisPaperEntity entity, bool isSecret, EvaluationProgress status)
         {
-            var synthesisPaperEntity = new SynthesisPaperEntity() //AutoMapper
-            {
-                Id = synthesisPaperId,
-                DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
-            };
+            entity.DateModified = DateTime.UtcNow;
+            entity.ModifiedBy = "Current user - NOT IMPLEMENTED";
 
             if (isSecret)
-                synthesisPaperEntity.SecretDataEvaluationStatus = status;
+                entity.SecretDataEvaluationStatus = status;
             else
-                synthesisPaperEntity.PublicDataEvaluationStatus = status;
-
-
-            _context.SynthesisPapers.Attach(synthesisPaperEntity);
-
-            if (isSecret)
-                _context.Entry(synthesisPaperEntity).Property(x => x.SecretDataEvaluationStatus).IsModified = true;
-            else
-                _context.Entry(synthesisPaperEntity).Property(x => x.PublicDataEvaluationStatus).IsModified = true;
-
-            _context.Entry(synthesisPaperEntity).Property(x => x.DateModified).IsModified = true;
-            _context.Entry(synthesisPaperEntity).Property(x => x.ModifiedBy).IsModified = true;
+                entity.PublicDataEvaluationStatus = status;
 
             var affectedRecords = _context.SaveChanges();
             return affectedRecords == 1;
         }
 
-        public bool SaveEvaluation(int synthesisPaperId, bool isSecret, SynthesisEvaluationResult result)
+        public bool SaveEvaluation(SynthesisPaperEntity entity, bool isSecret, SynthesisEvaluationResult result)
         {
-            var synthesisPaperEntity = new SynthesisPaperEntity() //AutoMapper
-            {
-                Id = synthesisPaperId,
-                DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
-            };
+            entity.DateModified = DateTime.UtcNow;
+            entity.ModifiedBy = "Current user - NOT IMPLEMENTED";
 
+            var status = result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Failed;
             if (isSecret)
             {
-                synthesisPaperEntity.SecretDataEvaluationStatus = result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Failed;
-                synthesisPaperEntity.SecretDataEvaluationInfo = result.FailReason;
+                entity.SecretDataEvaluationStatus = status;
+                entity.SecretDataEvaluationInfo = result.FailReason;
             }
             else
             {
-                synthesisPaperEntity.PublicDataEvaluationStatus = result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Failed;
-                synthesisPaperEntity.PublicDataEvaluationInfo = result.FailReason;
+                entity.PublicDataEvaluationStatus = status;
+                entity.PublicDataEvaluationInfo = result.FailReason;
             }
-
-            _context.SynthesisPapers.Attach(synthesisPaperEntity);
-
-            if (isSecret)
-            {
-                _context.Entry(synthesisPaperEntity).Property(x => x.SecretDataEvaluationStatus).IsModified = true;
-                _context.Entry(synthesisPaperEntity).Property(x => x.SecretDataEvaluationInfo).IsModified = true;
-            }
-            else
-            {
-                _context.Entry(synthesisPaperEntity).Property(x => x.PublicDataEvaluationStatus).IsModified = true;
-                _context.Entry(synthesisPaperEntity).Property(x => x.PublicDataEvaluationInfo).IsModified = true;
-            }
-
-            _context.Entry(synthesisPaperEntity).Property(x => x.DateModified).IsModified = true;
-            _context.Entry(synthesisPaperEntity).Property(x => x.ModifiedBy).IsModified = true;
 
             var affectedRecords = _context.SaveChanges();
             return affectedRecords == 1;

@@ -1,13 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace MasterRad.DTOs
 {
     public class StartTestEvalulation
     {
         public int TestId { get; set; }
-        public List<int> StudentIds { get; set; }
+        public List<StudentEvaluationRequest> EvaluationRequests { get; set; }
+    }
+
+    public class StudentEvaluationRequest
+    {
+        public int StudentId { get; set; }
+        public bool UseSecretData { get; set; }
     }
 }

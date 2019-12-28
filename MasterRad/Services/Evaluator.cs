@@ -74,9 +74,9 @@ namespace MasterRad.Services
             }
 
             var teacherResultMatchedRowIndexes = new List<int>();
-            for (int studentRowIndex = 0; studentRowIndex < studentResult.Tables[0].Rows.Count(); studentRowIndex++)
+            for (int studentRowIndex = 0; studentRowIndex < studentTable.Rows.Count(); studentRowIndex++)
             {
-                var studentRow = studentResult.Tables[0].Rows[studentRowIndex];
+                var studentRow = studentTable.Rows[studentRowIndex];
                 var studentRowIndexInSolution = IndexInTable(teacherTable, studentRow, studentTable.Columns, expectedFormat, teacherResultMatchedRowIndexes);
                 if (studentRowIndexInSolution < 0)
                     return new SynthesisEvaluationResult() { FailReason = $"Row {studentRowIndex} not found in solution" };

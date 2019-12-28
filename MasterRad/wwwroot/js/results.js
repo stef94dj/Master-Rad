@@ -89,13 +89,27 @@ function startProgress() {
         return $(v).data('not-submited') === undefined;
     });
 
-    var studentIds = $.map(tableRows, function (val, i) {
-        return $(val).data('student-id');
+    divs = $(tableRows).find('div.test-cell');
+    divs = $.grep(divs, function (v) {
+        return $(v).data('status') === EvaluationStatus.NotEvaluated;
+    });
+
+    if (divs.length < 1) {
+        alert('Nothing to be evaluated');
+        return;
+    }
+
+    var requests = $.map(divs, function (val, i) {
+        var res = {
+            StudentId: $(val).parent().parent().data('student-id'),
+            UseSecretData: $(val).parent().hasClass('secret-data-progress')
+        };
+        return res;
     });
 
     var data = {
         TestId: testId,
-        StudentIds: studentIds
+        EvaluationRequests: requests
     }
 
     $.ajax({
@@ -127,35 +141,37 @@ var evaluationProgressUI = {
     drawEvaluationStatus: function (status) {
         switch (status) {
             case EvaluationStatus.NotSubmited:
-                return this.drawStatusIcon("Not submited", ColorCodes.Grey, ColorCodes.White, Shapes.X_Mark, false);
+                return this.drawStatusIcon("Not submited", ColorCodes.Grey, ColorCodes.White, Shapes.X_Mark, false, status);
                 break;
             case EvaluationStatus.NotEvaluated:
-                return this.drawStatusIcon("Not evaluated", ColorCodes.White, ColorCodes.Grey, Shapes.Circle, true);
+                return this.drawStatusIcon("Not evaluated", ColorCodes.White, ColorCodes.Grey, Shapes.Circle, true, status);
                 break;
             case EvaluationStatus.Queued:
-                return this.drawStatusIcon("Queued", ColorCodes.Blue, ColorCodes.White, Shapes.Clock, false);
+                return this.drawStatusIcon("Queued", ColorCodes.Blue, ColorCodes.White, Shapes.Clock, false, status);
                 break;
             case EvaluationStatus.Evaluating:
-                return this.drawSpinner("text-warning", "Evaluating...");
+                return this.drawSpinner("text-warning", "Evaluating...", status);
                 break;
             case EvaluationStatus.Failed:
-                return this.drawStatusIcon("Failed", ColorCodes.Red, ColorCodes.White, Shapes.X_Mark, false);
+                return this.drawStatusIcon("Failed", ColorCodes.Red, ColorCodes.White, Shapes.X_Mark, false, status);
                 break;
             case EvaluationStatus.Passed:
-                return this.drawStatusIcon("Passed", ColorCodes.Green, ColorCodes.White, Shapes.Checked, false);
+                return this.drawStatusIcon("Passed", ColorCodes.Green, ColorCodes.White, Shapes.Checked, false, status);
                 break;
         }
     },
-    drawStatusIcon: function (tooltip, circleColor, shapeColor, shape, evenOdd) {
-        var result = `<svg height="24" viewBox="0 0 12 12" width="24" data-toggle="tooltip" data-placement="right" title="${tooltip}">`;
+    drawStatusIcon: function (tooltip, circleColor, shapeColor, shape, evenOdd, status) {
+        var result = `<div data-status="${status}" class="test-cell">`;
+        result += `<svg height="24" viewBox="0 0 12 12" width="24" data-toggle="tooltip" data-placement="right" title="${tooltip}">`;
         result += `<circle cx="6" cy="6" r="6" fill="${circleColor}"></circle>`;
         result += '<path';
         if (evenOdd)
             result += ' fill-rule="evenodd"';
         result += ` fill="${shapeColor}" d="${shape}"></path>`;
+        result += '</div>';
         return result;
     },
-    drawSpinner: function (textColor, tooltip) {
-        return `<div class="spinner-border ${textColor}" role="status" style="width: 24px; height: 24px; font-size: 10px" data-toggle="tooltip" data-placement="right" title="${tooltip}" />`;
+    drawSpinner: function (textColor, tooltip, status) {
+        return `<div data-status=${status} class="test-cell spinner-border ${textColor}" role="status" style="width: 24px; height: 24px; font-size: 10px" data-toggle="tooltip" data-placement="right" title="${tooltip}" />`;
     }
 }

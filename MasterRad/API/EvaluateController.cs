@@ -9,6 +9,7 @@ using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace MasterRad.API
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly ISignalR<JobProgressHub> _signalR;
         private readonly IQueue _queue;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public EvaluateController
         (
@@ -32,7 +34,8 @@ namespace MasterRad.API
             ISynthesisRepository synthesisRepository,
             IMicrosoftSQL microsoftSQLService,
             IQueue queue,
-            ISignalR<JobProgressHub> signalR
+            ISignalR<JobProgressHub> signalR,
+            IServiceScopeFactory serviceScopeFactory
         )
         {
             _evaluatorService = evaluatorService;
@@ -40,68 +43,90 @@ namespace MasterRad.API
             _microsoftSQLService = microsoftSQLService;
             _queue = queue;
             _signalR = signalR;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         [HttpGet, Route("get/papers/synthesis/{testId}")]
         public ActionResult<IEnumerable<SynthesisTestStudentEntity>> EvaluationData([FromRoute] int testId)
             => Ok(_synthesisRepository.GetPapers(testId));
 
-        private async Task EvaluateSynthesisPaper(string jobId, int testId, int studentId, bool useSecretData)
+        [HttpPost, Route("Start/Evaluation/Synthesis")]
+        public async Task StartSynthesisEvaluationAsync([FromBody] StartTestEvalulation model)
         {
-            var sts = _synthesisRepository.GetEvaluationData(testId, studentId);
-
-            var setStatusSuccess = _synthesisRepository.SetStatus(sts.SynthesisPaper.Id, useSecretData, EvaluationProgress.Evaluating);
-            if (setStatusSuccess)
+            var jobId = $"evaluate_synthesis_{model.TestId}";
+            foreach (var request in model.EvaluationRequests)
+            {
+                _queue.QueueAsyncTask(() => EvaluateSynthesisPaper(_serviceScopeFactory, jobId, model.TestId, request.StudentId, request.UseSecretData));
                 await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
                 {
-                    id = studentId,
-                    secret = false,
-                    status = (int)EvaluationProgress.Evaluating
+                    id = request.StudentId,
+                    secret = request.UseSecretData,
+                    status = (int)EvaluationProgress.Queued
                 });
-            else
-                throw new SynthesisEvaluationException(testId, studentId, $"Failed to set status to {EvaluationProgress.Evaluating}");
-
-            var originalDataNameOnServer = useSecretData ? sts.SynthesisTest.Task.NameOnServer : sts.SynthesisTest.Task.Template.NameOnServer;
-            var cloneDataNameOnServer = DatabaseNameHelper.SynthesisTestEvaluation(studentId, testId, useSecretData);
-
-            var solutionScript = sts.SynthesisTest.Task.SolutionSqlScript;
-            var solutionFormat = sts.SynthesisTest.Task.SolutionColumns.Select(sc => sc.ColumnName);
-            var studentScript = sts.SynthesisPaper.SqlScript;
-
-            var cloneSuccess = _microsoftSQLService.CloneDatabase(originalDataNameOnServer, cloneDataNameOnServer, false);
-            if (!cloneSuccess)
-                throw new SynthesisEvaluationException(testId, studentId, $"Failed to clone database '{originalDataNameOnServer}' into '{cloneDataNameOnServer}'");
-
-            SynthesisEvaluationResult result;
-            var studentResult = _microsoftSQLService.ExecuteSQLAsAdmin(studentScript, cloneDataNameOnServer);
-            if (studentResult.Messages.Any())
-            {
-                result = new SynthesisEvaluationResult() { Pass = false, FailReason = $"Sql execution failed with errors:{string.Join(", ", studentResult.Messages)}" };
             }
-            else
+        }
+
+        private async Task EvaluateSynthesisPaper(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, int studentId, bool useSecretData)
+        {
+            using (var scope = serviceScopeFactory.CreateScope())
             {
-                var teacherResult = _microsoftSQLService.ExecuteSQLAsAdmin(solutionScript, originalDataNameOnServer);
-                if (teacherResult.Messages.Any())
-                    throw new SynthesisEvaluationException(testId, studentId, "Failed to execute solution script");
+                var synthesisRepository = scope.ServiceProvider.GetService<ISynthesisRepository>(); //Re-inject DbContext
 
-                result = _evaluatorService.EvaluateSynthesisPaper(studentResult, teacherResult, solutionFormat);
-            }
+                var sts = synthesisRepository.GetEvaluationData(testId, studentId);
 
-            var saveSuccess = _synthesisRepository.SaveEvaluation(sts.SynthesisPaper.Id, useSecretData, result);
-            if (saveSuccess)
-                await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
+                var setStatusSuccess = synthesisRepository.SetStatus(sts.SynthesisPaper, useSecretData, EvaluationProgress.Evaluating);
+                if (setStatusSuccess)
+                    await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
+                    {
+                        id = studentId,
+                        secret = useSecretData,
+                        status = (int)EvaluationProgress.Evaluating
+                    });
+                else
+                    throw new SynthesisEvaluationException(testId, studentId, $"Failed to set status to {EvaluationProgress.Evaluating}");
+
+                var originalDataNameOnServer = useSecretData ? sts.SynthesisTest.Task.NameOnServer : sts.SynthesisTest.Task.Template.NameOnServer;
+                var cloneDataNameOnServer = DatabaseNameHelper.SynthesisTestEvaluation(studentId, testId, useSecretData);
+
+                var solutionScript = sts.SynthesisTest.Task.SolutionSqlScript;
+                var solutionFormat = sts.SynthesisTest.Task.SolutionColumns.Select(sc => sc.ColumnName);
+                var studentScript = sts.SynthesisPaper.SqlScript;
+
+                var cloneSuccess = _microsoftSQLService.CloneDatabase(originalDataNameOnServer, cloneDataNameOnServer, false);
+                if (!cloneSuccess)
+                    throw new SynthesisEvaluationException(testId, studentId, $"Failed to clone database '{originalDataNameOnServer}' into '{cloneDataNameOnServer}'");
+
+                SynthesisEvaluationResult result;
+                var studentResult = _microsoftSQLService.ExecuteSQLAsAdmin(studentScript, cloneDataNameOnServer);
+                if (studentResult.Messages.Any())
                 {
-                    id = studentId,
-                    secret = false,
-                    status = (int)(result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Passed)
-                });
+                    result = new SynthesisEvaluationResult() { Pass = false, FailReason = $"Sql execution failed with errors:{string.Join(", ", studentResult.Messages)}" };
+                }
+                else
+                {
+                    var teacherResult = _microsoftSQLService.ExecuteSQLAsAdmin(solutionScript, originalDataNameOnServer);
+                    if (teacherResult.Messages.Any())
+                        throw new SynthesisEvaluationException(testId, studentId, "Failed to execute solution script");
 
-            var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(cloneDataNameOnServer);
-            if (!deleteSuccess)
-                Console.WriteLine($"NOT implemented: log delete database {cloneDataNameOnServer} failed");
+                    result = _evaluatorService.EvaluateSynthesisPaper(studentResult, teacherResult, solutionFormat);
+                }
 
-            if (!saveSuccess)
-                throw new SynthesisEvaluationException(testId, studentId, "Failed to save evaluation result");
+                var saveResultSuccess = synthesisRepository.SaveEvaluation(sts.SynthesisPaper, useSecretData, result);
+                if (saveResultSuccess)
+                    await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
+                    {
+                        id = studentId,
+                        secret = useSecretData,
+                        status = (int)(result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Failed)
+                    });
+
+                var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(cloneDataNameOnServer);
+                if (!deleteSuccess)
+                    Console.WriteLine($"NOT implemented: log delete database {cloneDataNameOnServer} failed");
+
+                if (!saveResultSuccess)
+                    throw new SynthesisEvaluationException(testId, studentId, "Failed to save evaluation result");
+            }
         }
 
         [HttpGet, Route("analysis/{id}")]
@@ -109,56 +134,6 @@ namespace MasterRad.API
         {
             var res = _evaluatorService.EvaluateAnalysisPaper(id);
             return Ok(res);
-        }
-
-        [HttpPost, Route("Start/Evaluation/Synthesis")]
-        public async Task<ActionResult<Result<bool>>> StartSynthesisEvaluationAsync([FromBody] StartTestEvalulation model)
-        {
-            var jobId = $"evaluate_synthesis_{model.TestId}";
-            foreach (var studentId in model.StudentIds)
-            {
-                _queue.QueueAsyncTask(() => PerformBackgroundJob(jobId, studentId, true));
-
-                //_queue.QueueAsyncTask(() => EvaluateSynthesisPaper(jobId, model.TestId, studentId, true));
-                //_queue.QueueAsyncTask(() => EvaluateSynthesisPaper(jobId, model.TestId, studentId, false));
-
-                await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
-                {
-                    id = studentId,
-                    secret = true,
-                    status = (int)EvaluationProgress.Queued
-                });
-
-                _queue.QueueAsyncTask(() => PerformBackgroundJob(jobId, studentId, false));
-                await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
-                {
-                    id = studentId,
-                    secret = false,
-                    status = (int)EvaluationProgress.Queued
-                });
-            }
-
-            var res = Result<bool>.Fail("");
-            return Ok(res);
-        }
-
-        private async Task PerformBackgroundJob(string jobId, int studentId, bool secret)
-        {
-            for (int i = 0; i <= 100; i += 1)
-            {
-                var status = (int)EvaluationProgress.NotEvaluated;
-                if (i % 2 == 0)
-                    status = (int)EvaluationProgress.Evaluating;
-
-                await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
-                {
-                    id = studentId,
-                    secret,
-                    status
-                });
-
-                await Task.Delay(1000);
-            }
         }
     }
 }
