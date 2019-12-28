@@ -101,7 +101,7 @@ Tasks
 - Update description: dto validation (Name not empty), db validations (ne postoji vec sa istim imenom), responseDTO (umesto entity)
 - Set SqlScript: dto validation (SqlScript: not empty), implement GetCreatingDatabases, 	
 - FE validacije na modalima
-- Format resenja (lista imena kolona)
+- Format resenja: kolone resenja moraju imati imena, imena moraju biti jedinstvena!!!!!
 - Tacan upit (prof. resenje) - pre nego sto se upit submituje provera (format izlaza i format resenja, bar jedan red u resenju)
 
 Templates
