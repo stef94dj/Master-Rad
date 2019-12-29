@@ -27,6 +27,7 @@ namespace MasterRad.API
         private readonly ISignalR<JobProgressHub> _signalR;
         private readonly IQueue _queue;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly ILogRepository _logRepository;
 
         public EvaluateController
         (
@@ -35,7 +36,8 @@ namespace MasterRad.API
             IMicrosoftSQL microsoftSQLService,
             IQueue queue,
             ISignalR<JobProgressHub> signalR,
-            IServiceScopeFactory serviceScopeFactory
+            IServiceScopeFactory serviceScopeFactory,
+            ILogRepository logRepository
         )
         {
             _evaluatorService = evaluatorService;
@@ -44,6 +46,7 @@ namespace MasterRad.API
             _queue = queue;
             _signalR = signalR;
             _serviceScopeFactory = serviceScopeFactory;
+            _logRepository = logRepository;
         }
 
         [HttpGet, Route("get/papers/synthesis/{testId}")]
@@ -85,7 +88,7 @@ namespace MasterRad.API
                         status = (int)EvaluationProgress.Evaluating
                     });
                 else
-                    throw new SynthesisEvaluationException(testId, studentId, $"Failed to set status to {EvaluationProgress.Evaluating}");
+                    _logRepository.Log(new SynthesisEvaluationException(testId, studentId, $"Failed to set status to {EvaluationProgress.Evaluating}"), ErrorSeverity.NonCritical);
 
                 var originalDataNameOnServer = useSecretData ? sts.SynthesisTest.Task.NameOnServer : sts.SynthesisTest.Task.Template.NameOnServer;
                 var cloneDataNameOnServer = DatabaseNameHelper.SynthesisTestEvaluation(studentId, testId, useSecretData);
@@ -96,7 +99,7 @@ namespace MasterRad.API
 
                 var cloneSuccess = _microsoftSQLService.CloneDatabase(originalDataNameOnServer, cloneDataNameOnServer, false);
                 if (!cloneSuccess)
-                    throw new SynthesisEvaluationException(testId, studentId, $"Failed to clone database '{originalDataNameOnServer}' into '{cloneDataNameOnServer}'");
+                    _logRepository.Log(new SynthesisEvaluationException(testId, studentId, $"Failed to clone database '{originalDataNameOnServer}' into '{cloneDataNameOnServer}'"), ErrorSeverity.Critical);
 
                 SynthesisEvaluationResult result;
                 var studentResult = _microsoftSQLService.ExecuteSQLAsAdmin(studentScript, cloneDataNameOnServer);
@@ -108,7 +111,7 @@ namespace MasterRad.API
                 {
                     var teacherResult = _microsoftSQLService.ExecuteSQLAsAdmin(solutionScript, originalDataNameOnServer);
                     if (teacherResult.Messages.Any())
-                        throw new SynthesisEvaluationException(testId, studentId, "Failed to execute solution script");
+                        _logRepository.Log(new SynthesisEvaluationException(testId, studentId, "Failed to execute solution script"), ErrorSeverity.Critical);
 
                     result = _evaluatorService.EvaluateSynthesisPaper(studentResult, teacherResult, solutionFormat);
                 }
@@ -124,10 +127,10 @@ namespace MasterRad.API
 
                 var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(cloneDataNameOnServer);
                 if (!deleteSuccess)
-                    Console.WriteLine($"NOT implemented: log delete database {cloneDataNameOnServer} failed");
+                    _logRepository.Log(new SynthesisEvaluationException(testId, studentId, $"Delete database {cloneDataNameOnServer} failed"), ErrorSeverity.NonCritical);
 
                 if (!saveResultSuccess)
-                    throw new SynthesisEvaluationException(testId, studentId, "Failed to save evaluation result");
+                    _logRepository.Log(new SynthesisEvaluationException(testId, studentId, "Failed to save evaluation result"), ErrorSeverity.Critical);
             }
         }
 

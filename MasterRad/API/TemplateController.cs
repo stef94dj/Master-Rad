@@ -5,6 +5,7 @@ using MasterRad.Models.DTOs;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 
 namespace MasterRad.API
@@ -26,8 +27,11 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("Get")]
-        public ActionResult GetTemplates()
-            => Ok(_templateRepo.Get());
+        public ActionResult GetTemplates() {
+            var ex = new Exception("Outer exception", new Exception("Inner exception"));
+            throw ex;
+        }
+            //=> Ok(_templateRepo.Get());
 
         [HttpPost, Route("Create")]
         public ActionResult CreateTemplate([FromBody] CreateTemplateRQ body)

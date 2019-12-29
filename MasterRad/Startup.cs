@@ -50,6 +50,7 @@ namespace MasterRad
             services.AddScoped<IUser, User>();
             services.AddScoped<IEvaluator, Evaluator>();
             services.AddScoped(typeof(ISignalR<>), typeof(SignalR<>));
+            services.AddScoped<ILogRepository, LogRepository>();
 
             //repositories
             services.AddScoped<ITemplateRepository, TemplateRepository>();

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using MasterRad.Repositories;
 
 namespace MasterRad.Middleware
 {
@@ -37,6 +38,10 @@ namespace MasterRad.Middleware
 
         private static void HandleException(HttpContext context, Exception ex, Context dbContext)
         {
+            var logRepository = (ILogRepository)context.RequestServices.GetService(typeof(ILogRepository));
+
+            logRepository.Log(ex, context.Request, ErrorSeverity.Unhandled);
+
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";
 
@@ -51,8 +56,6 @@ namespace MasterRad.Middleware
 
             var logEntity = new UnhandledExceptionLogEntity
             {
-                DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED",
                 Body = rqBody,
                 Headers = JsonConvert.SerializeObject(context.Request.Headers),
                 Cookies = JsonConvert.SerializeObject(context.Request.Cookies),
@@ -64,6 +67,8 @@ namespace MasterRad.Middleware
                 Query = JsonConvert.SerializeObject(context.Request.Query)
             };
 
+            logEntity.DateCreated = DateTime.UtcNow;
+            logEntity.CreatedBy = "Current user - NOT IMPLEMENTED";
             try
             {
                 logEntity.LogMethod = ExceptionLogMethod.JsonSerialize;
