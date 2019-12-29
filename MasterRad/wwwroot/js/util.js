@@ -36,3 +36,8 @@ function disableButton(button) {
     if (button.length == 1)
         $(button).attr('disabled', 'disabled').addClass('disabled');
 }
+
+function enableButton(button) {
+    if (button.length == 1)
+        $(button).removeAttr('disabled').removeClass('disabled');
+}

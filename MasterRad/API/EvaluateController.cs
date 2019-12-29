@@ -51,7 +51,7 @@ namespace MasterRad.API
             => Ok(_synthesisRepository.GetPapers(testId));
 
         [HttpPost, Route("Start/Evaluation/Synthesis")]
-        public async Task StartSynthesisEvaluationAsync([FromBody] StartTestEvalulation model)
+        public async Task<ActionResult> StartSynthesisEvaluationAsync([FromBody] StartTestEvalulation model)
         {
             var jobId = $"evaluate_synthesis_{model.TestId}";
             foreach (var request in model.EvaluationRequests)
@@ -64,6 +64,8 @@ namespace MasterRad.API
                     status = (int)EvaluationProgress.Queued
                 });
             }
+
+            return Ok();
         }
 
         private async Task EvaluateSynthesisPaper(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, int studentId, bool useSecretData)

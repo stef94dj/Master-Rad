@@ -1,11 +1,37 @@
 ﻿var testId;
+var tbody;
+var dataToEvaluate;
 $(document).ready(function () {
     initializeTooltips();
     testId = $('#test-id').val();
-    loadEvaluationResults($('#evaluation-results-tbody'), `/api/evaluate/get/papers/synthesis/${testId}`);
+    tbody = $('#evaluation-results-tbody');
 
-    $.when(loadEvaluationResults($('#evaluation-results-tbody'), `/api/evaluate/get/papers/synthesis/${testId}`))
-        .then(connectToSignalR());
+    tbody.html(drawEvaluationResultsTableMessage('Loading data...'));
+    loadEvaluationResults(`/api/evaluate/get/papers/synthesis/${testId}`)
+        .then(data => {
+            drawEvaluationResultsTable(tbody, data);
+        })
+        .then(() => {
+            dataToEvaluate = getEvaluationData();
+        })
+        .catch(error => {
+            tbody.html(drawEvaluationResultsTableMessage('Error loading data.'));
+            reject(error);
+        })
+        .then(() => {
+            if (dataToEvaluate != null) {
+                var connectionObj = {
+                    Group: `evaluate_synthesis_${testId}`,
+                    Method: "synthesisEvaluationUpdate",
+                    HubUrl: "/jobprogress",
+                    HubMethod: "AssociateJob"
+                };
+                signalR_Helper.connect(connectionObj);
+            }
+        }).then(() => {
+            if (dataToEvaluate != null)
+                enableButton($('#start-evaluation-btn'));
+        });
 });
 
 function initializeTooltips() {
@@ -15,17 +41,19 @@ function initializeTooltips() {
 }
 
 //DRAW PAPERS TABLE
-function loadEvaluationResults(tbody, apiUrl) {
-    tbody.html(drawEvaluationResultsTableMessage('Loading data...'));
-    $.ajax({
-        url: apiUrl,
-        type: 'GET',
-        success: function (data) {
-            drawEvaluationResultsTable(tbody, data);
-        },
-        error: function () {
-            tbody.html(drawEvaluationResultsTableMessage('Error loading data.'));
-        }
+function loadEvaluationResults(apiUrl) {
+
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            success: function (data) {
+                resolve(data);
+            },
+            error: function (error) {
+                reject(error)
+            }
+        });
     });
 }
 function drawEvaluationResultsTableMessage(message) {
@@ -67,24 +95,58 @@ function drawSecretEvaluationCell(paper) {
 }
 
 //SIGNAL R
-function connectToSignalR() {
-    var connection = new signalR.HubConnectionBuilder()
-        .withUrl("/jobprogress")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
+//function connectToSignalR() {
+//    var connection = new signalR.HubConnectionBuilder()
+//        .withUrl("/jobprogress")
+//        .withAutomaticReconnect()
+//        .configureLogging(signalR.LogLevel.Trace)
+//        .build();
 
-    connection.on("synthesisEvaluationUpdate",
-        (data) => {
-            evaluationProgressUI.setCellStatus(data.id, data.secret, data.status)
-        });
+//    connection.on("synthesisEvaluationUpdate",
+//        (data) => {
+//            evaluationProgressUI.setCellStatus(data.id, data.secret, data.status)
+//        });
 
-    connection.start()
-        .then(_ => connection.invoke("AssociateJob", `evaluate_synthesis_${testId}`))
-        .catch(err => console.error(err.toString()));
-}
+//    connection.start()
+//        .then(_ => connection.invoke("AssociateJob", `evaluate_synthesis_${testId}`))
+//        .catch(err => console.error(err.toString()));
+
+//    connection.onreconnecting(() => {
+//        alert('signalR attempting to recconect')
+//    })
+
+//    connection.onreconnected(() => {
+//        alert('signalR succesfully recconcected')
+//    })
+
+//    connection.onclose(() => {
+//        alert('signalR connection closed')
+//    })
+//}
 function startProgress() {
-    var tableRows = $('#evaluation-results-tbody tr');
+    if (dataToEvaluate == null) {
+        alert('nothing to evaluate');
+        return;
+    }
 
+    var data = {
+        TestId: testId,
+        EvaluationRequests: dataToEvaluate
+    }
+
+    $.ajax({
+        url: '/api/Evaluate/Start/Evaluation/Synthesis',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function () {
+            disableButton($('#start-evaluation-btn'));
+        }
+    });
+}
+
+function getEvaluationData() {
+    var tableRows = $('#evaluation-results-tbody tr');
     tableRows = $.grep(tableRows, function (v) {
         return $(v).data('not-submited') === undefined;
     });
@@ -95,8 +157,7 @@ function startProgress() {
     });
 
     if (divs.length < 1) {
-        alert('Nothing to be evaluated');
-        return;
+        return null;
     }
 
     var requests = $.map(divs, function (val, i) {
@@ -107,21 +168,7 @@ function startProgress() {
         return res;
     });
 
-    var data = {
-        TestId: testId,
-        EvaluationRequests: requests
-    }
-
-    $.ajax({
-        url: '/api/Evaluate/Start/Evaluation/Synthesis',
-        dataType: 'json',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(data),
-        success: function (data, textStatus, jQxhr) {
-            disableButton($('#start-evaluation-btn'));
-        }
-    });
+    return requests;
 }
 
 //UI
