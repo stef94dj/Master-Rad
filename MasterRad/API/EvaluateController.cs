@@ -27,7 +27,6 @@ namespace MasterRad.API
         private readonly ISignalR<JobProgressHub> _signalR;
         private readonly IQueue _queue;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly ILogRepository _logRepository;
 
         public EvaluateController
         (
@@ -36,8 +35,7 @@ namespace MasterRad.API
             IMicrosoftSQL microsoftSQLService,
             IQueue queue,
             ISignalR<JobProgressHub> signalR,
-            IServiceScopeFactory serviceScopeFactory,
-            ILogRepository logRepository
+            IServiceScopeFactory serviceScopeFactory
         )
         {
             _evaluatorService = evaluatorService;
@@ -46,7 +44,6 @@ namespace MasterRad.API
             _queue = queue;
             _signalR = signalR;
             _serviceScopeFactory = serviceScopeFactory;
-            _logRepository = logRepository;
         }
 
         [HttpGet, Route("get/papers/synthesis/{testId}")]
@@ -75,62 +72,69 @@ namespace MasterRad.API
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
-                var synthesisRepository = scope.ServiceProvider.GetService<ISynthesisRepository>(); //Re-inject DbContext
-
-                var sts = synthesisRepository.GetEvaluationData(testId, studentId);
-
-                var setStatusSuccess = synthesisRepository.SetStatus(sts.SynthesisPaper, useSecretData, EvaluationProgress.Evaluating);
-                if (setStatusSuccess)
-                    await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
-                    {
-                        id = studentId,
-                        secret = useSecretData,
-                        status = (int)EvaluationProgress.Evaluating
-                    });
-                else
-                    _logRepository.Log(new SynthesisEvaluationException(testId, studentId, $"Failed to set status to {EvaluationProgress.Evaluating}"), ErrorSeverity.NonCritical);
-
-                var originalDataNameOnServer = useSecretData ? sts.SynthesisTest.Task.NameOnServer : sts.SynthesisTest.Task.Template.NameOnServer;
-                var cloneDataNameOnServer = DatabaseNameHelper.SynthesisTestEvaluation(studentId, testId, useSecretData);
-
-                var solutionScript = sts.SynthesisTest.Task.SolutionSqlScript;
-                var solutionFormat = sts.SynthesisTest.Task.SolutionColumns.Select(sc => sc.ColumnName);
-                var studentScript = sts.SynthesisPaper.SqlScript;
-
-                var cloneSuccess = _microsoftSQLService.CloneDatabase(originalDataNameOnServer, cloneDataNameOnServer, false);
-                if (!cloneSuccess)
-                    _logRepository.Log(new SynthesisEvaluationException(testId, studentId, $"Failed to clone database '{originalDataNameOnServer}' into '{cloneDataNameOnServer}'"), ErrorSeverity.Critical);
-
-                SynthesisEvaluationResult result;
-                var studentResult = _microsoftSQLService.ExecuteSQLAsAdmin(studentScript, cloneDataNameOnServer);
-                if (studentResult.Messages.Any())
+                var logRepository = scope.ServiceProvider.GetService<ILogRepository>();
+                try
                 {
-                    result = new SynthesisEvaluationResult() { Pass = false, FailReason = $"Sql execution failed with errors:{string.Join(", ", studentResult.Messages)}" };
-                }
-                else
-                {
-                    var teacherResult = _microsoftSQLService.ExecuteSQLAsAdmin(solutionScript, originalDataNameOnServer);
-                    if (teacherResult.Messages.Any())
-                        _logRepository.Log(new SynthesisEvaluationException(testId, studentId, "Failed to execute solution script"), ErrorSeverity.Critical);
+                    var synthesisRepository = scope.ServiceProvider.GetService<ISynthesisRepository>();
+                    var sts = synthesisRepository.GetEvaluationData(testId, studentId);
 
-                    result = _evaluatorService.EvaluateSynthesisPaper(studentResult, teacherResult, solutionFormat);
-                }
+                    var setStatusSuccess = synthesisRepository.SetStatus(sts.SynthesisPaper, useSecretData, EvaluationProgress.Evaluating);
+                    if (setStatusSuccess)
+                        await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
+                        {
+                            id = studentId,
+                            secret = useSecretData,
+                            status = (int)EvaluationProgress.Evaluating
+                        });
+                    else
+                        throw new SynthesisEvaluationException(testId, studentId, $"Failed to set status to {EvaluationProgress.Evaluating}");
 
-                var saveResultSuccess = synthesisRepository.SaveEvaluation(sts.SynthesisPaper, useSecretData, result);
-                if (saveResultSuccess)
-                    await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
+                    var originalDataNameOnServer = useSecretData ? sts.SynthesisTest.Task.NameOnServer : sts.SynthesisTest.Task.Template.NameOnServer;
+                    var cloneDataNameOnServer = DatabaseNameHelper.SynthesisTestEvaluation(studentId, testId, useSecretData);
+
+                    var solutionScript = sts.SynthesisTest.Task.SolutionSqlScript;
+                    var solutionFormat = sts.SynthesisTest.Task.SolutionColumns.Select(sc => sc.ColumnName);
+                    var studentScript = sts.SynthesisPaper.SqlScript;
+
+                    var cloneSuccess = _microsoftSQLService.CloneDatabase(originalDataNameOnServer, cloneDataNameOnServer, false);
+                    if (!cloneSuccess)
+                        throw new SynthesisEvaluationException(testId, studentId, $"Failed to clone database '{originalDataNameOnServer}' into '{cloneDataNameOnServer}'");
+
+                    SynthesisEvaluationResult result;
+                    var studentResult = _microsoftSQLService.ExecuteSQLAsAdmin(studentScript, cloneDataNameOnServer);
+                    if (studentResult.Messages.Any())
                     {
-                        id = studentId,
-                        secret = useSecretData,
-                        status = (int)(result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Failed)
-                    });
+                        result = new SynthesisEvaluationResult() { Pass = false, FailReason = $"Sql execution failed with errors:{string.Join(", ", studentResult.Messages)}" };
+                    }
+                    else
+                    {
+                        var teacherResult = _microsoftSQLService.ExecuteSQLAsAdmin(solutionScript, originalDataNameOnServer);
+                        if (teacherResult.Messages.Any())
+                            throw new SynthesisEvaluationException(testId, studentId, "Failed to execute solution script");
 
-                var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(cloneDataNameOnServer);
-                if (!deleteSuccess)
-                    _logRepository.Log(new SynthesisEvaluationException(testId, studentId, $"Delete database {cloneDataNameOnServer} failed"), ErrorSeverity.NonCritical);
+                        result = _evaluatorService.EvaluateSynthesisPaper(studentResult, teacherResult, solutionFormat);
+                    }
 
-                if (!saveResultSuccess)
-                    _logRepository.Log(new SynthesisEvaluationException(testId, studentId, "Failed to save evaluation result"), ErrorSeverity.Critical);
+                    var saveResultSuccess = synthesisRepository.SaveEvaluation(sts.SynthesisPaper, useSecretData, result);
+                    if (saveResultSuccess)
+                        await _signalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
+                        {
+                            id = studentId,
+                            secret = useSecretData,
+                            status = (int)(result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Failed)
+                        });
+
+                    var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(cloneDataNameOnServer);
+                    if (!deleteSuccess)
+                        throw new SynthesisEvaluationException(testId, studentId, $"Delete database {cloneDataNameOnServer} failed");
+
+                    if (!saveResultSuccess)
+                        throw new SynthesisEvaluationException(testId, studentId, "Failed to save evaluation result");
+                }
+                catch(Exception ex)
+                {
+                    logRepository.Log(ex);
+                }
             }
         }
 

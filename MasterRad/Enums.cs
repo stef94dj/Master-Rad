@@ -33,11 +33,4 @@ namespace MasterRad
         Failed = 4,
         Passed = 5
     }
-
-    public enum ErrorSeverity
-    {
-        Unhandled = 1,
-        Critical = 2,
-        NonCritical = 3
-    }
 }

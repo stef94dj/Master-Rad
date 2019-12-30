@@ -193,6 +193,8 @@ namespace MasterRad.Repositories
                 SqlScript = sqlScript,
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED",
+                PublicDataEvaluationStatus = EvaluationProgress.NotEvaluated,
+                SecretDataEvaluationStatus = EvaluationProgress.NotEvaluated
             };
 
             _context.SynthesisPapers.Add(synthesisPaperEntity);

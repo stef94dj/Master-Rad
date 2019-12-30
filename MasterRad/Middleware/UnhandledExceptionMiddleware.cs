@@ -39,50 +39,10 @@ namespace MasterRad.Middleware
         private static void HandleException(HttpContext context, Exception ex, Context dbContext)
         {
             var logRepository = (ILogRepository)context.RequestServices.GetService(typeof(ILogRepository));
-
-            logRepository.Log(ex, context.Request, ErrorSeverity.Unhandled);
+            logRepository.Log(ex, context.Request);
 
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";
-
-            context.Request.Body.Seek(0, SeekOrigin.Begin);
-            string rqBody = null;
-            using (var reader = new StreamReader(context.Request.Body))
-            {
-                rqBody = reader.ReadToEnd();
-            };
-
-            dbContext.DetachAllEntities();
-
-            var logEntity = new UnhandledExceptionLogEntity
-            {
-                Body = rqBody,
-                Headers = JsonConvert.SerializeObject(context.Request.Headers),
-                Cookies = JsonConvert.SerializeObject(context.Request.Cookies),
-                Path = context.Request.Path.ToString(),
-                PathBase = context.Request.PathBase.ToString(),
-                Method = context.Request.Method,
-                Protocol = context.Request.Protocol,
-                QueryString = context.Request.QueryString.ToString(),
-                Query = JsonConvert.SerializeObject(context.Request.Query)
-            };
-
-            logEntity.DateCreated = DateTime.UtcNow;
-            logEntity.CreatedBy = "Current user - NOT IMPLEMENTED";
-            try
-            {
-                logEntity.LogMethod = ExceptionLogMethod.JsonSerialize;
-                logEntity.Exception = JsonConvert.SerializeObject(ex);
-            }
-            catch (Exception serializeException)
-            {
-                logEntity.LogMethod = ExceptionLogMethod.ToString;
-                logEntity.SerializeError = JsonConvert.SerializeObject(serializeException);
-                logEntity.Exception = ex.ToString();
-            };
-
-            dbContext.UnhandledExceptionLog.Add(logEntity);
-            dbContext.SaveChanges();
         }
     }
 }

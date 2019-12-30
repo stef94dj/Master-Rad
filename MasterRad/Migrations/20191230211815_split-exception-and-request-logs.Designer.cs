@@ -4,14 +4,16 @@ using MasterRad;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MasterRad.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20191230211815_split-exception-and-request-logs")]
+    partial class splitexceptionandrequestlogs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -126,6 +128,8 @@ namespace MasterRad.Migrations
 
                     b.Property<int>("LogMethod");
 
+                    b.Property<int>("RequestId");
+
                     b.Property<string>("SerializeError");
 
                     b.Property<int>("Severity");
@@ -135,6 +139,8 @@ namespace MasterRad.Migrations
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RequestId");
 
                     b.ToTable("ExceptionLog");
                 });
@@ -155,9 +161,9 @@ namespace MasterRad.Migrations
 
                     b.Property<DateTime?>("DateModified");
 
-                    b.Property<int>("ExceptionLogId");
-
                     b.Property<string>("Headers");
+
+                    b.Property<int>("LogReason");
 
                     b.Property<string>("Method");
 
@@ -178,8 +184,6 @@ namespace MasterRad.Migrations
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ExceptionLogId");
 
                     b.ToTable("RequestLog");
                 });
@@ -487,11 +491,11 @@ namespace MasterRad.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
-            modelBuilder.Entity("MasterRad.Entities.RequestLogEntity", b =>
+            modelBuilder.Entity("MasterRad.Entities.ExceptionLogEntity", b =>
                 {
-                    b.HasOne("MasterRad.Entities.ExceptionLogEntity", "Exception")
+                    b.HasOne("MasterRad.Entities.RequestLogEntity", "Request")
                         .WithMany()
-                        .HasForeignKey("ExceptionLogId")
+                        .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

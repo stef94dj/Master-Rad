@@ -15,7 +15,7 @@ namespace MasterRad
         {
         }
 
-        public DbSet<UnhandledExceptionLogEntity> UnhandledExceptionLog { get; set; }
+        public DbSet<ExceptionLogEntity> ExceptionLog { get; set; }
         public DbSet<TemplateEntity> Templates { get; set; }
         public DbSet<TaskEntity> Tasks { get; set; }
         public DbSet<SolutionColumnEntity> SolutionColums { get; set; }
@@ -29,7 +29,8 @@ namespace MasterRad
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UnhandledExceptionLogEntity>().ToTable("UnhandledExceptionLog");
+            modelBuilder.Entity<ExceptionLogEntity>().ToTable("ExceptionLog");
+            modelBuilder.Entity<RequestLogEntity>().ToTable("RequestLog");
             modelBuilder.Entity<TemplateEntity>().ToTable("Template");
             modelBuilder.Entity<TaskEntity>().ToTable("Task");
             modelBuilder.Entity<SolutionColumnEntity>().ToTable("SolutionColumn");
