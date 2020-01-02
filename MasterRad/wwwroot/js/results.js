@@ -5,6 +5,7 @@ $(document).ready(function () {
     initializeTooltips();
     testId = $('#test-id').val();
     tbody = $('#evaluation-results-tbody');
+    bindModalOnShow('#create-analysis-test-modal', onCreateAnalysisModalShow);
 
     tbody.html(drawEvaluationResultsTableMessage('Loading data...'));
     loadEvaluationResults(`/api/evaluate/get/papers/synthesis/${testId}`)
@@ -57,22 +58,25 @@ function loadEvaluationResults(apiUrl) {
     });
 }
 function drawEvaluationResultsTableMessage(message) {
-    return drawTableMessage(message, 3);
+    return drawTableMessage(message, 4);
 }
 function drawEvaluationResultsTable(tbody, studentPapers) {
     tbody.html('');
     $.each(studentPapers, function (index, studentPaper) {
         var student = studentPaper.student;
 
-        var paperNotSubmitedData = "";
+        var paperData = "";
         if (studentPaper.synthesisPaper == null)
-            paperNotSubmitedData = ' data-not-submited="true"';
+            paperData = 'data-not-submited="true"';
+        else
+            paperData = `data-paper-id="${studentPaper.synthesisPaper.id}"`
 
-        var tableRow = `<tr data-student-id="${student.id}"${paperNotSubmitedData}>`;
+        var tableRow = `<tr data-student-id="${student.id}" ${paperData}>`;
 
         tableRow += drawStudentCell(student);
         tableRow += drawPublicEvaluationCell(studentPaper.synthesisPaper);
         tableRow += drawSecretEvaluationCell(studentPaper.synthesisPaper);
+        tableRow += drawCreateAnalysisCell(studentPaper.synthesisPaper);
 
         tableRow += '</tr>'
         tbody.append(tableRow)
@@ -93,36 +97,16 @@ function drawSecretEvaluationCell(paper) {
         cellContent = evaluationProgressUI.drawEvaluationStatus(paper.secretDataEvaluationStatus)
     return `<td class="secret-data-progress">${cellContent}</td>`;
 }
+function drawCreateAnalysisCell(paper) {
+    var enabled = paper != null && (paper.publicDataEvaluationStatus == EvaluationStatus.Failed || paper.secretDataEvaluationStatus == EvaluationStatus.Failed);
+    var dynamic = `disabled`;
+    if (enabled)
+        dynamic = `data-paper-id="${paper.id}"`;
 
-//SIGNAL R
-//function connectToSignalR() {
-//    var connection = new signalR.HubConnectionBuilder()
-//        .withUrl("/jobprogress")
-//        .withAutomaticReconnect()
-//        .configureLogging(signalR.LogLevel.Trace)
-//        .build();
+    return `<td class="secret-data-progress"><button type="button" data-toggle="modal" data-target="#create-analysis-test-modal" ${dynamic} class="btn btn-outline-primary" style="float:right">Create analysis test</button></td>`;
+}
 
-//    connection.on("synthesisEvaluationUpdate",
-//        (data) => {
-//            evaluationProgressUI.setCellStatus(data.id, data.secret, data.status)
-//        });
-
-//    connection.start()
-//        .then(_ => connection.invoke("AssociateJob", `evaluate_synthesis_${testId}`))
-//        .catch(err => console.error(err.toString()));
-
-//    connection.onreconnecting(() => {
-//        alert('signalR attempting to recconect')
-//    })
-
-//    connection.onreconnected(() => {
-//        alert('signalR succesfully recconcected')
-//    })
-
-//    connection.onclose(() => {
-//        alert('signalR connection closed')
-//    })
-//}
+//API
 function startProgress() {
     if (dataToEvaluate == null) {
         alert('nothing to evaluate');
@@ -144,7 +128,6 @@ function startProgress() {
         }
     });
 }
-
 function getEvaluationData() {
     var tableRows = $('#evaluation-results-tbody tr');
     tableRows = $.grep(tableRows, function (v) {
@@ -169,6 +152,27 @@ function getEvaluationData() {
     });
 
     return requests;
+}
+function createAnalysisTest() {
+    var modalBody = $('#create-analysis-test-modal').find('.modal-body');
+
+    var rqBody = {
+        "Name": modalBody.find('#analysis-test-name').val(),
+        "SynthesisPaperId": modalBody.find('#synthesis-paper-id').val(),
+    }
+
+    debugger;
+    $.ajax({
+        url: '/api/Analysis/Create/Test',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            $('#create-analysis-test-modal').modal('toggle');
+            window.location.replace('/TeacherMenu/AnalysisTests');
+        }
+    });
 }
 
 //UI
@@ -221,4 +225,14 @@ var evaluationProgressUI = {
     drawSpinner: function (textColor, tooltip, status) {
         return `<div data-status=${status} class="test-cell spinner-border ${textColor}" role="status" style="width: 24px; height: 24px; font-size: 10px" data-toggle="tooltip" data-placement="right" title="${tooltip}" />`;
     }
+}
+function onCreateAnalysisModalShow(element, event) {
+    var button = $(event.relatedTarget)
+
+    var id = button.data('paper-id');
+
+    var modal = $(element)
+
+    modal.find('#analysis-test-name').val("");
+    modal.find('#synthesis-paper-id').val(id);
 }

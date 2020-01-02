@@ -85,7 +85,7 @@ function drawChangeStatusModalButton(color, test, enabled) {
     var result = '<button ';
     if (!enabled)
         result += 'disabled ';
-    debugger;
+
     if (test.status == TestStatus.Completed)
         result += ' onclick="viewResults(' + test.id + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">Results</button>';
     else

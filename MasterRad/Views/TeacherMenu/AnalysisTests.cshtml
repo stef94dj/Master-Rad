@@ -5,7 +5,72 @@
 
 <h1>Analysis Tests</h1>
 
+
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark" id="table-header">
+        <tr id="database-table">
+            <th scope="col">Name</th>
+            <th scope="col">Template</th>
+            <th scope="col">Task</th>
+            <th scope="col">Synthesis Test</th>
+            <th scope="col">Paper author</th>
+            <th scope="col">Students</th>
+            <th scope="col">Created at</th>
+            <th scope="col">Created by</th>
+            <th scope="col">State</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="tests-tbody">
+    </tbody>
+</table>
+
 <div id="tests-list"></div>
+
+<!-- Name modal  -->
+<div class="modal fade" id="update-name-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Name</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="template-name" class="col-form-label">Name:</label>
+                    <input type="text" class="form-control" id="test-name">
+                    <input type="text" class="form-control" id="test-id" hidden>
+                    <input type="text" class="form-control" id="test-timestamp" hidden>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="updateName()">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status modal  -->
+<div class="modal fade" id="update-staus-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Are you sure?</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="test-id" id="change-status-message" class="col-form-label">Are you sure you want to change the state?</label>
+                    <input type="text" class="form-control" id="test-id" hidden>
+                    <input type="text" class="form-control" id="test-timestamp" hidden>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="statusNext()">Yes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Form -->
 <form action="" hidden id="hidden-form" method="post">
@@ -14,6 +79,7 @@
 </form>
 
 @section Scripts {
-    @*<script src="~/js/teacherTests.js" asp-append-version="true"></script>*@
     <script src="~/js/enums.js" asp-append-version="true"></script>
+    <script src="~/js/util.js" asp-append-version="true"></script>
+    <script src="~/js/analysisTests.js" asp-append-version="true"></script>
 }

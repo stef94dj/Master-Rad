@@ -56,6 +56,7 @@ namespace MasterRad
             services.AddScoped<ITemplateRepository, TemplateRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddScoped<ISynthesisRepository, SynthesisRepository>();
+            services.AddScoped<IAnalysisRepository, AnalysisRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
 
             services.AddMvc()

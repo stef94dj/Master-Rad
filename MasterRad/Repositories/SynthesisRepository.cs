@@ -19,9 +19,9 @@ namespace MasterRad.Repositories
         IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId);
         IEnumerable<string> GetSolutionFormat(int testId);
         bool IsAssigned(int studentId, int testId);
-        SynthesisTestEntity Create(SynthesisCreateRQ request);
+        bool Create(SynthesisCreateRQ request);
         void Delete(DeleteDTO request);
-        SynthesisTestEntity UpdateName(UpdateNameRQ request);
+        bool UpdateName(UpdateNameRQ request);
         SynthesisTestEntity StatusNext(UpdateDTO request);
         SynthesisPaperEntity SubmitAnswer(int testId, int studentId, string sqlScript);
         SynthesisPaperEntity UpdateAnswer(int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript);
@@ -99,7 +99,7 @@ namespace MasterRad.Repositories
                        .AsNoTracking()
                        .Any();
 
-        public SynthesisTestEntity Create(SynthesisCreateRQ request)
+        public bool Create(SynthesisCreateRQ request)
         {
             var synthesisTestEntity = new SynthesisTestEntity() //AutoMapper
             {
@@ -111,8 +111,7 @@ namespace MasterRad.Repositories
             };
 
             _context.SynthesisTests.Add(synthesisTestEntity);
-            _context.SaveChanges();
-            return synthesisTestEntity;
+            return _context.SaveChanges() == 1;
         }
 
         public void Delete(DeleteDTO request)
@@ -128,7 +127,7 @@ namespace MasterRad.Repositories
             _context.SaveChanges();
         }
 
-        public SynthesisTestEntity UpdateName(UpdateNameRQ request)
+        public bool UpdateName(UpdateNameRQ request)
         {
             var synthesisTestEntity = new SynthesisTestEntity() //AutoMapper
             {
@@ -144,8 +143,7 @@ namespace MasterRad.Repositories
             _context.Entry(synthesisTestEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(synthesisTestEntity).Property(x => x.ModifiedBy).IsModified = true;
 
-            _context.SaveChanges();
-            return synthesisTestEntity;
+            return _context.SaveChanges() == 1;
         }
 
         public SynthesisTestEntity StatusNext(UpdateDTO request)
