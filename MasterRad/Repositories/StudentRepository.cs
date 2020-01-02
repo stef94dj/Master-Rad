@@ -14,7 +14,7 @@ namespace MasterRad.Repositories
         IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId);
         IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId);
         int AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId);
-        IEnumerable<AnalysisTestStudentEntity> AssignAnalysisTest(List<int> studentIds, int testId);
+        int AssignAnalysisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId);
         void RemoveSynthesis(int studentId, byte[] timeStamp, int testId);
         void RemoveAnalysis(int studentId, byte[] timeStamp, int testId);
     }
@@ -38,24 +38,6 @@ namespace MasterRad.Repositories
                        .Where(sts => sts.AnalysisTestId == testId)
                        .Include(sts => sts.Student);
 
-        public IEnumerable<AnalysisTestStudentEntity> AssignAnalysisTest(List<int> studentIds, int testId)
-        {
-            var atsEntities = studentIds.Select(studentId => new AnalysisTestStudentEntity()
-            {
-                AnalysisTestId = testId,
-                StudentId = studentId,
-                NameOnServer = "Not implemented",
-                DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED"
-            });
-
-            _context.AnalysisTestStudents.AddRange(atsEntities);
-            _context.SaveChanges();
-
-            return atsEntities;
-            throw new NotImplementedException();
-        }
-
         public int AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId)
         {
             var stsEntities = studDbNamePairs.Select(pair => new SynthesisTestStudentEntity()
@@ -68,6 +50,21 @@ namespace MasterRad.Repositories
             });
 
             _context.SynthesysTestStudents.AddRange(stsEntities);
+            return _context.SaveChanges();
+        }
+
+        public int AssignAnalysisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId)
+        {
+            var atsEntities = studDbNamePairs.Select(pair => new AnalysisTestStudentEntity()
+            {
+                AnalysisTestId = testId,
+                StudentId = pair.Key,
+                NameOnServer = pair.Value,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED"
+            });
+
+            _context.AnalysisTestStudents.AddRange(atsEntities);
             return _context.SaveChanges();
         }
 

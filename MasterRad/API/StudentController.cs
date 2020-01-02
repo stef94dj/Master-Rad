@@ -19,12 +19,20 @@ namespace MasterRad.API
     {
         private readonly IStudentRepository _studentRepository;
         private readonly ISynthesisRepository _synthesisRepository;
+        private readonly IAnalysisRepository _analysisRepository;
         private readonly IMicrosoftSQL _microsoftSQLService;
 
-        public StudentController(IStudentRepository studentRepository, ISynthesisRepository synthesisRepository, IMicrosoftSQL microsoftSQLService)
+        public StudentController
+        (
+            IStudentRepository studentRepository, 
+            ISynthesisRepository synthesisRepository, 
+            IAnalysisRepository analysisRepository,
+            IMicrosoftSQL microsoftSQLService
+        )
         {
             _studentRepository = studentRepository;
             _synthesisRepository = synthesisRepository;
+            _analysisRepository = analysisRepository;
             _microsoftSQLService = microsoftSQLService;
         }
 
@@ -52,29 +60,41 @@ namespace MasterRad.API
             switch (body.TestType)
             {
                 case TestType.Synthesis:
-                    var test = _synthesisRepository.GetWithTaskAndTemplate(body.TestId);
+                    var synthesisEntity = _synthesisRepository.GetWithTaskAndTemplate(body.TestId);
 
-                    if (test.Status >= TestStatus.Completed)
+                    if (synthesisEntity.Status >= TestStatus.Completed)
                         return StatusCode(500);
 
-                    var studenDbNamePairs = DatabaseNameHelper.SynthesisTestExam(body.StudentIds, test.Id);
+                    var synthesisExamDbNames = DatabaseNameHelper.SynthesisTestExam(body.StudentIds, synthesisEntity.Id);
 
-                    var succesfullyCloned = _microsoftSQLService.CloneDatabases(test.Task.Template.NameOnServer, studenDbNamePairs.Select(snp => snp.Value), false);
+                    var synthesisTemplateName = synthesisEntity.Task.Template.NameOnServer;
+                    var synthesisCloneSuccess = _microsoftSQLService.CloneDatabases(synthesisTemplateName, synthesisExamDbNames.Select(snp => snp.Value), false);
 
-                    studenDbNamePairs = studenDbNamePairs.Where(x => succesfullyCloned.Contains(x.Value));
+                    synthesisExamDbNames = synthesisExamDbNames.Where(x => synthesisCloneSuccess.Contains(x.Value));
 
-                    var assigned = _studentRepository.AssignSynthesisTest(studenDbNamePairs, body.TestId);
-
-                    if (assigned != body.StudentIds.Count())
+                    var synthesisAssigned = _studentRepository.AssignSynthesisTest(synthesisExamDbNames, body.TestId);
+                    if (synthesisAssigned != body.StudentIds.Count())
                         return Result<bool>.Fail("One or more students have not been assigned");
                     else
                         return Result<bool>.Success(true);
                 case TestType.Analysis:
-                    throw new NotImplementedException();
-                    //if (_analysisRepository.Get(body.TestId).Status >= TestStatus.Completed)
-                    //    return StatusCode(500);
+                    if (_analysisRepository.Get(body.TestId).Status >= TestStatus.Completed)
+                        return StatusCode(500);
 
-                    return Ok(_studentRepository.AssignAnalysisTest(body.StudentIds, body.TestId));
+                    var analysisEntity = _analysisRepository.GetWithTaskAndTemplate(body.TestId);
+
+                    var analysisExamDbNames = DatabaseNameHelper.AnalysisTestExam(body.StudentIds, analysisEntity.Id);
+
+                    var analysisTemplateName = analysisEntity.SynthesisPaper.SynthesisTestStudent.SynthesisTest.Task.Template.NameOnServer;
+                    var analysisCloneSuccess = _microsoftSQLService.CloneDatabases(analysisTemplateName, analysisExamDbNames.Select(snp => snp.Value), false);
+
+                    analysisExamDbNames = analysisExamDbNames.Where(x => analysisCloneSuccess.Contains(x.Value));
+
+                    var analysisAssigned = _studentRepository.AssignAnalysisTest(analysisExamDbNames, body.TestId);
+                    if (analysisAssigned != body.StudentIds.Count())
+                        return Result<bool>.Fail("One or more students have not been assigned");
+                    else
+                        return Result<bool>.Success(true);
                 default:
                     return StatusCode(500);
             }

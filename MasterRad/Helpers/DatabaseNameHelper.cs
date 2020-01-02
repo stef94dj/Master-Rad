@@ -12,6 +12,11 @@ namespace MasterRad.Helpers
             return studentIds.Select(sid => new KeyValuePair<int, string>(sid, $"ST_{testId}_{sid}")); //synthesis test
         }
 
+        public static IEnumerable<KeyValuePair<int, string>> AnalysisTestExam(IEnumerable<int> studentIds, int testId)
+        {
+            return studentIds.Select(sid => new KeyValuePair<int, string>(sid, $"AT_{testId}_{sid}")); //analysis test
+        }
+
         public static string SynthesisTestEvaluation(int studentId, int testId, bool isSecret)
         {
             if (isSecret)

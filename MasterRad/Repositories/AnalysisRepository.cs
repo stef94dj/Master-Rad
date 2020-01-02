@@ -13,6 +13,7 @@ namespace MasterRad.Repositories
     {
         IEnumerable<AnalysisTestEntity> Get();
         AnalysisTestEntity Get(int testId);
+        AnalysisTestEntity GetWithTaskAndTemplate(int testId);
         bool Create(AnalysisCreateRQ request);
         bool UpdateName(UpdateNameRQ request);
         bool StatusNext(UpdateDTO request);
@@ -44,6 +45,16 @@ namespace MasterRad.Repositories
                        .AsNoTracking()
                        .SingleOrDefault();
 
+        public AnalysisTestEntity GetWithTaskAndTemplate(int testId)
+            => _context.AnalysisTests
+                       .Where(t => t.Id == testId)
+                       .Include(a => a.SynthesisPaper)
+                       .ThenInclude(sp => sp.SynthesisTestStudent)
+                       .ThenInclude(sts => sts.SynthesisTest)
+                       .ThenInclude(t => t.Task)
+                       .ThenInclude(t => t.Template)
+                       .AsNoTracking()
+                       .SingleOrDefault();
 
         public bool Create(AnalysisCreateRQ request)
         {
