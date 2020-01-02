@@ -12,8 +12,10 @@ namespace MasterRad.Repositories
     public interface IAnalysisRepository
     {
         IEnumerable<AnalysisTestEntity> Get();
+        AnalysisTestEntity Get(int testId);
         bool Create(AnalysisCreateRQ request);
         bool UpdateName(UpdateNameRQ request);
+        bool StatusNext(UpdateDTO request);
     }
 
     public class AnalysisRepository : IAnalysisRepository
@@ -35,6 +37,13 @@ namespace MasterRad.Repositories
                    .Include(a => a.SynthesisPaper)
                    .ThenInclude(sp => sp.SynthesisTestStudent)
                    .ThenInclude(sts => sts.Student);
+
+        public AnalysisTestEntity Get(int testId)
+            => _context.AnalysisTests
+                       .Where(t => t.Id == testId)
+                       .AsNoTracking()
+                       .SingleOrDefault();
+
 
         public bool Create(AnalysisCreateRQ request)
         {
@@ -64,6 +73,30 @@ namespace MasterRad.Repositories
 
             _context.AnalysisTests.Attach(analysisTestEntity);
             _context.Entry(analysisTestEntity).Property(x => x.Name).IsModified = true;
+            _context.Entry(analysisTestEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(analysisTestEntity).Property(x => x.ModifiedBy).IsModified = true;
+
+            return _context.SaveChanges() == 1;
+        }
+
+        public bool StatusNext(UpdateDTO request)
+        {
+            var currentStatus = Get(request.Id).Status;
+
+            if (currentStatus == TestStatus.Completed)
+                return false;
+
+            var analysisTestEntity = new AnalysisTestEntity() //AutoMapper
+            {
+                Id = request.Id,
+                TimeStamp = request.TimeStamp,
+                Status = currentStatus + 1,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            _context.AnalysisTests.Attach(analysisTestEntity);
+            _context.Entry(analysisTestEntity).Property(x => x.Status).IsModified = true;
             _context.Entry(analysisTestEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(analysisTestEntity).Property(x => x.ModifiedBy).IsModified = true;
 

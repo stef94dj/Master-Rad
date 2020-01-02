@@ -35,5 +35,9 @@ namespace MasterRad.API
         [HttpPost, Route("update/name")]
         public ActionResult<bool> UpdateTestName([FromBody] UpdateNameRQ body)
             => Ok(_analysisRepository.UpdateName(body));
+
+        [HttpPost, Route("status/next")]
+        public ActionResult<bool> GoToNextStatus([FromBody] UpdateDTO body)
+            => Ok(_analysisRepository.StatusNext(body));
     }
 }

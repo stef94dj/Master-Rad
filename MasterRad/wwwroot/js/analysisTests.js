@@ -155,7 +155,7 @@ function statusNext() {
     }
 
     $.ajax({
-        url: '/api/Synthesis/status/next',
+        url: '/api/Analysis/status/next',
         dataType: 'json',
         type: 'POST',
         contentType: 'application/json',

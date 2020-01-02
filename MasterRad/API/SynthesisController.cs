@@ -48,7 +48,7 @@ namespace MasterRad.API
             => Ok(_synthesisRepository.UpdateName(body));
 
         [HttpPost, Route("status/next")]
-        public ActionResult<SynthesisTestEntity> GoToNextStatus([FromBody] UpdateDTO body)
+        public ActionResult<bool> GoToNextStatus([FromBody] UpdateDTO body)
             => Ok(_synthesisRepository.StatusNext(body));
 
         [HttpPost, Route("Submit/Answer")]

@@ -22,7 +22,7 @@ namespace MasterRad.Repositories
         bool Create(SynthesisCreateRQ request);
         void Delete(DeleteDTO request);
         bool UpdateName(UpdateNameRQ request);
-        SynthesisTestEntity StatusNext(UpdateDTO request);
+        bool StatusNext(UpdateDTO request);
         SynthesisPaperEntity SubmitAnswer(int testId, int studentId, string sqlScript);
         SynthesisPaperEntity UpdateAnswer(int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript);
         bool HasAnswer(int testId, int userId);
@@ -146,9 +146,12 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        public SynthesisTestEntity StatusNext(UpdateDTO request)
+        public bool StatusNext(UpdateDTO request)
         {
             var currentStatus = Get(request.Id).Status;
+
+            if (currentStatus == TestStatus.Completed)
+                return false;
 
             var synthesisTestEntity = new SynthesisTestEntity() //AutoMapper
             {
@@ -164,8 +167,7 @@ namespace MasterRad.Repositories
             _context.Entry(synthesisTestEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(synthesisTestEntity).Property(x => x.ModifiedBy).IsModified = true;
 
-            _context.SaveChanges();
-            return synthesisTestEntity;
+            return _context.SaveChanges() == 1;
         }
 
         public bool HasAnswer(int testId, int userId)
