@@ -13,11 +13,18 @@ namespace MasterRad.Controllers
     {
         private readonly IUser _userService;
         private readonly ISynthesisRepository _synthesisRepository;
+        private readonly IAnalysisRepository _analysisRepository;
 
-        public TestController(IUser userService, ISynthesisRepository synthesisRepository)
+        public TestController
+        (
+            IUser userService,
+            ISynthesisRepository synthesisRepository,
+            IAnalysisRepository analysisRepository
+        )
         {
             _userService = userService;
             _synthesisRepository = synthesisRepository;
+            _analysisRepository = analysisRepository;
         }
 
         public IActionResult SynthesisExam(int testId)
@@ -53,10 +60,9 @@ namespace MasterRad.Controllers
                         return StatusCode(500);
                     break;
                 case TestType.Analysis:
-                    throw new NotImplementedException();
-                    //if (_analysisRepository.Get(testId).Status >= TestStatus.Completed)
-                    //    return StatusCode(500);
-                    //break;
+                    if (_analysisRepository.Get(testId).Status >= TestStatus.Completed)
+                        return StatusCode(500);
+                    break;
                 default:
                     return StatusCode(500);
             }
@@ -74,7 +80,7 @@ namespace MasterRad.Controllers
             switch (testType)
             {
                 case TestType.Synthesis:
-                    
+
                     break;
                 case TestType.Analysis:
                     throw new NotImplementedException();

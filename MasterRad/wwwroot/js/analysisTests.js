@@ -178,7 +178,7 @@ function viewResults(testId) {
 function assignStudents(testId) {
     var form = $('#hidden-form');
     form.find('#test-id').val(testId);
-    form.find('#test-type').val(TestType.Synthesis);
+    form.find('#test-type').val(TestType.Analysis);
     form.attr('action', '/Test/AssignStudents');
     form.submit();
 }
