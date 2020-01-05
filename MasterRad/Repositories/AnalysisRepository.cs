@@ -17,6 +17,9 @@ namespace MasterRad.Repositories
         AnalysisTestEntity GetWithTaskAndTemplate(int testId);
         IEnumerable<AnalysisTestStudentEntity> GetAssigned(int studentId);
 
+        bool PaperExists(int studentId, int testId);
+        bool CreatePaper(int studentId, int testId);
+
         bool Create(AnalysisCreateRQ request);
         bool UpdateName(UpdateNameRQ request);
         bool StatusNext(UpdateDTO request);
@@ -126,6 +129,29 @@ namespace MasterRad.Repositories
             _context.Entry(analysisTestEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(analysisTestEntity).Property(x => x.ModifiedBy).IsModified = true;
 
+            return _context.SaveChanges() == 1;
+        }
+
+        public bool PaperExists(int studentId, int testId)
+        => _context.AnalysisPapers
+                   .Include(ap => ap.AnalysisTestStudent)
+                   .Where(ap => 
+                            ap.AnalysisTestStudent != null
+                            && ap.AnalysisTestStudent.StudentId == studentId
+                            && ap.AnalysisTestStudent.AnalysisTestId == testId)
+                   .Any();
+
+        public bool CreatePaper(int studentId, int testId)
+        {
+            var analysisPaperEntity = new AnalysisPaperEntity() //AutoMapper
+            {
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED",
+                ATS_StudentId = studentId,
+                ATS_AnalysisTestId = testId,
+            };
+
+            _context.AnalysisPapers.Add(analysisPaperEntity);
             return _context.SaveChanges() == 1;
         }
     }

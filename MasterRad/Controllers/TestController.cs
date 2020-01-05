@@ -52,19 +52,16 @@ namespace MasterRad.Controllers
         {
             var testStudentEntity = _analysisRepository.GetAssignment(_userService.UserId, testId);
 
-            //Create AnalysisPaperEntity
+            if (!_analysisRepository.PaperExists(_userService.UserId, testId))
+                _analysisRepository.CreatePaper(_userService.UserId, testId);
 
-            var vm = new AnalysisExamVM()
+            var vm = new ModifyDataVM()
             {
-                TestId = testId,
-                ModifyDataVM = new ModifyDataVM()
-                {
-                    DatabaseName = $"Task '{testStudentEntity.AnalysisTest.Name}'",
-                    NameOnServer = testStudentEntity.NameOnServer
-                }
+                DatabaseName = $"Task '{testStudentEntity.AnalysisTest.Name}'",
+                NameOnServer = testStudentEntity.NameOnServer
             };
 
-            return View("~/Views/Shared/ModifyData.cshtml", vm.ModifyDataVM);
+            return View("~/Views/Shared/ModifyData.cshtml", vm);
         }
 
         public IActionResult AssignStudents(int testId, TestType testType)
