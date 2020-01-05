@@ -1,5 +1,6 @@
 ﻿using MasterRad.DTOs;
 using MasterRad.Entities;
+using MasterRad.Helpers;
 using MasterRad.Models;
 using MasterRad.Models.DTOs;
 using MasterRad.Repositories;
@@ -33,7 +34,7 @@ namespace MasterRad.API
         [HttpPost, Route("Create")]
         public ActionResult CreateTemplate([FromBody] CreateTemplateRQ body)
         {
-            var dbName = $"Template_{body.Name}".Replace("\t", "_").Replace(" ", "_");
+            var dbName = DatabaseNameHelper.TemplateName(body.Name);
 
             var templateExists = _templateRepo.TemplateExists(body.Name);
             if (templateExists)

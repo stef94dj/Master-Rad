@@ -7,6 +7,16 @@ namespace MasterRad.Helpers
 {
     public static class DatabaseNameHelper
     {
+        public static string TemplateName(string templateName)
+        {
+            return $"TMP_{templateName}".Replace("\t", "_").Replace(" ", "_");
+        }
+
+        public static string TaskName(string taskName)
+        {
+            return $"TSK_{taskName}".Replace("\t", "_").Replace(" ", "_");
+        }
+
         public static IEnumerable<KeyValuePair<int, string>> SynthesisTestExam(IEnumerable<int> studentIds, int testId)
         {
             return studentIds.Select(sid => new KeyValuePair<int, string>(sid, $"ST_{testId}_{sid}")); //synthesis test

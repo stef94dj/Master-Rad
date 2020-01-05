@@ -2,7 +2,6 @@
 var tbody;
 var dataToEvaluate;
 $(document).ready(function () {
-    initializeTooltips();
     testId = $('#test-id').val();
     tbody = $('#evaluation-results-tbody');
     bindModalOnShow('#create-analysis-test-modal', onCreateAnalysisModalShow);
@@ -11,6 +10,9 @@ $(document).ready(function () {
     loadEvaluationResults(`/api/evaluate/get/papers/synthesis/${testId}`)
         .then(data => {
             drawEvaluationResultsTable(tbody, data);
+        })
+        .then(() => {
+            initializeTooltips();
         })
         .then(() => {
             dataToEvaluate = getEvaluationData();
@@ -34,12 +36,6 @@ $(document).ready(function () {
                 enableButton($('#start-evaluation-btn'));
         });
 });
-
-function initializeTooltips() {
-    $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
-    })
-}
 
 //DRAW PAPERS TABLE
 function loadEvaluationResults(apiUrl) {
@@ -176,56 +172,20 @@ function createAnalysisTest() {
 }
 
 //UI
-var evaluationProgressUI = {
-    setCellStatus: function (studentId, secret, status) {
-        var selector = `tr[data-student-id='${studentId}']`;
-        if (secret)
-            selector += ' td.secret-data-progress';
-        else
-            selector += ' td.public-data-progress';
+function setCellStatus(studentId, secret, status) {
+    var selector = `tr[data-student-id='${studentId}']`;
+    if (secret)
+        selector += ' td.secret-data-progress';
+    else
+        selector += ' td.public-data-progress';
 
-        var tableRow = $(selector);
+    var tableRow = $(selector);
 
-        if (tableRow.length == 1)
-            tableRow.html(this.drawEvaluationStatus(status));
-    },
-    drawEvaluationStatus: function (status) {
-        switch (status) {
-            case EvaluationStatus.NotSubmited:
-                return this.drawStatusIcon("Not submited", ColorCodes.Grey, ColorCodes.White, Shapes.X_Mark, false, status);
-                break;
-            case EvaluationStatus.NotEvaluated:
-                return this.drawStatusIcon("Not evaluated", ColorCodes.White, ColorCodes.Grey, Shapes.Circle, true, status);
-                break;
-            case EvaluationStatus.Queued:
-                return this.drawStatusIcon("Queued", ColorCodes.Blue, ColorCodes.White, Shapes.Clock, false, status);
-                break;
-            case EvaluationStatus.Evaluating:
-                return this.drawSpinner("text-warning", "Evaluating...", status);
-                break;
-            case EvaluationStatus.Failed:
-                return this.drawStatusIcon("Failed", ColorCodes.Red, ColorCodes.White, Shapes.X_Mark, false, status);
-                break;
-            case EvaluationStatus.Passed:
-                return this.drawStatusIcon("Passed", ColorCodes.Green, ColorCodes.White, Shapes.Checked, false, status);
-                break;
-        }
-    },
-    drawStatusIcon: function (tooltip, circleColor, shapeColor, shape, evenOdd, status) {
-        var result = `<div data-status="${status}" class="test-cell">`;
-        result += `<svg height="24" viewBox="0 0 12 12" width="24" data-toggle="tooltip" data-placement="right" title="${tooltip}">`;
-        result += `<circle cx="6" cy="6" r="6" fill="${circleColor}"></circle>`;
-        result += '<path';
-        if (evenOdd)
-            result += ' fill-rule="evenodd"';
-        result += ` fill="${shapeColor}" d="${shape}"></path>`;
-        result += '</div>';
-        return result;
-    },
-    drawSpinner: function (textColor, tooltip, status) {
-        return `<div data-status=${status} class="test-cell spinner-border ${textColor}" role="status" style="width: 24px; height: 24px; font-size: 10px" data-toggle="tooltip" data-placement="right" title="${tooltip}" />`;
-    }
+    if (tableRow.length == 1)
+        tableRow.html(evaluationProgressUI.drawEvaluationStatus(status));
 }
+
+
 function onCreateAnalysisModalShow(element, event) {
     var button = $(event.relatedTarget)
 

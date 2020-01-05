@@ -41,7 +41,7 @@ namespace MasterRad.API
             => Ok(_studentRepository.SearchStudents(body));
 
         [HttpGet, Route("get/assigned/{testType}/{testId}")]
-        public ActionResult<IEnumerable<BaseTestStudentEntity>> GetAssignedToTest([FromRoute]TestType testType, int testId)
+        public ActionResult<IEnumerable<BaseTestStudentEntity>> GetStudentsAssignedToTest([FromRoute]TestType testType, int testId)
         {
             switch (testType)
             {
@@ -55,7 +55,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("assign")]
-        public ActionResult<Result<bool>> AssignStudents([FromBody] AssignStudentsRQ body)
+        public ActionResult<Result<bool>> AssignStudentsToTest([FromBody] AssignStudentsRQ body)
         {
             switch (body.TestType)
             {
@@ -101,7 +101,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("remove/assigned")]
-        public ActionResult RemoveFromTest([FromBody] RemoveAssignedRQ body)
+        public ActionResult RemoveStudentFromTest([FromBody] RemoveAssignedRQ body)
         {
             switch (body.TestType)
             {

@@ -23,7 +23,7 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("get/student/assigned")]
-        public ActionResult<IEnumerable<SynthesisTestEntity>> GetAssignedToMe()
+        public ActionResult<IEnumerable<SynthesisTestEntity>> GetTestsAssignedToStudent()
         {
             var res = _synthesisRepository.GetAssigned(1); //ukljuci i analysis tests (LINQ project to)
             return Ok(res);

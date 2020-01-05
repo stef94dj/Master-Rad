@@ -13,7 +13,7 @@
 
         connection.on(model.Method,
             (data) => {
-                evaluationProgressUI.setCellStatus(data.id, data.secret, data.status)
+                setCellStatus(data.id, data.secret, data.status)
             });
 
         connection.start()

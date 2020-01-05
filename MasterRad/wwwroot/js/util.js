@@ -22,6 +22,13 @@ function drawCellEditModalButton(buttonName, color, modalselector, id, timestamp
     return result;
 }
 
+
+function initializeTooltips() {
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+}
+
 function drawTableMessage(message, colspan) {
     return '<tr><td align="center" colspan="' + colspan + '">' + message + '</td></tr>';
 }

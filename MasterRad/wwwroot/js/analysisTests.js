@@ -26,7 +26,7 @@ function loadTests() {
     });
 }
 function drawAnalysisTestsTableMessage(message) {
-    return drawTableMessage(message, 8);
+    return drawTableMessage(message, 10);
 }
 function drawTestsList(data) {
     testsList.html('');
