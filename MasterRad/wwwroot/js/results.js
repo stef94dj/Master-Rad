@@ -99,7 +99,7 @@ function drawCreateAnalysisCell(paper) {
     if (enabled)
         dynamic = `data-paper-id="${paper.id}"`;
 
-    return `<td class="secret-data-progress"><button type="button" data-toggle="modal" data-target="#create-analysis-test-modal" ${dynamic} class="btn btn-outline-primary" style="float:right">Create analysis test</button></td>`;
+    return `<td><button type="button" data-toggle="modal" data-target="#create-analysis-test-modal" ${dynamic} class="btn btn-outline-primary" style="float:right">Create analysis test</button></td>`;
 }
 
 //API
