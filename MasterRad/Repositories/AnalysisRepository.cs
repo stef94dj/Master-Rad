@@ -14,6 +14,8 @@ namespace MasterRad.Repositories
         IEnumerable<AnalysisTestEntity> Get();
         AnalysisTestEntity Get(int testId);
         AnalysisTestEntity GetWithTaskAndTemplate(int testId);
+        IEnumerable<AnalysisTestStudentEntity> GetAssigned(int studentId);
+
         bool Create(AnalysisCreateRQ request);
         bool UpdateName(UpdateNameRQ request);
         bool StatusNext(UpdateDTO request);
@@ -55,6 +57,12 @@ namespace MasterRad.Repositories
                        .ThenInclude(t => t.Template)
                        .AsNoTracking()
                        .SingleOrDefault();
+
+        public IEnumerable<AnalysisTestStudentEntity> GetAssigned(int studentId)
+            => _context.AnalysisTestStudents
+                       .Include(ats => ats.AnalysisPaper)
+                       .Include(ats => ats.AnalysisTest)
+                       .Where(ats => ats.StudentId == studentId);
 
         public bool Create(AnalysisCreateRQ request)
         {

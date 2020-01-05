@@ -22,18 +22,12 @@ function loadTest() {
 
 function drawTestsList(data) {
     testsList.html('');
-    $.each(data, function (index, synthesisTestStudent) {
+    $.each(data, function (index, testDto) {
         var testItem = '<div class="card text-center">';
 
-        var stsEntity = synthesisTestStudent;
-        var testEntity = stsEntity.synthesisTest;
-        var paperEntity = stsEntity.synthesisPaper;
-
-        testItem += drawTestHeader(testEntity.status, paperEntity != null);
-
-        testItem += drawTestName(testEntity.name);
-
-        testItem += drawTestContent(testEntity.status, stsEntity.studentId, stsEntity.synthesisTestId, TestType.Synthesis, paperEntity);
+        testItem += drawTestHeader(testReader.Status(testDto), testReader.Paper(testDto) != null);
+        testItem += drawTestName(testReader.Name(testDto));
+        testItem += drawTestContent(testReader.Status(testDto), testReader.StudentId(testDto), testReader.TestId(testDto), testReader.Type(testDto), testReader.Paper(testDto));
 
         testItem += '</div>';
         //testItem += drawTestFooter('footer text');
@@ -43,6 +37,7 @@ function drawTestsList(data) {
     });
     initializeTooltips();
 }
+
 function drawTestHeader(testStatus, hasPaper) {
     var color = '';
     var text = TestStatus.ToString(testStatus);
@@ -64,14 +59,12 @@ function drawTestHeader(testStatus, hasPaper) {
     }
     return `<div class="card-header font-weight-bold ${color}">${text}</div>`;
 }
-
 function drawTestName(testName, testDescription) {
     var res = `<div class="card-body bg-light text-dark"><h5 class="card-title">${testName}</h5>`;
     if (arguments.length == 2 && testDescription != null && testDescription != '')
         res += '<p class="card-text">' + 'Test description text' + '</p>';
     return res;
 }
-
 function drawTestContent(status, studentId, testId, testType, paper) {
     switch (status) {
         case TestStatus.Scheduled:
@@ -84,14 +77,59 @@ function drawTestContent(status, studentId, testId, testType, paper) {
                     return paper == null ? '' :
                         `<div>Public data: ${evaluationProgressUI.drawEvaluationStatus(paper.publicDataEvaluationStatus)}</div>
                          <div>Secret data: ${evaluationProgressUI.drawEvaluationStatus(paper.secretDataEvaluationStatus)}</div>`;
-                case testType.Analysis:
-                    return 'not implemented';
+                case TestType.Analysis:
+                    return paper == null ? '' :
+                        'not implemented';
             }
     }
 }
-
 function drawTestFooter(text) {
     return `<div class="card-footer text-muted bg-dark">${text}</div>`
+}
+
+var testReader = {
+    Type: function (testDto) {
+        return testDto.testType;
+    },
+    Status: function (testDto) {
+        switch (testDto.testType) {
+            case TestType.Synthesis:
+                return testDto.testStudent.synthesisTest.status;
+            case TestType.Analysis:
+                return testDto.testStudent.analysisTest.status;
+            default: return null;
+        }
+    },
+    Name: function (testDto) {
+        switch (testDto.testType) {
+            case TestType.Synthesis:
+                return testDto.testStudent.synthesisTest.name;
+            case TestType.Analysis:
+                return testDto.testStudent.analysisTest.name;
+            default: return null;
+        }
+    },
+    StudentId: function (testDto) {
+        return testDto.testStudent.studentId;
+    },
+    Paper: function (testDto) {
+        switch (testDto.testType) {
+            case TestType.Synthesis:
+                return testDto.testStudent.synthesisPaper;
+            case TestType.Analysis:
+                return testDto.testStudent.analysisPaper;
+            default: return null;
+        }
+    },
+    TestId: function (testDto) {
+        switch (testDto.testType) {
+            case TestType.Synthesis:
+                return testDto.testStudent.synthesisTestId;
+            case TestType.Analysis:
+                return testDto.testStudent.analysisTestId;
+            default: return null;
+        }
+    },
 }
 
 function startTest(studentId, synthesisTestId, testType) {
@@ -102,8 +140,8 @@ function startTest(studentId, synthesisTestId, testType) {
         case TestType.Synthesis:
             form.attr('action', '/Test/SynthesisExam');
             break;
-        case testType.Analysis:
-            form.attr('action', 'not implemented');
+        case TestType.Analysis:
+            form.attr('action', '/Test/AnalysisExam');
             break;
     }
 

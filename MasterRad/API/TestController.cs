@@ -16,16 +16,34 @@ namespace MasterRad.API
     public class TestController : ControllerBase
     {
         private readonly ISynthesisRepository _synthesisRepository;
+        private readonly IAnalysisRepository _analysisRepository;
 
-        public TestController(ISynthesisRepository synthesisRepository)
+        public TestController
+        (
+            ISynthesisRepository synthesisRepository,
+            IAnalysisRepository analysisRepository
+        )
         {
             _synthesisRepository = synthesisRepository;
+            _analysisRepository = analysisRepository;
         }
 
         [HttpGet, Route("get/student/assigned")]
-        public ActionResult<IEnumerable<SynthesisTestEntity>> GetTestsAssignedToStudent()
+        public ActionResult<IEnumerable<StudentTestDto>> GetTestsAssignedToStudent()
         {
-            var res = _synthesisRepository.GetAssigned(1); //ukljuci i analysis tests (LINQ project to)
+            var userId = 1;
+
+            var res = new List<StudentTestDto>();
+
+            //AutoMapper with LINQ ProjectTo:
+            var sytnhesisTests = _synthesisRepository.GetAssigned(userId);
+            if (sytnhesisTests != null && sytnhesisTests.Any())
+                res.AddRange(sytnhesisTests.Select(sts => new StudentTestDto(sts)));
+
+            var analysisTests = _analysisRepository.GetAssigned(userId);
+            if (analysisTests != null && analysisTests.Any())
+                res.AddRange(analysisTests.Select(ats => new StudentTestDto(ats)));
+
             return Ok(res);
         }
 

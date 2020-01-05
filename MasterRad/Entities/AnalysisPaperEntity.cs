@@ -12,7 +12,7 @@ namespace MasterRad.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override int Id { get; set; }
 
-        public string SqlScript { get; set; }
+        //EVALUATION DATA
 
         public int ATS_AnalysisTestId { get; set; }
         public int ATS_StudentId { get; set; }
