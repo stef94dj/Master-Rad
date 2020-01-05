@@ -13,6 +13,7 @@ namespace MasterRad.Repositories
     {
         IEnumerable<AnalysisTestEntity> Get();
         AnalysisTestEntity Get(int testId);
+        AnalysisTestStudentEntity GetAssignment(int studentId, int testId);
         AnalysisTestEntity GetWithTaskAndTemplate(int testId);
         IEnumerable<AnalysisTestStudentEntity> GetAssigned(int studentId);
 
@@ -45,6 +46,12 @@ namespace MasterRad.Repositories
             => _context.AnalysisTests
                        .Where(t => t.Id == testId)
                        .AsNoTracking()
+                       .SingleOrDefault();
+
+        public AnalysisTestStudentEntity GetAssignment(int studentId, int testId)
+            => _context.AnalysisTestStudents
+                       .Where(ats => ats.StudentId == studentId && ats.AnalysisTestId == testId)
+                       .Include(ats => ats.AnalysisTest)
                        .SingleOrDefault();
 
         public AnalysisTestEntity GetWithTaskAndTemplate(int testId)

@@ -49,7 +49,23 @@ namespace MasterRad.Controllers
             return View(vm);
         }
         public IActionResult AnalysisExam(int testId)
-            => View();
+        {
+            var testStudentEntity = _analysisRepository.GetAssignment(_userService.UserId, testId);
+
+            //Create AnalysisPaperEntity
+
+            var vm = new AnalysisExamVM()
+            {
+                TestId = testId,
+                ModifyDataVM = new ModifyDataVM()
+                {
+                    DatabaseName = $"Task '{testStudentEntity.AnalysisTest.Name}'",
+                    NameOnServer = testStudentEntity.NameOnServer
+                }
+            };
+
+            return View("~/Views/Shared/ModifyData.cshtml", vm.ModifyDataVM);
+        }
 
         public IActionResult AssignStudents(int testId, TestType testType)
         {
