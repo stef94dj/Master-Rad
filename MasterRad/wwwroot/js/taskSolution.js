@@ -8,9 +8,18 @@ $(document).ready(function () {
     tableBody = $('#table-body');
     nameOnServer = $('#name-on-server').val();
     buildSqlEditor(nameOnServer); //sets value for "editor"
-    buildTablesDropDown(nameOnServer, tableSelected, null);
+
+    tablesDropdownJS.dropdownSelector = '#tableSelector';
+    tablesDropdownJS.loadTablesDropdownData(`/api/Metadata/tables/${nameOnServer}`)
+        .then(data => {
+            tablesDropdownJS.drawTablesDropdown(data);
+        })
+        .then(() => {
+            tablesDropdownJS.attachOnChangeHandler(tableSelected);
+        });
 });
 
+//Table info
 function tableSelected() {
     var dbName = $('#name-on-server').val();
     var tableFullName = parseTableName($(this).val());

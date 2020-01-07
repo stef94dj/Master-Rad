@@ -31,7 +31,7 @@ namespace MasterRad.Controllers
                 NameOnServer = taskEntity.NameOnServer
             };
 
-            return View("~/Views/Shared/ModifyData.cshtml", vm);
+            return View("~/Views/Shared/ModifyDataView.cshtml", vm);
         }
 
         public IActionResult ModifyTaskSolution(int taskId)

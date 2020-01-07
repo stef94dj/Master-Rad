@@ -46,7 +46,7 @@ namespace MasterRad.Controllers
                 NameOnServer = templateEntity.NameOnServer
             };
 
-            return View("~/Views/Shared/ModifyData.cshtml", vm);
+            return View("~/Views/Shared/ModifyDataView.cshtml", vm);
         }
     }
 }

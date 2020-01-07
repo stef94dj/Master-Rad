@@ -61,7 +61,7 @@ namespace MasterRad.Controllers
                 NameOnServer = testStudentEntity.NameOnServer
             };
 
-            return View("~/Views/Shared/ModifyData.cshtml", vm);
+            return View("~/Views/Test/AnalysisExam.cshtml", vm);
         }
 
         public IActionResult AssignStudents(int testId, TestType testType)

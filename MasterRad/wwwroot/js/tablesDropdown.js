@@ -1,21 +1,27 @@
-﻿var dropdownTableSelector = '#tableSelector';
-
-function buildTablesDropDown(databaseName, onChangeHandler, callback) {
-    $(dropdownTableSelector).change(onChangeHandler);
-    populateDropdown(dropdownTableSelector, '/api/Metadata/tables/' + databaseName, callback);
-}
-
-function populateDropdown(selector, apiUrl, callback) {
-    $.ajax({
-        url: apiUrl,
-        type: 'GET',
-        success: function (data) {
-            $('#tableSelector').html('');
-            $.each(data, function (index, value) {
-                $(selector).append('<option value="' + value + '">' + value + '</option>')
-            });
-            if (callback != null)
-                callback();
-        }
-    });
+﻿var tablesDropdownJS = {
+    loadTablesDropdownData: function (apiUrl) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: apiUrl,
+                type: 'GET',
+                success: function (data) {
+                    resolve(data);
+                },
+                error: function (error) {
+                    reject(error);
+                }
+            })
+        });
+    },
+    dropdownSelector: null,
+    drawTablesDropdown: function (data) {
+        var dropDown = $(this.dropdownSelector);
+        dropDown.html('');
+        $.each(data, function (index, value) {
+            dropDown.append('<option value="' + value + '">' + value + '</option>')
+        });
+    },
+    attachOnChangeHandler: function (handlerFunction) {
+        $(this.dropdownSelector).change(handlerFunction);
+    }
 }

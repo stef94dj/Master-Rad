@@ -4,7 +4,18 @@ var nameOnServer = null;
 $(document).ready(function () {
     nameOnServer = $('#db-name').val();
     buildSqlEditor(nameOnServer, sqlExeCallback);
-    buildTablesDropDown(nameOnServer, tableSelected, null);
+
+    tablesDropdownJS.dropdownSelector = '#tableSelector';
+    tablesDropdownJS.loadTablesDropdownData(`/api/Metadata/tables/${nameOnServer}`)
+        .then(data => {
+            tablesDropdownJS.drawTablesDropdown(data);
+        })
+        .then(() => {
+            tablesDropdownJS.attachOnChangeHandler(tableSelected);
+        })
+        .then(() => {
+            tableSelected();
+        })
 });
 
 //Script execution
