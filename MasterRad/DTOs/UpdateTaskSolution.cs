@@ -9,7 +9,14 @@ namespace MasterRad.Models.DTOs
     public class UpdateTaskSolutionRQ : UpdateDTO
     {
         public string SolutionSqlScript { get; set; }
-        public List<string> ColumnNames { get; set; }
+        public List<ColumnDescription> Columns { get; set; }
     }
+
+    public class ColumnDescription
+    {
+        public string Name { get; set; }
+        public string SqlType { get; set; }
+    }
+
     public class UpdateTaskSolutionRS { }
 }

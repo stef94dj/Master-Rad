@@ -107,9 +107,10 @@ namespace MasterRad.Repositories
                 ModifiedBy = "Current user - NOT IMPLEMENTED",
             };
 
-            var newColumnEntities = request.ColumnNames.Select(cn => new SolutionColumnEntity() //AutoMapper
+            var newColumnEntities = request.Columns.Select(cn => new SolutionColumnEntity() //AutoMapper
             {
-                ColumnName = cn,
+                ColumnName = cn.Name,
+                SqlType = cn.SqlType,
                 TaskId = request.Id,
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED"

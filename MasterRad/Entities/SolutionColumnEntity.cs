@@ -18,5 +18,8 @@ namespace MasterRad.Entities
 
         [MaxLength(255), Required]
         public string ColumnName { get; set; }
+
+        [MaxLength(50), Required]
+        public string SqlType { get; set; }
     }
 }

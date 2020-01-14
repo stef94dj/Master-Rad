@@ -41,9 +41,9 @@ function executeScriptCallback(data) {
 }
 
 function saveSolution() {
-    var columnNames = queryResultTable.getColumnNames();
+    var columns = queryResultTable.getColumnDescriptions();
 
-    if (columnNames === null || columnNames.length < 1) {
+    if (columns === null || columns.length < 1) {
         alert("Solution must define at least one column");
         return;
     }
@@ -52,7 +52,7 @@ function saveSolution() {
         "Id": $('#task-id').val(),
         "TimeStamp": $('#task-timestamp').val(),
         "SolutionSqlScript": editor.getValue(),
-        "ColumnNames": columnNames
+        "Columns": columns
     };
 
     $.ajax({

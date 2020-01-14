@@ -140,5 +140,15 @@ var queryResultTable = {
         return $.map($('#table-header th'), function (item, index) {
             return item.innerText;
         });
-    }
+    },
+    getColumnDescriptions: function () {
+        return $.map($('#table-header th'), function (item, index) {
+            var res = {
+                Name: item.innerText,
+                SqlType: $(item).data('sql-type')
+            };
+
+            return res;
+        });
+    },
 }
