@@ -42,7 +42,7 @@ namespace MasterRad.API
         {
             var templateEntity = _templateRepo.Get(body.TemplateId);
 
-            var taskNameOnServer = DatabaseNameHelper.TaskName(body.Name);
+            var taskNameOnServer = NameHelper.TaskName(body.Name);
             var cloneSuccess = _microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, taskNameOnServer, true);
             if (!cloneSuccess)
                 return Ok(new JsonResult(new { Message = "Unable to clone database" }));

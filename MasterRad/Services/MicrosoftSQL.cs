@@ -36,6 +36,8 @@ namespace MasterRad.Services
         bool CreateDatabase(string dbName);
         bool CloneDatabase(string originDbName, string destDbName, bool failIfExists);
         IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbName, bool failIfExists);
+        bool CreateTable(CreateTable table);
+        IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables);
         bool DatabaseExists(string name);
         bool DeleteDatabaseIfExists(string name);
         ConnectionParams GetAdminConnParams(string dbName);
@@ -410,11 +412,8 @@ namespace MasterRad.Services
             var successfullyCloned = new List<string>();
 
             foreach (var destName in destDbNames)
-            {
-                var cloneSucces = CloneDatabase(originDbName, destName, failIfExists);
-                if (cloneSucces)
+                if (CloneDatabase(originDbName, destName, failIfExists))
                     successfullyCloned.Add(destName);
-            }
 
             return successfullyCloned;
         }
@@ -471,5 +470,20 @@ namespace MasterRad.Services
             return DatabaseExists(destDbName);
         }
 
+        public bool CreateTable(CreateTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables)
+        {
+            var successfullyCreated = new List<string>();
+
+            foreach (var table in tables)
+                if (CreateTable(table))
+                    successfullyCreated.Add(table.TableName);
+
+            return successfullyCreated;
+        }
     }
 }

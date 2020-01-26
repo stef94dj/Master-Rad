@@ -90,7 +90,7 @@ namespace MasterRad.API
                         throw new SynthesisEvaluationException(testId, studentId, $"Failed to set status to {EvaluationProgress.Evaluating}");
 
                     var originalDataNameOnServer = useSecretData ? sts.SynthesisTest.Task.NameOnServer : sts.SynthesisTest.Task.Template.NameOnServer;
-                    var cloneDataNameOnServer = DatabaseNameHelper.SynthesisTestEvaluation(studentId, testId, useSecretData);
+                    var cloneDataNameOnServer = NameHelper.SynthesisTestEvaluation(studentId, testId, useSecretData);
 
                     var solutionScript = sts.SynthesisTest.Task.SolutionSqlScript;
                     var solutionFormat = sts.SynthesisTest.Task.SolutionColumns.Select(sc => sc.ColumnName);

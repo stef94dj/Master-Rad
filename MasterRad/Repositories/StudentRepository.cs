@@ -1,5 +1,6 @@
 ﻿using MasterRad.DTOs;
 using MasterRad.Entities;
+using MasterRad.Models;
 using MasterRad.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,7 +15,7 @@ namespace MasterRad.Repositories
         IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId);
         IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId);
         int AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId);
-        int AssignAnalysisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId);
+        int AssignAnalysisTest(IEnumerable<AnalysisAssignModel> assignModels, int testId);
         void RemoveSynthesis(int studentId, byte[] timeStamp, int testId);
         void RemoveAnalysis(int studentId, byte[] timeStamp, int testId);
     }
@@ -53,13 +54,15 @@ namespace MasterRad.Repositories
             return _context.SaveChanges();
         }
 
-        public int AssignAnalysisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId)
+        public int AssignAnalysisTest(IEnumerable<AnalysisAssignModel> assignModels, int testId)
         {
-            var atsEntities = studDbNamePairs.Select(pair => new AnalysisTestStudentEntity()
+            var atsEntities = assignModels.Select(assignModel => new AnalysisTestStudentEntity()
             {
                 AnalysisTestId = testId,
-                StudentId = pair.Key,
-                NameOnServer = pair.Value,
+                StudentId = assignModel.StudentId,
+                NameOnServer = assignModel.Database,
+                StudentOutputNameOnServer = assignModel.StudentOutputTable,
+                TeacherOutputNameOnServer = assignModel.TeacherOutputTable,
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = "Current user - NOT IMPLEMENTED"
             });
