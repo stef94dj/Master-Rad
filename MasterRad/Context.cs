@@ -25,7 +25,6 @@ namespace MasterRad
         public DbSet<SynthesisPaperEntity> SynthesisPapers { get; set; }
         public DbSet<AnalysisTestEntity> AnalysisTests { get; set; }
         public DbSet<AnalysisTestStudentEntity> AnalysisTestStudents { get; set; }
-        public DbSet<AnalysisPaperEntity> AnalysisPapers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,7 +39,6 @@ namespace MasterRad
             modelBuilder.Entity<SynthesisPaperEntity>().ToTable("SynthesisPaper");
             modelBuilder.Entity<AnalysisTestEntity>().ToTable("AnalysisTest");
             modelBuilder.Entity<AnalysisTestStudentEntity>().ToTable("AnalysisTestStudent");
-            modelBuilder.Entity<AnalysisPaperEntity>().ToTable("AnalysisPaper");
 
             //seed data - DEV ONLY (comment out for production)
             modelBuilder.Entity<StudentEntity>() 
@@ -139,12 +137,6 @@ namespace MasterRad
             modelBuilder.Entity<AnalysisTestEntity>()
                 .HasMany(at => at.AnalysisTestStudents)
                 .WithOne(ats => ats.AnalysisTest)
-                .OnDelete(DeleteBehavior.ClientSetNull);
-
-            //delete AnalysisTestStudentEntity
-            modelBuilder.Entity<AnalysisTestStudentEntity>()
-                .HasOne(sts => sts.AnalysisPaper)
-                .WithOne(sp => sp.AnalysisTestStudent)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
             //delete student

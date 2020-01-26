@@ -52,9 +52,6 @@ namespace MasterRad.Controllers
         {
             var testStudentEntity = _analysisRepository.GetAssignment(_userService.UserId, testId);
 
-            if (!_analysisRepository.PaperExists(_userService.UserId, testId))
-                _analysisRepository.CreatePaper(_userService.UserId, testId);
-
             var vm = new ModifyDataVM()
             {
                 DatabaseName = $"Task '{testStudentEntity.AnalysisTest.Name}'",
