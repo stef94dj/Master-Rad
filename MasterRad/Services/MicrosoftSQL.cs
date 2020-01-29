@@ -476,7 +476,7 @@ namespace MasterRad.Services
             var columns = table.Columns.Select(x => $"{x.Name} {x.SqlType}");
             var columnsExpr = string.Join(", ", columns);
 
-            var sqlCommand = $"CREATE TABLE {table.TableName} ({columnsExpr})";
+            var sqlCommand = $"CREATE TABLE [{table.TableName}] ({columnsExpr})";
 
             var connection = GetAdminConnParams(table.DatabaseName);
             var sqlResult = ExecuteSQL(sqlCommand, connection);
@@ -502,7 +502,17 @@ namespace MasterRad.Services
 
         public bool DeleteTableIfExists(string tableName, string databaseName)
         {
-            throw new NotImplementedException();
+            var sqlCommand = $"DROP TABLE [{tableName}]";
+
+            var connection = GetAdminConnParams(databaseName);
+            var sqlResult = ExecuteSQL(sqlCommand, connection);
+
+            //if (sqlResult.Messages.Any()) - CreateDatabase treba da uloguje gresku + Messages
+            //    Log
+
+            return !GetTableNames(connection)
+                    .Where(tn => string.Equals(tn, $"dbo.{tableName}", StringComparison.OrdinalIgnoreCase))
+                    .Any();
         }
     }
 }
