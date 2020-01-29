@@ -21,19 +21,22 @@ namespace MasterRad.API
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
         private readonly IMicrosoftSQL _microsoftSQLService;
+        private readonly IConfiguration _config;
 
         public StudentController
         (
             IStudentRepository studentRepository,
             ISynthesisRepository synthesisRepository,
             IAnalysisRepository analysisRepository,
-            IMicrosoftSQL microsoftSQLService
+            IMicrosoftSQL microsoftSQLService,
+            IConfiguration config
         )
         {
             _studentRepository = studentRepository;
             _synthesisRepository = synthesisRepository;
             _analysisRepository = analysisRepository;
             _microsoftSQLService = microsoftSQLService;
+            _config = config;
         }
 
         [HttpPost, Route("search")]
@@ -94,11 +97,16 @@ namespace MasterRad.API
             if (_analysisRepository.Get(body.TestId).Status >= TestStatus.Completed)
                 return StatusCode(500);
 
-            var analysisEntity = _analysisRepository.GetWithTaskAndTemplate(body.TestId);
+            var analysisEntity = _analysisRepository.GetWithTaskTemplateAndSolutionFormat(body.TestId);
 
             #region Get_Output_Format
-            var columns = new List<Column>();
-            throw new NotImplementedException();
+            var columns = analysisEntity
+                            .SynthesisPaper
+                            .SynthesisTestStudent
+                            .SynthesisTest
+                            .Task
+                            .SolutionColumns
+                            .Select(c => new Column(c.ColumnName, c.SqlType));
             #endregion
 
             var assignModels = NameHelper.AnalysisTestExam(body.StudentIds, analysisEntity.Id);
@@ -109,22 +117,26 @@ namespace MasterRad.API
             assignModels = assignModels.Where(x => dbCloneSuccess.Contains(x.Database));
             #endregion
 
+            var outputTablesDbName = _config.GetValue<string>("DbAdminConnection:DbName");
+
             #region Create_Student_Output_Tables
-            var tableCreateSuccess = _microsoftSQLService.CreateTables(assignModels.Select(x => new CreateTable()
+            var studentTableCreateSuccess = _microsoftSQLService.CreateTables(assignModels.Select(x => new CreateTable()
             {
+                DatabaseName = outputTablesDbName,
                 TableName = x.StudentOutputTable,
                 Columns = columns,
             }));
-            assignModels = assignModels.Where(x => tableCreateSuccess.Contains(x.StudentOutputTable));
+            assignModels = assignModels.Where(x => studentTableCreateSuccess.Contains(x.StudentOutputTable));
             #endregion
 
             #region Create_Teacher_Output_Tables
-            tableCreateSuccess = _microsoftSQLService.CreateTables(assignModels.Select(x => new CreateTable()
+            var teacherTableCreateSuccess = _microsoftSQLService.CreateTables(assignModels.Select(x => new CreateTable()
             {
+                DatabaseName = outputTablesDbName,
                 TableName = x.TeacherOutputTable,
                 Columns = columns,
             }));
-            assignModels = assignModels.Where(x => tableCreateSuccess.Contains(x.TeacherOutputTable));
+            assignModels = assignModels.Where(x => teacherTableCreateSuccess.Contains(x.TeacherOutputTable));
             #endregion
 
             var analysisAssigned = _studentRepository.AssignAnalysisTest(assignModels, body.TestId);
@@ -143,29 +155,57 @@ namespace MasterRad.API
             switch (body.TestType)
             {
                 case TestType.Synthesis:
-                    if (_synthesisRepository.Get(body.TestId).Status >= TestStatus.InProgress)
+                    if (!RemoveStudentFromSynthesis(body))
                         return StatusCode(500);
-
-                    var assignment = _synthesisRepository.GetAssignment(body.StudentId, body.TestId);
-
-                    var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(assignment.NameOnServer);
-                    if (!deleteSuccess)
-                        return StatusCode(500);
-
-                    _studentRepository.RemoveSynthesis(body.StudentId, body.TimeStamp, body.TestId);
                     break;
                 case TestType.Analysis:
-                    throw new NotImplementedException();
-                //if (_analysisRepository.Get(body.TestId).Status >= TestStatus.InProgress)
-                //    return StatusCode(500);
-
-                //_studentRepository.AssignAnalysisTest(body.StudentId, body.TimeStamp, body.TestId);
-                //break;
+                    if (!RemoveStudentFromAnalysis(body))
+                        return StatusCode(500);
+                    break;
                 default:
                     return StatusCode(500);
             }
 
             return Ok(true);
+        }
+
+        private bool RemoveStudentFromSynthesis(RemoveAssignedRQ model)
+        {
+            if (_synthesisRepository.Get(model.TestId).Status >= TestStatus.InProgress)
+                return false;
+
+            var assignment = _synthesisRepository.GetAssignment(model.StudentId, model.TestId);
+
+            var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(assignment.NameOnServer);
+            if (!deleteSuccess)
+                return false;
+
+            _studentRepository.RemoveSynthesis(model.StudentId, model.TimeStamp, model.TestId);
+            return true;
+        }
+
+        private bool RemoveStudentFromAnalysis(RemoveAssignedRQ model)
+        {
+            if (_analysisRepository.Get(model.TestId).Status >= TestStatus.InProgress)
+                return false;
+
+            var assignment = _analysisRepository.GetAssignment(model.StudentId, model.TestId);
+
+            //delete database
+            var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(assignment.InputNameOnServer);
+            if (!deleteSuccess)
+                return false;
+
+            var outputTablesDbName = _config.GetValue<string>("DbAdminConnection:DbName");
+
+            //delete student output table
+            _microsoftSQLService.DeleteTableIfExists(assignment.StudentOutputNameOnServer, outputTablesDbName);
+
+            //delete teacher output table
+            _microsoftSQLService.DeleteTableIfExists(assignment.StudentOutputNameOnServer, outputTablesDbName);
+
+            _studentRepository.RemoveAnalysis(model.StudentId, model.TimeStamp, model.TestId);
+            return true;
         }
     }
 }

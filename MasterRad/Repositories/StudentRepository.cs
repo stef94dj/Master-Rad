@@ -60,7 +60,7 @@ namespace MasterRad.Repositories
             {
                 AnalysisTestId = testId,
                 StudentId = assignModel.StudentId,
-                NameOnServer = assignModel.Database,
+                InputNameOnServer = assignModel.Database,
                 StudentOutputNameOnServer = assignModel.StudentOutputTable,
                 TeacherOutputNameOnServer = assignModel.TeacherOutputTable,
                 DateCreated = DateTime.UtcNow,
@@ -106,7 +106,16 @@ namespace MasterRad.Repositories
 
         public void RemoveAnalysis(int studentId, byte[] timeStamp, int testId)
         {
-            throw new NotImplementedException();
+            var atsEntity = new AnalysisTestStudentEntity()
+            {
+                StudentId = studentId,
+                AnalysisTestId = testId,
+                TimeStamp = timeStamp
+            };
+
+            _context.AnalysisTestStudents.Attach(atsEntity);
+            _context.AnalysisTestStudents.Remove(atsEntity);
+            _context.SaveChanges();
         }
     }
 }

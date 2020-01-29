@@ -55,7 +55,7 @@ namespace MasterRad.Controllers
             var vm = new ModifyDataVM()
             {
                 DatabaseName = $"Task '{testStudentEntity.AnalysisTest.Name}'",
-                NameOnServer = testStudentEntity.NameOnServer
+                NameOnServer = testStudentEntity.InputNameOnServer
             };
 
             return View("~/Views/Test/AnalysisExam.cshtml", vm);

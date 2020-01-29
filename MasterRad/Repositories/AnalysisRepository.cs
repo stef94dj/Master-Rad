@@ -14,7 +14,7 @@ namespace MasterRad.Repositories
         IEnumerable<AnalysisTestEntity> Get();
         AnalysisTestEntity Get(int testId);
         AnalysisTestStudentEntity GetAssignment(int studentId, int testId);
-        AnalysisTestEntity GetWithTaskAndTemplate(int testId);
+        AnalysisTestEntity GetWithTaskTemplateAndSolutionFormat(int testId);
         IEnumerable<AnalysisTestStudentEntity> GetAssigned(int studentId);
 
         bool Create(AnalysisCreateRQ request);
@@ -54,7 +54,7 @@ namespace MasterRad.Repositories
                        .Include(ats => ats.AnalysisTest)
                        .SingleOrDefault();
 
-        public AnalysisTestEntity GetWithTaskAndTemplate(int testId)
+        public AnalysisTestEntity GetWithTaskTemplateAndSolutionFormat(int testId)
             => _context.AnalysisTests
                        .Where(t => t.Id == testId)
                        .Include(a => a.SynthesisPaper)
@@ -62,6 +62,11 @@ namespace MasterRad.Repositories
                        .ThenInclude(sts => sts.SynthesisTest)
                        .ThenInclude(t => t.Task)
                        .ThenInclude(t => t.Template)
+                        .Include(a => a.SynthesisPaper)
+                       .ThenInclude(sp => sp.SynthesisTestStudent)
+                       .ThenInclude(sts => sts.SynthesisTest)
+                       .ThenInclude(t => t.Task)
+                       .ThenInclude(t => t.SolutionColumns)
                        .AsNoTracking()
                        .SingleOrDefault();
 

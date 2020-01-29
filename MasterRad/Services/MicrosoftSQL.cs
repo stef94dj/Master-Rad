@@ -40,6 +40,7 @@ namespace MasterRad.Services
         IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables);
         bool DatabaseExists(string name);
         bool DeleteDatabaseIfExists(string name);
+        bool DeleteTableIfExists(string tableName, string databaseName);
         ConnectionParams GetAdminConnParams(string dbName);
     }
 
@@ -472,7 +473,20 @@ namespace MasterRad.Services
 
         public bool CreateTable(CreateTable table)
         {
-            throw new NotImplementedException();
+            var columns = table.Columns.Select(x => $"{x.Name} {x.SqlType}");
+            var columnsExpr = string.Join(", ", columns);
+
+            var sqlCommand = $"CREATE TABLE {table.TableName} ({columnsExpr})";
+
+            var connection = GetAdminConnParams(table.DatabaseName);
+            var sqlResult = ExecuteSQL(sqlCommand, connection);
+
+            //if (sqlResult.Messages.Any()) - CreateDatabase treba da uloguje gresku + Messages
+            //    Log
+
+            return GetTableNames(connection)
+                    .Where(tn => string.Equals(tn, $"dbo.{table.TableName}", StringComparison.OrdinalIgnoreCase))
+                    .Any();
         }
 
         public IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables)
@@ -484,6 +498,11 @@ namespace MasterRad.Services
                     successfullyCreated.Add(table.TableName);
 
             return successfullyCreated;
+        }
+
+        public bool DeleteTableIfExists(string tableName, string databaseName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

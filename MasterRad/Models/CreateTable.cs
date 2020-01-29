@@ -8,6 +8,7 @@ namespace MasterRad.Models
 {
     public class CreateTable
     {
+        public string DatabaseName { get; set; }
         public string TableName { get; set; }
         public IEnumerable<Column> Columns { get; set; }
     }

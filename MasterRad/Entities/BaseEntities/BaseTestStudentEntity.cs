@@ -10,8 +10,5 @@ namespace MasterRad.Entities
     {
         public int StudentId { get; set; }
         public StudentEntity Student { get; set; }
-
-        [Required, MaxLength(255)]
-        public string NameOnServer { get; set; }
     }
 }
