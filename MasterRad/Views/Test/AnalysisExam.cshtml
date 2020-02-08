@@ -1,10 +1,17 @@
 ﻿@model MasterRad.Models.ViewModels.ModifyDatabaseVM
 @{
     ViewData["Title"] = "Modify Data";
+    var failingInputPartialModel = "failing-input";
+    var studentOutputPartialModel = "student-output";
+    var correctOutputPartialModel = "correct-output";
 }
 
 <h1>@(Model.DatabaseName)</h1>
-<input type="text" value="@(Model.NameOnServer)" id="name-on-server" hidden>
+<div>
+    <input hidden class="uid uid-db" value="@failingInputPartialModel" data-name-on-server="@Model.NameOnServer" type="text">
+    <input hidden class="uid uid-tb" value="@studentOutputPartialModel" type="text">
+    <input hidden class="uid uid-tb" value="@correctOutputPartialModel" type="text">
+</div>
 <br />
 <br />
 
@@ -20,9 +27,15 @@
     </li>
 </ul>
 <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab"><partial name="../Partials/ModifyDatabasePartial.cshtml" /></div>
-    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">profile content...</div>
-    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">contact content...</div>
+    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="failing-input-tab">
+        <partial name="../Partials/ModifyDatabasePartial.cshtml" model="failingInputPartialModel" />
+    </div>
+    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="student-output-tab">
+        <partial name="../Partials/ModifyTablePartial.cshtml" model="studentOutputPartialModel" />
+    </div>
+    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="correct-output-tab">
+        <partial name="../Partials/ModifyTablePartial.cshtml" model="correctOutputPartialModel" />
+    </div>
 </div>
 
 @section Scripts {
