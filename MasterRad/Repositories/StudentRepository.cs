@@ -16,8 +16,8 @@ namespace MasterRad.Repositories
         IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId);
         int AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId);
         int AssignAnalysisTest(IEnumerable<AnalysisAssignModel> assignModels, int testId);
-        void RemoveSynthesis(int studentId, byte[] timeStamp, int testId);
-        void RemoveAnalysis(int studentId, byte[] timeStamp, int testId);
+        bool RemoveSynthesis(int studentId, byte[] timeStamp, int testId);
+        bool RemoveAnalysis(int studentId, byte[] timeStamp, int testId);
     }
 
     public class StudentRepository : IStudentRepository
@@ -90,7 +90,7 @@ namespace MasterRad.Repositories
             return qry.AsNoTracking().ToList();
         }
 
-        public void RemoveSynthesis(int studentId, byte[] timeStamp, int testId)
+        public bool RemoveSynthesis(int studentId, byte[] timeStamp, int testId)
         {
             var stsEntity = new SynthesisTestStudentEntity()
             {
@@ -101,10 +101,10 @@ namespace MasterRad.Repositories
 
             _context.SynthesysTestStudents.Attach(stsEntity);
             _context.SynthesysTestStudents.Remove(stsEntity);
-            _context.SaveChanges();
+            return _context.SaveChanges() == 1;
         }
 
-        public void RemoveAnalysis(int studentId, byte[] timeStamp, int testId)
+        public bool RemoveAnalysis(int studentId, byte[] timeStamp, int testId)
         {
             var atsEntity = new AnalysisTestStudentEntity()
             {
@@ -115,7 +115,7 @@ namespace MasterRad.Repositories
 
             _context.AnalysisTestStudents.Attach(atsEntity);
             _context.AnalysisTestStudents.Remove(atsEntity);
-            _context.SaveChanges();
+            return _context.SaveChanges() == 1;
         }
     }
 }

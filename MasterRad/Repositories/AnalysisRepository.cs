@@ -52,6 +52,7 @@ namespace MasterRad.Repositories
             => _context.AnalysisTestStudents
                        .Where(ats => ats.StudentId == studentId && ats.AnalysisTestId == testId)
                        .Include(ats => ats.AnalysisTest)
+                       .AsNoTracking()
                        .SingleOrDefault();
 
         public AnalysisTestEntity GetWithTaskTemplateAndSolutionFormat(int testId)

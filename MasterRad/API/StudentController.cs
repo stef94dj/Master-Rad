@@ -180,8 +180,7 @@ namespace MasterRad.API
             if (!deleteSuccess)
                 return false;
 
-            _studentRepository.RemoveSynthesis(model.StudentId, model.TimeStamp, model.TestId);
-            return true;
+            return _studentRepository.RemoveSynthesis(model.StudentId, model.TimeStamp, model.TestId);
         }
 
         private bool RemoveStudentFromAnalysis(RemoveAssignedRQ model)
@@ -192,20 +191,23 @@ namespace MasterRad.API
             var assignment = _analysisRepository.GetAssignment(model.StudentId, model.TestId);
 
             //delete database
-            var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(assignment.InputNameOnServer);
-            if (!deleteSuccess)
+            var success = _microsoftSQLService.DeleteDatabaseIfExists(assignment.InputNameOnServer);
+            if (!success)
                 return false;
 
             var outputTablesDbName = _config.GetValue<string>("DbAdminConnection:DbName");
 
             //delete student output table
-            _microsoftSQLService.DeleteTableIfExists(assignment.StudentOutputNameOnServer, outputTablesDbName);
+            success = _microsoftSQLService.DeleteTableIfExists(assignment.StudentOutputNameOnServer, outputTablesDbName);
+            if (!success)
+                return false;
 
             //delete teacher output table
-            _microsoftSQLService.DeleteTableIfExists(assignment.StudentOutputNameOnServer, outputTablesDbName);
+            success = _microsoftSQLService.DeleteTableIfExists(assignment.TeacherOutputNameOnServer, outputTablesDbName);
+            if (!success)
+                return false;
 
-            _studentRepository.RemoveAnalysis(model.StudentId, model.TimeStamp, model.TestId);
-            return true;
+            return _studentRepository.RemoveAnalysis(model.StudentId, model.TimeStamp, model.TestId);
         }
     }
 }

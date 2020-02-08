@@ -1,8 +1,5 @@
 MVP:
 ---
-
-implement remove assigned students from analysis (when student is assigned analysis test, create 2 empty tables (in format of solution) + new database to store these tables)
-
 kreirati AnalysisPaperEntity (kada - kada klikne taketest na AnalySisTest)
 student kada radi analysis: restore baze na original (nice to have)
 
