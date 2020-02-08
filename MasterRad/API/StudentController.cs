@@ -176,8 +176,8 @@ namespace MasterRad.API
 
             var assignment = _synthesisRepository.GetAssignment(model.StudentId, model.TestId);
 
-            var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(assignment.NameOnServer);
-            if (!deleteSuccess)
+            var dbDeleted = _microsoftSQLService.DeleteDatabaseIfExists(assignment.NameOnServer);
+            if (!dbDeleted)
                 return false;
 
             return _studentRepository.RemoveSynthesis(model.StudentId, model.TimeStamp, model.TestId);
@@ -189,22 +189,13 @@ namespace MasterRad.API
                 return false;
 
             var assignment = _analysisRepository.GetAssignment(model.StudentId, model.TestId);
-
-            //delete database
-            var success = _microsoftSQLService.DeleteDatabaseIfExists(assignment.InputNameOnServer);
-            if (!success)
-                return false;
-
             var outputTablesDbName = _config.GetValue<string>("DbAdminConnection:DbName");
 
-            //delete student output table
-            success = _microsoftSQLService.DeleteTableIfExists(assignment.StudentOutputNameOnServer, outputTablesDbName);
-            if (!success)
-                return false;
+            var dbDeleted = _microsoftSQLService.DeleteDatabaseIfExists(assignment.InputNameOnServer);
+            var studOutTableDeleted = _microsoftSQLService.DeleteTableIfExists(assignment.StudentOutputNameOnServer, outputTablesDbName);
+            var teacherOutTableDeleted = _microsoftSQLService.DeleteTableIfExists(assignment.TeacherOutputNameOnServer, outputTablesDbName);
 
-            //delete teacher output table
-            success = _microsoftSQLService.DeleteTableIfExists(assignment.TeacherOutputNameOnServer, outputTablesDbName);
-            if (!success)
+            if (!dbDeleted || !studOutTableDeleted || !teacherOutTableDeleted)
                 return false;
 
             return _studentRepository.RemoveAnalysis(model.StudentId, model.TimeStamp, model.TestId);
