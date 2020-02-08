@@ -8,6 +8,7 @@ $(document).ready(function () {
     testType = $('#test-type').val();;
     assignedStudents = $('#assigned-students');
     searchResList = $('#student-search-res');
+    searchResList.on('change', studentSelection);
     loadAssignedStudents();
 });
 
@@ -129,4 +130,12 @@ function removeStudent(studentId, timestamp) {
             loadAssignedStudents();
         }
     });
+}
+function studentSelection() {
+    var selectedStudents = searchResList.find('option:selected');
+    var assignBtn = $('#assign-btn');
+    if (selectedStudents.length > 0)
+        assignBtn.removeAttr('disabled');
+    else
+        assignBtn.attr('disabled', true);
 }

@@ -30,10 +30,10 @@
 
 <!--Search result-->
 <div class="form-group">
-    <label for="student-search-res">Hold 'CTRL' to select multiple students</label>
+    <label for="student-search-res">Hold 'CTRL' and click to deselect or select multiple</label>
     <select multiple class="form-control" id="student-search-res"></select>
 </div>
-<button onclick="assign()" type="button" class="btn btn-outline-primary">Assign</button>
+<button id="assign-btn" disabled onclick="assign()" type="button" class="btn btn-outline-primary">Assign</button>
 <br /><br />
 
 <!--Assigned students-->
@@ -47,7 +47,7 @@
         </tr>
     </thead>
     <tbody id="assigned-students"></tbody>
-</table>
+</table>student-search-res
 
 
 @section Scripts {

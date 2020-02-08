@@ -1,6 +1,5 @@
 MVP:
 ---
-kreirati AnalysisPaperEntity (kada - kada klikne taketest na AnalySisTest)
 student kada radi analysis: restore baze na original (nice to have)
 
 SignalR:request filters won't log here + status evaluating spinner bigger than other icons (take spinner from azure) + hiding message when signalR reconeccted (fade-out + table should not move)
