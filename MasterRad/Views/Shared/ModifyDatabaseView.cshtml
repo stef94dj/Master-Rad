@@ -1,4 +1,4 @@
-﻿@model MasterRad.Models.ViewModels.ModifyDataVM
+﻿@model MasterRad.Models.ViewModels.ModifyDatabaseVM
 @{
     ViewData["Title"] = "Modify Data";
 }
@@ -7,11 +7,11 @@
 <input type="text" value="@(Model.NameOnServer)" id="name-on-server" hidden>
 
 
-<partial name="../Partials/ModifyDataPartial.cshtml"/>
+<partial name="../Partials/ModifyDatabasePartial.cshtml"/>
 
 @section Scripts {
-    <script src="~/js/modifyData.js" asp-append-version="true"></script>
-    <script src="~/js/modifyDataPartial.js" asp-append-version="true"></script>
+    <script src="~/js/modifyDatabase.js" asp-append-version="true"></script>
+    <script src="~/js/modifyDatabasePartial.js" asp-append-version="true"></script>
     <script src="~/js/util.js" asp-append-version="true"></script>
 
     <script src="~/js/tablesDropdown.js" asp-append-version="true"></script>

@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    initialiseModifyDataPartial().then(() => {
+    initialiseModifyDatabasePartial().then(() => {
         alert('done');
     });
 });

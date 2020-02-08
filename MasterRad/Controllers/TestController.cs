@@ -52,7 +52,7 @@ namespace MasterRad.Controllers
         {
             var testStudentEntity = _analysisRepository.GetAssignment(_userService.UserId, testId);
 
-            var vm = new ModifyDataVM()
+            var vm = new ModifyDatabaseVM()
             {
                 DatabaseName = $"Task '{testStudentEntity.AnalysisTest.Name}'",
                 NameOnServer = testStudentEntity.InputNameOnServer

@@ -25,13 +25,13 @@ namespace MasterRad.Controllers
         {
             var taskEntity = _taskRepo.Get(taskId);
 
-            var vm = new ModifyDataVM()
+            var vm = new ModifyDatabaseVM()
             {
                 DatabaseName = $"Task '{taskEntity.Name}'",
                 NameOnServer = taskEntity.NameOnServer
             };
 
-            return View("~/Views/Shared/ModifyDataView.cshtml", vm);
+            return View("~/Views/Shared/ModifyDatabaseView.cshtml", vm);
         }
 
         public IActionResult ModifyTaskSolution(int taskId)

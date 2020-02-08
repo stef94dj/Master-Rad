@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MasterRad.Models.ViewModels
 {
-    public class ModifyDataVM
+    public class ModifyDatabaseVM
     {
         public string DatabaseName { get; set; }
         public string NameOnServer { get; set; }

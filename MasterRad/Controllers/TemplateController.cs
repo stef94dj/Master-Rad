@@ -40,13 +40,13 @@ namespace MasterRad.Controllers
         {
             var templateEntity = _templateRepo.Get(templateId);
 
-            var vm = new ModifyDataVM()
+            var vm = new ModifyDatabaseVM()
             {
                 DatabaseName = $"Template '{templateEntity.Name}'",
                 NameOnServer = templateEntity.NameOnServer
             };
 
-            return View("~/Views/Shared/ModifyDataView.cshtml", vm);
+            return View("~/Views/Shared/ModifyDatabaseView.cshtml", vm);
         }
     }
 }

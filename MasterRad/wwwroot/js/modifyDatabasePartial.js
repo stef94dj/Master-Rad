@@ -1,6 +1,6 @@
 ﻿var nameOnServer = null;
 var tableDropdown = null;
-function initialiseModifyDataPartial() {
+function initialiseModifyDatabasePartial() {
     var nameOnServer = $('#name-on-server').val();
     tableDropdown = $('#tableSelector');
     //$('input.editable-cell').blur(function () { alert('cell focus out'); });
