@@ -25,7 +25,7 @@
             return `#table-selector-${item}`;
         });
 
-        var tableUidElements = $('.uid'); 
+        var tableUidElements = $('.uid');
 
         this.TableUids = $.map(tableUidElements, function (item, index) {
             return $(item).val()
@@ -39,7 +39,7 @@
             return $(`#table-body-${uid}`);
         });
     },
-    DbUidIndex: function(dbUid) {
+    DbUidIndex: function (dbUid) {
         return this.DbUids.indexOf(dbUid);
     },
     NameOnServer(dbUid) {
@@ -75,13 +75,18 @@ function initialiseModifyDatabasePartial() {
                 tablesDropdownJS.attachOnChangeHandler(tableSelected);
             })
             .then(() => {
-                tableSelected();
+                tableSelected(uid);
             })
     });
 };
 
-function tableSelected() {
-    var uid = $(this).data('uid');
+function tableSelected(uid = null) {
+
+    var uidFromClick = $(this).data('uid');
+
+    if (uidFromClick != undefined)
+        uid = uidFromClick;
+
     var tableDD = DBs.TableDropdown(uid);
     var tnforparse = tableDD.val();
     var tableFullName = parseTableName(tnforparse);
