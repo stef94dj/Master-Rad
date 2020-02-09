@@ -1,5 +1,4 @@
-﻿//table.js ?
-var DBs = {
+﻿var UI = {
     DbUids: null,
     TableDropdowns: null,
     TableSelectors: null,
@@ -78,11 +77,11 @@ var DBs = {
 }
 
 function initialiseModifyDatabasePartial() {
-    DBs.Initialise();
+    UI.Initialise();
 
-    $.each(DBs.DbUids, function (index, uid) {
-        tablesDropdownJS.dropdownSelector = DBs.TableSelector(uid);
-        tablesDropdownJS.loadTablesDropdownData(`/api/Metadata/tables/${DBs.NameOnServer(uid)}`)
+    $.each(UI.DbUids, function (index, uid) {
+        tablesDropdownJS.dropdownSelector = UI.TableSelector(uid);
+        tablesDropdownJS.loadTablesDropdownData(`/api/Metadata/tables/${UI.NameOnServer(uid)}`)
             .then(data => {
                 tablesDropdownJS.drawTablesDropdown(data);
             })
@@ -94,18 +93,18 @@ function initialiseModifyDatabasePartial() {
             })
     });
 
-    var tableOnlyUids = jQuery.map(DBs.TableUids, function (tbUid, index) {
-        if (!DBs.DbUids.includes(tbUid))
+    var tableOnlyUids = jQuery.map(UI.TableUids, function (tbUid, index) {
+        if (!UI.DbUids.includes(tbUid))
             return tbUid;
     });
 
     $.each(tableOnlyUids, function (index, uid) {
 
-        var nameOnServer = DBs.NameOnServer(uid);
+        var nameOnServer = UI.NameOnServer(uid);
         var schemaName = "dbo";
-        var tableName = DBs.TableName(uid);
-        var tbHead = DBs.TableHeader(uid);
-        var tbBody = DBs.TableHeader(uid);
+        var tableName = UI.TableName(uid);
+        var tbHead = UI.TableHeader(uid);
+        var tbBody = UI.TableHeader(uid);
         renderTable(nameOnServer, schemaName, tableName, tbHead, tbBody);
     });
 };
@@ -115,15 +114,17 @@ function tableSelected(uid = null) {
     if (uidFromClick != undefined)
         uid = uidFromClick;
 
-    var tableDD = DBs.TableDropdown(uid);
+    var tableDD = UI.TableDropdown(uid);
     var tableFullName = parseTableName(tableDD.val());
 
-    var tbhead = DBs.TableHeader(uid);
-    var tbBod = DBs.TableBody(uid);
-    renderTable(DBs.NameOnServer(uid), tableFullName.schemaName, tableFullName.tableName, tbhead, tbBod);
+    var tbhead = UI.TableHeader(uid);
+    var tbBod = UI.TableBody(uid);
+
+    //when-then 1
+    renderTable(UI.NameOnServer(uid), tableFullName.schemaName, tableFullName.tableName, tbhead, tbBod);
 }
 
-//table.js when-then
+//when-then 2
 function renderTable(dbNameOnServer, schemaName, tableName, tbHeader, tbBody) {
     var apiUrl = `/api/Data/read/${dbNameOnServer}/${schemaName}/${tableName}`;
 
@@ -136,7 +137,7 @@ function renderTable(dbNameOnServer, schemaName, tableName, tbHeader, tbBody) {
     });
 }
 
-//table.js when-then
+//when-then 3
 function getIdentityColumns(databaseName, schemaName, tableName, tbData, tbHeader, tbBody) {
     var apiUrl = `/api/MetaData/identity_columns/${databaseName}/${schemaName}/${tableName}`
     $.ajax({
@@ -148,7 +149,7 @@ function getIdentityColumns(databaseName, schemaName, tableName, tbData, tbHeade
     });
 }
 
-//table.js when-then
+//when-then 4
 function drawTable(tbData, identityColumns, tbHeader, tbBody) {
     tbHeader.html('');
     tbBody.html('');
@@ -221,10 +222,10 @@ function getCommonOperationInfo(startingPoint) {
     var tbElem = trElem.parents().eq(1);
     var uid = tbElem.data('uid');
 
-    var tableNameForParse = DBs.IsTableOnly(uid) ? `dbo.${DBs.TableName(uid)}` : DBs.TableDropdown(uid).val();
+    var tableNameForParse = UI.IsTableOnly(uid) ? `dbo.${UI.TableName(uid)}` : UI.TableDropdown(uid).val();
     var tableFullName = parseTableName(tableNameForParse);
 
-    var nameOnServer = DBs.NameOnServer(uid);
+    var nameOnServer = UI.NameOnServer(uid);
 
     var rqBody = {
         "DatabaseName": nameOnServer,
@@ -236,7 +237,6 @@ function getCommonOperationInfo(startingPoint) {
     return result;
 }
 
-//table.js
 function deleteRecord(btnElem) {
     var coi = getCommonOperationInfo(btnElem);
 
@@ -312,15 +312,15 @@ function editCell(inputElem) {
 
 
 function refreshSingleTableUI(uid) {
-    var nameOnServer = DBs.NameOnServer(uid);
+    var nameOnServer = UI.NameOnServer(uid);
     var schemaName = "dbo";
-    var tableName = DBs.TableName(uid);
-    var tbHead = DBs.TableHeader(uid);
-    var tbBody = DBs.TableHeader(uid);
+    var tableName = UI.TableName(uid);
+    var tbHead = UI.TableHeader(uid);
+    var tbBody = UI.TableHeader(uid);
     renderTable(nameOnServer, schemaName, tableName, tbHead, tbBody);
 }
 function reloadTable(uid) {
-    if (DBs.IsTableOnly(uid))
+    if (UI.IsTableOnly(uid))
         refreshSingleTableUI(uid);
     else
         tableSelected(uid);

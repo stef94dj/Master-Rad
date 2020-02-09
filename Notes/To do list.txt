@@ -1,6 +1,8 @@
 MVP:
 ---
 
+modifyDatabase.js: upotrebi when-then
+
 EDIT CELL: ux vrv treba da se poboljsa, bag: editom ili insertom mogu se napraviti 2 indenticna reda - kada se naprave ni jedan od njih nije moguce editovate (BE ne zna koji user zeli da edituje, jedan mora da se brise)
 
 student kada radi analysis: restore baze na original (nice to have)
