@@ -1,5 +1,6 @@
-﻿var DBs = {
-    DbUids: null, //user interface ids
+﻿//table.js ?
+var DBs = {
+    DbUids: null,
     TableUids: null,
     NamesOnServer: null,
     TableDropdowns: null,
@@ -81,9 +82,7 @@ function initialiseModifyDatabasePartial() {
 };
 
 function tableSelected(uid = null) {
-
     var uidFromClick = $(this).data('uid');
-
     if (uidFromClick != undefined)
         uid = uidFromClick;
 
@@ -91,7 +90,6 @@ function tableSelected(uid = null) {
     var tnforparse = tableDD.val();
     var tableFullName = parseTableName(tnforparse);
 
-    debugger;
     var tbhead = DBs.TableHeader(uid);
     var tbBod = DBs.TableBody(uid);
     renderTable(DBs.NameOnServer(uid), tableFullName.schemaName, tableFullName.tableName, tbhead, tbBod);
@@ -172,8 +170,8 @@ function getUnmodifiedValue(element) {
     return $(element).data('value-original');
 }
 
-function getCell(inputElem, index, getData) {
-    var th = $('#table-header th').eq(index + 1);
+function getCell(inputElem, index, getData, uid) {
+    var th = $(`#table-header-${uid} th`).eq(index + 1);
     return {
         "ColumnName": th.text(),
         "ColumnType": th.data('sql-type'),
@@ -181,24 +179,29 @@ function getCell(inputElem, index, getData) {
     };
 }
 
-function getInputValues(trElem, getData, includeDisabled) {
+function getInputValues(trElem, getData, includeDisabled, uid) {
     var inputs = $(trElem).find('td input');
 
     return jQuery.map(inputs, function (item, index) {
         if (includeDisabled || !$(item).prop('disabled'))
-            return getCell(item, index, getData);
+            return getCell(item, index, getData, uid);
     });
 }
 
+//table.js
 function deleteRecord(btnElem) {
     var trElem = $(btnElem).parents().eq(1);
-    var tableFullName = parseTableName($('#table-selector').val());
+    var tbElem = trElem.parents().eq(1);
+    var uid = tbElem.data('uid');
+
+    var tableFullName = parseTableName(DBs.TableDropdown(uid).val());
+    var nameOnServer = DBs.NameOnServer(uid);
 
     var rqBody = {
-        "DatabaseName": $('#name-on-server').val(),
+        "DatabaseName": nameOnServer,
         "TableName": tableFullName.tableName,
         "SchemaName": tableFullName.schemaName,
-        "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue, true)
+        "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue, true, uid)
     }
 
     $.ajax({
@@ -208,20 +211,28 @@ function deleteRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            tableSelected();
+            tableSelected(uid);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert('error');
+            tableSelected(uid);
         }
     });
 }
 
 function insertRecord(btnElem) {
     var trElem = $(btnElem).parents().eq(1);
-    var tableFullName = parseTableName($('#table-selector').val());
+    var tbElem = trElem.parents().eq(1);
+    var uid = tbElem.data('uid');
+
+    var tableFullName = parseTableName(DBs.TableDropdown(uid).val());
+    var nameOnServer = DBs.NameOnServer(uid);
 
     var rqBody = {
-        "DatabaseName": $('#name-on-server').val(),
+        "DatabaseName": nameOnServer,
         "TableName": tableFullName.tableName,
         "SchemaName": tableFullName.schemaName,
-        "ValuesNew": getInputValues(trElem, getNewValue, false)
+        "ValuesNew": getInputValues(trElem, getNewValue, false, uid)
     };
 
     $.ajax({
@@ -231,27 +242,36 @@ function insertRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            tableSelected();
+            tableSelected(uid);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert('error');
+            tableSelected(uid);
         }
     });
 }
 
 function editCell(inputElem) {
     var trElem = $(inputElem).parents().eq(1);
-    var tableFullName = parseTableName($('#table-selector').val());
+    var tbElem = trElem.parents().eq(1);
+    var uid = tbElem.data('uid');
+
+    var tableFullName = parseTableName(DBs.TableDropdown(uid).val());
+    var nameOnServer = DBs.NameOnServer(uid);
+
     var inputIndex = trElem.find('td').index($(inputElem).parent()) - 1;
 
-    var cellNew = getCell(inputElem, inputIndex, getNewValue);
-    var cellUnmodified = getCell(inputElem, inputIndex, getUnmodifiedValue);
+    var cellNew = getCell(inputElem, inputIndex, getNewValue, uid);
+    var cellUnmodified = getCell(inputElem, inputIndex, getUnmodifiedValue, uid);
 
     if (cellNew.Value == cellUnmodified.Value)
         return;
 
     var rqBody = {
-        "DatabaseName": $('#name-on-server').val(),
+        "DatabaseName": nameOnServer,
         "TableName": tableFullName.tableName,
         "SchemaName": tableFullName.schemaName,
-        "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue, true),
+        "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue, true, uid),
         "ValueNew": cellNew
     }
 
@@ -262,7 +282,11 @@ function editCell(inputElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            tableSelected();
+            tableSelected(uid);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert('error');
+            tableSelected(uid);
         }
     });
 }
