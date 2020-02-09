@@ -250,11 +250,11 @@ function deleteRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            tableSelected(coi.uid);
+            reloadTable(coi.uid);
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert('error');
-            tableSelected(coi.uid);
+            reloadTable(coi.uid);
         }
     });
 }
@@ -272,11 +272,11 @@ function insertRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            tableSelected(coi.uid);
+            reloadTable(coi.uid);
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert('error');
-            tableSelected(coi.uid);
+            reloadTable(coi.uid);
         }
     });
 }
@@ -301,11 +301,27 @@ function editCell(inputElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            tableSelected(coi.uid);
+            reloadTable(coi.uid);
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert('error');
-            tableSelected(coi.uid);
+            reloadTable(coi.uid);
         }
     });
+}
+
+
+function refreshSingleTableUI(uid) {
+    var nameOnServer = DBs.NameOnServer(uid);
+    var schemaName = "dbo";
+    var tableName = DBs.TableName(uid);
+    var tbHead = DBs.TableHeader(uid);
+    var tbBody = DBs.TableHeader(uid);
+    renderTable(nameOnServer, schemaName, tableName, tbHead, tbBody);
+}
+function reloadTable(uid) {
+    if (DBs.IsTableOnly(uid))
+        refreshSingleTableUI(uid);
+    else
+        tableSelected(uid);
 }
