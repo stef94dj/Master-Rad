@@ -1,21 +1,19 @@
 ﻿//table.js ?
 var DBs = {
     DbUids: null,
-    TableUids: null,
-    NamesOnServer: null,
     TableDropdowns: null,
     TableSelectors: null,
+    TableUids: null,
+    NamesOnServer: null,
+    TableNames: null,
     TableHeaders: null,
     TableBodies: null,
     Initialise: function () {
+        //edit whole database UIs (1)
         var dbUidElements = $('.uid-db');
 
         this.DbUids = $.map(dbUidElements, function (item, index) {
             return $(item).val()
-        });
-
-        this.NamesOnServer = $.map(dbUidElements, function (item, index) {
-            return $(item).data('name-on-server');
         });
 
         this.TableDropdowns = $.map(this.DbUids, function (item, index) {
@@ -26,10 +24,20 @@ var DBs = {
             return `#table-selector-${item}`;
         });
 
+        //edit table UIs - contains 1
         var tableUidElements = $('.uid');
 
         this.TableUids = $.map(tableUidElements, function (item, index) {
             return $(item).val()
+        });
+
+        this.NamesOnServer = $.map(tableUidElements, function (item, index) {
+            return $(item).data('name-on-server');
+        });
+
+        this.TableNames = $.map(tableUidElements, function (item, index) {
+            var tableName = $(item).data('table-name');
+            return (tableName != undefined) ? tableName : "";
         });
 
         this.TableHeaders = $.map(this.TableUids, function (uid, index) {
@@ -43,8 +51,8 @@ var DBs = {
     DbUidIndex: function (dbUid) {
         return this.DbUids.indexOf(dbUid);
     },
-    NameOnServer(dbUid) {
-        return this.NamesOnServer[this.DbUidIndex(dbUid)];
+    NameOnServer(tbUid) {
+        return this.NamesOnServer[this.TbUidIndex(tbUid)];
     },
     TableDropdown: function (dbUid) {
         return this.TableDropdowns[this.DbUidIndex(dbUid)];
@@ -60,6 +68,9 @@ var DBs = {
     },
     TableBody: function (tbUid) {
         return this.TableBodies[this.TbUidIndex(tbUid)];
+    },
+    TableName: function (tbUid) {
+        return this.TableNames[this.TbUidIndex(tbUid)];
     }
 }
 
@@ -78,6 +89,21 @@ function initialiseModifyDatabasePartial() {
             .then(() => {
                 tableSelected(uid);
             })
+    });
+
+    var tableOnlyUids = jQuery.map(DBs.TableUids, function (tbUid, index) {
+        if (!DBs.DbUids.includes(tbUid))
+            return tbUid;
+    });
+
+    $.each(tableOnlyUids, function (index, uid) {
+
+        var nameOnServer = DBs.NameOnServer(uid);
+        var schemaName = "dbo";
+        var tableName = DBs.TableName(uid);
+        var tbHead = DBs.TableHeader(uid);
+        var tbBody = DBs.TableHeader(uid);
+        renderTable(nameOnServer, schemaName, tableName, tbHead, tbBody);
     });
 };
 

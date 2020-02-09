@@ -1,4 +1,4 @@
-﻿@model MasterRad.Models.ViewModels.ModifyDatabaseVM
+﻿@model MasterRad.Models.ViewModels.AnalysisExamVM
 @{
     ViewData["Title"] = "Modify Data";
     var failingInputPartialModel = "failing-input";
@@ -6,11 +6,11 @@
     var correctOutputPartialModel = "correct-output";
 }
 
-<h1>@(Model.DatabaseName)</h1>
+<h1>@(Model.Title)</h1>
 <div>
-    <input hidden class="uid uid-db" value="@failingInputPartialModel" data-name-on-server="@Model.NameOnServer" type="text">
-    <input hidden class="uid uid-tb" value="@studentOutputPartialModel" type="text">
-    <input hidden class="uid uid-tb" value="@correctOutputPartialModel" type="text">
+    <input hidden class="uid uid-db" value="@failingInputPartialModel" data-name-on-server="@Model.FailingInputVM.NameOnServer" type="text">
+    <input hidden class="uid uid-tb" value="@studentOutputPartialModel" data-name-on-server="@Model.StudentOutputVM.NameOnServer" data-table-name="@Model.StudentOutputVM.TableName" type="text">
+    <input hidden class="uid uid-tb" value="@correctOutputPartialModel" data-name-on-server="@Model.CorrectOutputVM.NameOnServer" data-table-name="@Model.CorrectOutputVM.TableName" type="text">
 </div>
 <br />
 <br />
@@ -20,7 +20,7 @@
         <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Failing Input</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Student Output</a>
+        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Query Output</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Correct Output</a>
@@ -28,12 +28,20 @@
 </ul>
 <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="failing-input-tab">
+        <br/>
+        <h5>Provide an input for which the given query will return an incorrect output.</h5>
         <partial name="../Partials/ModifyDatabasePartial.cshtml" model="failingInputPartialModel" />
     </div>
     <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="student-output-tab">
+        <br />
+        <h5>For the given input provide the query output (incorrect output).</h5>
+        <br />
         <partial name="../Partials/ModifyTablePartial.cshtml" model="studentOutputPartialModel" />
     </div>
     <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="correct-output-tab">
+        <br />
+        <h5>For the given input provide the correct output.</h5>
+        <br />
         <partial name="../Partials/ModifyTablePartial.cshtml" model="correctOutputPartialModel" />
     </div>
 </div>

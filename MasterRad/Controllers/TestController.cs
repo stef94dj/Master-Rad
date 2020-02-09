@@ -2,6 +2,7 @@
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +15,20 @@ namespace MasterRad.Controllers
         private readonly IUser _userService;
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
+        private readonly IConfiguration _config;
 
         public TestController
         (
             IUser userService,
             ISynthesisRepository synthesisRepository,
-            IAnalysisRepository analysisRepository
+            IAnalysisRepository analysisRepository,
+            IConfiguration config
         )
         {
             _userService = userService;
             _synthesisRepository = synthesisRepository;
             _analysisRepository = analysisRepository;
+            _config = config;
         }
 
         public IActionResult SynthesisExam(int testId)
@@ -52,10 +56,25 @@ namespace MasterRad.Controllers
         {
             var testStudentEntity = _analysisRepository.GetAssignment(_userService.UserId, testId);
 
-            var vm = new ModifyDatabaseVM()
+            var outputTablesDb = _config.GetValue<string>("DbAdminConnection:DbName");
+
+            var vm = new AnalysisExamVM()
             {
-                DatabaseName = $"Task '{testStudentEntity.AnalysisTest.Name}'",
-                NameOnServer = testStudentEntity.InputNameOnServer
+                Title = $"Task '{testStudentEntity.AnalysisTest.Name}'",
+                FailingInputVM = new ModifyDatabasePartialVM()
+                {
+                    NameOnServer = testStudentEntity.InputNameOnServer
+                },
+                StudentOutputVM = new ModifyTablePartialVM()
+                {
+                    NameOnServer = outputTablesDb,
+                    TableName = testStudentEntity.StudentOutputNameOnServer
+                },
+                CorrectOutputVM = new ModifyTablePartialVM()
+                {
+                    NameOnServer = outputTablesDb,
+                    TableName = testStudentEntity.TeacherOutputNameOnServer
+                }
             };
 
             return View("~/Views/Test/AnalysisExam.cshtml", vm);
