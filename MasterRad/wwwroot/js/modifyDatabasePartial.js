@@ -71,6 +71,9 @@ var DBs = {
     },
     TableName: function (tbUid) {
         return this.TableNames[this.TbUidIndex(tbUid)];
+    },
+    IsTableOnly: function (uid) {
+        return this.DbUidIndex(uid) === -1;
     }
 }
 
@@ -113,8 +116,7 @@ function tableSelected(uid = null) {
         uid = uidFromClick;
 
     var tableDD = DBs.TableDropdown(uid);
-    var tnforparse = tableDD.val();
-    var tableFullName = parseTableName(tnforparse);
+    var tableFullName = parseTableName(tableDD.val());
 
     var tbhead = DBs.TableHeader(uid);
     var tbBod = DBs.TableBody(uid);
@@ -219,7 +221,9 @@ function getCommonOperationInfo(startingPoint) {
     var tbElem = trElem.parents().eq(1);
     var uid = tbElem.data('uid');
 
-    var tableFullName = parseTableName(DBs.TableDropdown(uid).val());
+    var tableNameForParse = DBs.IsTableOnly(uid) ? `dbo.${DBs.TableName(uid)}` : DBs.TableDropdown(uid).val();
+    var tableFullName = parseTableName(tableNameForParse);
+
     var nameOnServer = DBs.NameOnServer(uid);
 
     var rqBody = {
