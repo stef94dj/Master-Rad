@@ -188,9 +188,8 @@ function getInputValues(trElem, getData, includeDisabled, uid) {
     });
 }
 
-//table.js
-function deleteRecord(btnElem) {
-    var trElem = $(btnElem).parents().eq(1);
+function getCommonOperationInfo(startingPoint) {
+    var trElem = $(startingPoint).parents().eq(1);
     var tbElem = trElem.parents().eq(1);
     var uid = tbElem.data('uid');
 
@@ -201,8 +200,18 @@ function deleteRecord(btnElem) {
         "DatabaseName": nameOnServer,
         "TableName": tableFullName.tableName,
         "SchemaName": tableFullName.schemaName,
-        "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue, true, uid)
-    }
+    };
+
+    var result = { rqBody, trElem, uid };
+    return result;
+}
+
+//table.js
+function deleteRecord(btnElem) {
+    var coi = getCommonOperationInfo(btnElem);
+
+    var rqBody = coi.rqBody;
+    rqBody.ValuesUnmodified = getInputValues(coi.trElem, getUnmodifiedValue, true, coi.uid);
 
     $.ajax({
         url: '/api/Data/delete',
@@ -211,29 +220,20 @@ function deleteRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            tableSelected(uid);
+            tableSelected(coi.uid);
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert('error');
-            tableSelected(uid);
+            tableSelected(coi.uid);
         }
     });
 }
 
 function insertRecord(btnElem) {
-    var trElem = $(btnElem).parents().eq(1);
-    var tbElem = trElem.parents().eq(1);
-    var uid = tbElem.data('uid');
+    var coi = getCommonOperationInfo(btnElem);
 
-    var tableFullName = parseTableName(DBs.TableDropdown(uid).val());
-    var nameOnServer = DBs.NameOnServer(uid);
-
-    var rqBody = {
-        "DatabaseName": nameOnServer,
-        "TableName": tableFullName.tableName,
-        "SchemaName": tableFullName.schemaName,
-        "ValuesNew": getInputValues(trElem, getNewValue, false, uid)
-    };
+    var rqBody = coi.rqBody;
+    rqBody.ValuesNew = getInputValues(coi.trElem, getNewValue, false, coi.uid);
 
     $.ajax({
         url: '/api/Data/insert',
@@ -242,38 +242,27 @@ function insertRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            tableSelected(uid);
+            tableSelected(coi.uid);
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert('error');
-            tableSelected(uid);
+            tableSelected(coi.uid);
         }
     });
 }
 
 function editCell(inputElem) {
-    var trElem = $(inputElem).parents().eq(1);
-    var tbElem = trElem.parents().eq(1);
-    var uid = tbElem.data('uid');
+    var coi = getCommonOperationInfo(inputElem);
 
-    var tableFullName = parseTableName(DBs.TableDropdown(uid).val());
-    var nameOnServer = DBs.NameOnServer(uid);
-
-    var inputIndex = trElem.find('td').index($(inputElem).parent()) - 1;
-
-    var cellNew = getCell(inputElem, inputIndex, getNewValue, uid);
-    var cellUnmodified = getCell(inputElem, inputIndex, getUnmodifiedValue, uid);
-
+    var inputIndex = coi.trElem.find('td').index($(inputElem).parent()) - 1
+    var cellNew = getCell(inputElem, inputIndex, getNewValue, coi.uid);
+    var cellUnmodified = getCell(inputElem, inputIndex, getUnmodifiedValue, coi.uid);
     if (cellNew.Value == cellUnmodified.Value)
         return;
 
-    var rqBody = {
-        "DatabaseName": nameOnServer,
-        "TableName": tableFullName.tableName,
-        "SchemaName": tableFullName.schemaName,
-        "ValuesUnmodified": getInputValues(trElem, getUnmodifiedValue, true, uid),
-        "ValueNew": cellNew
-    }
+    var rqBody = coi.rqBody;
+    rqBody.ValueNew = cellNew;
+    rqBody.ValuesUnmodified = getInputValues(coi.trElem, getUnmodifiedValue, true, coi.uid)
 
     $.ajax({
         url: '/api/Data/update',
@@ -282,11 +271,11 @@ function editCell(inputElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            tableSelected(uid);
+            tableSelected(coi.uid);
         },
         error: function (xhr, ajaxOptions, thrownError) {
             alert('error');
-            tableSelected(uid);
+            tableSelected(coi.uid);
         }
     });
 }
