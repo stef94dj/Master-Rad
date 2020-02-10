@@ -89,7 +89,7 @@ function initialiseModifyDatabasePartial() {
                 tablesDropdownJS.attachOnChangeHandler(tableSelected);
             })
             .then(() => {
-                tableSelected(uid);
+                reloadTable(uid);
             })
     });
 
@@ -99,15 +99,16 @@ function initialiseModifyDatabasePartial() {
     });
 
     $.each(tableOnlyUids, function (index, uid) {
-
-        var nameOnServer = UI.NameOnServer(uid);
-        var schemaName = "dbo";
-        var tableName = UI.TableName(uid);
-        var tbHead = UI.TableHeader(uid);
-        var tbBody = UI.TableHeader(uid);
-        renderTable(nameOnServer, schemaName, tableName, tbHead, tbBody);
+        reloadTable(uid);
     });
 };
+
+function reloadTable(uid) {
+    if (UI.IsTableOnly(uid))
+        refreshSingleTableUI(uid);
+    else
+        tableSelected(uid);
+}
 
 function tableSelected(uid = null) {
     var uidFromClick = $(this).data('uid');
@@ -118,38 +119,58 @@ function tableSelected(uid = null) {
     var tableFullName = parseTableName(tableDD.val());
 
     var tbhead = UI.TableHeader(uid);
-    var tbBod = UI.TableBody(uid);
+    var tbBody = UI.TableBody(uid);
 
-    //when-then 1
-    renderTable(UI.NameOnServer(uid), tableFullName.schemaName, tableFullName.tableName, tbhead, tbBod);
+    renderTable(UI.NameOnServer(uid), tableFullName.schemaName, tableFullName.tableName, tbhead, tbBody);
 }
 
-//when-then 2
-function renderTable(dbNameOnServer, schemaName, tableName, tbHeader, tbBody) {
+function refreshSingleTableUI(uid) {
+    var databaseName = UI.NameOnServer(uid);
+    var schemaName = "dbo";
+    var tableName = UI.TableName(uid);
+    var tbHead = UI.TableHeader(uid);
+    var tbBody = UI.TableHeader(uid);
+
+    renderTable(databaseName, schemaName, tableName, tbHead, tbBody);
+}
+
+function renderTable(databaseName, schemaName, tableName, tHead, tBody) {
+    var tableData = null;
+    readTable(databaseName, schemaName, tableName)
+        .then(data => {
+            tableData = data;
+            return getIdentityColumns(databaseName, schemaName, tableName);
+        })
+        .then(identityColumns => {
+            drawTable(tableData, identityColumns, tHead, tBody);
+        });
+}
+
+function readTable(dbNameOnServer, schemaName, tableName) {
     var apiUrl = `/api/Data/read/${dbNameOnServer}/${schemaName}/${tableName}`;
-
-    $.ajax({
-        url: apiUrl,
-        type: 'GET',
-        success: function (data) {
-            getIdentityColumns(dbNameOnServer, schemaName, tableName, data, tbHeader, tbBody);
-        }
-    });
+    return promisifyAjaxGet(apiUrl);
 }
 
-//when-then 3
-function getIdentityColumns(databaseName, schemaName, tableName, tbData, tbHeader, tbBody) {
+function getIdentityColumns(databaseName, schemaName, tableName) {
     var apiUrl = `/api/MetaData/identity_columns/${databaseName}/${schemaName}/${tableName}`
-    $.ajax({
-        url: apiUrl,
-        type: 'GET',
-        success: function (data) {
-            drawTable(tbData, data, tbHeader, tbBody);
-        }
+    return promisifyAjaxGet(apiUrl);
+}
+
+function promisifyAjaxGet(apiUrl) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            success: function (data) {
+                resolve(data);
+            },
+            error: function (error) {
+                reject(error);
+            }
+        })
     });
 }
 
-//when-then 4
 function drawTable(tbData, identityColumns, tbHeader, tbBody) {
     tbHeader.html('');
     tbBody.html('');
@@ -250,6 +271,8 @@ function deleteRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
+            if (data.isSuccess != true)
+                alert('error');
             reloadTable(coi.uid);
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -272,6 +295,8 @@ function insertRecord(btnElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
+            if (data.isSuccess != true)
+                alert('error');
             reloadTable(coi.uid);
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -301,6 +326,8 @@ function editCell(inputElem) {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
+            if (data.isSuccess != true)
+                alert('error');
             reloadTable(coi.uid);
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -308,20 +335,4 @@ function editCell(inputElem) {
             reloadTable(coi.uid);
         }
     });
-}
-
-
-function refreshSingleTableUI(uid) {
-    var nameOnServer = UI.NameOnServer(uid);
-    var schemaName = "dbo";
-    var tableName = UI.TableName(uid);
-    var tbHead = UI.TableHeader(uid);
-    var tbBody = UI.TableHeader(uid);
-    renderTable(nameOnServer, schemaName, tableName, tbHead, tbBody);
-}
-function reloadTable(uid) {
-    if (UI.IsTableOnly(uid))
-        refreshSingleTableUI(uid);
-    else
-        tableSelected(uid);
 }
