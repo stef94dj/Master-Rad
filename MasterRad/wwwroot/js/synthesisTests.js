@@ -227,5 +227,6 @@ function assignStudents(testId) {
     form.find('#test-id').val(testId);
     form.find('#test-type').val(TestType.Synthesis);
     form.attr('action', '/Test/AssignStudents');
+    debugger;
     form.submit();
 }

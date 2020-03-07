@@ -1,13 +1,14 @@
 ﻿@model MasterRad.Models.ViewModels.ModifyDatabaseVM
 @{
     ViewData["Title"] = "Modify Data";
+    var dbModel = "db";
 }
 
 <h1>@(Model.DatabaseName)</h1>
-<input type="text" value="@(Model.NameOnServer)" id="name-on-server" hidden>
+<input hidden value="@dbModel" class="uid uid-db" data-name-on-server="@(Model.NameOnServer)" type="text">
 
 
-<partial name="../Partials/ModifyDatabasePartial.cshtml"/>
+<partial name="../Partials/ModifyDatabasePartial.cshtml" model="@("db")"/>
 
 @section Scripts {
     <script src="~/js/modifyDatabase.js" asp-append-version="true"></script>

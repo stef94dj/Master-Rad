@@ -8,8 +8,8 @@ namespace MasterRad.Models.ViewModels
     public class SynthesisExamVM
     {
         public int TestId { get; set; }
-        public int SynthesisPaperId { get; set; }
-        public string SynthesisPaperTimeStamp { get; set; }
+        public int StudentId { get; set; }
+        public string TimeStamp { get; set; }
         public string NameOnServer { get; set; }
 
         public string SqlScript { get; set; }

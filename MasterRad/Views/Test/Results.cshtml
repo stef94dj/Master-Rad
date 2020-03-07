@@ -20,40 +20,61 @@
 <br />
 
 <partial name="../Partials/SignalRConnectionStatuses.cshtml" />
-<!-- Results table -->
-<table class="table table-bordered">
-    <thead class="thead-dark" id="table-header">
-        <tr id="test-evaluations-table">
-            <th scope="col">Student</th>
-            <th scope="col">Public Data Set</th>
-            <th scope="col">Secret Data Set</th>
-            <th scope="col"></th>
-        </tr>
-    </thead>
-    <tbody id="evaluation-results-tbody"></tbody>
-</table>
 
-<!-- Create analysis test modal  -->
-<div class="modal fade" id="create-analysis-test-modal" tabindex="-1" role="dialog" aria-labelledby="create-analysis-test-modal-label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="create-analysis-test-modal-label">Create analysis test</h5>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="template-name" class="col-form-label">Name:</label>
-                    <input type="text" class="form-control" id="analysis-test-name">
-                    <input type="text" class="form-control" id="synthesis-paper-id" hidden>
+@if (Model.TestType == TestType.Synthesis)
+{
+    <!-- Results table -->
+    <table class="table table-bordered">
+        <thead class="thead-dark" id="table-header">
+            <tr id="test-evaluations-table">
+                <th scope="col">Student</th>
+                <th scope="col">Public Data Set</th>
+                <th scope="col">Secret Data Set</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody id="evaluation-results-tbody"></tbody>
+    </table>
+
+    <!-- Create analysis test modal  -->
+    <div class="modal fade" id="create-analysis-test-modal" tabindex="-1" role="dialog" aria-labelledby="create-analysis-test-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="create-analysis-test-modal-label">Create analysis test</h5>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="createAnalysisTest()">Create</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="template-name" class="col-form-label">Name:</label>
+                        <input type="text" class="form-control" id="analysis-test-name">
+                        <input type="text" class="form-control" id="student-id" hidden>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="createAnalysisTest()">Create</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
+else if (Model.TestType == TestType.Analysis)
+{
+    <!-- Results table -->
+    <table class="table table-bordered">
+        <thead class="thead-dark" id="table-header">
+            <tr id="test-evaluations-table">
+                <th scope="col">Student</th>
+                <th scope="col">Prepare Outputs</th>
+                <th scope="col">Failing Input</th>
+                <th scope="col">Query Output</th>
+                <th scope="col">Correct Output</th>
+            </tr>
+        </thead>
+        <tbody id="evaluation-results-tbody"></tbody>
+    </table>
+}
+
 @section Scripts {
     <script src="~/lib/signalr/signalr.js"></script>
 

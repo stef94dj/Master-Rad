@@ -46,17 +46,5 @@ namespace MasterRad.API
 
             return Ok(res);
         }
-
-        //[HttpGet, Route("get/synthesis")]
-        //public ActionResult<IEnumerable<SynthesisTestEntity>> GetSynthesis()
-        //    => Ok(_synthesisRepository.Get());
-
-        //[HttpGet, Route("get/analysis")]
-        //public ActionResult<IEnumerable<SynthesisTestEntity>> GetAnalysis()
-        //{
-        //    throw new NotImplementedException();
-        //    //var res = _synthesisRepository.Get(); //ukljuci i analysis tests (LINQ project to)
-        //    //return Ok(res);
-        //}
     }
 }

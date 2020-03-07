@@ -25,9 +25,9 @@ function drawTestsList(data) {
     $.each(data, function (index, testDto) {
         var testItem = '<div class="card text-center">';
 
-        testItem += drawTestHeader(testReader.Status(testDto), testReader.Paper(testDto) != null);
+        testItem += drawTestHeader(testReader.Status(testDto), testReader.TestStudent(testDto).takenTest);
         testItem += drawTestName(testReader.Name(testDto));
-        testItem += drawTestContent(testReader.Status(testDto), testReader.StudentId(testDto), testReader.TestId(testDto), testReader.Type(testDto), testReader.Paper(testDto));
+        testItem += drawTestContent(testReader.Status(testDto), testReader.StudentId(testDto), testReader.TestId(testDto), testReader.Type(testDto), testReader.TestStudent(testDto), testReader.TestStudentTimeStamp(testDto));
 
         testItem += '</div>';
         //testItem += drawTestFooter('footer text');
@@ -38,7 +38,7 @@ function drawTestsList(data) {
     initializeTooltips();
 }
 
-function drawTestHeader(testStatus, hasPaper) {
+function drawTestHeader(testStatus, takenTest) {
     var color = '';
     var text = TestStatus.ToString(testStatus);
     switch (testStatus) {
@@ -49,7 +49,7 @@ function drawTestHeader(testStatus, hasPaper) {
             color = 'text-white bg-primary';
             break;
         case TestStatus.Completed:
-            if (hasPaper)
+            if (takenTest)
                 color = 'bg-light text-dark';
             else {
                 color = 'font-weight-bold text-danger';
@@ -65,22 +65,29 @@ function drawTestName(testName, testDescription) {
         res += '<p class="card-text">' + 'Test description text' + '</p>';
     return res;
 }
-function drawTestContent(status, studentId, testId, testType, paper) {
+function drawTestContent(status, studentId, testId, testType, testStudent, testStudentTimeStamp) {
     switch (status) {
         case TestStatus.Scheduled:
             return '<a href="javascript:;" class="btn btn-dark disabled">' + 'Take test' + '</a>';
         case TestStatus.InProgress:
-            return `<a href="javascript:;" class="btn btn-dark" onclick="startTest(${studentId},${testId},${testType})">Take test</a>`;
+            return `<a href="javascript:;" class="btn btn-dark" onclick="startTest(${studentId},${testId},${testType},${testStudentTimeStamp})">Take test</a>`;
         case TestStatus.Completed:
-            switch (testType) {
-                case TestType.Synthesis:
-                    return paper == null ? '' :
-                        `<div>Public data: ${evaluationProgressUI.drawEvaluationStatus(paper.publicDataEvaluationStatus)}</div>
-                         <div>Secret data: ${evaluationProgressUI.drawEvaluationStatus(paper.secretDataEvaluationStatus)}</div>`;
-                case TestType.Analysis:
-                    return paper == null ? '' :
-                        'not implemented';
+            if (testStudent.takenTest) {
+                switch (testType) {
+                    case TestType.Synthesis:
+                        return testStudent == null ? '' :
+                            `<div>Public data: ${evaluationProgressUI.drawEvaluationStatus(progressReader.PublicData(testStudent))}</div>
+                             <div>Secret data: ${evaluationProgressUI.drawEvaluationStatus(progressReader.SecretData(testStudent))}</div>`;
+                    case TestType.Analysis:
+                        return testStudent == null ? '' :
+                            `<div>Failing Input: ${evaluationProgressUI.drawEvaluationStatus(progressReader.FailingInput(testStudent))}</div>
+                             <div>Query Output: ${evaluationProgressUI.drawEvaluationStatus(progressReader.QueryOutput(testStudent))}</div>
+                             <div>Correct Output: ${evaluationProgressUI.drawEvaluationStatus(progressReader.CorrectOutput(testStudent))}</div>`
+                }
             }
+            else
+                return "";
+
     }
 }
 function drawTestFooter(text) {
@@ -112,14 +119,8 @@ var testReader = {
     StudentId: function (testDto) {
         return testDto.testStudent.studentId;
     },
-    Paper: function (testDto) {
-        switch (testDto.testType) {
-            case TestType.Synthesis:
-                return testDto.testStudent.synthesisPaper;
-            case TestType.Analysis:
-                return testDto.testStudent.analysisPaper;
-            default: return null;
-        }
+    TestStudent: function (testDto) {
+        return testDto.testStudent;
     },
     TestId: function (testDto) {
         switch (testDto.testType) {
@@ -130,11 +131,15 @@ var testReader = {
             default: return null;
         }
     },
+    TestStudentTimeStamp: function (testDto) {
+        return `'${testDto.testStudent.timeStamp}'`;
+    }
 }
 
-function startTest(studentId, synthesisTestId, testType) {
+function startTest(studentId, synthesisTestId, testType, testStudentTimeStamp) {
     var form = $('#hidden-form');
     form.find('#test-id').val(synthesisTestId);
+    form.find('#test-student-timestamp').val(testStudentTimeStamp);
 
     switch (testType) {
         case TestType.Synthesis:

@@ -31,49 +31,57 @@ namespace MasterRad.Controllers
             _config = config;
         }
 
-        public IActionResult SynthesisExam(int testId)
+        public IActionResult SynthesisExam(int testId, byte[] timeStamp)
         {
-            var testAssignment = _synthesisRepository.GetAssignmentWithTaskAndTemplate(_userService.UserId, testId);
+            var stsEntity = _synthesisRepository.GetAssignmentWithTaskAndTemplate(_userService.UserId, testId);
 
-            if (testAssignment == null)
+            if (stsEntity == null)
                 return Unauthorized();
 
-            var stsTimeStamp = testAssignment.SynthesisPaper?.TimeStamp;
+            if (!stsEntity.TakenTest)
+                _synthesisRepository.MarkExamAsTaken(testId, _userService.UserId, timeStamp);
+
             var vm = new SynthesisExamVM()
             {
-                TestId = testId,
-                SynthesisPaperId = testAssignment.SynthesisPaper?.Id ?? 0,
-                SynthesisPaperTimeStamp = stsTimeStamp == null ? string.Empty : Convert.ToBase64String(stsTimeStamp),
-                NameOnServer = testAssignment.NameOnServer,
-                SqlScript = testAssignment.SynthesisPaper?.SqlScript ?? string.Empty,
-                TaskDescription = testAssignment.SynthesisTest.Task.Description,
-                ModelDescription = testAssignment.SynthesisTest.Task.Template.ModelDescription
+                TestId = stsEntity.SynthesisTestId,
+                StudentId = stsEntity.StudentId,
+                TimeStamp = Convert.ToBase64String(stsEntity.TimeStamp),
+                NameOnServer = stsEntity.NameOnServer,
+                SqlScript = stsEntity.SqlScript ?? string.Empty,
+                TaskDescription = stsEntity.SynthesisTest.Task.Description,
+                ModelDescription = stsEntity.SynthesisTest.Task.Template.ModelDescription
             };
 
             return View(vm);
         }
-        public IActionResult AnalysisExam(int testId)
+        public IActionResult AnalysisExam(int testId, byte[] timeStamp)
         {
-            var testStudentEntity = _analysisRepository.GetAssignment(_userService.UserId, testId);
+            var atsEntity = _analysisRepository.GetAssignment(_userService.UserId, testId);
+
+            if (atsEntity == null)
+                return Unauthorized();
+
+            if (!atsEntity.TakenTest)
+                _analysisRepository.MarkExamAsTaken(testId, _userService.UserId, timeStamp);
 
             var outputTablesDb = _config.GetValue<string>("DbAdminConnection:DbName");
 
             var vm = new AnalysisExamVM()
             {
-                Title = $"Task '{testStudentEntity.AnalysisTest.Name}'",
+                Title = $"Task '{atsEntity.AnalysisTest.Name}'",
                 FailingInputVM = new ModifyDatabasePartialVM()
                 {
-                    NameOnServer = testStudentEntity.InputNameOnServer
+                    NameOnServer = atsEntity.InputNameOnServer
                 },
                 StudentOutputVM = new ModifyTablePartialVM()
                 {
                     NameOnServer = outputTablesDb,
-                    TableName = testStudentEntity.StudentOutputNameOnServer
+                    TableName = atsEntity.StudentOutputNameOnServer
                 },
                 CorrectOutputVM = new ModifyTablePartialVM()
                 {
                     NameOnServer = outputTablesDb,
-                    TableName = testStudentEntity.TeacherOutputNameOnServer
+                    TableName = atsEntity.TeacherOutputNameOnServer
                 }
             };
 
@@ -106,22 +114,13 @@ namespace MasterRad.Controllers
 
         public IActionResult Results(int testId, TestType testType)
         {
-            switch (testType)
-            {
-                case TestType.Synthesis:
-
-                    break;
-                case TestType.Analysis:
-                    throw new NotImplementedException();
-                default:
-                    return StatusCode(500);
-            }
+            if (testType != TestType.Synthesis && testType != TestType.Analysis)
+                throw new Exception($"Invalid test type '{testType}'");
 
             var vm = new TestResultsVM
             {
                 TestId = testId,
-                TestType = testType,
-                JobId = 123
+                TestType = testType
             };
             return View(vm);
         }

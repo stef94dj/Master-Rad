@@ -24,6 +24,14 @@ namespace MasterRad
         Analysis = 2
     }
 
+    public enum AnalysisEvaluationType
+    {
+        PrepareData = 0,
+        FailingInput = 1,
+        QueryOutput = 2,
+        CorrectOutput = 3
+    }
+
     public enum EvaluationProgress
     {
         NotEvaluated = 1,

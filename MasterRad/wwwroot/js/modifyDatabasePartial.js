@@ -156,21 +156,6 @@ function getIdentityColumns(databaseName, schemaName, tableName) {
     return promisifyAjaxGet(apiUrl);
 }
 
-function promisifyAjaxGet(apiUrl) {
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: apiUrl,
-            type: 'GET',
-            success: function (data) {
-                resolve(data);
-            },
-            error: function (error) {
-                reject(error);
-            }
-        })
-    });
-}
-
 function drawTable(tbData, identityColumns, tbHeader, tbBody) {
     tbHeader.html('');
     tbBody.html('');

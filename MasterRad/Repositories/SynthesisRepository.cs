@@ -23,12 +23,11 @@ namespace MasterRad.Repositories
         void Delete(DeleteDTO request);
         bool UpdateName(UpdateNameRQ request);
         bool StatusNext(UpdateDTO request);
-        SynthesisPaperEntity SubmitAnswer(int testId, int studentId, string sqlScript);
-        SynthesisPaperEntity UpdateAnswer(int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript);
+        bool MarkExamAsTaken(int testId, int studentId, byte[] timeStamp);
+        byte[] SubmitAnswer(int testId, int studentId, byte[] timeStamp, string sqlScript);
         bool HasAnswer(int testId, int userId);
         SynthesisTestStudentEntity GetEvaluationData(int testId, int studentId);
-        bool SetStatus(SynthesisPaperEntity entity, bool isSecret, EvaluationProgress status);
-        bool SaveEvaluation(SynthesisPaperEntity entity, bool isSecret, SynthesisEvaluationResult result);
+        bool SaveProgress(SynthesisTestStudentEntity entity, bool isSecret, EvaluationProgress status, string message = null);
         IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId);
     }
 
@@ -71,15 +70,15 @@ namespace MasterRad.Repositories
         public SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(int studentId, int testId)
             => _context.SynthesysTestStudents
                        .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
-                       .Include(sts => sts.SynthesisPaper)
                        .Include(sts => sts.SynthesisTest)
                        .ThenInclude(test => test.Task)
                        .ThenInclude(task => task.Template)
+                       .AsNoTracking()
                        .SingleOrDefault();
 
         public IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId)
             => _context.SynthesysTestStudents
-                       .Include(sts => sts.SynthesisPaper)
+                       .Include(sts => sts.EvaluationProgress)
                        .Include(sts => sts.SynthesisTest)
                        .Where(sts => sts.StudentId == studentId);
 
@@ -174,59 +173,58 @@ namespace MasterRad.Repositories
         {
             var sqlAnswer = _context.SynthesysTestStudents
                                                .Where(sts => sts.SynthesisTestId == testId && sts.StudentId == userId)
-                                               .Include(sts => sts.SynthesisPaper)
                                                .AsNoTracking()
                                                .Single()
-                                               .SynthesisPaper
                                                ?.SqlScript;
 
             return !string.IsNullOrEmpty(sqlAnswer);
         }
 
-        public SynthesisPaperEntity SubmitAnswer(int testId, int studentId, string sqlScript)
+        public bool MarkExamAsTaken(int testId, int studentId, byte[] timeStamp)
         {
-
-            var synthesisPaperEntity = new SynthesisPaperEntity() //AutoMapper
+            var entity = new SynthesisTestStudentEntity() //AutoMapper
             {
-                STS_SynthesisTestId = testId,
-                STS_StudentId = studentId,
-                SqlScript = sqlScript,
-                DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED",
-                PublicDataEvaluationStatus = EvaluationProgress.NotEvaluated,
-                SecretDataEvaluationStatus = EvaluationProgress.NotEvaluated
+                StudentId = studentId,
+                SynthesisTestId = testId,
+                TimeStamp = timeStamp,
+                TakenTest = true,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
             };
 
-            _context.SynthesisPapers.Add(synthesisPaperEntity);
-            _context.SaveChanges();
+            _context.SynthesysTestStudents.Attach(entity);
+            _context.Entry(entity).Property(x => x.TakenTest).IsModified = true;
+            _context.Entry(entity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(entity).Property(x => x.ModifiedBy).IsModified = true;
 
-            return synthesisPaperEntity;
+            return _context.SaveChanges() == 1;
         }
 
-        public SynthesisPaperEntity UpdateAnswer(int synthesisPaperId, byte[] synthesisPaperTimeStamp, string sqlScript)
+        public byte[] SubmitAnswer(int testId, int studentId, byte[] timeStamp, string sqlScript)
         {
-            var synthesisPaperEntity = new SynthesisPaperEntity() //AutoMapper
+
+            var entity = new SynthesisTestStudentEntity() //AutoMapper
             {
-                Id = synthesisPaperId,
-                TimeStamp = synthesisPaperTimeStamp,
+                SynthesisTestId = testId,
+                StudentId = studentId,
+                TimeStamp = timeStamp,
                 SqlScript = sqlScript,
                 DateModified = DateTime.UtcNow,
                 ModifiedBy = "Current user - NOT IMPLEMENTED",
             };
 
-            _context.SynthesisPapers.Attach(synthesisPaperEntity);
-            _context.Entry(synthesisPaperEntity).Property(x => x.SqlScript).IsModified = true;
-            _context.Entry(synthesisPaperEntity).Property(x => x.ModifiedBy).IsModified = true;
-            _context.Entry(synthesisPaperEntity).Property(x => x.DateModified).IsModified = true;
+            _context.SynthesysTestStudents.Attach(entity);
+            _context.Entry(entity).Property(x => x.SqlScript).IsModified = true;
+            _context.Entry(entity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(entity).Property(x => x.ModifiedBy).IsModified = true;
 
-            _context.SaveChanges();
-            return synthesisPaperEntity;
+            return _context.SaveChanges() == 1 ? entity.TimeStamp : null;
         }
 
         public SynthesisTestStudentEntity GetEvaluationData(int testId, int studentId)
         =>
             _context.SynthesysTestStudents.Where(sts => sts.SynthesisTestId == testId && sts.StudentId == studentId)
-                                          .Include(sts => sts.SynthesisPaper)
+                                          .Include(sts => sts.EvaluationProgress)
                                           .Include(sts => sts.SynthesisTest)
                                           .ThenInclude(st => st.Task)
                                           .ThenInclude(task => task.Template)
@@ -235,44 +233,21 @@ namespace MasterRad.Repositories
                                           .ThenInclude(task => task.SolutionColumns)
                                           .Single();
 
-        public bool SetStatus(SynthesisPaperEntity entity, bool isSecret, EvaluationProgress status)
+        public bool SaveProgress(SynthesisTestStudentEntity entity, bool isSecret, EvaluationProgress status, string message = null)
         {
-            entity.DateModified = DateTime.UtcNow;
-            entity.ModifiedBy = "Current user - NOT IMPLEMENTED";
+            var progressEntity = entity.EvaluationProgress.Single(x => x.IsSecretDataUsed == isSecret);
 
-            if (isSecret)
-                entity.SecretDataEvaluationStatus = status;
-            else
-                entity.PublicDataEvaluationStatus = status;
-
-            var affectedRecords = _context.SaveChanges();
-            return affectedRecords == 1;
-        }
-
-        public bool SaveEvaluation(SynthesisPaperEntity entity, bool isSecret, SynthesisEvaluationResult result)
-        {
-            entity.DateModified = DateTime.UtcNow;
-            entity.ModifiedBy = "Current user - NOT IMPLEMENTED";
-
-            var status = result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Failed;
-            if (isSecret)
-            {
-                entity.SecretDataEvaluationStatus = status;
-                entity.SecretDataEvaluationInfo = result.FailReason;
-            }
-            else
-            {
-                entity.PublicDataEvaluationStatus = status;
-                entity.PublicDataEvaluationInfo = result.FailReason;
-            }
-
-            var affectedRecords = _context.SaveChanges();
-            return affectedRecords == 1;
+            progressEntity.DateModified = DateTime.UtcNow;
+            progressEntity.ModifiedBy = "Current user - NOT IMPLEMENTED";
+            progressEntity.Progress = status;
+            progressEntity.Message = message;
+            
+            return _context.SaveChanges() == 1;
         }
 
         public IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId)
             => _context.SynthesysTestStudents
-                       .Include(sts => sts.SynthesisPaper)
+                       .Include(sts => sts.EvaluationProgress)
                        .Include(sts => sts.Student)
                        .Where(sts => sts.SynthesisTestId == testId);
     }

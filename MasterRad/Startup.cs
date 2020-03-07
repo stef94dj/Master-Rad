@@ -87,7 +87,11 @@ namespace MasterRad
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseSignalR(routes => { routes.MapHub<JobProgressHub>("/jobprogress"); });
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<SynthesisProgressHub>("/synthesisprogress");
+                routes.MapHub<AnalysisProgressHub>("/analysisprogress");
+            });
 
             app.UseMvc(routes =>
             {

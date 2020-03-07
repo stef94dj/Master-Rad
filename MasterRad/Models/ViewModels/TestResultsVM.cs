@@ -9,6 +9,5 @@ namespace MasterRad.Models.ViewModels
     {
         public int TestId { get; set; }
         public TestType TestType { get; set; }
-        public int JobId { get; set; }
     }
 }

@@ -52,15 +52,12 @@ namespace MasterRad.API
             => Ok(_synthesisRepository.StatusNext(body));
 
         [HttpPost, Route("Submit/Answer")]
-        public ActionResult<SynthesisPaperEntity> SubmitAnswer([FromBody] AnswerSynthesisRQ body)
+        public ActionResult<byte[]> SubmitAnswer([FromBody] AnswerSynthesisRQ body)
         {
             if (!_userService.IsAssigned(body.TestId))
                 return Unauthorized();
 
-            if (!_synthesisRepository.HasAnswer(body.TestId, _userService.UserId))
-                return Ok(_synthesisRepository.SubmitAnswer(body.TestId, _userService.UserId, body.SqlScript));
-            else
-                return Ok(_synthesisRepository.UpdateAnswer(body.SynthesisPaperId, body.SynthesisPaperTimeStamp, body.SqlScript));
+            return Ok(_synthesisRepository.SubmitAnswer(body.TestId, _userService.UserId, body.TimeStamp, body.SqlScript));
         }
     }
 }

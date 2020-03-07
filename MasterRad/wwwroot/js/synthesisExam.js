@@ -4,16 +4,16 @@ var tableHeader = null;
 var tableBody = null;
 var solutionFormat = null;
 var testId = null;
-var paperId = null;
-var paperTimeStamp = null;
+var studentId = null;
+var timeStamp = null;
 
 $(document).ready(function () {
     testId = $('#test-id').val();
+    studentId = $('#student-id').val();
     tableHeader = $('#table-header');
     tableBody = $('#table-body');
     nameOnServer = $('#name-on-server').val();
-    paperId = $('#paper-id').val();
-    paperTimeStamp = $('#paper-timestamp').val();
+    timeStamp = $('#synthesis-test-student-timestamp').val();
 
     buildSqlEditor(nameOnServer); //sets value for "editor"
     loadSolutionFormat();
@@ -52,8 +52,8 @@ function submitAnswer() {
 
     var rqBody = {
         "TestId": testId,
-        "SynthesisPaperId": paperId,
-        "SynthesisPaperTimeStamp": paperTimeStamp,
+        "StudentId": studentId,
+        "TimeStamp": timeStamp,
         "SqlScript": editor.getValue()
     };
 
@@ -64,8 +64,12 @@ function submitAnswer() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            alert('success');
-            paperTimeStamp = data.timeStamp;
+            if (data == null)
+                alert('error')
+            else {
+                alert('success');
+                timeStamp = data;
+            }
         }
     });
 }

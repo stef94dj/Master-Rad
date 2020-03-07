@@ -8,8 +8,8 @@ namespace MasterRad.DTOs
     public class AnswerSynthesisRQ
     {
         public int TestId { get; set; }
-        public int SynthesisPaperId { get; set; }
-        public byte[] SynthesisPaperTimeStamp { get; set; }
+        public int StudentId { get; set; }
+        public byte[] TimeStamp { get; set; }
         public string SqlScript { get; set; }
     }
 }

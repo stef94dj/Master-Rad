@@ -32,7 +32,7 @@ function drawTestsList(data) {
     testsList.html('');
     $.each(data, function (index, test) {
 
-        var sts = test.synthesisPaper.synthesisTestStudent;
+        var sts = test.synthesisTestStudent;
 
         var testItem = '<tr>';
         testItem += drawNameCell(test);
@@ -171,7 +171,7 @@ function statusNext() {
 function viewResults(testId) {
     var form = $('#hidden-form');
     form.find('#test-id').val(testId);
-    form.find('#test-type').val(TestType.Synthesis);
+    form.find('#test-type').val(TestType.Analysis);
     form.attr('action', '/Test/Results');
     form.submit();  
 }

@@ -48,3 +48,53 @@ function enableButton(button) {
     if (button.length == 1)
         $(button).removeAttr('disabled').removeClass('disabled');
 }
+
+function promisifyAjaxGet(apiUrl) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            success: function (data) {
+                resolve(data);
+            },
+            error: function (error) {
+                reject(error);
+            }
+        })
+    });
+}
+
+var progressReader = {
+    //sunthesis
+    PublicData: function (testStudentDto) {
+        return testStudentDto.evaluationProgress.find(function (progress) {
+            return !progress.isSecretDataUsed
+        }).progress;
+    },
+    SecretData: function (testStudentDto) {
+        return testStudentDto.evaluationProgress.find(function (progress) {
+            return progress.isSecretDataUsed
+        }).progress;
+    },
+    //analysis
+    PrepareData: function (testStudentDto) {
+        return testStudentDto.evaluationProgress.find(function (progress) {
+            return progress.type == AnalysisEvaluationType.PrepareData;
+        }).progress;
+    },
+    FailingInput: function (testStudentDto) {
+        return testStudentDto.evaluationProgress.find(function (progress) {
+            return progress.type == AnalysisEvaluationType.FailingInput;
+        }).progress;
+    },
+    QueryOutput: function (testStudentDto) {
+        return testStudentDto.evaluationProgress.find(function (progress) {
+            return progress.type == AnalysisEvaluationType.QueryOutput;
+        }).progress;
+    },
+    CorrectOutput: function (testStudentDto) {
+        return testStudentDto.evaluationProgress.find(function (progress) {
+            return progress.type == AnalysisEvaluationType.CorrectOutput;
+        }).progress;
+    },
+}

@@ -6,8 +6,10 @@ namespace MasterRad.Entities
 {
     public class AnalysisTestEntity : BaseTestEntity
     {
-        public int SynthesisPaperId { get; set; }
-        public SynthesisPaperEntity SynthesisPaper { get; set; }
+        public int STS_SynthesisTestId { get; set; }
+        public int STS_StudentId { get; set; }
+        [ForeignKey("STS_StudentId,STS_SynthesisTestId")]
+        public SynthesisTestStudentEntity SynthesisTestStudent { get; set; }
 
         public List<AnalysisTestStudentEntity> AnalysisTestStudents{ get; set; }
     }

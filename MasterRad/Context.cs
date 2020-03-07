@@ -22,9 +22,10 @@ namespace MasterRad
         public DbSet<StudentEntity> Students { get; set; }
         public DbSet<SynthesisTestEntity> SynthesisTests { get; set; }
         public DbSet<SynthesisTestStudentEntity> SynthesysTestStudents { get; set; }
-        public DbSet<SynthesisPaperEntity> SynthesisPapers { get; set; }
+        public DbSet<SynthesisEvaluationEntity> SynthesysTestEvaluations { get; set; }
         public DbSet<AnalysisTestEntity> AnalysisTests { get; set; }
         public DbSet<AnalysisTestStudentEntity> AnalysisTestStudents { get; set; }
+        public DbSet<AnalysisEvaluationEntity> AnalysisTestEvaluations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,9 +37,10 @@ namespace MasterRad
             modelBuilder.Entity<StudentEntity>().ToTable("Student");
             modelBuilder.Entity<SynthesisTestEntity>().ToTable("SynthesisTest");
             modelBuilder.Entity<SynthesisTestStudentEntity>().ToTable("SynthesisTestStudent");
-            modelBuilder.Entity<SynthesisPaperEntity>().ToTable("SynthesisPaper");
+            modelBuilder.Entity<SynthesisEvaluationEntity>().ToTable("SynthesisEvaluation");
             modelBuilder.Entity<AnalysisTestEntity>().ToTable("AnalysisTest");
             modelBuilder.Entity<AnalysisTestStudentEntity>().ToTable("AnalysisTestStudent");
+            modelBuilder.Entity<AnalysisEvaluationEntity>().ToTable("AnalysisEvaluation");
 
             //seed data - DEV ONLY (comment out for production)
             modelBuilder.Entity<StudentEntity>() 
@@ -113,10 +115,10 @@ namespace MasterRad
                 .WithOne(sts => sts.SynthesisTest)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
-            //delete SynthesisTestStudentEntity
+            //delete SynthesisTestStudentEntity:
             modelBuilder.Entity<SynthesisTestStudentEntity>()
-                .HasOne(sts => sts.SynthesisPaper)
-                .WithOne(sp => sp.SynthesisTestStudent)
+                .HasMany(sts => sts.AnalysisTests)
+                .WithOne(at => at.SynthesisTestStudent)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
             //AnalysisTestStudentEntity: AnalysisTest-many2many-StudentEntity

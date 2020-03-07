@@ -47,9 +47,28 @@ namespace MasterRad.Repositories
                 StudentId = pair.Key,
                 NameOnServer = pair.Value,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED"
+                CreatedBy = "Current user - NOT IMPLEMENTED",
             });
 
+            var progressEntites = stsEntities.Select(sts => new SynthesisEvaluationEntity()
+            {
+                IsSecretDataUsed = false,
+                STS_StudentId = sts.StudentId,
+                STS_SynthesisTestId = sts.SynthesisTestId,
+                Progress = EvaluationProgress.NotEvaluated,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED",
+            }).Union(stsEntities.Select(sts => new SynthesisEvaluationEntity()
+            {
+                IsSecretDataUsed = true,
+                STS_StudentId = sts.StudentId,
+                STS_SynthesisTestId = sts.SynthesisTestId,
+                Progress = EvaluationProgress.NotEvaluated,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED",
+            }));
+
+            _context.SynthesysTestEvaluations.AddRange(progressEntites);
             _context.SynthesysTestStudents.AddRange(stsEntities);
             return _context.SaveChanges();
         }
@@ -67,6 +86,45 @@ namespace MasterRad.Repositories
                 CreatedBy = "Current user - NOT IMPLEMENTED"
             });
 
+            var progressEntities = atsEntities.Select(ats => new AnalysisEvaluationEntity()
+            {
+                ATS_AnalysisTestId = ats.AnalysisTestId,
+                ATS_StudentId = ats.StudentId,
+                Type = AnalysisEvaluationType.PrepareData,
+                Progress = EvaluationProgress.NotEvaluated,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED"
+
+            }).Union(atsEntities.Select(ats => new AnalysisEvaluationEntity()
+            {
+                ATS_AnalysisTestId = ats.AnalysisTestId,
+                ATS_StudentId = ats.StudentId,
+                Type = AnalysisEvaluationType.FailingInput,
+                Progress = EvaluationProgress.NotEvaluated,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED"
+
+            }).Union(atsEntities.Select(ats => new AnalysisEvaluationEntity()
+            {
+                ATS_AnalysisTestId = ats.AnalysisTestId,
+                ATS_StudentId = ats.StudentId,
+                Type = AnalysisEvaluationType.QueryOutput,
+                Progress = EvaluationProgress.NotEvaluated,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED"
+
+            }).Union(atsEntities.Select(ats => new AnalysisEvaluationEntity()
+            {
+                ATS_AnalysisTestId = ats.AnalysisTestId,
+                ATS_StudentId = ats.StudentId,
+                Type = AnalysisEvaluationType.CorrectOutput,
+                Progress = EvaluationProgress.NotEvaluated,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED"
+
+            }))));
+
+            _context.AnalysisTestEvaluations.AddRange(progressEntities);
             _context.AnalysisTestStudents.AddRange(atsEntities);
             return _context.SaveChanges();
         }

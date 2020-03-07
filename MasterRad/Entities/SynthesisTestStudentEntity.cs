@@ -15,6 +15,12 @@ namespace MasterRad.Entities
         [Required, MaxLength(255)]
         public string NameOnServer { get; set; }
 
-        public SynthesisPaperEntity SynthesisPaper { get; set; }
+        public bool TakenTest { get; set; }
+
+        public string SqlScript { get; set; }
+
+        public List<SynthesisEvaluationEntity> EvaluationProgress { get; set; }
+
+        public List<AnalysisTestEntity> AnalysisTests { get; set; }
     }
 }

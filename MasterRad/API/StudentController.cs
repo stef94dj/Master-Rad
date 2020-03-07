@@ -101,7 +101,6 @@ namespace MasterRad.API
 
             #region Get_Output_Format
             var columns = analysisEntity
-                            .SynthesisPaper
                             .SynthesisTestStudent
                             .SynthesisTest
                             .Task
@@ -112,7 +111,7 @@ namespace MasterRad.API
             var assignModels = NameHelper.AnalysisTestExam(body.StudentIds, analysisEntity.Id);
 
             #region Clone_Databases
-            var analysisTemplateName = analysisEntity.SynthesisPaper.SynthesisTestStudent.SynthesisTest.Task.Template.NameOnServer;
+            var analysisTemplateName = analysisEntity.SynthesisTestStudent.SynthesisTest.Task.Template.NameOnServer;
             var dbCloneSuccess = _microsoftSQLService.CloneDatabases(analysisTemplateName, assignModels.Select(am => am.Database), false);
             assignModels = assignModels.Where(x => dbCloneSuccess.Contains(x.Database));
             #endregion

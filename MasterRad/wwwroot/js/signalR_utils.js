@@ -13,7 +13,7 @@
 
         connection.on(model.Method,
             (data) => {
-                setCellStatus(data.id, data.secret, data.status)
+                setCellStatus(data)
             });
 
         connection.start()

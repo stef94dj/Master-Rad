@@ -42,6 +42,13 @@ var TestType = {
     Analysis: 2
 }
 
+var AnalysisEvaluationType = {
+    PrepareData: 0,
+    FailingInput: 1,
+    QueryOutput: 2,
+    CorrectOutput: 3
+}
+
 var EvaluationStatus = {
     NotSubmited : 0,
     NotEvaluated : 1,

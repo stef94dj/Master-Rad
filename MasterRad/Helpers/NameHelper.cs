@@ -41,5 +41,10 @@ namespace MasterRad.Helpers
             else
                 return $"STEP_{testId}_{studentId}";
         }
+
+        public static string AnalysisTestEvaluation(int studentId, int testId, AnalysisEvaluationType type)
+        {
+            return $"ATE_{testId}_{studentId}";
+        }
     }
 }

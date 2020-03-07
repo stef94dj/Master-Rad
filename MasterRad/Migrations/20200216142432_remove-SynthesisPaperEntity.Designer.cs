@@ -4,55 +4,22 @@ using MasterRad;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MasterRad.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20200216142432_remove-SynthesisPaperEntity")]
+    partial class removeSynthesisPaperEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("MasterRad.Entities.AnalysisEvaluationEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("ATS_AnalysisTestId");
-
-                    b.Property<int>("ATS_StudentId");
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<DateTime?>("DateCreated");
-
-                    b.Property<DateTime?>("DateModified");
-
-                    b.Property<string>("Message");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<int>("Progress");
-
-                    b.Property<byte[]>("TimeStamp")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate();
-
-                    b.Property<int>("Type");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ATS_StudentId", "ATS_AnalysisTestId");
-
-                    b.ToTable("AnalysisEvaluation");
-                });
 
             modelBuilder.Entity("MasterRad.Entities.AnalysisTestEntity", b =>
                 {
@@ -104,15 +71,31 @@ namespace MasterRad.Migrations
 
                     b.Property<DateTime?>("DateModified");
 
+                    b.Property<int>("FailingInputEvaluationProgress");
+
+                    b.Property<string>("FailingInputFailReason");
+
                     b.Property<string>("InputNameOnServer")
                         .IsRequired()
                         .HasMaxLength(255);
 
                     b.Property<string>("ModifiedBy");
 
+                    b.Property<string>("PrepareOutputsFailReason");
+
+                    b.Property<int>("PrepareOutputsProgress");
+
+                    b.Property<int>("StudentOutputEvaluationProgress");
+
+                    b.Property<string>("StudentOutputFailReason");
+
                     b.Property<string>("StudentOutputNameOnServer");
 
                     b.Property<bool>("TakenTest");
+
+                    b.Property<int>("TeacherOutputEvaluationProgress");
+
+                    b.Property<string>("TeacherOutputFailReason");
 
                     b.Property<string>("TeacherOutputNameOnServer");
 
@@ -299,41 +282,6 @@ namespace MasterRad.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MasterRad.Entities.SynthesisEvaluationEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<DateTime?>("DateCreated");
-
-                    b.Property<DateTime?>("DateModified");
-
-                    b.Property<bool>("IsSecretDataUsed");
-
-                    b.Property<string>("Message");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<int>("Progress");
-
-                    b.Property<int>("STS_StudentId");
-
-                    b.Property<int>("STS_SynthesisTestId");
-
-                    b.Property<byte[]>("TimeStamp")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("STS_StudentId", "STS_SynthesisTestId");
-
-                    b.ToTable("SynthesisEvaluation");
-                });
-
             modelBuilder.Entity("MasterRad.Entities.SynthesisTestEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -387,6 +335,14 @@ namespace MasterRad.Migrations
                     b.Property<string>("NameOnServer")
                         .IsRequired()
                         .HasMaxLength(255);
+
+                    b.Property<string>("PublicDataEvaluationInfo");
+
+                    b.Property<int>("PublicDataEvaluationStatus");
+
+                    b.Property<string>("SecretDataEvaluationInfo");
+
+                    b.Property<int>("SecretDataEvaluationStatus");
 
                     b.Property<string>("SqlScript");
 
@@ -480,14 +436,6 @@ namespace MasterRad.Migrations
                     b.ToTable("Template");
                 });
 
-            modelBuilder.Entity("MasterRad.Entities.AnalysisEvaluationEntity", b =>
-                {
-                    b.HasOne("MasterRad.Entities.AnalysisTestStudentEntity", "AnalysisTestStudent")
-                        .WithMany("EvaluationProgress")
-                        .HasForeignKey("ATS_StudentId", "ATS_AnalysisTestId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("MasterRad.Entities.AnalysisTestEntity", b =>
                 {
                     b.HasOne("MasterRad.Entities.SynthesisTestStudentEntity", "SynthesisTestStudent")
@@ -520,14 +468,6 @@ namespace MasterRad.Migrations
                     b.HasOne("MasterRad.Entities.TaskEntity", "Task")
                         .WithMany("SolutionColumns")
                         .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("MasterRad.Entities.SynthesisEvaluationEntity", b =>
-                {
-                    b.HasOne("MasterRad.Entities.SynthesisTestStudentEntity", "SynthesisTestStudent")
-                        .WithMany("EvaluationProgress")
-                        .HasForeignKey("STS_StudentId", "STS_SynthesisTestId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

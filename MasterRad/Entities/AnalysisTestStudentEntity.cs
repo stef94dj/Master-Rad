@@ -12,11 +12,13 @@ namespace MasterRad.Entities
         public int AnalysisTestId { get; set; }
         public AnalysisTestEntity AnalysisTest { get; set; }
 
+        public bool TakenTest { get; set; }
+
         [Required, MaxLength(255)]
         public string InputNameOnServer { get; set; }
-
         public string TeacherOutputNameOnServer { get; set; }
         public string StudentOutputNameOnServer { get; set; }
-        public bool TakenTest { get; set; }
+
+        public List<AnalysisEvaluationEntity> EvaluationProgress { get; set; }
     }
 }

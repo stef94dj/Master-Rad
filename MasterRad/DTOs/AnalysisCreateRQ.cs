@@ -8,6 +8,7 @@ namespace MasterRad.DTOs
     public class AnalysisCreateRQ
     {
         public string Name { get; set; }
-        public int SynthesisPaperId { get; set; }
+        public int StudentId { get; set; }
+        public int SynthesisTestId { get; set; }
     }
 }
