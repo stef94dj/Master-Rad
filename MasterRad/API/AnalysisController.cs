@@ -24,7 +24,7 @@ namespace MasterRad.API
             _analysisRepository = analysisRepository;
         }
 
-        [HttpGet, Route("get")] //tetspush
+        [HttpGet, Route("get")]
         public ActionResult<IEnumerable<AnalysisTestEntity>> GetTests()
             => Ok(_analysisRepository.Get());
 
