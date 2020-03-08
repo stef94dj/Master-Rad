@@ -9,7 +9,8 @@ _. edit tabele kroz UI, red u tabeli se trazi kao match vrednosti svake kolone
 _. Security: Sql injection - treba staviti sql command gde je moguce + svaki user aplikacije da ima svog sql user-a koji ce biti admin samo na svojim bazama
 _. Feature: Brisanje (Templates, Tasks, Synthesis Tests...): npr. ne dozvoliti brisanje template-a ako postoji task kreiran na osnovu njega (BE validacija + proveriti da sama baza ovo (kaskadno brisanje) ne dozvoljava)
 _. Kada raditi i da li cleanup kloniranih baza? Ili da se to radi kroz brisanje na delete dugme (npr brisanje exam-a)
-_. kako spreciti da neko drugi ne radi umesto studenta (lozinka za test, aplikacija na lokalnoj mrezi, analiza ip adresa)
+_. kako spreciti da neko drugi ne radi umesto studenta (lozinka za test, aplikacija na lokalnoj mrezi, analiza ip adresa) - generator velikih stringova, niz sledeci na osonovu prethodnog, nemoguce pogoditi sledeceg u nizu - u paraleli desktop + web
+_.
 
 Bug: kada se uradi evaluacija synthesis mora reload da bi se aktivirali dugmici za create analysis
 Bug: ako brzi radis refresh vidi se kako se tabela iscrtava (npr templates strana) - hide-uj tabelu i uradi show kada se zavrsi iscrtavanje
