@@ -5,6 +5,7 @@ using MasterRad.Models;
 using MasterRad.Models.DTOs;
 using MasterRad.Repositories;
 using MasterRad.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -16,6 +17,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Professor")]
     public class TaskController : Controller
     {
         private readonly ITaskRepository _taskRepo;
@@ -33,6 +35,13 @@ namespace MasterRad.API
             _microsoftSQLService = microsoftSQLService;
         }
 
+
+        //Authenthication required by default on every endpoint (Startup.cs RequireAuthenticatedUser)
+        //[AllowAnonymous] - disable authenthication requirement on specific endpoint
+
+        //Authorisation:
+        //[Authorize(Roles = "Professor")][Authorize(Roles = "Student")] - Require both roles
+        //[Authorize(Roles = "Professor,Student")]- Require either role
         [HttpGet, Route("Get")]
         public ActionResult GetTasks()
         {
