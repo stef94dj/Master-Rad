@@ -28,12 +28,15 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("Get")]
-        public ActionResult GetTemplates() 
+        public ActionResult GetTemplates()
             => Ok(_templateRepo.Get());
 
         [HttpPost, Route("Create")]
         public ActionResult CreateTemplate([FromBody] CreateTemplateRQ body)
         {
+            if (string.IsNullOrEmpty(body.Name))
+                return Ok(Result<TemplateEntity>.Fail($"Template name cannot be empty."));
+
             var dbName = NameHelper.TemplateName(body.Name);
 
             var templateExists = _templateRepo.TemplateExists(body.Name);
@@ -52,8 +55,8 @@ namespace MasterRad.API
             if (!dbCreateSuccess)
                 return Ok(Result<TemplateEntity>.Fail($"Failed to create databse '{dbName}' on database server"));
 
-            var result = _templateRepo.Create(body.Name, dbName);
-            return Ok(result);
+            var entity = _templateRepo.Create(body.Name, dbName);
+            return Ok(Result<TemplateEntity>.Success(entity));
         }
 
         [HttpPost, Route("Update/Description")]

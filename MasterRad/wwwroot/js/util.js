@@ -44,6 +44,36 @@ function bindModalOnShow(selector, handler) {
     })
 }
 
+function bindModalOnClose(selector, handler) {
+    $(selector).on('hidden.bs.modal', function (event) {
+        handler(this, event);
+        hideModalError(selector);
+    });
+}
+
+function showModalError(modalSelector, message){
+    var errorDiv = findErrorDiv(modalSelector);
+    if (errorDiv != null) {
+        $(errorDiv).html(message);
+        $(errorDiv).show();
+    }
+}
+function hideModalError(modalSelector) {
+    var errorDiv = findErrorDiv(modalSelector);
+    if (errorDiv != null) {
+        $(errorDiv).html('');
+        $(errorDiv).hide();
+    }
+}
+function findErrorDiv(modalSelector) {
+    var divs = $(modalSelector).find('div.modal-error');
+    if (divs == null || divs.length != 1)
+        return null;
+    else
+        return divs[0];
+}
+
+
 function disableButton(button) {
     if (button.length == 1)
         $(button).attr('disabled', 'disabled').addClass('disabled');

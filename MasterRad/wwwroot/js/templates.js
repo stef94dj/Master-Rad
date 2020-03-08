@@ -5,7 +5,9 @@
 
     bindModalOnShow('#update-name-modal', onNameModalShow);
     bindModalOnShow('#update-description-modal', onDescriptionModalShow);
-    
+
+    bindModalOnClose('#create-template-modal', createTemplateModalClose);
+
     $.each($('td.hover-text-button'), function (index, item) {
         debugger;
         $(item).hover(
@@ -86,7 +88,7 @@ function drawDataCell(template) {
     return '<td>' + drawCellEditNavigationButton('Modify', 'dark', 'updateData', template.id, true) + '</td>';
 }
 function drawAuthorCell(template) {
-    return '<td><div class="text">' + 'ds173114m@student.etf.bg.ac.rs' + '</div></td>'
+    return '<td><div class="text">' + 'cmilos@etf.bg.ac.rs' + '</div></td>'
 }
 function drawCreatedOnCell(template) {
     return '<td><div class="text">' + '08/03/2020 20:22' + '</div></td>'
@@ -157,11 +159,28 @@ function createTemplate() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            $('#create-template-modal').modal('toggle');
-            loadTemplates($('#templates-tbody'), '/api/Template/Get');
+            hideModalError('#create-template-modal');
+            if (data != null && data.isSuccess) {
+                $('#create-template-modal').modal('toggle');
+                loadTemplates($('#templates-tbody'), '/api/Template/Get');
+                modalBody.find('#template-name').val('');
+            }
+            else if (data.errors != null && data.errors.length > 0) {
+                showModalError('#create-template-modal', data.errors[0]);
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            showModalError('#create-template-modal', 'Unexpected error occured.');
         }
     });
 }
+function createTemplateModalClose() {
+    var modalSelector = '#create-template-modal';
+    var modalBody = $(modalSelector).find('.modal-body');
+    modalBody.find('#template-name').val('');
+    hideModalError(modalSelector);
+}
+
 function updateName() {
     var modalBody = $('#update-name-modal').find('.modal-body');
 
