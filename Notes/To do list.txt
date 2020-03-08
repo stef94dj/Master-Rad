@@ -10,7 +10,7 @@ _. Security: Sql injection - treba staviti sql command gde je moguce + svaki use
 _. Feature: Brisanje (Templates, Tasks, Synthesis Tests...): npr. ne dozvoliti brisanje template-a ako postoji task kreiran na osnovu njega (BE validacija + proveriti da sama baza ovo (kaskadno brisanje) ne dozvoljava)
 _. Kada raditi i da li cleanup kloniranih baza? Ili da se to radi kroz brisanje na delete dugme (npr brisanje exam-a)
 _. kako spreciti da neko drugi ne radi umesto studenta (lozinka za test, aplikacija na lokalnoj mrezi, analiza ip adresa) - generator velikih stringova, niz sledeci na osonovu prethodnog, nemoguce pogoditi sledeceg u nizu - u paraleli desktop + web
-_.
+_. Auth: list student users when assigning test to students (azure - graph api), createdBy & ModifiedBy, students should see only what is assigned to them, teachers share, sql users - users mapping
 
 Bug: kada se uradi evaluacija synthesis mora reload da bi se aktivirali dugmici za create analysis
 Bug: ako brzi radis refresh vidi se kako se tabela iscrtava (npr templates strana) - hide-uj tabelu i uradi show kada se zavrsi iscrtavanje
