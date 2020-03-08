@@ -1,0 +1,25 @@
+﻿table.fixed {
+    table-layout: fixed;
+}
+
+table.wrap-single-long-word {
+    word-wrap: break-word;
+    table-layout: fixed;
+}
+
+    table.fixed td {
+        overflow: hidden;
+    }
+
+.table th {
+    text-align: center;
+}
+
+td div {
+        text-align: center;
+    }
+
+td button.center {
+    display: block;
+    margin: auto;
+}

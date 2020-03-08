@@ -10,15 +10,20 @@ function drawCellEditNavigationButton(buttonName, color, handlerName, id, enable
     var result = '<button ';
     if (!enabled)
         result += 'disabled ';
-    result += 'onclick="' + handlerName + '(' + id + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
+    result += 'onclick="' + handlerName + '(' + id + ')" type="button" class="btn btn-outline-' + color + ' btn-sm center">' + buttonName + '</button>'
     return result;
 }
 
-function drawCellEditModalButton(buttonName, color, modalselector, id, timestamp, enabled) {
+function drawCellEditModalButton(buttonName, color, modalselector, id, timestamp, enabled, hidden) {
     var result = '<button ';
+
     if (!enabled)
         result += 'disabled ';
-    result += 'data-toggle="modal" data-target="' + modalselector + '" data-id="' + id + '" data-timestamp="' + timestamp + '" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
+
+    if (hidden)
+        result += 'hidden="true" ';
+
+    result += 'data-toggle="modal" data-target="' + modalselector + '" data-id="' + id + '" data-timestamp="' + timestamp + '" type="button" class="btn btn-outline-' + color + ' btn-sm center">' + buttonName + '</button>'
     return result;
 }
 
