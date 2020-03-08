@@ -35,7 +35,12 @@ namespace MasterRad.API
 
         [HttpGet, Route("Get")]
         public ActionResult GetTasks()
-            => Ok(_taskRepo.Get());
+        {
+            var isTeacher = User.IsInRole("Professor");
+            var isStudent = User.IsInRole("Student");
+
+            return Ok(_taskRepo.Get());
+        }
 
         [HttpPost, Route("Create")]
         public ActionResult CreateTask([FromBody] CreateTaskRQ body)
