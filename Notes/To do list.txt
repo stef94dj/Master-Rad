@@ -1,15 +1,30 @@
 MVP:
 ---
+_. pre nego sto se job stavi u Queue proveriti da nije vec tamo 
+_. ne cuvas u bazi kad status predje u queued, saljes samo frontu (signalR) -> nadji u kodu : EvaluationProgress.Queued (EvaluateController)
+_. edit tabele kroz UI, red u tabeli se trazi kao match vrednosti svake kolone 
+   problem 1: kada postoje 2 reda sa identicnim vrednostima edit/delete utice na oba reda
+   problem 2: (za neke vrednosti) kod nekih sql tipova poredjenje vrednosti  moze da bude problem (vrednost koja se prikazuje u tabeli nije uvek onog formata kog treba da bude u where statement-u)
+   uvesti konvenciju da svaka tabela ima Id (int, unique)?: potrebna valdacija, nemoguce validirati na FE (los ux)
+_. Security: Sql injection - treba staviti sql command gde je moguce + svaki user aplikacije da ima svog sql user-a koji ce biti admin samo na svojim bazama
+_. Feature: Brisanje (Templates, Tasks, Synthesis Tests...): npr. ne dozvoliti brisanje template-a ako postoji task kreiran na osnovu njega (BE validacija + proveriti da sama baza ovo (kaskadno brisanje) ne dozvoljava)
+_. Kada raditi i da li cleanup kloniranih baza? Ili da se to radi kroz brisanje na delete dugme (npr brisanje exam-a)
+_. kako spreciti da neko drugi ne radi umesto studenta (lozinka za test, aplikacija na lokalnoj mrezi, analiza ip adresa)
 
-EDIT CELL: ux vrv treba da se poboljsa, bag: editom ili insertom mogu se napraviti 2 indenticna reda - kada se naprave ni jedan od njih nije moguce editovate (BE ne zna koji user zeli da edituje, jedan mora da se brise)
-
-student kada radi analysis: restore baze na original (nice to have)
+Bug: kada se uradi evaluacija synthesis mora reload da bi se aktivirali dugmici za create analysis
+Bug: ako brzi radis refresh vidi se kako se tabela iscrtava (npr templates strana) - hide-uj tabelu i uradi show kada se zavrsi iscrtavanje
 
 SignalR:request filters won't log here + status evaluating spinner bigger than other icons (take spinner from azure) + hiding message when signalR reconeccted (fade-out + table should not move)
 BUG: pisanje resenja: validacija da zahteva ime kolone (neophodno je da bi se lakse radilo poredjenje rezultata)
 BUG: create template model - kada se kreira prva tabela ona se pojavi u dropdown-u ali ne moze da se selektuje (ili je vec selektovana) da se vidi njena struktura.
      verovatno je slicno kada se pise resenje za bazu koja ima samo jednu tabelu
      Isto i kada se radi edit modela (cak i kada ima vise tabela)- prva je selektovana ali se ne vidi json ispod
+
+_. mozda ne klonirati baze na assign synthesis - klonirace se i za studente koji ne dodju. Ako ostaje clone na assign synthesis verovatno ne treba da bude bulk.
+   klonirati kada student pocne? - veliki load ako 30 studenata pocne u isto vreme
+
+
+Handle syntax errors in sql editor (in response)
 
 review CloneDatabase sa fail if exist true (tu je verovatno problem sto nije reentrant - ako clone uspe a db save failuje zaglavljeni smo i ne mozemo da probamo opet)
 verovatno svi pozivi treba da imaju false		
@@ -18,17 +33,9 @@ API/StudentController/AssignStudents: _microsoftSQLService.CloneDatabases(test.T
 sta ako neki assgnmenti ne uspeju
 	- ako failuje clone
 
-
-mozda ne klonirati na assign - klonirace se i za studente koji ne dodju
-klonirati kada student pocne - veliki load ako 30 studenata pocne u isto vreme
-
-cleanup viska baza nakon ocenjivanja (ili kada prodje uvid)!
-
-Handle syntax errors in sql editor (in response)
-Delete: Templates, Tasks, Synthesis Tests
-
 Nice to have:
 ------------
+student kada radi analysis: restore baze na original (nice to have)
 UX improvement: brisanje (umesto dugmeta selektabilni red i delete na tastaturi), dodavanje (enter dok je neko od polja iz poslednjeg reda tj. iz reda za insert u fokusu)
 FE (create Template/Task/Test + set Template/Task description): FE validations (name/description not empty or taken + Template/Task selected when creating Task/Test)
 Data celija (templates i tasks tabele): 5 records in 3 tables
@@ -54,9 +61,7 @@ LOGOVANJE: File sistem, sql server, baza - odvojeni sistemi koji nisu transakcij
 - kriticni scenariji (radi se update template-a na tasku, obrise se postojeci template, novi ne uspe da se klonira - npr neko je sa servera obrisao bazu novog templejta i nema odakle da se klonira) koji uzrokuju greske u sistemu treba da budu neki alert (nije dovoljno samo da se uloguju) ili makar da se izdvoje kao kriticne greske
 - pitanje da li se sve moze ulogovati (create ili update template, baza se klonira, ne uspe upis u bazu - task ostaje vezan za stari template)
 - search: Console.WriteLine($"NOT implemented: log delete database {cloneDataNameOnServer} failed")
-Create template
-=======================
-_microsoftSQLService.CreateDatabase treba da uloguje poruku od sql servera ukoliko ne moze da kreira bazu na serveru
+- Create template: _microsoftSQLService.CreateDatabase treba da uloguje poruku od sql servera ukoliko ne moze da kreira bazu na serveru
 
 Define template model
 =====================
