@@ -426,7 +426,7 @@ namespace MasterRad.Services
 
             var backupDestination = $"{AppContext.BaseDirectory}AppData\\{destDbName}_Temp.bak";
 
-            var backupToDiskCommand = $"BACKUP DATABASE {originDbName}  TO DISK = '{backupDestination}' WITH FORMAT, COPY_ONLY";
+            var backupToDiskCommand = $"BACKUP DATABASE [{originDbName}]  TO DISK = '{backupDestination}' WITH FORMAT, COPY_ONLY";
             var sqlResult = ExecuteSQLAsAdmin(backupToDiskCommand);
             if (!File.Exists(backupDestination) || !sqlResult.Messages.Where(x => x.StartsWith("BACKUP DATABASE successfully")).Any())
             {
@@ -447,7 +447,7 @@ namespace MasterRad.Services
             var logicalLDF = sqlResult.Tables.Single().Rows[1][0].ToString();
 
             var backupDestinationTrimmed = backupDestination.Replace("_Temp.bak", "");
-            var restoreFromDiskCommand2 = $"RESTORE DATABASE {destDbName} FROM DISK = '{backupDestination}' WITH RECOVERY, " +
+            var restoreFromDiskCommand2 = $"RESTORE DATABASE [{destDbName}] FROM DISK = '{backupDestination}' WITH RECOVERY, " +
                                           $"MOVE '{logicalMDF}' TO '{backupDestinationTrimmed}.mdf', " +
                                           $"MOVE '{logicalLDF}' TO '{backupDestinationTrimmed}._log.ldf'";
             sqlResult = ExecuteSQLAsAdmin(restoreFromDiskCommand2);

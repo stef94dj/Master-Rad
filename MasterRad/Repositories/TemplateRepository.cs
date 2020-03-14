@@ -100,23 +100,13 @@ namespace MasterRad.Repositories
         }
 
         public bool TemplateExists(string templateName)
-        {
-            if (string.IsNullOrEmpty(templateName))
-                return false;
-
-            return _context.Templates
-                .Where(t => t.Name.ToLower().Equals(templateName.ToLower()))
-                .Any();
-        }
+            => _context.Templates
+                       .Where(t => t.Name.ToLower().Equals(templateName.ToLower()))
+                       .Any();
 
         public bool DatabaseRegisteredAsTemplate(string dbName)
-        {
-            if (string.IsNullOrEmpty(dbName))
-                return false;
-
-            return _context.Templates
-                .Where(t => t.NameOnServer.ToLower().Equals(dbName.ToLower()))
-                .Any();
-        }
+            => _context.Templates
+                       .Where(t => t.NameOnServer.ToLower().Equals(dbName.ToLower()))
+                       .Any();
     }
 }

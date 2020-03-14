@@ -13,7 +13,7 @@ namespace MasterRad.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public override int Id { get; set; }
 
-        [Required, MaxLength(63)]
+        [Required, MaxLength(50)]
         public string Name { get; set; }
         [MaxLength(8191)]
         public string Description { get; set; }

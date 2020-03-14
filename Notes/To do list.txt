@@ -1,8 +1,3 @@
-grana-templates-page-ui-improvements:
-- error handling za edit name i description template
-- FE + DB ogranicanje za unis teksta (maxlength) - name & descripiton
-
-
 MVP:
 ---
 _. pre nego sto se job stavi u Queue proveriti da nije vec tamo 

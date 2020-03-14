@@ -14,6 +14,7 @@ namespace MasterRad.Entities
 
         [Required, MaxLength(50)]
         public string Name { get; set; }
+        [MaxLength(8191)]
         public string ModelDescription { get; set; }
         [MaxLength(255)]
         public string NameOnServer { get; set; }

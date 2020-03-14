@@ -51,7 +51,7 @@ function bindModalOnClose(selector, handler) {
     });
 }
 
-function showModalError(modal, message){
+function showModalError(modal, message) {
     var errorDiv = findErrorDiv(modal);
     if (errorDiv != null) {
         $(errorDiv).html(message);
@@ -73,6 +73,46 @@ function findErrorDiv(modal) {
         return null;
     else
         return divs[0];
+}
+
+function handleModalAjaxSuccess(modalSelector, data, reloadFunc) {
+    var modal = $(modalSelector);
+    hideModalError(modal);
+    if (data != null && data.isSuccess) {
+        modal.modal('toggle');
+        modal.find('.modal-body').find(modalSelector).val('');
+    }
+    else if (data.errors != null && data.errors.length > 0) {
+        showModalError(modal, data.errors[0]);
+    }
+
+    if (reloadFunc != null)
+        reloadFunc();
+}
+function handleModalAjaxError(modalSelector, reloadFunc) {
+    showModalError(modalSelector, 'Unexpected error occured.');
+    if (reloadFunc != null)
+        reloadFunc();
+}
+
+function defineNameHoverBehaviour(collection) {
+    $.each(collection, function (index, item) {
+        $(item).hover(
+            function () { //on hover in
+                textButtonSwap(this, false);
+            },
+            function () { //on hover out
+                textButtonSwap(this, true);
+            })
+    });
+}
+
+function textButtonSwap(td, showText) {
+    var p = $(td).find('div.text')[0];
+    var btn = $(td).find('button')[0];
+
+    $(p).attr('hidden', !showText);
+    $(btn).attr('hidden', showText);
 }
 
 function disableButton(button) {

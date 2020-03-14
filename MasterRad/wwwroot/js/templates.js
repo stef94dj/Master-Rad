@@ -1,33 +1,23 @@
 ﻿$(document).ready(function () {
-    //loadTemplates($('#templates-tbody'), '/api/Template/Get');
-
     loadTemplates();
 
     bindModalOnShow('#update-name-modal', onNameModalShow);
     bindModalOnShow('#update-description-modal', onDescriptionModalShow);
     bindModalOnClose('#create-template-modal', createTemplateModalClose);
-
-    $.each($('td.hover-text-button'), function (index, item) {
-        debugger;
-        $(item).hover(
-            function () { //on hover in
-                debugger;
-                textButtonSwap(this, false);
-            },
-            function () { //on hover out
-                textButtonSwap(this, true);
-            })
-    });
 });
 
 //DRAW TEMPLATES TABLE
 function loadTemplates() {
+    drawTemplateTableMessage('Loading data...');
     getTemplates()
         .then(data => {
             drawTemplateTable($('#templates-tbody'), data);
         })
+        .catch(error => {
+            drawTemplateTableMessage('Error loading data...');
+        })
         .then(data => {
-            defineNameHoverBehaviour();
+            defineNameHoverBehaviour($('td.hover-text-button'));
         });
 }
 
@@ -36,7 +26,7 @@ function getTemplates() {
     return promisifyAjaxGet(apiUrl);
 }
 function drawTemplateTableMessage(message) {
-    return drawTableMessage(message, 5);
+    $('tbody').html(drawTableMessage(message, 7));
 }
 function drawTemplateTable(tbody, templates) {
     tbody.html('');
@@ -56,14 +46,11 @@ function drawTemplateTable(tbody, templates) {
     });
 }
 function drawNameCell(template) {
-    var result = '<td class="hover-text-button" onclick="clickModifyButton(this)">';
+    var result = '<td class="hover-text-button">';
     result += '<div class="text">' + template.name + '</div>';
     result += drawCellEditModalButton('Modify', 'dark', '#update-name-modal', template.id, template.timeStamp, true, true);
     result += '</td>';
     return result;
-}
-function clickModifyButton(td) {
-    $(td).find('button')[0].click();
 }
 
 function drawDescriptionCell(template) {
@@ -96,26 +83,6 @@ function drawDeleteCell(template) {
     return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', template.id, template.timeStamp, true) + '</td>';
 }
 
-
-function defineNameHoverBehaviour() {
-    $.each($('td.hover-text-button'), function (index, item) {
-        $(item).hover(
-            function () { //on hover in
-                textButtonSwap(this, false);
-            },
-            function () { //on hover out
-                textButtonSwap(this, true);
-            })
-    });
-}
-function textButtonSwap(td, showText) {
-    var p = $(td).find('div.text')[0];
-    var btn = $(td).find('button')[0];
-
-    $(p).attr('hidden', !showText);
-    $(btn).attr('hidden', showText);
-}
-
 //MODAL SHOW CLOSE
 function onNameModalShow(element, event) {
     var button = $(event.relatedTarget)
@@ -131,7 +98,6 @@ function onNameModalShow(element, event) {
     hideModalError(element);
 }
 function onDescriptionModalShow(element, event) {
-    hideModalError(element);
     var button = $(event.relatedTarget)
 
     var name = button.parent().find('p').html();
@@ -143,6 +109,7 @@ function onDescriptionModalShow(element, event) {
     modal.find('#template-description').val(name);
     modal.find('#template-id').val(id);
     modal.find('#template-timestamp').val(timestamp);
+    hideModalError(element);
 }
 function createTemplateModalClose(element, event) {
     var modalBody = $(element).find('.modal-body');
@@ -165,10 +132,10 @@ function createTemplate() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            handleModalAjaxSuccess('#create-template-modal', data);
+            handleModalAjaxSuccess('#create-template-modal', data, loadTemplates);
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            handleModalAjaxError('#create-template-modal');
+            handleModalAjaxError('#create-template-modal', loadTemplates);
         }
     });
 }
@@ -188,10 +155,10 @@ function updateName() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            handleModalAjaxSuccess('#update-name-modal', data);
+            handleModalAjaxSuccess('#update-name-modal', data, loadTemplates);
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            handleModalAjaxError('#update-name-modal');
+            handleModalAjaxError('#update-name-modal', loadTemplates);
         }
     });
 }
@@ -211,33 +178,15 @@ function updateDescription() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            handleModalAjaxSuccess('#update-description-modal', data);
+            handleModalAjaxSuccess('#update-description-modal', data, loadTemplates);
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            handleModalAjaxError('#update-name-modal');
+            handleModalAjaxError('#update-name-modal', loadTemplates);
         }
     });
 }
 function deleteTemplate(id) {
 
-}
-
-function handleModalAjaxSuccess(modalSelector, data) {
-    var modal = $(modalSelector);
-    hideModalError(modal);
-    if (data != null && data.isSuccess) {
-        modal.modal('toggle');
-        modal.find('.modal-body').find(modalSelector).val('');
-    }
-    else if (data.errors != null && data.errors.length > 0) {
-        showModalError(modal, data.errors[0]);
-    }
-
-    loadTemplates();
-}
-function handleModalAjaxError(modalSelector) {
-    showModalError(modalSelector, 'Unexpected error occured.');
-    loadTemplates();
 }
 
 //NAVIGATION

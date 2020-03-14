@@ -15,6 +15,10 @@ table.wrap-single-long-word {
     text-align: center;
 }
 
+.table td {
+    text-align: center;
+}
+
 td div {
         text-align: center;
     }

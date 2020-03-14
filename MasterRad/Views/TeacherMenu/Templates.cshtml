@@ -83,7 +83,7 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="template-description" class="col-form-label">Description:</label>
-                    <textarea class="form-control" id="template-description" rows="10" onkeyup="hideModalError($(this).parent());"></textarea>
+                    <textarea class="form-control" id="template-description" rows="10" maxlength="8191" onkeyup="hideModalError($(this).parent());"></textarea>
                     <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
                     <input type="text" class="form-control" id="template-id" hidden />
                     <input type="text" class="form-control" id="template-timestamp" hidden />
@@ -99,8 +99,8 @@
 
 <!-- Form -->
 <form action="" hidden id="hidden-form" method="post">
-    <input type="number" name="templateId" id="template-id">
-    <input type="submit" value="Submit" id="submit-btn">
+    <input type="number" name="templateId" id="template-id" />
+    <input type="submit" value="Submit" id="submit-btn" />
 </form>
 
 @section Scripts {

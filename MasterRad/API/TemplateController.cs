@@ -35,30 +35,30 @@ namespace MasterRad.API
         public ActionResult CreateTemplate([FromBody] CreateTemplateRQ body)
         {
             if (string.IsNullOrEmpty(body.Name))
-                return Ok(Result<bool>.Fail($"Template name cannot be empty."));
+                return Ok(Result<bool>.Fail($"Name cannot be empty."));
 
             var templateExists = _templateRepo.TemplateExists(body.Name);
             if (templateExists)
-                return Ok(Result<bool>.Fail($"Template '{body.Name}' already exists in the system"));
+                return Ok(Result<bool>.Fail($"Template '{body.Name}' already exists."));
 
-            var dbName = NameHelper.TemplateName();
-            var alreadyRegistered = _templateRepo.DatabaseRegisteredAsTemplate(dbName);
+            var newDbName = NameHelper.TemplateName();
+            var alreadyRegistered = _templateRepo.DatabaseRegisteredAsTemplate(newDbName);
             if (alreadyRegistered)
-                return Ok(Result<bool>.Fail($"Generated sql name is not unique. Please try again."));
+                return Ok(Result<bool>.Fail($"Generated name is already used for another template. Please try again."));
 
-            var existsOnSqlServer = _microsoftSQLService.DatabaseExists(dbName);
+            var existsOnSqlServer = _microsoftSQLService.DatabaseExists(newDbName);
             if (existsOnSqlServer)
-                return Ok(Result<bool>.Fail($"Database '{dbName}' already exists on database server"));
+                return Ok(Result<bool>.Fail($"Generated name is not unique. Please try again."));
 
-            var dbCreateSuccess = _microsoftSQLService.CreateDatabase(dbName);
+            var dbCreateSuccess = _microsoftSQLService.CreateDatabase(newDbName);
             if (!dbCreateSuccess)
-                return Ok(Result<bool>.Fail($"Failed to create databse '{dbName}' on database server"));
+                return Ok(Result<bool>.Fail($"Failed to create databse '{newDbName}' on database server"));
 
-            var success = _templateRepo.Create(body.Name, dbName);
+            var success = _templateRepo.Create(body.Name, newDbName);
             if (success)
                 return Ok(Result<bool>.Success(true));
             else
-                return Ok(Result<bool>.Fail("Failed to save changes to database."));
+                return Ok(Result<bool>.Fail("Failed to save changes."));
         }
 
         [HttpPost, Route("Update/Description")]
@@ -68,7 +68,7 @@ namespace MasterRad.API
             if (success)
                 return Ok(Result<bool>.Success(true));
             else
-                return Ok(Result<bool>.Fail("Failed to save changes to database."));
+                return Ok(Result<bool>.Fail("Failed to save changes."));
         }
 
         [HttpPost, Route("Update/Name")]
@@ -85,7 +85,7 @@ namespace MasterRad.API
             if (success)
                 return Ok(Result<bool>.Success(true));
             else
-                return Ok(Result<bool>.Fail("Failed to save changes to database."));
+                return Ok(Result<bool>.Fail("Failed to save changes."));
         }
 
         [HttpPost, Route("Update/Model")]

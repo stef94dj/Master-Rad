@@ -14,9 +14,9 @@ namespace MasterRad.Helpers
             return $"TMP_{Guid.NewGuid()}";
         }
 
-        public static string TaskName(string taskName)
+        public static string TaskName()
         {
-            return $"TSK_{taskName}".Replace("\t", "_").Replace(" ", "_");
+            return $"TSK_{Guid.NewGuid()}";
         }
 
         public static IEnumerable<KeyValuePair<int, string>> SynthesisTestExam(IEnumerable<int> studentIds, int testId)
