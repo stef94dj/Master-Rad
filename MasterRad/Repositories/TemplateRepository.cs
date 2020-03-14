@@ -13,9 +13,9 @@ namespace MasterRad.Repositories
         TemplateEntity Get(int id);
         List<TemplateEntity> Get();
         TemplateEntity GetWithTaks(int id);
-        TemplateEntity Create(string templateName, string dbName);
-        TemplateEntity UpdateDescription(UpdateDescriptionRQ request);
-        TemplateEntity UpdateName(UpdateNameRQ request);
+        bool Create(string templateName, string dbName);
+        bool UpdateDescription(UpdateDescriptionRQ request);
+        bool UpdateName(UpdateNameRQ request);
         bool DatabaseRegisteredAsTemplate(string name);
         bool TemplateExists(string templateName);
     }
@@ -47,7 +47,7 @@ namespace MasterRad.Repositories
                        .OrderByDescending(t => t.DateCreated)
                        .ToList();
 
-        public TemplateEntity Create(string templateName, string dbName)
+        public bool Create(string templateName, string dbName)
         {
             var templateEntity = new TemplateEntity() //AutoMapper
             {
@@ -58,12 +58,10 @@ namespace MasterRad.Repositories
             };
 
             _context.Templates.Add(templateEntity);
-            _context.SaveChanges();
-
-            return templateEntity;
+            return _context.SaveChanges() == 1;
         }
 
-        public TemplateEntity UpdateDescription(UpdateDescriptionRQ request)
+        public bool UpdateDescription(UpdateDescriptionRQ request)
         {
             var templateEntity = new TemplateEntity() //AutoMapper
             {
@@ -79,11 +77,10 @@ namespace MasterRad.Repositories
             _context.Entry(templateEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(templateEntity).Property(x => x.ModifiedBy).IsModified = true;
 
-            _context.SaveChanges();
-            return templateEntity;
+            return _context.SaveChanges() == 1;
         }
 
-        public TemplateEntity UpdateName(UpdateNameRQ request)
+        public bool UpdateName(UpdateNameRQ request)
         {
             var templateEntity = new TemplateEntity() //AutoMapper
             {
@@ -99,8 +96,7 @@ namespace MasterRad.Repositories
             _context.Entry(templateEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(templateEntity).Property(x => x.ModifiedBy).IsModified = true;
 
-            _context.SaveChanges();
-            return templateEntity;
+            return _context.SaveChanges() == 1;
         }
 
         public bool TemplateExists(string templateName)

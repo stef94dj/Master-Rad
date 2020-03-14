@@ -5,7 +5,6 @@
 
     bindModalOnShow('#update-name-modal', onNameModalShow);
     bindModalOnShow('#update-description-modal', onDescriptionModalShow);
-
     bindModalOnClose('#create-template-modal', createTemplateModalClose);
 
     $.each($('td.hover-text-button'), function (index, item) {
@@ -117,7 +116,7 @@ function textButtonSwap(td, showText) {
     $(btn).attr('hidden', showText);
 }
 
-//MODAL SHOW
+//MODAL SHOW CLOSE
 function onNameModalShow(element, event) {
     var button = $(event.relatedTarget)
     var name = button.parent().find('div').html();
@@ -129,8 +128,10 @@ function onNameModalShow(element, event) {
     modal.find('#template-name').val(name);
     modal.find('#template-id').val(id);
     modal.find('#template-timestamp').val(timestamp);
+    hideModalError(element);
 }
 function onDescriptionModalShow(element, event) {
+    hideModalError(element);
     var button = $(event.relatedTarget)
 
     var name = button.parent().find('p').html();
@@ -142,6 +143,11 @@ function onDescriptionModalShow(element, event) {
     modal.find('#template-description').val(name);
     modal.find('#template-id').val(id);
     modal.find('#template-timestamp').val(timestamp);
+}
+function createTemplateModalClose(element, event) {
+    var modalBody = $(element).find('.modal-body');
+    modalBody.find('#template-name').val('');
+    hideModalError(element);
 }
 
 //API CALLERS
@@ -159,28 +165,13 @@ function createTemplate() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            hideModalError('#create-template-modal');
-            if (data != null && data.isSuccess) {
-                $('#create-template-modal').modal('toggle');
-                loadTemplates($('#templates-tbody'), '/api/Template/Get');
-                modalBody.find('#template-name').val('');
-            }
-            else if (data.errors != null && data.errors.length > 0) {
-                showModalError('#create-template-modal', data.errors[0]);
-            }
+            handleModalAjaxSuccess('#create-template-modal', data);
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            showModalError('#create-template-modal', 'Unexpected error occured.');
+            handleModalAjaxError('#create-template-modal');
         }
     });
 }
-function createTemplateModalClose() {
-    var modalSelector = '#create-template-modal';
-    var modalBody = $(modalSelector).find('.modal-body');
-    modalBody.find('#template-name').val('');
-    hideModalError(modalSelector);
-}
-
 function updateName() {
     var modalBody = $('#update-name-modal').find('.modal-body');
 
@@ -197,8 +188,10 @@ function updateName() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            $('#update-name-modal').modal('toggle');
-            loadTemplates();
+            handleModalAjaxSuccess('#update-name-modal', data);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#update-name-modal');
         }
     });
 }
@@ -218,11 +211,36 @@ function updateDescription() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            $('#update-description-modal').modal('toggle');
-            loadTemplates();
+            handleModalAjaxSuccess('#update-description-modal', data);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#update-name-modal');
         }
     });
 }
+function deleteTemplate(id) {
+
+}
+
+function handleModalAjaxSuccess(modalSelector, data) {
+    var modal = $(modalSelector);
+    hideModalError(modal);
+    if (data != null && data.isSuccess) {
+        modal.modal('toggle');
+        modal.find('.modal-body').find(modalSelector).val('');
+    }
+    else if (data.errors != null && data.errors.length > 0) {
+        showModalError(modal, data.errors[0]);
+    }
+
+    loadTemplates();
+}
+function handleModalAjaxError(modalSelector) {
+    showModalError(modalSelector, 'Unexpected error occured.');
+    loadTemplates();
+}
+
+//NAVIGATION
 function updateModel(id) {
     var form = $('#hidden-form');
     form.find('#template-id').val(id);
@@ -234,7 +252,4 @@ function updateData(id) {
     form.find('#template-id').val(id);
     form.attr('action', '/Template/ModifyTemplateData');
     form.submit();
-}
-function deleteTemplate(id) {
-
 }

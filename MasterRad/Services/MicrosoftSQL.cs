@@ -398,7 +398,7 @@ namespace MasterRad.Services
 
         public bool CreateDatabase(string dbName)
         {
-            var sqlCommand = $"CREATE DATABASE {dbName}";
+            var sqlCommand = $"CREATE DATABASE [{dbName}]";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand);
 

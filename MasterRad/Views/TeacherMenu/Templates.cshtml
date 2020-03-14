@@ -37,11 +37,8 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="template-name" class="col-form-label">Name:</label>
-                    <input type="text" class="form-control" id="template-name" maxlength="50" onkeyup="hideModalError('#create-template-modal');">
-                    <div id="create-template-error" style="display:none; margin-top:15px; color:red"></div>
-                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;">
-                        Unable to create template. A template with the same name already exists. Try using a different name.
-                    </div>
+                    <input type="text" class="form-control" id="template-name" maxlength="50" onkeyup="hideModalError($(this).parent());" />
+                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -62,9 +59,10 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="template-name" class="col-form-label">Name:</label>
-                    <input type="text" class="form-control" id="template-name" maxlength="50">
-                    <input type="text" class="form-control" id="template-id" hidden>
-                    <input type="text" class="form-control" id="template-timestamp" hidden>
+                    <input type="text" class="form-control" id="template-name" maxlength="50" onkeyup="hideModalError($(this).parent());" />
+                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
+                    <input type="text" class="form-control" id="template-id" hidden />
+                    <input type="text" class="form-control" id="template-timestamp" hidden />
                 </div>
             </div>
             <div class="modal-footer">
@@ -85,9 +83,10 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="template-description" class="col-form-label">Description:</label>
-                    <textarea class="form-control" id="template-description" rows="10"></textarea>
-                    <input type="text" class="form-control" id="template-id" hidden>
-                    <input type="text" class="form-control" id="template-timestamp" hidden>
+                    <textarea class="form-control" id="template-description" rows="10" onkeyup="hideModalError($(this).parent());"></textarea>
+                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
+                    <input type="text" class="form-control" id="template-id" hidden />
+                    <input type="text" class="form-control" id="template-timestamp" hidden />
                 </div>
             </div>
             <div class="modal-footer">

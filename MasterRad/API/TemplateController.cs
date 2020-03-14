@@ -35,43 +35,57 @@ namespace MasterRad.API
         public ActionResult CreateTemplate([FromBody] CreateTemplateRQ body)
         {
             if (string.IsNullOrEmpty(body.Name))
-                return Ok(Result<TemplateEntity>.Fail($"Template name cannot be empty."));
-
-            var dbName = NameHelper.TemplateName(body.Name);
+                return Ok(Result<bool>.Fail($"Template name cannot be empty."));
 
             var templateExists = _templateRepo.TemplateExists(body.Name);
             if (templateExists)
-                return Ok(Result<TemplateEntity>.Fail($"Template '{body.Name}' already exists in the system"));
+                return Ok(Result<bool>.Fail($"Template '{body.Name}' already exists in the system"));
 
+            var dbName = NameHelper.TemplateName();
             var alreadyRegistered = _templateRepo.DatabaseRegisteredAsTemplate(dbName);
             if (alreadyRegistered)
-                return Ok(Result<TemplateEntity>.Fail($"Database '{dbName}' is bound to another template"));
+                return Ok(Result<bool>.Fail($"Generated sql name is not unique. Please try again."));
 
             var existsOnSqlServer = _microsoftSQLService.DatabaseExists(dbName);
             if (existsOnSqlServer)
-                return Ok(Result<TemplateEntity>.Fail($"Database '{dbName}' already exists on database server"));
+                return Ok(Result<bool>.Fail($"Database '{dbName}' already exists on database server"));
 
-            var dbCreateSuccess = _microsoftSQLService.CreateDatabase(dbName); //CreateDatabase treba da uloguje gresku
+            var dbCreateSuccess = _microsoftSQLService.CreateDatabase(dbName);
             if (!dbCreateSuccess)
-                return Ok(Result<TemplateEntity>.Fail($"Failed to create databse '{dbName}' on database server"));
+                return Ok(Result<bool>.Fail($"Failed to create databse '{dbName}' on database server"));
 
-            var entity = _templateRepo.Create(body.Name, dbName);
-            return Ok(Result<TemplateEntity>.Success(entity));
+            var success = _templateRepo.Create(body.Name, dbName);
+            if (success)
+                return Ok(Result<bool>.Success(true));
+            else
+                return Ok(Result<bool>.Fail("Failed to save changes to database."));
         }
 
         [HttpPost, Route("Update/Description")]
         public ActionResult UpdateDescription([FromBody] UpdateDescriptionRQ body)
-            => Ok(_templateRepo.UpdateDescription(body));
+        {
+            var success = _templateRepo.UpdateDescription(body);
+            if (success)
+                return Ok(Result<bool>.Success(true));
+            else
+                return Ok(Result<bool>.Fail("Failed to save changes to database."));
+        }
 
         [HttpPost, Route("Update/Name")]
         public ActionResult UpdateName([FromBody] UpdateNameRQ body)
         {
+            if (string.IsNullOrEmpty(body.Name))
+                return Ok(Result<bool>.Fail($"Template name cannot be empty."));
+
             var templateExists = _templateRepo.TemplateExists(body.Name);
             if (templateExists)
-                return Ok(Result<TemplateEntity>.Fail($"Template '{body.Name}' already exists in the system"));
+                return Ok(Result<bool>.Fail($"Template '{body.Name}' already exists in the system"));
 
-            var result = _templateRepo.UpdateName(body);
-            return Ok(result);
+            var success = _templateRepo.UpdateName(body);
+            if (success)
+                return Ok(Result<bool>.Success(true));
+            else
+                return Ok(Result<bool>.Fail("Failed to save changes to database."));
         }
 
         [HttpPost, Route("Update/Model")]

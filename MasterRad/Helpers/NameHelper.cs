@@ -8,9 +8,10 @@ namespace MasterRad.Helpers
 {
     public static class NameHelper
     {
-        public static string TemplateName(string templateName)
+        public static string TemplateName()
         {
-            return $"TMP_{templateName}".Replace("\t", "_").Replace(" ", "_");
+
+            return $"TMP_{Guid.NewGuid()}";
         }
 
         public static string TaskName(string taskName)

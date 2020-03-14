@@ -51,28 +51,29 @@ function bindModalOnClose(selector, handler) {
     });
 }
 
-function showModalError(modalSelector, message){
-    var errorDiv = findErrorDiv(modalSelector);
+function showModalError(modal, message){
+    var errorDiv = findErrorDiv(modal);
     if (errorDiv != null) {
         $(errorDiv).html(message);
         $(errorDiv).show();
     }
 }
-function hideModalError(modalSelector) {
-    var errorDiv = findErrorDiv(modalSelector);
+
+function hideModalError(modal) {
+    var errorDiv = findErrorDiv(modal);
     if (errorDiv != null) {
         $(errorDiv).html('');
         $(errorDiv).hide();
     }
 }
-function findErrorDiv(modalSelector) {
-    var divs = $(modalSelector).find('div.modal-error');
+
+function findErrorDiv(modal) {
+    var divs = $(modal).find('div.modal-error');
     if (divs == null || divs.length != 1)
         return null;
     else
         return divs[0];
 }
-
 
 function disableButton(button) {
     if (button.length == 1)
