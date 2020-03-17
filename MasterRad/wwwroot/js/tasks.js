@@ -27,7 +27,7 @@ function getTasks() {
 }
 
 function drawTaskTableMessage(message) {
-    $('#tasks-tbody').html(drawTableMessage(message, 6));
+    $('#tasks-tbody').html(drawTableMessage(message, 8));
 }
 function drawTaskTable(tasks) {
     tbody = $('#tasks-tbody');
@@ -40,6 +40,8 @@ function drawTaskTable(tasks) {
         tableRow += drawDescriptionCell(task);
         tableRow += drawDataCell(task);
         tableRow += drawSolutionCell(task);
+        tableRow += drawAuthorCell(task);
+        tableRow += drawCreatedOnCell(task);
         tableRow += drawDeleteCell(task);
 
         tableRow += '</tr>'
@@ -73,6 +75,12 @@ function drawDataCell(task) {
 }
 function drawSolutionCell(task) {
     return `<td>${drawCellEditNavigationButton('Modify', 'dark', 'updateSolution', task.id, true)}</td>`
+}
+function drawAuthorCell(task) {
+    return '<td><div class="text">' + 'cmilos@etf.bg.ac.rs' + '</div></td>'
+}
+function drawCreatedOnCell(task) {
+    return '<td><div class="text">' + '08/03/2020 20:22' + '</div></td>'
 }
 function drawDeleteCell(task) {
     return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', task.id, task.timestamp, true) + '</td>';

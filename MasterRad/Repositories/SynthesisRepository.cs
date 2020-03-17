@@ -28,6 +28,7 @@ namespace MasterRad.Repositories
         bool HasAnswer(int testId, int userId);
         SynthesisTestStudentEntity GetEvaluationData(int testId, int studentId);
         bool SaveProgress(SynthesisTestStudentEntity entity, bool isSecret, EvaluationProgress status, string message = null);
+        bool TestExists(string name);
         IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId);
     }
 
@@ -250,5 +251,10 @@ namespace MasterRad.Repositories
                        .Include(sts => sts.EvaluationProgress)
                        .Include(sts => sts.Student)
                        .Where(sts => sts.SynthesisTestId == testId);
+
+        public bool TestExists(string name)
+            => _context.SynthesisTests
+                       .Where(t => t.Name.ToLower().Equals(name.ToLower()))
+                       .Any();
     }
 }

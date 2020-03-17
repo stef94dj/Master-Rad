@@ -30,14 +30,14 @@ namespace MasterRad.API
 
         [HttpPost, Route("create/test")]
         public ActionResult<bool> CreateTest([FromBody] AnalysisCreateRQ body)
-           => Ok(_analysisRepository.Create(body));
+           => _analysisRepository.Create(body);
 
         [HttpPost, Route("update/name")]
         public ActionResult<bool> UpdateTestName([FromBody] UpdateNameRQ body)
-            => Ok(_analysisRepository.UpdateName(body));
+            => _analysisRepository.UpdateName(body);
 
         [HttpPost, Route("status/next")]
         public ActionResult<bool> GoToNextStatus([FromBody] UpdateDTO body)
-            => Ok(_analysisRepository.StatusNext(body));
+            => _analysisRepository.StatusNext(body);
     }
 }

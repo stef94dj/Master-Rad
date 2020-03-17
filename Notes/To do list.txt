@@ -1,5 +1,6 @@
 MVP:
 ---
+-created by + createdDate (autoMapper)
 _. pre nego sto se job stavi u Queue proveriti da nije vec tamo 
 _. ne cuvas u bazi kad status predje u queued, saljes samo frontu (signalR) -> nadji u kodu : EvaluationProgress.Queued (EvaluateController)
 _. edit tabele kroz UI, red u tabeli se trazi kao match vrednosti svake kolone 

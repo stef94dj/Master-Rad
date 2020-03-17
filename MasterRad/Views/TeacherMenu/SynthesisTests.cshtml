@@ -3,19 +3,25 @@
     ViewData["Title"] = "Synthesis Tests";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/datatable.css" />
+}
+
 <h1>Synthesis Tests</h1>
 
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped wrap-single-long-word">
     <thead class="thead-dark" id="table-header">
         <tr id="database-table">
-            <th scope="col">Name</th>
-            <th scope="col">Template</th>
-            <th scope="col">Task</th>
-            <th scope="col">Students</th>
-            <th scope="col">Created at</th>
-            <th scope="col">Created by</th>
-            <th scope="col">State</th>
-            <th><button data-toggle="modal" data-target="#create-test-modal" style="float:right" type="button" class="btn btn-primary btn-sm">Create</button></th>
+            <th style="width: 16%">Name</th>
+            <th style="width: 16%">Template</th>
+            <th style="width: 16%">Task</th>
+            <th style="width: 13%">Author</th>
+            <th style="width: 5%">Created on</th>
+            <th style="width: 5%">Students</th>
+            <th style="width: 5%">State</th>
+            <th style="width: 5%">
+                <button data-toggle="modal" data-target="#create-test-modal" type="button" class="btn btn-primary btn-sm">Create</button>
+            </th>
         </tr>
     </thead>
     <tbody id="tests-tbody">
@@ -34,7 +40,8 @@
                     <div class="row">
                         <div class="col-12">
                             <label for="test-name" class="col-form-label">Name:</label>
-                            <input type="text" class="form-control" id="test-name">
+                            <input type="text" class="form-control" id="test-name" maxlength="50" onkeyup="hideModalError($(this).parent());" />
+                            <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
                             <br />
                             <label for="task-list" class="col-form-label">Task:</label>
                             <div class="list-group" id="task-list" role="tablist"></div>
@@ -60,9 +67,10 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="template-name" class="col-form-label">Name:</label>
-                    <input type="text" class="form-control" id="test-name">
-                    <input type="text" class="form-control" id="test-id" hidden>
-                    <input type="text" class="form-control" id="test-timestamp" hidden>
+                    <input type="text" class="form-control" id="test-name" maxlength="50" onkeyup="hideModalError($(this).parent());" />
+                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
+                    <input type="text" class="form-control" id="test-id" hidden />
+                    <input type="text" class="form-control" id="test-timestamp" hidden/>
                 </div>
             </div>
             <div class="modal-footer">
@@ -83,8 +91,9 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="test-id" id="change-status-message" class="col-form-label">Are you sure you want to change the state?</label>
-                    <input type="text" class="form-control" id="test-id" hidden>
-                    <input type="text" class="form-control" id="test-timestamp" hidden>
+                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
+                    <input type="text" class="form-control" id="test-id" hidden />
+                    <input type="text" class="form-control" id="test-timestamp" hidden />
                 </div>
             </div>
             <div class="modal-footer">
@@ -97,9 +106,9 @@
 
 <!-- Form -->
 <form action="" hidden id="hidden-form" method="post">
-    <input type="number" name="testId" id="test-id">
-    <input type="number" name="testType" id="test-type">
-    <input type="submit" value="Submit" id="submit-btn">
+    <input type="number" name="testId" id="test-id" />
+    <input type="number" name="testType" id="test-type" />
+    <input type="submit" value="Submit" id="submit-btn" />
 </form>
 
 @section Scripts {

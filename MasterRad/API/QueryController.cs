@@ -26,14 +26,14 @@ namespace MasterRad.API
         [HttpPost, Route("execute")]
         public ActionResult<Result<QueryExecuteRS>> Execute([FromBody] QueryExecuteRQ body)
         {
-            var connParams = _microsoftSQLService.GetAdminConnParams(body.DatabaseName); 
+            var connParams = _microsoftSQLService.GetAdminConnParams(body.DatabaseName);
 
             var scriptExeRes = _microsoftSQLService.ExecuteSQL(body.SQLQuery, connParams);
 
             if (scriptExeRes.Messages.Any())
                 return Result<QueryExecuteRS>.Fail(scriptExeRes.Messages);
 
-            return Ok(Result<QueryExecuteRS>.Success(scriptExeRes));
+            return Result<QueryExecuteRS>.Success(scriptExeRes);
         }
     }
 }
