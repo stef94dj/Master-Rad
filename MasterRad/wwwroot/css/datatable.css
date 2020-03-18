@@ -20,6 +20,11 @@ table.fixed td {
     vertical-align: middle;
 }
 
+table td.hover-text-button {
+    /*hoverable text stype*/
+    /*color: #27a745;*/
+}
+
 td div {
     text-align: center;
 }

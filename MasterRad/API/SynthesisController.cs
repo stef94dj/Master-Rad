@@ -40,7 +40,7 @@ namespace MasterRad.API
 
             var testExists = _synthesisRepository.TestExists(body.Name);
             if (testExists)
-                return Result<bool>.Fail($"Task '{body.Name}' already exists.");
+                return Result<bool>.Fail($"Test '{body.Name}' already exists.");
 
             var success = _synthesisRepository.Create(body);
             if (success)
@@ -57,7 +57,7 @@ namespace MasterRad.API
 
             var testExists = _synthesisRepository.TestExists(body.Name);
             if (testExists)
-                return Result<bool>.Fail($"Task '{body.Name}' already exists.");
+                return Result<bool>.Fail($"Test '{body.Name}' already exists.");
 
             var success  = _synthesisRepository.UpdateName(body);
             if (success)
@@ -68,7 +68,7 @@ namespace MasterRad.API
 
         [HttpPost, Route("status/next")]
         public ActionResult<bool> GoToNextStatus([FromBody] UpdateDTO body)
-            => StatusCode(500); //_synthesisRepository.StatusNext(body);
+            => _synthesisRepository.StatusNext(body);
 
 
         [HttpGet, Route("Solution/Format/{testId}")]

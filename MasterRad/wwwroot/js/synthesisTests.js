@@ -49,8 +49,8 @@ function drawTestsList(data) {
 
         var testItem = '<tr>';
         testItem += drawNameCell(test);
-        testItem += drawTemplateCell(test);
         testItem += drawTaskCell(test);
+        testItem += drawTemplateCell(test);
         testItem += drawAuthorCell(test);
         testItem += drawCreatedOnCell(test);
         testItem += drawStudentsCell(test);
