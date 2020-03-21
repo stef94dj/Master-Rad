@@ -55,7 +55,6 @@ function mapToDisplay(inputJson) {
         });
     }
 
-    debugger;
     return res;
 }
 

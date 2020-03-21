@@ -16,13 +16,16 @@ $(document).ready(function () {
         })
         .then(() => {
             tablesDropdownJS.attachOnChangeHandler(tableSelected);
+        })
+        .then(() => {
+            tableSelected();
         });
 });
 
 //Table info
 function tableSelected() {
     var dbName = $('#name-on-server').val();
-    var tableFullName = parseTableName($(this).val());
+    var tableFullName = parseTableName($('#tableSelector').val());
     loadJson(dbName, tableFullName.schemaName, tableFullName.tableName);
 }
 
