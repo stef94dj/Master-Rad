@@ -77,7 +77,9 @@
         } else if (typeof json === 'object') {
             var keyCount = Object.keys(json).length;
             if (keyCount > 0) {
-                html += '{<ul class="json-dict">';
+                if (!options.hideCurlyBraces)
+                    html += '{';
+                html += '<ul class="json-dict">';
                 for (var key in json) {
                     if (Object.prototype.hasOwnProperty.call(json, key)) {
                         html += '<li>';
@@ -90,16 +92,24 @@
                             html += keyRepr;
                         }
                         html += ': ' + json2html(json[key], options);
-                        // Add comma if item is not last
-                        if (--keyCount > 0) {
+
+                        // Add comma if item is not last && commans not disabled
+                        if (--keyCount > 0 && !options.hideCommas) {
                             html += ',';
                         }
                         html += '</li>';
                     }
                 }
-                html += '</ul>}';
+                html += '</ul>';
+                if (!options.hideCurlyBraces)
+                    html += '}';
             } else {
-                html += '{}';
+                if (!options.hideCurlyBraces)
+                    html += '{';
+                if (options.noItemsMessage != null)
+                    html += `<a href="" class="json-placeholder">${options.noItemsMessage}</a>`;
+                if (!options.hideCurlyBraces)
+                    html += '}';
             }
         }
         return html;
@@ -116,7 +126,10 @@
             collapsed: false,
             rootCollapsable: true,
             withQuotes: false,
-            withLinks: true
+            withLinks: true,
+            hideCommas: false,
+            hideCurlyBraces: false,
+            noItemsMessage: null
         }, options);
 
         // jQuery chaining

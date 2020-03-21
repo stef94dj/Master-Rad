@@ -17,7 +17,10 @@ function displayJson(jsonData) {
 
     $('#json-display').jsonViewer(input, {
         collapsed: true,
-        rootCollapsable: false
+        rootCollapsable: false,
+        hideCommas: true,
+        hideCurlyBraces: true,
+        noItemsMessage: '0 items'
     });
 }
 
