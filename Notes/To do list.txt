@@ -3,6 +3,7 @@ MVP:
 -created by + createdDate (autoMapper)
 _. pre nego sto se job stavi u Queue proveriti da nije vec tamo 
 _. ne cuvas u bazi kad status predje u queued, saljes samo frontu (signalR) -> nadji u kodu : EvaluationProgress.Queued (EvaluateController)
+
 _. edit tabele kroz UI, red u tabeli se trazi kao match vrednosti svake kolone 
    problem 1: kada postoje 2 reda sa identicnim vrednostima edit/delete utice na oba reda
    problem 2: (za neke vrednosti) kod nekih sql tipova poredjenje vrednosti  moze da bude problem (vrednost koja se prikazuje u tabeli nije uvek onog formata kog treba da bude u where statement-u)
