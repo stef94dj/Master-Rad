@@ -35,9 +35,16 @@ function initSqlEditor(tableAndColumnNames) {
             tables: tableAndColumnNames
         }
     });
+
     editor.on("change", function (cm, change) {
         saveScriptUI.checkDisableSave();
     });
+
+    //make edges round
+    var textareaDiv = $($('#sql-script').parent().parent().find('div.CodeMirror')[0]);
+    var styleVal = textareaDiv.attr('style') == null ? '' : textareaDiv.attr('style');
+    styleVal += ' border-radius: 10px;';
+    textareaDiv.attr('style', styleVal);
 }
 
 function executeSqlScript(dto, callback) {
