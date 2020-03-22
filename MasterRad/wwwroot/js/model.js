@@ -39,7 +39,7 @@ function sqlExeCallback(data) {
 //Table info
 function tableSelected() {
     var dbName = $('#db-name').val();
-    var tableFullName = parseTableName($(this).val());
+    var tableFullName = parseTableName($('#tableSelector').val());
     loadJson(dbName, tableFullName.schemaName, tableFullName.tableName);
 }
 

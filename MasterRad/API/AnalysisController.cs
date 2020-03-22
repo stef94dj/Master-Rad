@@ -1,5 +1,6 @@
 ﻿using MasterRad.DTOs;
 using MasterRad.Entities;
+using MasterRad.Models;
 using MasterRad.Models.DTOs;
 using MasterRad.Repositories;
 using MasterRad.Services;
@@ -30,14 +31,27 @@ namespace MasterRad.API
 
         [HttpPost, Route("create/test")]
         public ActionResult<bool> CreateTest([FromBody] AnalysisCreateRQ body)
-           => Ok(_analysisRepository.Create(body));
+           => _analysisRepository.Create(body);
 
         [HttpPost, Route("update/name")]
-        public ActionResult<bool> UpdateTestName([FromBody] UpdateNameRQ body)
-            => Ok(_analysisRepository.UpdateName(body));
+        public ActionResult<Result<bool>> UpdateTestName([FromBody] UpdateNameRQ body)
+        {
+            if (string.IsNullOrEmpty(body.Name))
+                return Result<bool>.Fail("Name cannot be empty.");
+
+            var testExists = _analysisRepository.TestExists(body.Name);
+            if (testExists)
+                return Result<bool>.Fail($"Test '{body.Name}' already exists.");
+
+            var success = _analysisRepository.UpdateName(body);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed to save changes.");
+        }
 
         [HttpPost, Route("status/next")]
         public ActionResult<bool> GoToNextStatus([FromBody] UpdateDTO body)
-            => Ok(_analysisRepository.StatusNext(body));
+            => _analysisRepository.StatusNext(body);
     }
 }

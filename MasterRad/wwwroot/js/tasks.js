@@ -1,25 +1,47 @@
 ﻿$(document).ready(function () {
-    loadTasks($('#tasks-tbody'), '/api/Task/Get');
-    loadTemplates('/api/Template/Get');
+    loadTasks();
+    loadTemplates();
+
+    bindModalOnShow('#create-task-modal', onCreateTaskModalShow);
     bindModalOnShow('#update-name-modal', onNameModalShow);
     bindModalOnShow('#update-description-modal', onDescriptionModalShow);
-    bindModalOnShow('#change-template-modal', onChangeTemplateModalShow);
 });
 
-//DRAW TEMPLATES TABLE
-function drawTaskTableMessage(message) {
-    return drawTableMessage(message, 6)
+//LOAD TASKS
+function loadTasks() {
+    drawTaskTableMessage('Loading data...');
+    getTasks()
+        .then(data => {
+            drawTaskTable(data);
+        })
+        .catch(error => {
+            drawTaskTableMessage('Error loading data...');
+        })
+        .then(data => {
+            defineNameHoverBehaviour($('td.hover-text-button'));
+        });
 }
-function drawTaskTable(tbody, tasks) {
+function getTasks() {
+    var apiUrl = '/api/Task/Get';
+    return promisifyAjaxGet(apiUrl);
+}
+
+function drawTaskTableMessage(message) {
+    $('#tasks-tbody').html(drawTableMessage(message, 8));
+}
+function drawTaskTable(tasks) {
+    tbody = $('#tasks-tbody');
     tbody.html('');
     $.each(tasks, function (index, task) {
         var tableRow = '<tr>';
 
         tableRow += drawNameCell(task);
-        tableRow += drawDescriptionCell(task);
         tableRow += drawTemplateCell(task);
+        tableRow += drawDescriptionCell(task);
         tableRow += drawDataCell(task);
         tableRow += drawSolutionCell(task);
+        tableRow += drawAuthorCell(task);
+        tableRow += drawCreatedOnCell(task);
         tableRow += drawDeleteCell(task);
 
         tableRow += '</tr>'
@@ -27,59 +49,54 @@ function drawTaskTable(tbody, tasks) {
     });
 }
 function drawNameCell(task) {
-    var result = '<td><div>';
-    result += '<p style="float:left">' + task.name + '</p>';
-    result += drawCellEditModalButton('Edit', 'dark', '#update-name-modal', task.id, task.timeStamp, true);
-    result += '</div></td>';
+    //var result = '<td><div>';
+    //result += '<p style="float:left">' + task.name + '</p>';
+    //result += drawCellEditModalButton('Edit', 'dark', '#update-name-modal', task.id, task.timeStamp, true);
+    //result += '</div></td>';
+    //return result;
+
+
+    var result = '<td class="hover-text-button">';
+    result += '<div class="text">' + task.name + '</div>';
+    result += drawCellEditModalButton('Modify', 'dark', '#update-name-modal', task.id, task.timeStamp, true, true);
+    result += '</td>';
     return result;
 }
 function drawDescriptionCell(task) {
-    var result = '<td>';
-
-    result += '<p style="float:left">';
-    if (task.description != null)
-        result += task.description;
-    result += '</p>';
-
-    if (task.description == null || task.description == '')
-        result += drawCellEditModalButton('Set', 'dark', '#update-description-modal', task.id, task.timeStamp, true);
-    else
-        result += drawCellEditModalButton('Edit', 'dark', '#update-description-modal', task.id, task.timeStamp, true);
-
-    result += '</td>';
-
-    return result;
+    var hiddenDescription = `<p style="display:none">${task.description != null ? task.description : ''}</p>`
+    var editBtn = drawCellEditModalButton('Modify', 'dark', '#update-description-modal', task.id, task.timeStamp, true);
+    return `<td>${hiddenDescription}${editBtn}</td>`;
 }
 function drawTemplateCell(task) {
     return '<td>' + task.template.name + '</td>';
 }
 function drawDataCell(task) {
-    if (!task.isDataSet)
-        return '<td>' + drawCellEditNavigationButton('Set', 'dark', 'updateData', task.id, true) + '</td>';
-    else
-        return '<td>' + drawCellEditNavigationButton('Edit', 'dark', 'updateData', task.id, true) + '</td>';
+    return `<td>${drawCellEditNavigationButton('Modify', 'dark', 'updateData', task.id, true)}</td>`;
 }
 function drawSolutionCell(task) {
-    var result = '<td>';
-
-    result += '<p style="float:left">';
-    if (task.solutionSqlScript != null)
-        result += task.solutionSqlScript;
-    result += '</p>';
-
-    if (task.solutionSqlScript == null || task.solutionSqlScript == '')
-        result += drawCellEditNavigationButton('Set', 'dark', 'updateSolution', task.id, true);
-    else
-        result += drawCellEditNavigationButton('Edit', 'dark', 'updateSolution', task.id, true);
-
-    result += '</td>';
-    return result;
+    return `<td>${drawCellEditNavigationButton('Modify', 'dark', 'updateSolution', task.id, true)}</td>`
+}
+function drawAuthorCell(task) {
+    return '<td><div class="text">' + 'cmilos@etf.bg.ac.rs' + '</div></td>'
+}
+function drawCreatedOnCell(task) {
+    return '<td><div class="text">' + '08/03/2020 20:22' + '</div></td>'
 }
 function drawDeleteCell(task) {
     return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', task.id, task.timestamp, true) + '</td>';
 }
 
-//DRAW TEMPLATES LIST
+//LOAD TEMPLATES
+function loadTemplates() {
+    getTemplates()
+        .then(data => {
+            drawTemplatesList(data);
+        })
+}
+function getTemplates() {
+    var apiUrl = '/api/Template/Get';
+    return promisifyAjaxGet(apiUrl);
+}
 function drawTemplatesList(data) {
     var createTaskList = $('#create-task-modal').find('#templates-list');
     var editTemplateList = $('#change-template-modal').find('#templates-list');
@@ -88,26 +105,37 @@ function drawTemplatesList(data) {
         var item = '<a data-template-id="' + template.id + '"';
         item += ' style="word-wrap: break-word" class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">';
         item += template.name;
-        item += '</a>'  
+        item += '</a>'
 
         createTaskList.append(item);
         editTemplateList.append(item);
     });
 }
 
-//MODAL SHOW
+//MODAL SHOW/HIDE
+function onCreateTaskModalShow(element, event) {
+    var modal = $(element);
+    modal.find('#task-name').val('');
+    var templateItems = modal.find('a');
+    $.each(templateItems, function (index, item) {
+        $(item).removeClass('active', false);
+    });
+
+    hideModalError(element);
+}
 function onNameModalShow(element, event) {
     var button = $(event.relatedTarget)
 
-    var name = button.parent().find('p').html();
+    var name = button.parent().find('div').html();
     var id = button.data('id');
     var timestamp = button.data('timestamp');
 
-    var modal = $(element)
+    var modal = $(element);
 
-    modal.find('#template-name').val(name);
-    modal.find('#template-id').val(id);
-    modal.find('#template-timestamp').val(timestamp);
+    modal.find('#task-name').val(name);
+    modal.find('#task-id').val(id);
+    modal.find('#task-timestamp').val(timestamp);
+    hideModalError(element);
 }
 function onDescriptionModalShow(element, event) {
     var button = $(event.relatedTarget)
@@ -121,53 +149,10 @@ function onDescriptionModalShow(element, event) {
     modal.find('#template-description').val(name);
     modal.find('#template-id').val(id);
     modal.find('#template-timestamp').val(timestamp);
-}
-function onChangeTemplateModalShow(element, event) {
-    var button = $(event.relatedTarget)
-
-    var taskId = button.data('id');
-    var taskTimeStamp = button.data('timestamp');
-    var templateId = button.parents().eq(1).data('template-id');
-
-    var modal = $(element);
-
-    modal.find('#task-id').val(taskId);
-    modal.find('#task-timestamp').val(taskTimeStamp);
-
-    var items = modal.find('#templates-list').find('a');
-    $.each(items, function (index, item) {
-        $(item).removeClass('active');
-
-        if ($(item).data('template-id') == templateId)
-            $(item).addClass('active');
-    });
-
+    hideModalError(element);
 }
 
 //API CALLERS
-function loadTasks(tbody, apiUrl) {
-    tbody.html(drawTaskTableMessage('Loading data...'));
-    $.ajax({
-        url: apiUrl,
-        type: 'GET',
-        success: function (data) {
-            drawTaskTable(tbody, data);
-        },
-        error: function () {
-            tbody.html(drawTaskTableMessage('Error loading data.'));
-        }
-    });
-}
-function loadTemplates(apiUrl) {
-    //tbody.html(drawTaskTableMessage('Loading data...'));
-    $.ajax({
-        url: apiUrl,
-        type: 'GET',
-        success: function (data) {
-            drawTemplatesList(data);
-        }
-    });
-}
 function createTask() {
     var modalBody = $('#create-task-modal').find('.modal-body');
 
@@ -183,8 +168,10 @@ function createTask() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            $('#create-task-modal').modal('toggle');
-            loadTasks($('#tasks-tbody'), '/api/Task/Get');
+            handleModalAjaxSuccess('#create-task-modal', data, loadTasks);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#create-task-modal', loadTasks);
         }
     });
 }
@@ -192,9 +179,9 @@ function updateName() {
     var modalBody = $('#update-name-modal').find('.modal-body');
 
     var rqBody = {
-        "Id": parseInt(modalBody.find('#template-id').val()),
-        "TimeStamp": modalBody.find('#template-timestamp').val(),
-        "Name": modalBody.find('#template-name').val()
+        "Id": parseInt(modalBody.find('#task-id').val()),
+        "TimeStamp": modalBody.find('#task-timestamp').val(),
+        "Name": modalBody.find('#task-name').val()
     }
 
     $.ajax({
@@ -204,8 +191,10 @@ function updateName() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            $('#update-name-modal').modal('toggle');
-            loadTasks($('#tasks-tbody'), '/api/Task/Get');
+            handleModalAjaxSuccess('#update-name-modal', data, loadTasks);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#update-name-modal', loadTasks);
         }
     });
 }
@@ -225,11 +214,15 @@ function updateDescription() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            $('#update-description-modal').modal('toggle');
-            loadTasks($('#tasks-tbody'), '/api/Task/Get');
+            handleModalAjaxSuccess('#update-description-modal', data, loadTasks);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#update-description-modal', loadTasks);
         }
     });
 }
+
+//NAVIGATION
 function updateData(id) {
     var form = $('#hidden-form');
     form.find('#task-id').val(id);

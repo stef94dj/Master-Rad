@@ -43,38 +43,73 @@ namespace MasterRad.API
         //[Authorize(Roles = "Professor")][Authorize(Roles = "Student")] - Require both roles
         //[Authorize(Roles = "Professor,Student")]- Require either role
         [HttpGet, Route("Get")]
-        public ActionResult GetTasks()
-        {
-            var isTeacher = User.IsInRole("Professor");
-            var isStudent = User.IsInRole("Student");
-
-            return Ok(_taskRepo.Get());
-        }
+        public ActionResult<IEnumerable<TaskEntity>> GetTasks()
+            => _taskRepo.Get(); //var isTeacher = User.IsInRole("Professor"); var isStudent = User.IsInRole("Student");
 
         [HttpPost, Route("Create")]
-        public ActionResult CreateTask([FromBody] CreateTaskRQ body)
+        public ActionResult<Result<bool>> CreateTask([FromBody] CreateTaskRQ body)
         {
+            if (string.IsNullOrEmpty(body.Name))
+                return Result<bool>.Fail("Name cannot be empty.");
+
+            if (body.TemplateId <= 0)
+                return Result<bool>.Fail("A template must be selected.");
+
+            var taskExists = _taskRepo.TaskExists(body.Name);
+            if (taskExists)
+                return Result<bool>.Fail($"Task '{body.Name}' already exists.");
+
+            var newDbName = NameHelper.TaskName();
+
+            var alreadyRegistered = _taskRepo.DatabaseRegisteredAsTask(newDbName);
+            if (alreadyRegistered)
+                return Result<bool>.Fail($"Generated name is already used for another task. Please try again.");
+
+            var existsOnSqlServer = _microsoftSQLService.DatabaseExists(newDbName);
+            if (existsOnSqlServer)
+                return Result<bool>.Fail($"Generated name is not unique. Please try again.");
+
             var templateEntity = _templateRepo.Get(body.TemplateId);
-
-            var taskNameOnServer = NameHelper.TaskName(body.Name);
-            var cloneSuccess = _microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, taskNameOnServer, true);
+            var cloneSuccess = _microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, newDbName, true);
             if (!cloneSuccess)
-                return Ok(new JsonResult(new { Message = "Unable to clone database" }));
+                return Result<bool>.Fail($"Failed to clone database '{templateEntity.NameOnServer}' into '{newDbName}'.");
 
-            var result = _taskRepo.Create(body, taskNameOnServer);
-            return Ok(result);
+            var success = _taskRepo.Create(body, newDbName);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed to save changes.");
         }
 
         [HttpPost, Route("Update/Description")]
-        public ActionResult UpdateDescription([FromBody] UpdateDescriptionRQ body)
-            => Ok(_taskRepo.UpdateDescription(body));
+        public ActionResult<Result<bool>> UpdateDescription([FromBody] UpdateDescriptionRQ body)
+        {
+            var success = _taskRepo.UpdateDescription(body);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed to save changes.");
+        }
 
         [HttpPost, Route("Update/Name")]
-        public ActionResult UpdateName([FromBody] UpdateNameRQ body)
-            => Ok(_taskRepo.UpdateName(body));
+        public ActionResult<Result<bool>> UpdateName([FromBody] UpdateNameRQ body)
+        {
+            if (string.IsNullOrEmpty(body.Name))
+                return Result<bool>.Fail("Name cannot be empty.");
+
+            var taskExists = _taskRepo.TaskExists(body.Name);
+            if (taskExists)
+                return Result<bool>.Fail($"Task '{body.Name}' already exists.");
+
+            var success = _taskRepo.UpdateName(body);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed to save changes.");
+        }
 
         [HttpPost, Route("Update/Solution")]
-        public ActionResult UpdateSolution([FromBody] UpdateTaskSolutionRQ body)
-            => Ok(_taskRepo.UpdateSolution(body));
+        public ActionResult<TaskEntity> UpdateSolution([FromBody] UpdateTaskSolutionRQ body)
+            => _taskRepo.UpdateSolution(body);
     }
 }

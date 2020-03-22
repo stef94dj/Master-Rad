@@ -149,7 +149,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("remove/assigned")]
-        public ActionResult RemoveStudentFromTest([FromBody] RemoveAssignedRQ body)
+        public ActionResult<bool> RemoveStudentFromTest([FromBody] RemoveAssignedRQ body)
         {
             switch (body.TestType)
             {
@@ -165,7 +165,7 @@ namespace MasterRad.API
                     return StatusCode(500);
             }
 
-            return Ok(true);
+            return true;
         }
 
         private bool RemoveStudentFromSynthesis(RemoveAssignedRQ model)

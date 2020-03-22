@@ -10,15 +10,20 @@ function drawCellEditNavigationButton(buttonName, color, handlerName, id, enable
     var result = '<button ';
     if (!enabled)
         result += 'disabled ';
-    result += 'onclick="' + handlerName + '(' + id + ')" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
+    result += 'onclick="' + handlerName + '(' + id + ')" type="button" class="btn btn-outline-' + color + ' btn-sm center">' + buttonName + '</button>'
     return result;
 }
 
-function drawCellEditModalButton(buttonName, color, modalselector, id, timestamp, enabled) {
+function drawCellEditModalButton(buttonName, color, modalselector, id, timestamp, enabled, hidden) {
     var result = '<button ';
+
     if (!enabled)
         result += 'disabled ';
-    result += 'data-toggle="modal" data-target="' + modalselector + '" data-id="' + id + '" data-timestamp="' + timestamp + '" type="button" style="float:right" class="btn btn-outline-' + color + ' btn-sm">' + buttonName + '</button>'
+
+    if (hidden)
+        result += 'hidden="true" ';
+
+    result += 'data-toggle="modal" data-target="' + modalselector + '" data-id="' + id + '" data-timestamp="' + timestamp + '" type="button" class="btn btn-outline-' + color + ' btn-sm center">' + buttonName + '</button>'
     return result;
 }
 
@@ -37,6 +42,77 @@ function bindModalOnShow(selector, handler) {
     $(selector).on('show.bs.modal', function (event) {
         handler(this, event);
     })
+}
+
+function bindModalOnClose(selector, handler) {
+    $(selector).on('hidden.bs.modal', function (event) {
+        handler(this, event);
+        hideModalError(selector);
+    });
+}
+
+function showModalError(modal, message) {
+    var errorDiv = findErrorDiv(modal);
+    if (errorDiv != null) {
+        $(errorDiv).html(message);
+        $(errorDiv).show();
+    }
+}
+
+function hideModalError(modal) {
+    var errorDiv = findErrorDiv(modal);
+    if (errorDiv != null) {
+        $(errorDiv).html('');
+        $(errorDiv).hide();
+    }
+}
+
+function findErrorDiv(modal) {
+    var divs = $(modal).find('div.modal-error');
+    if (divs == null || divs.length != 1)
+        return null;
+    else
+        return divs[0];
+}
+
+function handleModalAjaxSuccess(modalSelector, data, reloadFunc) {
+    var modal = $(modalSelector);
+    hideModalError(modal);
+    if (data != null && data.isSuccess) {
+        modal.modal('toggle');
+        modal.find('.modal-body').find(modalSelector).val('');
+    }
+    else if (data.errors != null && data.errors.length > 0) {
+        showModalError(modal, data.errors[0]);
+    }
+
+    if (reloadFunc != null)
+        reloadFunc();
+}
+function handleModalAjaxError(modalSelector, reloadFunc) {
+    showModalError(modalSelector, 'Unexpected error occured.');
+    if (reloadFunc != null)
+        reloadFunc();
+}
+
+function defineNameHoverBehaviour(collection) {
+    $.each(collection, function (index, item) {
+        $(item).hover(
+            function () { //on hover in
+                textButtonSwap(this, false);
+            },
+            function () { //on hover out
+                textButtonSwap(this, true);
+            })
+    });
+}
+
+function textButtonSwap(td, showText) {
+    var p = $(td).find('div.text')[0];
+    var btn = $(td).find('button')[0];
+
+    $(p).attr('hidden', !showText);
+    $(btn).attr('hidden', showText);
 }
 
 function disableButton(button) {

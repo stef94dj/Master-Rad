@@ -28,9 +28,7 @@ namespace MasterRad.API
         public ActionResult<Result<bool>> InsertRecord([FromBody] DataCreateRQ body)
         {
             var connParams = _microsoftSQLService.GetAdminConnParams(body.DatabaseName);
-
-            var res = _microsoftSQLService.InsertRecord(body.SchemaName, body.TableName, body.ValuesNew, connParams);
-            return Ok(res);
+            return _microsoftSQLService.InsertRecord(body.SchemaName, body.TableName, body.ValuesNew, connParams);
         }
 
         [HttpPost, Route("update")]
@@ -45,8 +43,7 @@ namespace MasterRad.API
             if (count != 1)
                 return Result<bool>.Fail($"The change would affect {count} records.");
 
-            var res = _microsoftSQLService.UpdateRecord(body.SchemaName, body.TableName, body.ValueNew, body.ValuesUnmodified, connParams);
-            return Ok(res);
+            return _microsoftSQLService.UpdateRecord(body.SchemaName, body.TableName, body.ValueNew, body.ValuesUnmodified, connParams);
         }
 
         [HttpPost, Route("delete")]
@@ -57,8 +54,7 @@ namespace MasterRad.API
             //var userName = string.Empty; //_profileService.GetUserName(token); 
             //var tableName = $"{body.TableName}_{userName}";
 
-            var res = _microsoftSQLService.DeleteRecord(body.SchemaName, body.TableName, body.ValuesUnmodified, connParams);
-            return Ok(res);
+            return _microsoftSQLService.DeleteRecord(body.SchemaName, body.TableName, body.ValuesUnmodified, connParams);
         }
 
         [HttpGet, Route("read/{dbName}/{schemaName}/{tableName}")]
@@ -67,8 +63,7 @@ namespace MasterRad.API
             var connParams = _microsoftSQLService.GetAdminConnParams(dbName);
 
             var queryResult = _microsoftSQLService.ReadTable(dbName, schemaName, tableName); //ovo ide kao admin - connParams?
-            var table = queryResult.Tables.Single();
-            return Ok(table);
+            return queryResult.Tables.Single();
         }
     }
 }

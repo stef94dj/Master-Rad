@@ -12,10 +12,12 @@ namespace MasterRad.Repositories
     {
         List<TaskEntity> Get();
         TaskEntity Get(int id);
-        TaskEntity Create(CreateTaskRQ request, string nameOnServer);
-        TaskEntity UpdateName(UpdateNameRQ request);
-        TaskEntity UpdateDescription(UpdateDescriptionRQ request);
+        bool Create(CreateTaskRQ request, string nameOnServer);
+        bool UpdateName(UpdateNameRQ request);
+        bool UpdateDescription(UpdateDescriptionRQ request);
         TaskEntity UpdateSolution(UpdateTaskSolutionRQ request);
+        bool TaskExists(string taskName);
+        bool DatabaseRegisteredAsTask(string dbName);
     }
 
     public class TaskRepository : ITaskRepository
@@ -25,23 +27,6 @@ namespace MasterRad.Repositories
         public TaskRepository(Context context)
         {
             _context = context;
-        }
-
-        public TaskEntity Create(CreateTaskRQ request, string nameOnServer)
-        {
-            var taskEntity = new TaskEntity() //AutoMapper
-            {
-                Name = request.Name,
-                TemplateId = request.TemplateId,
-                NameOnServer = nameOnServer,
-                DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED",
-            };
-
-            _context.Tasks.Add(taskEntity);
-            _context.SaveChanges();
-
-            return taskEntity;
         }
 
         public List<TaskEntity> Get()
@@ -55,28 +40,22 @@ namespace MasterRad.Repositories
                        .Where(x => x.Id == id)
                        .Single();
 
-
-        public TaskEntity UpdateDescription(UpdateDescriptionRQ request)
+        public bool Create(CreateTaskRQ request, string nameOnServer)
         {
             var taskEntity = new TaskEntity() //AutoMapper
             {
-                Id = request.Id,
-                TimeStamp = request.TimeStamp,
-                Description = request.Description,
-                DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                Name = request.Name,
+                TemplateId = request.TemplateId,
+                NameOnServer = nameOnServer,
+                DateCreated = DateTime.UtcNow,
+                CreatedBy = "Current user - NOT IMPLEMENTED",
             };
 
-            _context.Tasks.Attach(taskEntity);
-            _context.Entry(taskEntity).Property(x => x.Description).IsModified = true;
-            _context.Entry(taskEntity).Property(x => x.DateModified).IsModified = true;
-            _context.Entry(taskEntity).Property(x => x.ModifiedBy).IsModified = true;
-
-            _context.SaveChanges();
-            return taskEntity;
+            _context.Tasks.Add(taskEntity);
+            return _context.SaveChanges() == 1;
         }
 
-        public TaskEntity UpdateName(UpdateNameRQ request)
+        public bool UpdateName(UpdateNameRQ request)
         {
             var taskEntity = new TaskEntity() //AutoMapper
             {
@@ -92,8 +71,26 @@ namespace MasterRad.Repositories
             _context.Entry(taskEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(taskEntity).Property(x => x.ModifiedBy).IsModified = true;
 
-            _context.SaveChanges();
-            return taskEntity;
+            return _context.SaveChanges() == 1;
+        }
+
+        public bool UpdateDescription(UpdateDescriptionRQ request)
+        {
+            var taskEntity = new TaskEntity() //AutoMapper
+            {
+                Id = request.Id,
+                TimeStamp = request.TimeStamp,
+                Description = request.Description,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = "Current user - NOT IMPLEMENTED",
+            };
+
+            _context.Tasks.Attach(taskEntity);
+            _context.Entry(taskEntity).Property(x => x.Description).IsModified = true;
+            _context.Entry(taskEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(taskEntity).Property(x => x.ModifiedBy).IsModified = true;
+
+            return _context.SaveChanges() == 1;
         }
 
         public TaskEntity UpdateSolution(UpdateTaskSolutionRQ request)
@@ -131,5 +128,15 @@ namespace MasterRad.Repositories
             _context.SaveChanges();
             return taskEntity;
         }
+
+        public bool TaskExists(string taskName)
+            => _context.Tasks
+                       .Where(t => t.Name.ToLower().Equals(taskName.ToLower()))
+                       .Any();
+
+        public bool DatabaseRegisteredAsTask(string dbName)
+            => _context.Tasks
+                       .Where(t => t.NameOnServer.ToLower().Equals(dbName.ToLower()))
+                       .Any();
     }
 }

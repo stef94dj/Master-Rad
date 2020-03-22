@@ -3,7 +3,7 @@
 }
 
 .CodeMirror-focused {
-    outline: 1px solid #00d8ff;
+    box-shadow: 0 0 2pt 1pt #007bfe
 }
 
 .CodeMirror pre.CodeMirror-placeholder {

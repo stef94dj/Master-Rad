@@ -25,6 +25,7 @@ namespace MasterRad.Repositories
         bool MarkExamAsTaken(int testId, int studentId, byte[] timeStamp);
         AnalysisTestStudentEntity GetEvaluationData(int testId, int studentId);
         bool SaveProgress(AnalysisTestStudentEntity entity, AnalysisEvaluationType type, EvaluationProgress status, string message = null);
+        bool TestExists(string name);
     }
 
     public class AnalysisRepository : IAnalysisRepository
@@ -185,5 +186,10 @@ namespace MasterRad.Repositories
             var affectedRecords = _context.SaveChanges();
             return affectedRecords == 1;
         }
+
+        public bool TestExists(string name)
+            => _context.AnalysisTests
+                       .Where(t => t.Name.ToLower().Equals(name.ToLower()))
+                       .Any();
     }
 }

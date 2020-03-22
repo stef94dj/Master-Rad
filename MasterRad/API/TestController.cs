@@ -44,7 +44,7 @@ namespace MasterRad.API
             if (analysisTests != null && analysisTests.Any())
                 res.AddRange(analysisTests.Select(ats => new StudentTestDto(ats)));
 
-            return Ok(res);
+            return res;
         }
     }
 }

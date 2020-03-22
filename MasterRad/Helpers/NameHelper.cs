@@ -8,14 +8,15 @@ namespace MasterRad.Helpers
 {
     public static class NameHelper
     {
-        public static string TemplateName(string templateName)
+        public static string TemplateName()
         {
-            return $"TMP_{templateName}".Replace("\t", "_").Replace(" ", "_");
+
+            return $"TMP_{Guid.NewGuid()}";
         }
 
-        public static string TaskName(string taskName)
+        public static string TaskName()
         {
-            return $"TSK_{taskName}".Replace("\t", "_").Replace(" ", "_");
+            return $"TSK_{Guid.NewGuid()}";
         }
 
         public static IEnumerable<KeyValuePair<int, string>> SynthesisTestExam(IEnumerable<int> studentIds, int testId)

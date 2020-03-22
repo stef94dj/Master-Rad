@@ -4,14 +4,16 @@ using MasterRad;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MasterRad.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20200308190859_template-name-maxlength")]
+    partial class templatenamemaxlength
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,7 +72,7 @@ namespace MasterRad.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50);
+                        .HasMaxLength(255);
 
                     b.Property<int>("STS_StudentId");
 
@@ -350,7 +352,7 @@ namespace MasterRad.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50);
+                        .HasMaxLength(255);
 
                     b.Property<int>("Status");
 
@@ -422,7 +424,7 @@ namespace MasterRad.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50);
+                        .HasMaxLength(63);
 
                     b.Property<string>("NameOnServer")
                         .HasMaxLength(255);
@@ -457,8 +459,7 @@ namespace MasterRad.Migrations
 
                     b.Property<DateTime?>("DateModified");
 
-                    b.Property<string>("ModelDescription")
-                        .HasMaxLength(8191);
+                    b.Property<string>("ModelDescription");
 
                     b.Property<string>("ModifiedBy");
 

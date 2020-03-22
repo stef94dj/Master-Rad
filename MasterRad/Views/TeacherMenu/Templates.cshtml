@@ -3,18 +3,25 @@
     ViewData["Title"] = "Templates";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/datatable.css" />
+}
 <h1>Templates</h1>
 
 <!-- Templates table -->
 <br />
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped fixed wrap-single-long-word">
     <thead class="thead-dark" id="table-header">
         <tr id="database-table">
-            <th scope="col">Name</th>
-            <th scope="col">Description</th>
-            <th scope="col">Model</th>
-            <th scope="col">Data</th>
-            <th><button data-toggle="modal" data-target="#create-template-modal" style="float:right" type="button" class="btn btn-primary btn-sm">Create</button></th>
+            <th style="width: 16%">Name</th>
+            <th style="width: 4%">Description</th>
+            <th style="width: 4%">Model</th>
+            <th style="width: 4%">Data</th>
+            <th style="width: 13%">Author</th>
+            <th style="width: 4%">Created on</th>
+            <th style="width: 4%">
+                <button data-toggle="modal" data-target="#create-template-modal" type="button" class="btn btn-primary btn-sm">Create</button>
+            </th>
         </tr>
     </thead>
     <tbody id="templates-tbody" />
@@ -30,7 +37,8 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="template-name" class="col-form-label">Name:</label>
-                    <input type="text" class="form-control" id="template-name">
+                    <input type="text" class="form-control" id="template-name" maxlength="50" onkeyup="hideModalError($(this).parent());" />
+                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -51,9 +59,10 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="template-name" class="col-form-label">Name:</label>
-                    <input type="text" class="form-control" id="template-name">
-                    <input type="text" class="form-control" id="template-id" hidden>
-                    <input type="text" class="form-control" id="template-timestamp" hidden>
+                    <input type="text" class="form-control" id="template-name" maxlength="50" onkeyup="hideModalError($(this).parent());" />
+                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
+                    <input type="text" class="form-control" id="template-id" hidden />
+                    <input type="text" class="form-control" id="template-timestamp" hidden />
                 </div>
             </div>
             <div class="modal-footer">
@@ -74,9 +83,10 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="template-description" class="col-form-label">Description:</label>
-                    <textarea class="form-control" id="template-description" rows="10"></textarea>
-                    <input type="text" class="form-control" id="template-id" hidden>
-                    <input type="text" class="form-control" id="template-timestamp" hidden>
+                    <textarea class="form-control" id="template-description" rows="10" maxlength="8191" onkeyup="hideModalError($(this).parent());"></textarea>
+                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
+                    <input type="text" class="form-control" id="template-id" hidden />
+                    <input type="text" class="form-control" id="template-timestamp" hidden />
                 </div>
             </div>
             <div class="modal-footer">
@@ -89,8 +99,8 @@
 
 <!-- Form -->
 <form action="" hidden id="hidden-form" method="post">
-    <input type="number" name="templateId" id="template-id">
-    <input type="submit" value="Submit" id="submit-btn">
+    <input type="number" name="templateId" id="template-id" />
+    <input type="submit" value="Submit" id="submit-btn" />
 </form>
 
 @section Scripts {
