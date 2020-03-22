@@ -51,7 +51,7 @@ namespace MasterRad.API
             if (existsOnSqlServer)
                 return Result<bool>.Fail($"Generated name is not unique. Please try again.");
 
-            var dbCreateSuccess = _microsoftSQLService.CreateDatabase(newDbName);
+            var dbCreateSuccess = _microsoftSQLService.CreateDatabase(newDbName, true);
             if (!dbCreateSuccess)
                 return Result<bool>.Fail($"Failed to create databse '{newDbName}' on database server");
 

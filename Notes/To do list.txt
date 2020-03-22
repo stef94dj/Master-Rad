@@ -1,5 +1,7 @@
 prof. kada definise solution ne bi trebao da moze da modifikuje bazu - readonly user na nivou sql servera za ove situacije
 
+data tables should say no recrods when empty
+mssqlService - metode tipa create database koje vracaju samo succcess (bool) treba da uloguju gresku ako je resultat false
 display full sql result (messages + multiple tables)
 error messages when sql execution fails (e.g. attempt create table when defining task solution)
 Delete
