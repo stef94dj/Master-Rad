@@ -32,7 +32,18 @@ function sqlExeCallback(data) {
         alert("Erorr: " + JSON.stringify(data.errors));
     else {
         alert('ok');
-        populateDropdown(dropdownTableSelector, '/api/Metadata/tables/' + $('#db-name').val());
+        tablesDropdownJS.loadTablesDropdownData(`/api/Metadata/tables/${nameOnServer}`)
+            .then(data => {
+                tablesDropdownJS.drawTablesDropdown(data);
+            })
+            .then(() => {
+                tablesDropdownJS.attachOnChangeHandler(tableSelected);
+            })
+            .then(() => {
+                clearTableData();
+                if ($('#tableSelector').val() != null)
+                    tableSelected();
+            })
     }
 }
 

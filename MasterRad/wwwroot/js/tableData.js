@@ -65,3 +65,7 @@ function hideTableData() {
 function showTableData() {
     $('#json-display').removeAttr("hidden");
 }
+
+function clearTableData() {
+    $('#json-display').html('');
+}
