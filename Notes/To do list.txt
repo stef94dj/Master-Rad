@@ -1,5 +1,18 @@
-MVP:
----
+graph api
+SetupScript for SQL server (enable contained DB + create login for readonly)
+prof. kada definise solution ne bi trebao da moze da modifikuje bazu - readonly user na nivou sql servera za ove situacije
+
+=============================================================================================================================
+data tables should say no recrods when empty
+mssqlService - metode tipa create database koje vracaju samo succcess (bool) treba da uloguju gresku ako je resultat false
+display full sql result (messages + multiple tables)
+error messages when sql execution fails (e.g. attempt create table when defining task solution)
+Delete
+sprecavanje zloupotrebe
+Auth (Azure AD) + sql users
+Paginations
+Unit tests, DTO validations, AutoMapper, Sql Commands, Generic repository
+================================================================================================================
 -created by + createdDate (autoMapper)
 _. pre nego sto se job stavi u Queue proveriti da nije vec tamo 
 _. ne cuvas u bazi kad status predje u queued, saljes samo frontu (signalR) -> nadji u kodu : EvaluationProgress.Queued (EvaluateController)

@@ -33,7 +33,7 @@ namespace MasterRad.Services
         Result<bool> UpdateRecord(string schemaName, string tableName, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams);
         int Count(string schemaName, string tableName, List<Cell> recordPrevious, ConnectionParams connParams);
         Result<bool> DeleteRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams);
-        bool CreateDatabase(string dbName);
+        bool CreateDatabase(string dbName, bool contained = false);
         bool CloneDatabase(string originDbName, string destDbName, bool failIfExists);
         IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbName, bool failIfExists);
         bool CreateTable(CreateTable table);
@@ -396,9 +396,11 @@ namespace MasterRad.Services
             return !DatabaseExists(name);
         }
 
-        public bool CreateDatabase(string dbName)
+        public bool CreateDatabase(string dbName, bool contained = false)
         {
             var sqlCommand = $"CREATE DATABASE [{dbName}]";
+            if (contained)
+                sqlCommand += " CONTAINMENT = PARTIAL";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand);
 
