@@ -1,5 +1,8 @@
+graph api
+SetupScript for SQL server (enable contained DB + create login for readonly)
 prof. kada definise solution ne bi trebao da moze da modifikuje bazu - readonly user na nivou sql servera za ove situacije
 
+=============================================================================================================================
 data tables should say no recrods when empty
 mssqlService - metode tipa create database koje vracaju samo succcess (bool) treba da uloguju gresku ako je resultat false
 display full sql result (messages + multiple tables)
