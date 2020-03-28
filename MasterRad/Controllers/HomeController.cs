@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MasterRad.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -22,6 +21,7 @@ namespace MasterRad.Controllers
 
         public IActionResult Index()
         {
+            var isTeacher = User.IsInRole("Professor"); var isStudent = User.IsInRole("Student");
             return View();
         }
 
