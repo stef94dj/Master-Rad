@@ -52,7 +52,8 @@ namespace MasterRad.API
         //          2. server is restarted and session data (which is in memory) is lost
         //          3. user clicks the button but token cannot be resolved (no session data) - call to MS Graph throws exception
         //          4. AuthorizeForScopes OnException method handles the exceptions and sends challenge to browser context.Result = new ChallengeResult(properties); to try and re-sign-in the user
-        //For MVC endpoints browser handles this correctly but not for AJAX endpoints: open network to see reattempt to sign in user
+        //For MVC endpoints browser handles this correctly but not for AJAX endpoints: the link to re-signIn the user is sent to client but it get's blocked by CORS policy (see network)
+        //double click on link in network opens the link successfully in new tab, allowing the user to be re-signedIn & ajax endpoint becomes available once again
         public async Task<ActionResult<IEnumerable<TemplateEntity>>> GetTemplatesAsync() //=> _templateRepo.Get();
         {
 
