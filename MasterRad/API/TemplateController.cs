@@ -45,7 +45,14 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("Get")]
-        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll })] //DOES NOT WORK FOR AJAX ENDPOINTS!!!
+        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll })]
+        //AuthorizeForScopes: In case a token cannot be acquired, a challenge is attempted to re-sign-in the user, and have them consent to the requested scopes
+        //Scenario: 
+        //          1. user is on a page that calls AJAX endpoint (on a click of a button), the AJAX endpoint is a proxy to an MS Graph endpoint (e.g. User.ReadAll)
+        //          2. server is restarted and session data (which is in memory) is lost
+        //          3. user clicks the button but token cannot be resolved (no session data) - call to MS Graph throws exception
+        //          4. AuthorizeForScopes OnException method handles the exceptions and sends challenge to browser context.Result = new ChallengeResult(properties); to try and re-sign-in the user
+        //For MVC endpoints browser handles this correctly but not for AJAX endpoints: open network to see reattempt to sign in user
         public async Task<ActionResult<IEnumerable<TemplateEntity>>> GetTemplatesAsync() //=> _templateRepo.Get();
         {
 
