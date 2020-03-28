@@ -3,14 +3,9 @@ using MasterRad.Models;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
-using System.Threading.Tasks;
 using MasterRad.DTOs;
-using master_BE;
-using System.Globalization;
-using System.Xml;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
 namespace MasterRad.Services
