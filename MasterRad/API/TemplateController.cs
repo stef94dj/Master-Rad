@@ -54,6 +54,16 @@ namespace MasterRad.API
         //          4. AuthorizeForScopes OnException method handles the exceptions and sends challenge to browser context.Result = new ChallengeResult(properties); to try and re-sign-in the user
         //For MVC endpoints browser handles this correctly but not for AJAX endpoints: the link to re-signIn the user is sent to client but it get's blocked by CORS policy (see network)
         //double click on link in network opens the link successfully in new tab, allowing the user to be re-signedIn & ajax endpoint becomes available once again
+        //the json in the new tab is actually the response from the ajax endpoint which got called again after user being re-signedIn
+        //attempted to allow CORS in Starupt.cs with :
+        //                  services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+        //                  {
+        //                      builder.AllowAnyOrigin()
+        //                             .AllowAnyMethod()
+        //                             .AllowAnyHeader();
+        //                  }));
+        //but it didn't solve the issue
+
         public async Task<ActionResult<IEnumerable<TemplateEntity>>> GetTemplatesAsync() //=> _templateRepo.Get();
         {
 
