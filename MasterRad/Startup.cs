@@ -68,6 +68,8 @@ namespace MasterRad
             services.AddScoped<IEvaluator, Evaluator>();
             services.AddScoped(typeof(ISignalR<>), typeof(SignalR<>));
             services.AddScoped<ILogRepository, LogRepository>();
+            services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+            services.AddScoped<WebOptions, WebOptions>();
 
             //repositories
             services.AddScoped<ITemplateRepository, TemplateRepository>();

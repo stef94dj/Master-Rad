@@ -9,11 +9,13 @@ using MasterRad.Models.ViewModels;
 using MasterRad.Repositories;
 using MasterRad.DTOs;
 using MasterRad.Extensions;
+using Microsoft.Identity.Web;
 
 namespace MasterRad.Controllers
 {
     public class TeacherMenuController : Controller
     {
+        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll })]
         public IActionResult Templates()
             => View();
 
