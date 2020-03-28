@@ -20,7 +20,6 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class TemplateController : Controller
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
@@ -46,7 +45,7 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("Get")]
-        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll })]
+        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll })] //DOES NOT WORK FOR AJAX ENDPOINTS!!!
         public async Task<ActionResult<IEnumerable<TemplateEntity>>> GetTemplatesAsync() //=> _templateRepo.Get();
         {
 
