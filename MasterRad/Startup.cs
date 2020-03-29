@@ -115,7 +115,6 @@ namespace MasterRad
             app.UseCookiePolicy();
 
             app.UseRouting();
-            app.AddCustomExceptionMiddleware();
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -129,7 +128,7 @@ namespace MasterRad
                 endpoints.MapHub<AnalysisProgressHub>("/analysisprogress");
             });
 
-            
+            app.AddCustomExceptionMiddleware();
 
             var appDataPath = $"{AppContext.BaseDirectory}\\AppData";
             if (!Directory.Exists(appDataPath))
