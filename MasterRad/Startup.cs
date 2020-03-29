@@ -110,8 +110,6 @@ namespace MasterRad
                 app.UseHsts();
             }
 
-            app.AddCustomExceptionMiddleware();
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
@@ -129,6 +127,8 @@ namespace MasterRad
                 endpoints.MapHub<SynthesisProgressHub>("/synthesisprogress");
                 endpoints.MapHub<AnalysisProgressHub>("/analysisprogress");
             });
+
+            app.AddCustomExceptionMiddleware();
 
             var appDataPath = $"{AppContext.BaseDirectory}\\AppData";
             if (!Directory.Exists(appDataPath))
