@@ -50,12 +50,11 @@ namespace MasterRad
             services.AddOptions();
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddSignIn("AzureAd", Configuration, options => Configuration.Bind("AzureAd", options));
-
+                    .AddSignIn("AzureAd", Configuration, options => Configuration.Bind("AzureAd", options));
 
             var initialScopes = new string[] { Constants.ScopeUserRead }; //scope consent's required for every authenthicated user
             services.AddWebAppCallsProtectedWebApi(Configuration, initialScopes)
-               .AddInMemoryTokenCaches();
+                    .AddInMemoryTokenCaches();
 
             var sqlServerAdminConfigSection = Configuration.GetSection("SqlServerAdminConnection");
             var dbConfig = new ConnectionParams();
@@ -82,13 +81,15 @@ namespace MasterRad
             services.AddScoped<IAnalysisRepository, AnalysisRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
 
-            services.AddControllersWithViews(options =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                options.Filters.Add(new AuthorizeFilter(policy));
-            }).AddMicrosoftIdentityUI();
+            services.AddControllersWithViews
+                    (options =>
+                    {
+                        var policyBuilder = new AuthorizationPolicyBuilder();
+                        var policy = policyBuilder.RequireAuthenticatedUser()
+                                                  .Build();
+                        options.Filters.Add(new AuthorizeFilter(policy));
+                    })
+                    .AddMicrosoftIdentityUI();
 
             services.AddRazorPages();
 
