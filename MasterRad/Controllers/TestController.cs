@@ -3,12 +3,12 @@ using MasterRad.Models.ViewModels;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Web;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using WebApp_OpenIDConnect_DotNet.Services;
+using Graph = Microsoft.Graph;
 
 namespace MasterRad.Controllers
 {
@@ -18,19 +18,25 @@ namespace MasterRad.Controllers
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
         private readonly SqlServerAdminConnection _adminConnectionConf;
+        readonly ITokenAcquisition _tokenAcquisition;
+        readonly WebOptions _webOptions;
 
         public TestController
         (
             IUser userService,
             ISynthesisRepository synthesisRepository,
             IAnalysisRepository analysisRepository,
-            IOptions<SqlServerAdminConnection> adminConnectionConf
+            IOptions<SqlServerAdminConnection> adminConnectionConf,
+            ITokenAcquisition tokenAcquisition,
+            IOptions<WebOptions> webOptions
         )
         {
             _userService = userService;
             _synthesisRepository = synthesisRepository;
             _analysisRepository = analysisRepository;
             _adminConnectionConf = adminConnectionConf.Value;
+            _tokenAcquisition = tokenAcquisition;
+            _webOptions = webOptions.Value;
         }
 
         public IActionResult SynthesisExam(int testId, byte[] timeStamp)
@@ -90,7 +96,8 @@ namespace MasterRad.Controllers
             return View("~/Views/Test/AnalysisExam.cshtml", vm);
         }
 
-        public IActionResult AssignStudents(int testId, TestType testType)
+        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserReadBasicAll })]
+        public async Task<IActionResult> AssignStudentsAsync(int testId, TestType testType)
         {
             switch (testType)
             {
@@ -106,12 +113,62 @@ namespace MasterRad.Controllers
                     return StatusCode(500);
             }
 
+            // Initialize the GraphServiceClient. 
+            Graph::GraphServiceClient graphClient = GetGraphServiceClient(new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll });
+
+            //first 5 pages of users with name starting with "Stefan"
+            var nameStartsWith = "Stefan";
+            var recordsInOnePage = 2;
+
+            var users = await graphClient.Users
+                                         .Request()
+                                         .Filter($"startswith(givenName,+'{nameStartsWith}')")
+                                         .Top(recordsInOnePage)
+                                         .GetAsync();
+
+            //user 2 data
+            string page1_user_DisplayName = users[1].DisplayName;
+            string page1_user_Mail = users[1].Mail;
+            string page1_user_OnPremisesSamAccountName = users[1].OnPremisesSamAccountName;
+
+            //SERVER DRIVEN PAGINATION - BE IS REQUESTING next page)
+            //users = await users.NextPageRequest.GetAsync();
+            //string page2_user_DisplayName = users[2].DisplayName;
+            //string page2_user_Mail = users[2].Mail;
+            //string page2_user_OnPremisesSamAccountName = users[2].OnPremisesSamAccountName;
+
+            ////page 4 (CLIENT DRIVE PAGINATION - Browser IS REQUESTING page 4) - NOT SUPPORTED, endpoint doesn't support skip
+            //var requestedPage = 4;
+            //users = await graphClient.Users
+            //                         .Request()
+            //                         .Filter($"startswith(givenName,+'{nameStartsWith}')")
+            //                         .Skip((requestedPage - 1) * recordsInOnePage)
+            //                         .Top(recordsInOnePage)
+            //                         .GetAsync();
+
+            //next page (CLIENT DRIVEN PAGINATION)
+            var nextPageUrl = users.NextPageRequest.GetHttpRequestMessage().RequestUri.AbsoluteUri.ToString(); //sent by browser (received in previous response)
+
+            var httpRqMethod_GET = new System.Net.Http.HttpMethod("GET");
+            var nextPageHttpRq = new System.Net.Http.HttpRequestMessage(httpRqMethod_GET, nextPageUrl);
+            var nextPageHttpRs = await graphClient.HttpProvider.SendAsync(nextPageHttpRq);
+            var responseJSON = await nextPageHttpRs.Content.ReadAsStringAsync();
+
             var vm = new AssignStudentsVM
             {
                 TestId = testId,
                 TestType = testType
             };
             return View(vm);
+        }
+
+        private Graph::GraphServiceClient GetGraphServiceClient(string[] scopes)
+        {
+            return GraphServiceClientFactory.GetAuthenticatedGraphClient(async () =>
+            {
+                string result = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+                return result;
+            }, _webOptions.GraphApiUrl);
         }
 
         public IActionResult Results(int testId, TestType testType)
