@@ -89,9 +89,11 @@ namespace MasterRad
                                                   .Build();
                         options.Filters.Add(new AuthorizeFilter(policy));
                     })
+                    .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
                     .AddMicrosoftIdentityUI();
 
-            services.AddRazorPages();
+            services.AddRazorPages()
+                    .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.AddQueue();
             services.AddSignalR();
