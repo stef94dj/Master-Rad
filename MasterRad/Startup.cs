@@ -52,7 +52,9 @@ namespace MasterRad
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddSignIn("AzureAd", Configuration, options => Configuration.Bind("AzureAd", options));
 
-            services.AddWebAppCallsProtectedWebApi(Configuration, new string[] { Constants.ScopeUserRead })
+
+            var initialScopes = new string[] { Constants.ScopeUserRead }; //scope consent's required for every authenthicated user
+            services.AddWebAppCallsProtectedWebApi(Configuration, initialScopes)
                .AddInMemoryTokenCaches();
 
             var sqlServerAdminConfigSection = Configuration.GetSection("SqlServerAdminConnection");
