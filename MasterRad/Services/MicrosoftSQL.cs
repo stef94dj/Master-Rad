@@ -7,6 +7,8 @@ using Microsoft.Data.SqlClient;
 using System.Linq;
 using MasterRad.DTOs;
 using System.IO;
+using MasterRad.Models.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace MasterRad.Services
 {
@@ -41,20 +43,24 @@ namespace MasterRad.Services
 
     public class MicrosoftSQL : IMicrosoftSQL
     {
-        private readonly IConfiguration _config;
         private readonly IMsSqlQueryBuilder _msSqlQueryBuilder;
         private ConnectionParams connParams;
+        private readonly SqlServerAdminConnection _adminConnectionConf;
 
-        public MicrosoftSQL(IConfiguration config, IMsSqlQueryBuilder msSqlQueryBuilder)
+        public MicrosoftSQL
+        (
+            IMsSqlQueryBuilder msSqlQueryBuilder,
+            IOptions<SqlServerAdminConnection> adminConnectionConf
+        )
         {
-            _config = config;
             _msSqlQueryBuilder = msSqlQueryBuilder;
+            _adminConnectionConf = adminConnectionConf.Value;
         }
 
         private string BuildConnectionString(ConnectionParams connParams)
         {
             var template = Constants.MicrosoftSQLConnectionStringTemplate;
-            var serverName = _config.GetSection("DbAdminConnection:ServerName").Value;
+            var serverName = _adminConnectionConf.ServerName;
             return string.Format(template, serverName, connParams.DbName, connParams.Login, connParams.Password);
         }
 
@@ -169,8 +175,8 @@ namespace MasterRad.Services
             return connParams = new ConnectionParams()
             {
                 DbName = dbName,
-                Login = _config.GetSection("DbAdminConnection:Login").Value,
-                Password = _config.GetSection("DbAdminConnection:Password").Value
+                Login = _adminConnectionConf.Login,
+                Password = _adminConnectionConf.Password
             };
         }
 

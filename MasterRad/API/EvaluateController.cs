@@ -4,12 +4,14 @@ using MasterRad.Entities;
 using MasterRad.Exceptions;
 using MasterRad.Helpers;
 using MasterRad.Models;
+using MasterRad.Models.Configuration;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +31,7 @@ namespace MasterRad.API
         private readonly ISignalR<AnalysisProgressHub> _analysisSignalR;
         private readonly IQueue _queue;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly IConfiguration _config;
+        private readonly SqlServerAdminConnection _sqlServerAdmin;
 
         public EvaluateController
         (
@@ -41,7 +43,7 @@ namespace MasterRad.API
             ISignalR<SynthesisProgressHub> synthesisSignalR,
             ISignalR<AnalysisProgressHub> analysisSignalR,
             IServiceScopeFactory serviceScopeFactory,
-            IConfiguration config
+            IOptions<SqlServerAdminConnection> sqlServerAdmin
         )
         {
             _evaluatorService = evaluatorService;
@@ -52,7 +54,7 @@ namespace MasterRad.API
             _synthesisSignalR = synthesisSignalR;
             _analysisSignalR = analysisSignalR;
             _serviceScopeFactory = serviceScopeFactory;
-            _config = config;
+            _sqlServerAdmin = sqlServerAdmin.Value;
         }
 
         [HttpGet, Route("get/papers/synthesis/{testId}")]
@@ -372,7 +374,7 @@ namespace MasterRad.API
                     #endregion
 
                     #region Prepare_Data
-                    var mainDbName = _config.GetValue<string>("DbAdminConnection:DbName");
+                    var mainDbName = _sqlServerAdmin.DbName;
                     var providedOutputTableName = "";
                     switch (type)
                     {

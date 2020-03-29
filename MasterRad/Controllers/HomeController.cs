@@ -11,6 +11,7 @@ using Microsoft.Identity.Web;
 using WebApp_OpenIDConnect_DotNet.Services;
 using Graph = Microsoft.Graph;
 using Microsoft.Extensions.Options;
+using MasterRad.Models.Configuration;
 
 namespace MasterRad.Controllers
 {
@@ -19,7 +20,7 @@ namespace MasterRad.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         readonly ITokenAcquisition _tokenAcquisition;
-        readonly IOptions<WebOptions> _webOptions;
+        readonly WebOptions _webOptions;
 
         public HomeController
         (
@@ -29,7 +30,7 @@ namespace MasterRad.Controllers
         )
         {
             _tokenAcquisition = tokenAcquisition;
-            _webOptions = webOptions;
+            _webOptions = webOptions.Value;
             _logger = logger;
         }
 
@@ -97,7 +98,7 @@ namespace MasterRad.Controllers
             {
                 string result = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
                 return result;
-            }, _webOptions.Value?.GraphApiUrl);
+            }, _webOptions.GraphApiUrl);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Coravel;
 using MasterRad.Extensions;
 using MasterRad.Models;
+using MasterRad.Models.Configuration;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -54,9 +55,10 @@ namespace MasterRad
             services.AddWebAppCallsProtectedWebApi(Configuration, new string[] { Constants.ScopeUserRead })
                .AddInMemoryTokenCaches();
 
+            var sqlServerAdminConfigSection = Configuration.GetSection("SqlServerAdminConnection");
             var dbConfig = new ConnectionParams();
-            Configuration.Bind("DbAdminConnection", dbConfig);
-            services.AddDbContext<Context>(opts => opts.UseSqlServer(new SqlConnection(dbConfig.ConnectionString)));
+            sqlServerAdminConfigSection.Bind(dbConfig);
+            services.AddDbContext<Context>(opts => opts.UseSqlServer(new SqlConnection(dbConfig.EFConnectionString)));
 
             //services
             services.AddScoped<IMicrosoftSQL, MicrosoftSQL>();
@@ -66,7 +68,10 @@ namespace MasterRad
             services.AddScoped(typeof(ISignalR<>), typeof(SignalR<>));
             services.AddScoped<ILogRepository, LogRepository>();
             services.AddScoped<ITokenAcquisition, TokenAcquisition>();
+
+            //configurations
             services.AddGraphService(Configuration);
+            services.Configure<SqlServerAdminConnection>(sqlServerAdminConfigSection);
 
             //repositories
             services.AddScoped<ITemplateRepository, TemplateRepository>();

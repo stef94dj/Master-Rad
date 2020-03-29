@@ -2,10 +2,12 @@
 using MasterRad.Entities;
 using MasterRad.Helpers;
 using MasterRad.Models;
+using MasterRad.Models.Configuration;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +23,7 @@ namespace MasterRad.API
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
         private readonly IMicrosoftSQL _microsoftSQLService;
-        private readonly IConfiguration _config;
+        private SqlServerAdminConnection _adminConnectionConf;
 
         public StudentController
         (
@@ -29,14 +31,14 @@ namespace MasterRad.API
             ISynthesisRepository synthesisRepository,
             IAnalysisRepository analysisRepository,
             IMicrosoftSQL microsoftSQLService,
-            IConfiguration config
+            IOptions<SqlServerAdminConnection> adminConnectionConf
         )
         {
             _studentRepository = studentRepository;
             _synthesisRepository = synthesisRepository;
             _analysisRepository = analysisRepository;
             _microsoftSQLService = microsoftSQLService;
-            _config = config;
+            _adminConnectionConf = adminConnectionConf.Value;
         }
 
         [HttpPost, Route("search")]
@@ -116,7 +118,7 @@ namespace MasterRad.API
             assignModels = assignModels.Where(x => dbCloneSuccess.Contains(x.Database));
             #endregion
 
-            var outputTablesDbName = _config.GetValue<string>("DbAdminConnection:DbName");
+            var outputTablesDbName = _adminConnectionConf.DbName;
 
             #region Create_Student_Output_Tables
             var studentTableCreateSuccess = _microsoftSQLService.CreateTables(assignModels.Select(x => new CreateTable()
@@ -188,7 +190,7 @@ namespace MasterRad.API
                 return false;
 
             var assignment = _analysisRepository.GetAssignment(model.StudentId, model.TestId);
-            var outputTablesDbName = _config.GetValue<string>("DbAdminConnection:DbName");
+            var outputTablesDbName = _adminConnectionConf.DbName;
 
             var dbDeleted = _microsoftSQLService.DeleteDatabaseIfExists(assignment.InputNameOnServer);
             var studOutTableDeleted = _microsoftSQLService.DeleteTableIfExists(assignment.StudentOutputNameOnServer, outputTablesDbName);

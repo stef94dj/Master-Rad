@@ -1,4 +1,4 @@
-﻿namespace WebApp_OpenIDConnect_DotNet.Services
+﻿namespace MasterRad.Models.Configuration
 {
     public class WebOptions
     {

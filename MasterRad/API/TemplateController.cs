@@ -2,6 +2,7 @@
 using MasterRad.Entities;
 using MasterRad.Helpers;
 using MasterRad.Models;
+using MasterRad.Models.Configuration;
 using MasterRad.Models.DTOs;
 using MasterRad.Repositories;
 using MasterRad.Services;
@@ -25,8 +26,8 @@ namespace MasterRad.API
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly ITemplateRepository _templateRepo;
-        readonly ITokenAcquisition _tokenAcquisition;
-        readonly IOptions<WebOptions> _webOptions;
+        private readonly ITokenAcquisition _tokenAcquisition;
+        private readonly WebOptions _webOptions;
         //private readonly IConfiguration _config;
 
         public TemplateController
@@ -35,14 +36,12 @@ namespace MasterRad.API
             ITemplateRepository templateRepo,
             ITokenAcquisition tokenAcquisition,
             IOptions<WebOptions> webOptions
-        //IConfiguration config
         )
         {
             _microsoftSQLService = microsoftSQLService;
             _templateRepo = templateRepo;
             _tokenAcquisition = tokenAcquisition;
-            _webOptions = webOptions;
-            //_config = config;
+            _webOptions = webOptions.Value;
         }
 
         [HttpGet, Route("Get")]
@@ -124,7 +123,7 @@ namespace MasterRad.API
             {
                 string result = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
                 return result;
-            }, _webOptions.Value.GraphApiUrl) ;
+            }, _webOptions.GraphApiUrl) ;
         }
 
         [HttpPost, Route("Create")]

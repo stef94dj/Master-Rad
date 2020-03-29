@@ -1,8 +1,10 @@
-﻿using MasterRad.Models.ViewModels;
+﻿using MasterRad.Models.Configuration;
+using MasterRad.Models.ViewModels;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,20 +17,20 @@ namespace MasterRad.Controllers
         private readonly IUser _userService;
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
-        private readonly IConfiguration _config;
+        private readonly SqlServerAdminConnection _adminConnectionConf;
 
         public TestController
         (
             IUser userService,
             ISynthesisRepository synthesisRepository,
             IAnalysisRepository analysisRepository,
-            IConfiguration config
+            IOptions<SqlServerAdminConnection> adminConnectionConf
         )
         {
             _userService = userService;
             _synthesisRepository = synthesisRepository;
             _analysisRepository = analysisRepository;
-            _config = config;
+            _adminConnectionConf = adminConnectionConf.Value;
         }
 
         public IActionResult SynthesisExam(int testId, byte[] timeStamp)
@@ -64,7 +66,7 @@ namespace MasterRad.Controllers
             if (!atsEntity.TakenTest)
                 _analysisRepository.MarkExamAsTaken(testId, _userService.UserId, timeStamp);
 
-            var outputTablesDb = _config.GetValue<string>("DbAdminConnection:DbName");
+            var outputTablesDb = _adminConnectionConf.DbName;
 
             var vm = new AnalysisExamVM()
             {
