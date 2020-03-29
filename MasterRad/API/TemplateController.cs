@@ -8,6 +8,7 @@ using MasterRad.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace MasterRad.API
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly ITemplateRepository _templateRepo;
         readonly ITokenAcquisition _tokenAcquisition;
-        readonly WebOptions _webOptions;
+        readonly IOptions<WebOptions> _webOptions;
         //private readonly IConfiguration _config;
 
         public TemplateController
@@ -33,7 +34,7 @@ namespace MasterRad.API
             IMicrosoftSQL microsoftSQLService,
             ITemplateRepository templateRepo,
             ITokenAcquisition tokenAcquisition,
-            WebOptions webOptions
+            IOptions<WebOptions> webOptions
         //IConfiguration config
         )
         {
@@ -113,19 +114,17 @@ namespace MasterRad.API
 
             //read profile
             var me = await graphClient.Me.Request().GetAsync();
-            ViewData["Me"] = me;
 
             return _templateRepo.Get();
         }
 
         private Graph::GraphServiceClient GetGraphServiceClient(string[] scopes)
         {
-            var graphApiUrl = "https://graph.microsoft.com/beta";
             return GraphServiceClientFactory.GetAuthenticatedGraphClient(async () =>
             {
                 string result = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
                 return result;
-            }, graphApiUrl);
+            }, _webOptions.Value.GraphApiUrl) ;
         }
 
         [HttpPost, Route("Create")]

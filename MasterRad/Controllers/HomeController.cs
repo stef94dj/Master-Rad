@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 using WebApp_OpenIDConnect_DotNet.Services;
 using Graph = Microsoft.Graph;
+using Microsoft.Extensions.Options;
 
 namespace MasterRad.Controllers
 {
@@ -18,13 +19,13 @@ namespace MasterRad.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         readonly ITokenAcquisition _tokenAcquisition;
-        readonly WebOptions _webOptions;
+        readonly IOptions<WebOptions> _webOptions;
 
         public HomeController
         (
             ILogger<HomeController> logger,
             ITokenAcquisition tokenAcquisition,
-            WebOptions webOptions
+            IOptions<WebOptions> webOptions
         )
         {
             _tokenAcquisition = tokenAcquisition;
@@ -37,7 +38,7 @@ namespace MasterRad.Controllers
             return View();
         }
 
-        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll })]
+        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll })] 
         public async Task<IActionResult> PrivacyAsync()
         {
             // Initialize the GraphServiceClient. 
@@ -86,19 +87,17 @@ namespace MasterRad.Controllers
 
             //read profile
             var me = await graphClient.Me.Request().GetAsync();
-            ViewData["Me"] = me;
 
             return View();
         }
 
         private Graph::GraphServiceClient GetGraphServiceClient(string[] scopes)
         {
-            var graphApiUrl = "https://graph.microsoft.com/beta";
             return GraphServiceClientFactory.GetAuthenticatedGraphClient(async () =>
             {
                 string result = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
                 return result;
-            }, graphApiUrl);
+            }, _webOptions.Value?.GraphApiUrl);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

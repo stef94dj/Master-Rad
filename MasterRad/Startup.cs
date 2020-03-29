@@ -54,12 +54,9 @@ namespace MasterRad
             services.AddWebAppCallsProtectedWebApi(Configuration, new string[] { Constants.ScopeUserRead })
                .AddInMemoryTokenCaches();
 
-            services.AddGraphService(Configuration);
-
-            var conf = new ConnectionParams();
-            Configuration.Bind("DbAdminConnection", conf);
-            var connString = $"server={conf.ServerName};database={conf.DbName};User ID={conf.Login};password={conf.Password};";
-            services.AddDbContext<Context>(opts => opts.UseSqlServer(new SqlConnection(connString)));
+            var dbConfig = new ConnectionParams();
+            Configuration.Bind("DbAdminConnection", dbConfig);
+            services.AddDbContext<Context>(opts => opts.UseSqlServer(new SqlConnection(dbConfig.ConnectionString)));
 
             //services
             services.AddScoped<IMicrosoftSQL, MicrosoftSQL>();
@@ -69,7 +66,7 @@ namespace MasterRad
             services.AddScoped(typeof(ISignalR<>), typeof(SignalR<>));
             services.AddScoped<ILogRepository, LogRepository>();
             services.AddScoped<ITokenAcquisition, TokenAcquisition>();
-            services.AddScoped<WebOptions, WebOptions>();
+            services.AddGraphService(Configuration);
 
             //repositories
             services.AddScoped<ITemplateRepository, TemplateRepository>();
