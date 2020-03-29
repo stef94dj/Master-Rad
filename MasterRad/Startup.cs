@@ -81,19 +81,20 @@ namespace MasterRad
             services.AddScoped<IAnalysisRepository, AnalysisRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
 
-            services.AddControllersWithViews
-                    (options =>
+            services.AddControllersWithViews(options =>
                     {
                         var policyBuilder = new AuthorizationPolicyBuilder();
                         var policy = policyBuilder.RequireAuthenticatedUser()
                                                   .Build();
                         options.Filters.Add(new AuthorizeFilter(policy));
                     })
-                    .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
+                    .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    })
                     .AddMicrosoftIdentityUI();
 
-            services.AddRazorPages()
-                    .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddRazorPages();
 
             services.AddQueue();
             services.AddSignalR();
