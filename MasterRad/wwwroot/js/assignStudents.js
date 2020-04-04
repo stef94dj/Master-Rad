@@ -9,9 +9,16 @@ $(document).ready(function () {
     assignedStudents = $('#assigned-students');
     searchResList = $('#student-search-res');
     searchResList.on('change', studentSelection);
+    initTooltips();
     loadAssignedStudents();
 });
 
+function initTooltips() {
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+
+}
 function loadAssignedStudents() {
     assignedStudents.html(drawTableMessage('Loading data...', 4));
 
@@ -93,10 +100,10 @@ function assign() {
 function renderAssignedListItem(id, timestamp, email, firstName, lastName) {
     var result = '<tr data-id="' + id + '">'
 
-    result += '<td>' + email + '</td>';
     result += '<td>' + firstName + '</td>';
-    result += '<td>' + lastName + '</td>'
-    result += '<td><button onclick="removeStudent(' + id + ',' + "'" + timestamp + "'" + ')" type="button" class="btn btn-outline-danger btn-sm" style="float:right">Remove</button></td>';
+    result += '<td>' + lastName + '</td>';
+    result += '<td>' + email + '</td>';
+    result += '<td><button onclick="removeStudent(' + id + ',' + "'" + timestamp + "'" + ')" type="button" class="btn btn-outline-danger btn-sm">Remove</button></td>';
     result += '</tr>';
 
     return result;

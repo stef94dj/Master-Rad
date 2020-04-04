@@ -259,10 +259,11 @@ function viewResults(testId) {
     form.submit();
 }
 function assignStudents(testId) {
-    var form = $('#hidden-form');
-    form.find('#test-id').val(testId);
-    form.find('#test-type').val(TestType.Synthesis);
-    form.attr('action', '/Test/AssignStudents');
-    debugger;
-    form.submit();
+    window.location = `/Test/AssignStudents?testId=${testId}&testType=${TestType.Synthesis}`
+
+    //var form = $('#hidden-form');
+    //form.find('#test-id').val(testId);
+    //form.find('#test-type').val(TestType.Synthesis);
+    //form.attr('action', '');
+    //form.submit();
 }

@@ -1,4 +1,5 @@
-﻿using MasterRad.Models.Configuration;
+﻿using MasterRad.Models;
+using MasterRad.Models.Configuration;
 using MasterRad.Models.ViewModels;
 using MasterRad.Repositories;
 using MasterRad.Services;
@@ -18,8 +19,7 @@ namespace MasterRad.Controllers
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
         private readonly SqlServerAdminConnection _adminConnectionConf;
-        readonly ITokenAcquisition _tokenAcquisition;
-        readonly WebOptions _webOptions;
+        private readonly IMsGraph _msGraph;
 
         public TestController
         (
@@ -27,16 +27,14 @@ namespace MasterRad.Controllers
             ISynthesisRepository synthesisRepository,
             IAnalysisRepository analysisRepository,
             IOptions<SqlServerAdminConnection> adminConnectionConf,
-            ITokenAcquisition tokenAcquisition,
-            IOptions<WebOptions> webOptions
+            IMsGraph msGraph
         )
         {
             _userService = userService;
             _synthesisRepository = synthesisRepository;
             _analysisRepository = analysisRepository;
             _adminConnectionConf = adminConnectionConf.Value;
-            _tokenAcquisition = tokenAcquisition;
-            _webOptions = webOptions.Value;
+            _msGraph = msGraph;
         }
 
         public IActionResult SynthesisExam(int testId, byte[] timeStamp)
@@ -113,62 +111,16 @@ namespace MasterRad.Controllers
                     return StatusCode(500);
             }
 
-            // Initialize the GraphServiceClient. 
-            Graph::GraphServiceClient graphClient = GetGraphServiceClient(new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll });
-
-            //first 5 pages of users with name starting with "Stefan"
-            var nameStartsWith = "Stefan";
-            var recordsInOnePage = 2;
-
-            var users = await graphClient.Users
-                                         .Request()
-                                         .Filter($"startswith(givenName,+'{nameStartsWith}')")
-                                         .Top(recordsInOnePage)
-                                         .GetAsync();
-
-            //user 2 data
-            string page1_user_DisplayName = users[1].DisplayName;
-            string page1_user_Mail = users[1].Mail;
-            string page1_user_OnPremisesSamAccountName = users[1].OnPremisesSamAccountName;
-
-            //SERVER DRIVEN PAGINATION - BE IS REQUESTING next page)
-            //users = await users.NextPageRequest.GetAsync();
-            //string page2_user_DisplayName = users[2].DisplayName;
-            //string page2_user_Mail = users[2].Mail;
-            //string page2_user_OnPremisesSamAccountName = users[2].OnPremisesSamAccountName;
-
-            ////page 4 (CLIENT DRIVE PAGINATION - Browser IS REQUESTING page 4) - NOT SUPPORTED, endpoint doesn't support skip
-            //var requestedPage = 4;
-            //users = await graphClient.Users
-            //                         .Request()
-            //                         .Filter($"startswith(givenName,+'{nameStartsWith}')")
-            //                         .Skip((requestedPage - 1) * recordsInOnePage)
-            //                         .Top(recordsInOnePage)
-            //                         .GetAsync();
-
-            //next page (CLIENT DRIVEN PAGINATION)
-            var nextPageUrl = users.NextPageRequest.GetHttpRequestMessage().RequestUri.AbsoluteUri.ToString(); //sent by browser (received in previous response)
-
-            var httpRqMethod_GET = new System.Net.Http.HttpMethod("GET");
-            var nextPageHttpRq = new System.Net.Http.HttpRequestMessage(httpRqMethod_GET, nextPageUrl);
-            var nextPageHttpRs = await graphClient.HttpProvider.SendAsync(nextPageHttpRq);
-            var responseJSON = await nextPageHttpRs.Content.ReadAsStringAsync();
+            var ssrq = new SearchStudentsRQ(2);
+            var students = await _msGraph.SearchStudentsAsync(ssrq);
 
             var vm = new AssignStudentsVM
             {
                 TestId = testId,
-                TestType = testType
+                TestType = testType,
+                StudentSearchRes = students
             };
             return View(vm);
-        }
-
-        private Graph::GraphServiceClient GetGraphServiceClient(string[] scopes)
-        {
-            return GraphServiceClientFactory.GetAuthenticatedGraphClient(async () =>
-            {
-                string result = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-                return result;
-            }, _webOptions.GraphApiUrl);
         }
 
         public IActionResult Results(int testId, TestType testType)
