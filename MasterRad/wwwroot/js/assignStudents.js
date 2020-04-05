@@ -2,12 +2,15 @@
 var testId = null;
 var testType = null;
 var assignedStudents = null;
+var pagingUl = null;
 
 $(document).ready(function () {
     testId = $('#test-id').val();
     testType = $('#test-type').val();;
     assignedStudents = $('#assigned-students');
     searchResList = $('#student-search-res');
+    pagingUl = $('#paging-ul');
+
     searchResList.on('change', studentSelection);
     initTooltips();
     loadAssignedStudents();
@@ -37,7 +40,8 @@ function loadAssignedStudents() {
 function searchStudents() {
     searchAAD()
         .then(data => {
-            populateStudentSearchResult(data)
+            populateStudentSearchResult(data);
+            populatePagesMenu(data);
         })
 }
 function searchAAD() {
@@ -66,7 +70,7 @@ function getAADPage(pageUrl) {
 function populateStudentSearchResult(data) {
     searchResList.html('');
 
-    if (data.students != null)
+    if (data != null && data.students != null)
         $.each(data.students, function (index, student) {
             var trHtml = `<tr data-ms-id="${student.microsoftId}">`;
             trHtml += `<td>${student.firstName == null ? "" : student.firstName}</td>`;
@@ -77,6 +81,27 @@ function populateStudentSearchResult(data) {
             searchResList.append(trHtml);
         });
 }
+function populatePagesMenu(data) {
+    var newHtml = '';
+
+    if (data != null && data.students != null) {
+        newHtml += drawPageBtn(1, true, null);;
+        if (data.nextPageUrl != null)
+            newHtml += drawPageBtn(2, false, data.nextPageUrl);
+    }
+
+    pagingUl.html(newHtml);
+}
+function drawPageBtn(number, isCurrent, nextPageUrl) {
+    var nextPageUrlAttr = nextPageUrl ? `data-url="${nextPageUrl}"` : ``;
+    var currentClass = isCurrent ? "current" : "";
+
+    var pagehtml = '<li class="page-item">';
+    pagehtml += `<a class="page-link ${currentClass}" href="javascript:void(0)" onclick="pageClick(this)" ${nextPageUrlAttr}>${number}</a>`;
+    pagehtml += '</li>';
+    return pagehtml;
+}
+
 function pageClick(pageBtn) {
     pageBtn = $(pageBtn);
     var allPageBtns = pageBtn.parent().parent().find('a');
@@ -90,12 +115,11 @@ function pageClick(pageBtn) {
     var isFirstPage = pageNo == allPageNos[0];
     var isLastPage = pageNo == allPageNos[allPageNos.length - 1];
 
-
     if (!isCurrent && !(isFirstPage && isLastPage)) {
-        $.each(data, function (index, item) {
-            var studentRow = renderAssignedListItem(sts.studentId, sts.timeStamp, sts.student.email, sts.student.firstName, sts.student.lastName);
-            assignedStudents.append(studentRow);
+        $.each(allPageBtns, function (index, item) {
+            $(item).removeClass('current');
         });
+
         if (isFirstPage) {
             searchStudents();
         }

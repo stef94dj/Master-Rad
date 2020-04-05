@@ -48,14 +48,19 @@ namespace MasterRad.Services
             var qry = graphClient.Users.Request();
 
             #region SetUserFilters
+            var filters = new List<string>();
+
             if (!string.IsNullOrEmpty(model.FirstNameStartsWith))
-                qry = qry.Filter($"startswith(givenName,+'{model.FirstNameStartsWith}')");
+                filters.Add($"startswith(givenName,+'{model.FirstNameStartsWith}')");
 
             if (!string.IsNullOrEmpty(model.LastNameStartsWith))
-                qry = qry.Filter($"startswith(surname,+'{model.LastNameStartsWith}')");
+                filters.Add($"startswith(surname,+'{model.LastNameStartsWith}')");
 
             if (!string.IsNullOrEmpty(model.EmailStartsWith))
-                qry = qry.Filter($"startswith(mail,+'{model.EmailStartsWith}')");
+                filters.Add($"startswith(mail,+'{model.EmailStartsWith}')");
+
+            if (filters.Any())
+                qry = qry.Filter(string.Join(" and ", filters));
 
             qry = qry.Top(model.PageSize);
             #endregion
@@ -78,7 +83,7 @@ namespace MasterRad.Services
         public async Task<SearchStudentsRS> ListStudentsByPageAsync(string pageUrl)
         {
             GraphServiceClient graphClient = GetGraphServiceClient(new[] { Constants.ScopeUserReadBasicAll });
-            
+
             await graphClient.Users.Request().Top(1).GetAsync(); //gets the authenthication token (to do: find better way)
 
             var httpRqMethod_GET = new System.Net.Http.HttpMethod("GET");
