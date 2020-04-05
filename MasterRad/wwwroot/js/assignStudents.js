@@ -76,7 +76,7 @@ function populateStudentSearchResult(data) {
             trHtml += `<td>${student.firstName == null ? "" : student.firstName}</td>`;
             trHtml += `<td>${student.lastName == null ? "" : student.lastName}</td>`;
             trHtml += `<td>${student.email == null ? "" : student.email}</td>`;
-            trHtml += '<td><input type="checkbox"></td>';
+            trHtml += '<td><input type="checkbox" style="transform:scale(1.5)"></td>';
             trHtml += '</tr>';
             searchResList.append(trHtml);
         });
