@@ -1,5 +1,6 @@
 ﻿using Coravel.Queuing.Interfaces;
-using MasterRad.DTOs;
+using MasterRad.DTO;
+using MasterRad.DTO.RS;
 using MasterRad.Entities;
 using MasterRad.Exceptions;
 using MasterRad.Helpers;
@@ -8,8 +9,6 @@ using MasterRad.Models.Configuration;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;

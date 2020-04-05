@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MasterRad.DTO.RQ;
+using MasterRad.DTO.RS;
 using System.Linq;
-using System.Threading.Tasks;
-using MasterRad.DTOs;
 using MasterRad.Models;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;

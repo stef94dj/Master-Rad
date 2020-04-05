@@ -125,6 +125,24 @@ function enableButton(button) {
         $(button).removeAttr('disabled').removeClass('disabled');
 }
 
+function promisifyAjaxPost(apiUrl, rqBody) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: apiUrl,
+            dataType: 'json',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(rqBody),
+            success: function (data) {
+                resolve(data);
+            },
+            error: function (error) {
+                reject(error);
+            }
+        })
+    });
+}
+
 function promisifyAjaxGet(apiUrl) {
     return new Promise((resolve, reject) => {
         $.ajax({

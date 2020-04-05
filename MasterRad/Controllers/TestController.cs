@@ -1,4 +1,6 @@
-﻿using MasterRad.Models;
+﻿using MasterRad.DTO;
+using MasterRad.DTO.RQ;
+using MasterRad.Models;
 using MasterRad.Models.Configuration;
 using MasterRad.Models.ViewModels;
 using MasterRad.Repositories;
@@ -111,14 +113,17 @@ namespace MasterRad.Controllers
                     return StatusCode(500);
             }
 
-            var ssrq = new SearchStudentsRQ(2);
+            var initialPageSize = 15;
+            var ssrq = new SearchStudentsRQ(initialPageSize);
+
             var students = await _msGraph.SearchStudentsAsync(ssrq);
 
             var vm = new AssignStudentsVM
             {
                 TestId = testId,
                 TestType = testType,
-                StudentSearchRes = students
+                StudentSearchRes = students,
+                InitialPageSize = initialPageSize
             };
             return View(vm);
         }

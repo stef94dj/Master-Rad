@@ -1,7 +1,5 @@
-﻿using MasterRad.DTOs;
-using MasterRad.Entities;
+﻿using MasterRad.Entities;
 using MasterRad.Models;
-using MasterRad.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,7 +9,6 @@ namespace MasterRad.Repositories
 {
     public interface IStudentRepository
     {
-        IEnumerable<StudentEntity> SearchStudents(SearchStudentRQ request);
         IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId);
         IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId);
         int AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId);
@@ -127,25 +124,6 @@ namespace MasterRad.Repositories
             _context.AnalysisTestEvaluations.AddRange(progressEntities);
             _context.AnalysisTestStudents.AddRange(atsEntities);
             return _context.SaveChanges();
-        }
-
-        public IEnumerable<StudentEntity> SearchStudents(SearchStudentRQ rq)
-        {
-            IQueryable<StudentEntity> qry = _context.Students;
-
-            if (rq.ExcludeIds != null && rq.ExcludeIds.Any())
-                qry = qry.Where(s => !rq.ExcludeIds.Contains(s.Id));
-
-            if (!string.IsNullOrEmpty(rq.FirstName))
-                qry = qry.Where(s => !string.IsNullOrEmpty(s.FirstName) && s.FirstName.ToLower().Contains(rq.FirstName.ToLower()));
-
-            if (!string.IsNullOrEmpty(rq.LastName))
-                qry = qry.Where(s => !string.IsNullOrEmpty(s.LastName) && s.LastName.ToLower().Contains(rq.LastName.ToLower()));
-
-            if (!string.IsNullOrEmpty(rq.Email))
-                qry = qry.Where(s => !string.IsNullOrEmpty(s.Email) && s.Email.ToLower().Contains(rq.Email.ToLower()));
-
-            return qry.AsNoTracking().ToList();
         }
 
         public bool RemoveSynthesis(int studentId, byte[] timeStamp, int testId)

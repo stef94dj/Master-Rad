@@ -20,13 +20,13 @@
     <thead>
         <tr>
             <th style="width: 30%; border:none;">
-                <input type="text" class="form-control" placeholder="First name" id="search-first-name" maxlength="50">
+                <input type="text" class="form-control" placeholder="First name (starts with)" id="search-first-name" maxlength="50">
             </th>
             <th style="width: 30%; border:none;">
-                <input type="text" class="form-control" placeholder="Last name" id="search-last-name" maxlength="50">
+                <input type="text" class="form-control" placeholder="Last name (starts with)" id="search-last-name" maxlength="50">
             </th>
             <th style="width: 30%; border:none;">
-                <input type="text" class="form-control" placeholder="Email" id="search-email" maxlength="50">
+                <input type="text" class="form-control" placeholder="Email (starts with)" id="search-email" maxlength="50">
             </th>
             <th style="width: 10%; border: none;">
                 <button onclick="searchStudents()" type="button" class="btn btn-outline-primary">
@@ -49,7 +49,7 @@
             </th>
         </tr>
     </thead>
-    <tbody id="all-students">
+    <tbody id="student-search-res">
         @if (Model?.StudentSearchRes?.Students != null)
             foreach (var student in Model.StudentSearchRes.Students)
             {
@@ -62,22 +62,26 @@
             }
     </tbody>
 </table>
-<table class="table table-sm">
+<table class="table table-sm" id="aad-pagination">
     <tr>
         <th style="border:none; float:left;">
             <button id="assign-btn" disabled onclick="assign()" type="button" class="btn btn-outline-primary">Assign</button>
         </th>
         <th style="border:none; float:right; font-weight:400;">
-            <input type="number" class="form-control" min="5" max="50" step="5" value="5" style="width:65px;" data-toggle="tooltip" data-placement="top" title="Items per page">
+            <input type="number" id="page-size" class="form-control" min="5" max="25" step="5" value="@Model.InitialPageSize" style="width:65px;" data-toggle="tooltip" data-placement="top" title="Items per page">
         </th>
         <th style="border:none; float:right; font-weight:400;">
             <nav>
                 <ul class="pagination">
-                    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    <li class="page-item">
+                        <a class="page-link current" href="javascript:void(0)" onclick="pageClick(this)">1</a>
+                    </li>
+                    @if (!string.IsNullOrEmpty(@Model?.StudentSearchRes?.NextPageUrl))
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="javascript:void(0)" onclick="pageClick(this)" data-url="@Model.StudentSearchRes.NextPageUrl">2</a>
+                        </li>
+                    }
                 </ul>
             </nav>
         </th>

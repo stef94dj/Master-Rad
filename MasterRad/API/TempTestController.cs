@@ -1,11 +1,7 @@
-﻿using MasterRad.DTOs;
+﻿using MasterRad.DTO.RQ;
 using MasterRad.Entities;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MasterRad.API
 {

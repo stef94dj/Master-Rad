@@ -1,4 +1,6 @@
-﻿using MasterRad.DTOs;
+﻿using MasterRad.DTO;
+using MasterRad.DTO.RQ;
+using MasterRad.DTO.RS;
 using MasterRad.Entities;
 using MasterRad.Helpers;
 using MasterRad.Models;
@@ -23,7 +25,8 @@ namespace MasterRad.API
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
         private readonly IMicrosoftSQL _microsoftSQLService;
-        private SqlServerAdminConnection _adminConnectionConf;
+        private readonly SqlServerAdminConnection _adminConnectionConf;
+        private readonly IMsGraph _msGraph;
 
         public StudentController
         (
@@ -31,7 +34,8 @@ namespace MasterRad.API
             ISynthesisRepository synthesisRepository,
             IAnalysisRepository analysisRepository,
             IMicrosoftSQL microsoftSQLService,
-            IOptions<SqlServerAdminConnection> adminConnectionConf
+            IOptions<SqlServerAdminConnection> adminConnectionConf,
+            IMsGraph msGraph
         )
         {
             _studentRepository = studentRepository;
@@ -39,11 +43,16 @@ namespace MasterRad.API
             _analysisRepository = analysisRepository;
             _microsoftSQLService = microsoftSQLService;
             _adminConnectionConf = adminConnectionConf.Value;
+            _msGraph = msGraph;
         }
 
-        [HttpPost, Route("search")]
-        public ActionResult<IEnumerable<StudentEntity>> SearchStudents([FromBody] SearchStudentRQ body)
-            => Ok(_studentRepository.SearchStudents(body));
+        [HttpPost, Route("azure/search")]
+        public async Task<ActionResult<SearchStudentsRS>> SearchStudentsAsync([FromBody] SearchStudentsRQ body)
+            => await _msGraph.SearchStudentsAsync(body);
+
+        [HttpPost, Route("azure/page")]
+        public async Task<ActionResult<SearchStudentsRS>> ListStudentsByPageAsync([FromBody] ListStudentsByPageRQ body)
+            => await _msGraph.ListStudentsByPageAsync(body.PageUrl);
 
         [HttpGet, Route("get/assigned/{testType}/{testId}")]
         public ActionResult<IEnumerable<BaseTestStudentEntity>> GetStudentsAssignedToTest([FromRoute]TestType testType, int testId)
@@ -107,7 +116,7 @@ namespace MasterRad.API
                             .SynthesisTest
                             .Task
                             .SolutionColumns
-                            .Select(c => new Column(c.ColumnName, c.SqlType));
+                            .Select(c => new ColumnDTO(c.ColumnName, c.SqlType));
             #endregion
 
             var assignModels = NameHelper.AnalysisTestExam(body.StudentIds, analysisEntity.Id);
@@ -151,7 +160,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("remove/assigned")]
-        public ActionResult<bool> RemoveStudentFromTest([FromBody] RemoveAssignedRQ body)
+        public ActionResult<bool> RemoveStudentFromTest([FromBody] RemoveAssignedStudentRQ body)
         {
             switch (body.TestType)
             {
@@ -170,7 +179,7 @@ namespace MasterRad.API
             return true;
         }
 
-        private bool RemoveStudentFromSynthesis(RemoveAssignedRQ model)
+        private bool RemoveStudentFromSynthesis(RemoveAssignedStudentRQ model)
         {
             if (_synthesisRepository.Get(model.TestId).Status >= TestStatus.InProgress)
                 return false;
@@ -184,7 +193,7 @@ namespace MasterRad.API
             return _studentRepository.RemoveSynthesis(model.StudentId, model.TimeStamp, model.TestId);
         }
 
-        private bool RemoveStudentFromAnalysis(RemoveAssignedRQ model)
+        private bool RemoveStudentFromAnalysis(RemoveAssignedStudentRQ model)
         {
             if (_analysisRepository.Get(model.TestId).Status >= TestStatus.InProgress)
                 return false;

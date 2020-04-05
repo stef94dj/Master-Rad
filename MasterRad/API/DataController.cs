@@ -1,12 +1,10 @@
-﻿using MasterRad.DTOs;
+﻿using MasterRad.DTO;
+using MasterRad.DTO.RQ;
 using MasterRad.Models;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MasterRad.API
 {
@@ -58,7 +56,7 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("read/{dbName}/{schemaName}/{tableName}")]
-        public ActionResult<Table> ReadTable([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
+        public ActionResult<TableDTO> ReadTable([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
             var connParams = _microsoftSQLService.GetAdminConnParams(dbName);
 

@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using MasterRad.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Identity.Web;
-using WebApp_OpenIDConnect_DotNet.Services;
-using Graph = Microsoft.Graph;
-using Microsoft.Extensions.Options;
-using MasterRad.Models.Configuration;
 
 namespace MasterRad.Controllers
 {

@@ -1,22 +1,12 @@
-﻿using MasterRad.DTOs;
+﻿using MasterRad.DTO.RQ;
 using MasterRad.Entities;
 using MasterRad.Helpers;
 using MasterRad.Models;
-using MasterRad.Models.Configuration;
-using MasterRad.Models.DTOs;
 using MasterRad.Repositories;
 using MasterRad.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using Microsoft.Identity.Web;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using WebApp_OpenIDConnect_DotNet.Services;
-using Graph = Microsoft.Graph;
 
 namespace MasterRad.API
 {

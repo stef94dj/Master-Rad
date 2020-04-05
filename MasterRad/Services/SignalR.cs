@@ -1,4 +1,4 @@
-﻿using MasterRad.DTOs;
+﻿using MasterRad.DTO;
 using MasterRad.Models;
 using Microsoft.AspNetCore.SignalR;
 using System;

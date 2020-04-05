@@ -1,4 +1,4 @@
-﻿using MasterRad.DTOs;
+﻿using MasterRad.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +10,6 @@ namespace MasterRad.Models
     {
         public string DatabaseName { get; set; }
         public string TableName { get; set; }
-        public IEnumerable<Column> Columns { get; set; }
+        public IEnumerable<ColumnDTO> Columns { get; set; }
     }
 }

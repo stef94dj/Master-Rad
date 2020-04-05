@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using MasterRad.DTO.RS;
 
 namespace MasterRad.Models.ViewModels
 {
@@ -10,5 +7,6 @@ namespace MasterRad.Models.ViewModels
         public int TestId { get; set; }
         public TestType TestType { get; set; }
         public SearchStudentsRS StudentSearchRes { get; set; }
+        public int InitialPageSize { get; set; }
     }
 }

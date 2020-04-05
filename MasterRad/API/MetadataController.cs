@@ -1,4 +1,5 @@
-﻿using MasterRad.DTOs;
+﻿using MasterRad.DTO;
+using MasterRad.DTO.RS;
 using MasterRad.Models;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -52,7 +53,7 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("columns/{dbName}/{schemaName}/{tableName}")]
-        public ActionResult<IEnumerable<ColumnInfo>> GetColumnsData([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
+        public ActionResult<IEnumerable<ColumnInfoDTO>> GetColumnsData([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
             //var conn = _profileService.GetConnectionsParams(token, dbName)
             var conn = _microsoftSQLService.GetAdminConnParams(dbName);
@@ -67,7 +68,7 @@ namespace MasterRad.API
         }
 
         [HttpGet, Route("constraints/{dbName}/{schemaName}/{tableName}")]
-        public ActionResult<IEnumerable<ColumnInfo>> GetConstraintData([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
+        public ActionResult<IEnumerable<ColumnInfoDTO>> GetConstraintData([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
             var conn = _microsoftSQLService.GetAdminConnParams(dbName);
             return Ok(_microsoftSQLService.GetConstraintData(schemaName, tableName, conn));

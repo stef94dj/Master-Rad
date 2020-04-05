@@ -1,7 +1,6 @@
-﻿using MasterRad.DTOs;
+﻿using MasterRad.DTO;
+using MasterRad.DTO.RQ;
 using MasterRad.Entities;
-using MasterRad.Models;
-using MasterRad.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

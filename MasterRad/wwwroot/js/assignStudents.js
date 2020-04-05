@@ -19,6 +19,7 @@ function initTooltips() {
     })
 
 }
+
 function loadAssignedStudents() {
     assignedStudents.html(drawTableMessage('Loading data...', 4));
 
@@ -31,47 +32,82 @@ function loadAssignedStudents() {
         }
     });
 }
+
+//Azure AD
 function searchStudents() {
-    searchResList.html('');;
-
-    var assignedStudents = $('#assigned-students').find('tr');
-
-    var excludeIds = $.map(assignedStudents, function (student, index) {
-        return $(student).data('id');
-    });
-
+    searchAAD()
+        .then(data => {
+            populateStudentSearchResult(data)
+        })
+}
+function searchAAD() {
     var rqBody = {
-        "FirstName": $('#search-first-name').val(),
-        "LastName": $('#search-last-name').val(),
-        "Email": $('#search-email').val(),
-        "ExcludeIds": excludeIds
+        "FirstNameStartsWith": $('#search-first-name').val(),
+        "LastNameStartsWith": $('#search-last-name').val(),
+        "EmailStartsWith": $('#search-email').val(),
+        "PageSize": parseInt($('#page-size').val())
     }
 
-    $.ajax({
-        url: '/api/Student/search',
-        dataType: 'json',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(rqBody),
-        success: function (data, textStatus, jQxhr) {
-            populateStudentSearchResult(data);
-        }
-    });
+    return promisifyAjaxPost('/api/Student/azure/search', rqBody);
+}
+function loadAADPage(pageUrl) {
+    getAADPage(pageUrl)
+        .then(data => {
+            populateStudentSearchResult(data)
+        })
+}
+function getAADPage(pageUrl) {
+    var rqBody = {
+        "PageUrl": pageUrl
+    }
+
+    return promisifyAjaxPost('/api/Student/azure/page', rqBody);
 }
 function populateStudentSearchResult(data) {
     searchResList.html('');
 
-    $.each(data, function (index, student) {
-        var optionHtml = '<option';
-        optionHtml += ' data-id="' + student.id + '"';
-        optionHtml += ' data-first-name="' + student.firstName + '"';
-        optionHtml += ' data-last-name="' + student.lastName + '"';
-        optionHtml += ' data-email="' + student.email + '">';
-        optionHtml += student.firstName + ' ' + student.lastName + ' (' + student.email + ')';
-        optionHtml += '</option>';
-        searchResList.append(optionHtml);
-    });
+    if (data.students != null)
+        $.each(data.students, function (index, student) {
+            var trHtml = `<tr data-ms-id="${student.microsoftId}">`;
+            trHtml += `<td>${student.firstName == null ? "" : student.firstName}</td>`;
+            trHtml += `<td>${student.lastName == null ? "" : student.lastName}</td>`;
+            trHtml += `<td>${student.email == null ? "" : student.email}</td>`;
+            trHtml += '<td><input type="checkbox"></td>';
+            trHtml += '</tr>';
+            searchResList.append(trHtml);
+        });
 }
+function pageClick(pageBtn) {
+    pageBtn = $(pageBtn);
+    var allPageBtns = pageBtn.parent().parent().find('a');
+    var allPageNos = $.map(allPageBtns, function (item, index) {
+        return parseInt($(item).html())
+    });
+    var pageNo = parseInt(pageBtn.html());
+    var pageUrl = pageBtn.data('url');
+
+    var isCurrent = pageBtn.hasClass('current');
+    var isFirstPage = pageNo == allPageNos[0];
+    var isLastPage = pageNo == allPageNos[allPageNos.length - 1];
+
+
+    if (!isCurrent && !(isFirstPage && isLastPage)) {
+        $.each(data, function (index, item) {
+            var studentRow = renderAssignedListItem(sts.studentId, sts.timeStamp, sts.student.email, sts.student.firstName, sts.student.lastName);
+            assignedStudents.append(studentRow);
+        });
+        if (isFirstPage) {
+            searchStudents();
+        }
+        else {
+            loadAADPage(pageUrl);
+            if (isLastPage) {
+                //add another page btn (if nextLink != null)
+            }
+        }
+    }
+}
+
 function assign() {
     var selectedStudents = searchResList.find('option:selected');
 

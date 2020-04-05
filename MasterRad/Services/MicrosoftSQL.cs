@@ -5,10 +5,11 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Linq;
-using MasterRad.DTOs;
+using MasterRad.DTO;
 using System.IO;
 using MasterRad.Models.Configuration;
 using Microsoft.Extensions.Options;
+using MasterRad.DTO.RS;
 
 namespace MasterRad.Services
 {
@@ -23,13 +24,13 @@ namespace MasterRad.Services
         IEnumerable<string> GetTableNames(ConnectionParams connParams);
         IEnumerable<TableWithColumns> GetTableNamesWithColumnNames(ConnectionParams connParams);
         IEnumerable<string> GetDatabaseNames();
-        IEnumerable<ColumnInfo> GetColumnsData(string schemaName, string tableName, ConnectionParams connParams);
-        IEnumerable<ConstraintInfo> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams);
+        IEnumerable<ColumnInfoDTO> GetColumnsData(string schemaName, string tableName, ConnectionParams connParams);
+        IEnumerable<ConstraintDTO> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams);
         IEnumerable<string> GetIdentityColumns(string schemaName, string tableName, ConnectionParams connParams);
-        Result<bool> InsertRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams);
-        Result<bool> UpdateRecord(string schemaName, string tableName, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams);
-        int Count(string schemaName, string tableName, List<Cell> recordPrevious, ConnectionParams connParams);
-        Result<bool> DeleteRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams);
+        Result<bool> InsertRecord(string schemaName, string tableName, List<CellDTO> record, ConnectionParams connParams);
+        Result<bool> UpdateRecord(string schemaName, string tableName, CellDTO cellNew, List<CellDTO> recordPrevious, ConnectionParams connParams);
+        int Count(string schemaName, string tableName, List<CellDTO> recordPrevious, ConnectionParams connParams);
+        Result<bool> DeleteRecord(string schemaName, string tableName, List<CellDTO> record, ConnectionParams connParams);
         bool CreateDatabase(string dbName, bool contained = false);
         bool CloneDatabase(string originDbName, string destDbName, bool failIfExists);
         IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbName, bool failIfExists);
@@ -72,7 +73,7 @@ namespace MasterRad.Services
         public QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams)
         {
             var messages = new List<string>();
-            var tables = new List<Table>();
+            var tables = new List<TableDTO>();
             int? rowsAffected = default(int?);
 
             var connectionString = BuildConnectionString(connParams);
@@ -92,11 +93,11 @@ namespace MasterRad.Services
                     rowsAffected = reader.RecordsAffected;
                     do
                     {
-                        var table = new Table();
+                        var table = new TableDTO();
                         var columns = reader.GetColumnSchema();
                         if (columns.Any())
                         {
-                            table.Columns = columns.Select(c => new Column(c.ColumnName, c.DataTypeName)).ToList();
+                            table.Columns = columns.Select(c => new ColumnDTO(c.ColumnName, c.DataTypeName)).ToList();
 
                             while (reader.Read())
                             {
@@ -236,7 +237,7 @@ namespace MasterRad.Services
                     .Select(x => x[0].ToString());
         }
 
-        public IEnumerable<ColumnInfo> GetColumnsData(string schemaName, string tableName, ConnectionParams connParams)
+        public IEnumerable<ColumnInfoDTO> GetColumnsData(string schemaName, string tableName, ConnectionParams connParams)
         {
             var sqlCommand = "SELECT COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH " +
                              "FROM INFORMATION_SCHEMA.COLUMNS " +
@@ -245,10 +246,10 @@ namespace MasterRad.Services
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
 
             //AutoMapper
-            var result = new List<ColumnInfo>();
+            var result = new List<ColumnInfoDTO>();
             foreach (var record in sqlResult.Tables[0].Rows)
             {
-                var columnInfo = new ColumnInfo();
+                var columnInfo = new ColumnInfoDTO();
                 columnInfo.Name = record[0].ToString();
                 columnInfo.DefaultValue = record[1]?.ToString() ?? null;
                 columnInfo.IsNullable = record[2].ToString().Equals("YES");
@@ -260,7 +261,7 @@ namespace MasterRad.Services
             return result;
         }
 
-        public IEnumerable<ConstraintInfo> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams)
+        public IEnumerable<ConstraintDTO> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams)
         {
             var sqlCommand = File.ReadAllText(@"SqlScripts\GetTableConstraints.sql");
             sqlCommand = sqlCommand.Replace("#SCHEMATABLENAME", $"{schemaName}.{tableName}");
@@ -268,10 +269,10 @@ namespace MasterRad.Services
             var sqlResult = ExecuteSQL(sqlCommand, connParams);
 
             //AutoMapper
-            var result = new List<ConstraintInfo>();
+            var result = new List<ConstraintDTO>();
             foreach (var record in sqlResult.Tables[0].Rows)
             {
-                var constraintInfo = new ConstraintInfo();
+                var constraintInfo = new ConstraintDTO();
                 constraintInfo.Name = record[3].ToString();
                 constraintInfo.Type = record[2]?.ToString();
                 constraintInfo.Description = record[4].ToString();
@@ -293,7 +294,7 @@ namespace MasterRad.Services
             return res;
         }
 
-        public Result<bool> InsertRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams)
+        public Result<bool> InsertRecord(string schemaName, string tableName, List<CellDTO> record, ConnectionParams connParams)
         {
             var columns = record.Select(x => $"[{x.ColumnName}]");
             var cells = record.Select(x => $"'{x.Value}'");
@@ -306,7 +307,7 @@ namespace MasterRad.Services
             return Result<bool>.Success(true);
         }
 
-        public Result<bool> UpdateRecord(string schemaName, string tableName, Cell cellNew, List<Cell> recordPrevious, ConnectionParams connParams)
+        public Result<bool> UpdateRecord(string schemaName, string tableName, CellDTO cellNew, List<CellDTO> recordPrevious, ConnectionParams connParams)
         {
             if (!recordPrevious.Any())
                 return Result<bool>.Fail(new List<string>() { "Unable to identify record" });
@@ -331,7 +332,7 @@ namespace MasterRad.Services
             return Result<bool>.Success(true);
         }
 
-        public int Count(string schemaName, string tableName, List<Cell> recordPrevious, ConnectionParams connParams)
+        public int Count(string schemaName, string tableName, List<CellDTO> recordPrevious, ConnectionParams connParams)
         {
             if (!recordPrevious.Any())
                 return -1;
@@ -348,7 +349,7 @@ namespace MasterRad.Services
             return int.Parse(count);
         }
 
-        public Result<bool> DeleteRecord(string schemaName, string tableName, List<Cell> record, ConnectionParams connParams)
+        public Result<bool> DeleteRecord(string schemaName, string tableName, List<CellDTO> record, ConnectionParams connParams)
         {
             if (!record.Any())
                 return Result<bool>.Fail(new List<string>() { "Unable to identify record" });

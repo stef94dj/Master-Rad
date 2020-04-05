@@ -1,8 +1,12 @@
-﻿using MasterRad.Models;
+﻿using MasterRad.DTO;
+using MasterRad.DTO.RQ;
+using MasterRad.DTO.RS;
 using MasterRad.Models.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Identity.Web;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,14 +48,14 @@ namespace MasterRad.Services
             var qry = graphClient.Users.Request();
 
             #region SetUserFilters
-            if (!string.IsNullOrEmpty(model.FirstNameFilter))
-                qry = qry.Filter($"startswith(givenName,+'{model.FirstNameFilter}')");
+            if (!string.IsNullOrEmpty(model.FirstNameStartsWith))
+                qry = qry.Filter($"startswith(givenName,+'{model.FirstNameStartsWith}')");
 
-            if (!string.IsNullOrEmpty(model.LastNameFilter))
-                throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(model.LastNameStartsWith))
+                qry = qry.Filter($"startswith(surname,+'{model.LastNameStartsWith}')");
 
-            if (!string.IsNullOrEmpty(model.EmailFilter))
-                throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(model.EmailStartsWith))
+                qry = qry.Filter($"startswith(mail,+'{model.EmailStartsWith}')");
 
             qry = qry.Top(model.PageSize);
             #endregion
@@ -60,12 +64,12 @@ namespace MasterRad.Services
 
             #region MapResult
             var nextPageUrl = qryRes.NextPageRequest
-                                   .GetHttpRequestMessage()
-                                   .RequestUri
-                                   .AbsoluteUri
-                                   .ToString();
+                                    ?.GetHttpRequestMessage()
+                                    ?.RequestUri
+                                    ?.AbsoluteUri
+                                    ?.ToString();
 
-            var students = qryRes.Select(x => new Student(x.Id, x.GivenName, x.Surname, x.Mail, x.UserPrincipalName));
+            var students = qryRes.Select(x => new StudentDTO(x));
             #endregion
 
             return new SearchStudentsRS(students, nextPageUrl);
@@ -74,13 +78,23 @@ namespace MasterRad.Services
         public async Task<SearchStudentsRS> ListStudentsByPageAsync(string pageUrl)
         {
             GraphServiceClient graphClient = GetGraphServiceClient(new[] { Constants.ScopeUserReadBasicAll });
+            
+            await graphClient.Users.Request().Top(1).GetAsync(); //gets the authenthication token (to do: find better way)
 
             var httpRqMethod_GET = new System.Net.Http.HttpMethod("GET");
             var nextPageHttpRq = new System.Net.Http.HttpRequestMessage(httpRqMethod_GET, pageUrl);
             var nextPageHttpRs = await graphClient.HttpProvider.SendAsync(nextPageHttpRq);
             var responseJSON = await nextPageHttpRs.Content.ReadAsStringAsync();
 
-            throw new NotImplementedException();
+            #region MapJsonToResult
+            var responseJObject = JObject.Parse(responseJSON);
+            var nextPageURL = responseJObject["@odata.nextLink"]?.ToString();
+            var currentPageJSON = responseJObject["value"]?.ToString() ?? string.Empty;
+            var currentPageData = JsonConvert.DeserializeObject<IList<Graph.User>>(currentPageJSON);
+            var studentDTOs = currentPageData?.Select(s => new StudentDTO(s));
+            #endregion
+
+            return new SearchStudentsRS(studentDTOs, nextPageURL);
         }
 
         private GraphServiceClient GetGraphServiceClient(string[] scopes)

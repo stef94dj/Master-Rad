@@ -1,4 +1,5 @@
-﻿using MasterRad.DTOs;
+﻿using MasterRad.DTO;
+using MasterRad.DTO.RS;
 using MasterRad.Models;
 using System;
 using System.Collections.Generic;
@@ -86,7 +87,7 @@ namespace MasterRad.Services
             return new EvaluationResult(true, shouldMatch, "Match");
         }
 
-        private int IndexInTable(Table qr2Table, List<object> qr1Row, List<Column> qr1Columns, IEnumerable<string> expectedFormat, List<int> excludeIndexes)
+        private int IndexInTable(TableDTO qr2Table, List<object> qr1Row, List<ColumnDTO> qr1Columns, IEnumerable<string> expectedFormat, List<int> excludeIndexes)
         {
             for (int qr2RowIndex = 0; qr2RowIndex < qr2Table.Rows.Count(); qr2RowIndex++)
             {
@@ -100,7 +101,7 @@ namespace MasterRad.Services
             return -1;
         }
 
-        private bool RowsAreEqual(List<object> qr2Row, List<Column> qr2Columns, List<object> qr1Row, List<Column> qr1Columns, IEnumerable<string> expectedFormat)
+        private bool RowsAreEqual(List<object> qr2Row, List<ColumnDTO> qr2Columns, List<object> qr1Row, List<ColumnDTO> qr1Columns, IEnumerable<string> expectedFormat)
         {
 
             foreach (var columnName in expectedFormat)
