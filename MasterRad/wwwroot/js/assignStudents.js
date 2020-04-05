@@ -92,12 +92,12 @@ function populatePagesMenu(data) {
 
     pagingUl.html(newHtml);
 }
-function drawPageBtn(number, isCurrent, nextPageUrl) {
-    var nextPageUrlAttr = nextPageUrl ? `data-url="${nextPageUrl}"` : ``;
+function drawPageBtn(number, isCurrent, pageUrl) {
+    var pageUrlAttr = pageUrl ? `data-url="${pageUrl}"` : ``;
     var currentClass = isCurrent ? "current" : "";
 
     var pagehtml = '<li class="page-item">';
-    pagehtml += `<a class="page-link ${currentClass}" href="javascript:void(0)" onclick="pageClick(this)" ${nextPageUrlAttr}>${number}</a>`;
+    pagehtml += `<a class="page-link ${currentClass}" href="javascript:void(0)" onclick="pageClick(this)" ${pageUrlAttr}>${number}</a>`;
     pagehtml += '</li>';
     return pagehtml;
 }
@@ -121,10 +121,20 @@ function pageClick(pageBtn) {
         });
 
         if (isFirstPage) {
-            searchStudents();
+            searchAAD()
+                .then(data => {
+                    populateStudentSearchResult(data);
+                })
         }
         else {
-            loadAADPage(pageUrl);
+            getAADPage(pageUrl)
+                .then(data => {
+                    populateStudentSearchResult(data)
+                    if (isLastPage && data != null && data.nextPageUrl) {
+                        var newBtnHtml = drawPageBtn(pageNo + 1, false, data.nextPageUrl);
+                        pagingUl.html(pagingUl.html() + newBtnHtml);
+                    }
+                })
             if (isLastPage) {
                 //add another page btn (if nextLink != null)
             }
