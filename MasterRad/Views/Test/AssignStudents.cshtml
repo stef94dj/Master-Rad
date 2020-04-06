@@ -5,6 +5,7 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/datatable.css" />
+    <link rel="stylesheet" href="~/css/pagination.css" />
 }
 
 <h1>Assign students</h1>
@@ -15,7 +16,14 @@
 
 <br />
 
-<h5>Find students on Azure</h5>
+<div>
+    <a href="https://docs.microsoft.com/en-us/azure/active-directory/" target="_blank">
+        <img src="~/images/azure-logo.png" style="height:20px; float:left;" data-toggle="tooltip" data-placement="top" title="Azure Active Directory" />
+    </a>
+    <h5 style="float:left; margin-left:5px;">Find students on Azure</h5>
+</div>
+
+<!--Search filters-->
 <table class="table table-sm">
     <thead>
         <tr>
@@ -28,8 +36,9 @@
             <th style="width: 30%; border:none;">
                 <input type="text" class="form-control" placeholder="Email (starts with)" id="search-email" maxlength="50">
             </th>
-            <th style="width: 10%; border: none;">
-                <button onclick="searchStudents()" type="button" class="btn btn-outline-primary">
+            <th style="border: none;">
+                <input type="number" id="page-size" class="form-control" min="5" max="25" step="5" value="@Model.InitialPageSize" style="width:65px; float:left" data-toggle="tooltip" data-placement="top" title="Items per page">
+                <button onclick="searchStudents()" type="button" class="btn btn-outline-primary" style="float:right">
                     Search
                 </button>
             </th>
@@ -41,12 +50,10 @@
 <table class="table table-sm table-bordered">
     <thead class="thead-dark">
         <tr>
-            <th style="width: 32%">First name</th>
-            <th style="width: 32%">Last name</th>
-            <th style="width: 32%">Email</th>
-            <th>
-                <img src="~/images/azure-logo.png" style="height:25px;" data-toggle="tooltip" data-placement="top" title="Azure Active Directory" />
-            </th>
+            <th style="width: 30%">First name</th>
+            <th style="width: 30%">Last name</th>
+            <th style="width: 30%">Email</th>
+            <th>Marked</th>
         </tr>
     </thead>
     <tbody id="student-search-res">
@@ -62,13 +69,12 @@
             }
     </tbody>
 </table>
+
+<!--Search footer-->
 <table class="table table-sm" id="aad-pagination">
     <tr>
         <th style="border:none; float:left;">
-            <button id="assign-btn" disabled onclick="assign()" type="button" class="btn btn-outline-primary">Assign selected (0)</button>
-        </th>
-        <th style="border:none; float:right; font-weight:400;">
-            <input type="number" id="page-size" class="form-control" min="5" max="25" step="5" value="@Model.InitialPageSize" style="width:65px;" data-toggle="tooltip" data-placement="top" title="Items per page">
+            <button id="assign-btn" disabled onclick="assign()" type="button" class="btn btn-outline-primary">Assign marked (0)</button>
         </th>
         <th style="border:none; float:right; font-weight:400;">
             <nav>
@@ -103,7 +109,6 @@
     </thead>
     <tbody id="assigned-students"></tbody>
 </table>
-
 
 @section Scripts {
     <script src="~/js/assignStudents.js" asp-append-version="true"></script>

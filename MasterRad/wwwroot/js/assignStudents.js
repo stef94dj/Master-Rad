@@ -119,6 +119,7 @@ function pageClick(pageBtn) {
         $.each(allPageBtns, function (index, item) {
             $(item).removeClass('current');
         });
+        pageBtn.addClass('current');
 
         if (isFirstPage) {
             searchAAD()
