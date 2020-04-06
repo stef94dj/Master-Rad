@@ -58,6 +58,7 @@
     </thead>
     <tbody id="student-search-res">
         @if (Model?.StudentSearchRes?.Students != null)
+        {
             foreach (var student in Model.StudentSearchRes.Students)
             {
                 <tr data-ms-id="@student.MicrosoftId">
@@ -67,6 +68,13 @@
                     <td><input type="checkbox" style="transform:scale(1.5)"></td>
                 </tr>
             }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4">No data.</td>
+            </tr>
+        }
     </tbody>
 </table>
 

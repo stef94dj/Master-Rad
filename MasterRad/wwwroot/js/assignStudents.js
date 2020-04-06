@@ -38,10 +38,14 @@ function loadAssignedStudents() {
 
 //Azure AD
 function searchStudents() {
+    displaySearchResMessage('Loading data.');
     searchAAD()
         .then(data => {
             populateStudentSearchResult(data);
             populatePagesMenu(data);
+        })
+        .catch(() => {
+            displaySearchResMessage('Error loading data.');
         })
 }
 function searchAAD() {
@@ -54,12 +58,6 @@ function searchAAD() {
 
     return promisifyAjaxPost('/api/Student/azure/search', rqBody);
 }
-function loadAADPage(pageUrl) {
-    getAADPage(pageUrl)
-        .then(data => {
-            populateStudentSearchResult(data)
-        })
-}
 function getAADPage(pageUrl) {
     var rqBody = {
         "PageUrl": pageUrl
@@ -68,9 +66,10 @@ function getAADPage(pageUrl) {
     return promisifyAjaxPost('/api/Student/azure/page', rqBody);
 }
 function populateStudentSearchResult(data) {
-    searchResList.html('');
+    displaySearchResMessage('No data.');
 
-    if (data != null && data.students != null)
+    if (data != null && data.students != null && data.students.length > 0) {
+        searchResList.html('');
         $.each(data.students, function (index, student) {
             var trHtml = `<tr data-ms-id="${student.microsoftId}">`;
             trHtml += `<td>${student.firstName == null ? "" : student.firstName}</td>`;
@@ -80,7 +79,12 @@ function populateStudentSearchResult(data) {
             trHtml += '</tr>';
             searchResList.append(trHtml);
         });
+    }
 }
+function displaySearchResMessage(message) {
+    searchResList.html(drawTableMessage(message, 4));
+}
+
 function populatePagesMenu(data) {
     var newHtml = '';
 
