@@ -74,17 +74,12 @@ namespace MasterRad.API
 
         [HttpPost, Route("assign")]
         public ActionResult<Result<bool>> AssignStudentsToTest([FromBody] AssignStudentsRQ body)
-        {
-            switch (body.TestType)
-            {
-                case TestType.Synthesis:
-                    return AssignStudentsToSynthesis(body);
-                case TestType.Analysis:
-                    return AssignStudentsToAnalysis(body);
-                default:
-                    return StatusCode(500);
-            }
-        }
+            => body.TestType switch
+               {
+                   TestType.Synthesis => AssignStudentsToSynthesis(body),
+                   TestType.Analysis => AssignStudentsToAnalysis(body),
+                   _ => StatusCode(500),
+               };
 
         private ActionResult<Result<bool>> AssignStudentsToSynthesis(AssignStudentsRQ body)
         {
@@ -93,7 +88,7 @@ namespace MasterRad.API
             if (synthesisEntity.Status >= TestStatus.Completed)
                 return StatusCode(500);
 
-            var synthesisExamDbNames = NameHelper.SynthesisTestExam(body.StudentIds, synthesisEntity.Id);
+            var synthesisExamDbNames = NameHelper.SynthesisTestExam(new List<int>(), synthesisEntity.Id); //new List<int>()-> body.StudentIds
 
             var synthesisTemplateName = synthesisEntity.Task.Template.NameOnServer;
             var synthesisCloneSuccess = _microsoftSQLService.CloneDatabases(synthesisTemplateName, synthesisExamDbNames.Select(snp => snp.Value), false);
@@ -101,7 +96,7 @@ namespace MasterRad.API
             synthesisExamDbNames = synthesisExamDbNames.Where(x => synthesisCloneSuccess.Contains(x.Value));
 
             var synthesisAssigned = _studentRepository.AssignSynthesisTest(synthesisExamDbNames, body.TestId);
-            if (synthesisAssigned != body.StudentIds.Count())
+            if (synthesisAssigned != new List<int>().Count()) //new List<int>()-> body.StudentIds
                 return Result<bool>.Fail("One or more students have not been assigned");
             else
                 return Result<bool>.Success(true);
@@ -123,7 +118,7 @@ namespace MasterRad.API
                             .Select(c => new ColumnDTO(c.ColumnName, c.SqlType));
             #endregion
 
-            var assignModels = NameHelper.AnalysisTestExam(body.StudentIds, analysisEntity.Id);
+            var assignModels = NameHelper.AnalysisTestExam(new List<int>(), analysisEntity.Id); //new List<int>()-> body.StudentIds
 
             #region Clone_Databases
             var analysisTemplateName = analysisEntity.SynthesisTestStudent.SynthesisTest.Task.Template.NameOnServer;
@@ -156,7 +151,7 @@ namespace MasterRad.API
             var analysisAssigned = _studentRepository.AssignAnalysisTest(assignModels, body.TestId);
 
             #region Return_Result
-            if (analysisAssigned != body.StudentIds.Count())
+            if (analysisAssigned != new List<int>().Count()) //new List<int>()-> body.StudentIds
                 return Result<bool>.Fail("One or more students have not been assigned");
             else
                 return Result<bool>.Success(true);

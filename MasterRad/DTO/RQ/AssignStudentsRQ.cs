@@ -9,6 +9,6 @@ namespace MasterRad.DTO.RQ
     {
         public TestType TestType { get; set; }
         public int TestId { get; set; }
-        public List<int> StudentIds { get; set; }
+        public List<Guid> StudentMicrosoftIds { get; set; }
     }
 }

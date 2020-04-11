@@ -8,7 +8,7 @@ namespace MasterRad.Entities
 {
     public abstract class BaseTestStudentEntity : BaseManyToManyEntity
     {
-        public int StudentId { get; set; }
-        public StudentEntity Student { get; set; }
+        public Guid StudentId { get; set; }
+        public AzureSqlUserMapEntity Student { get; set; }
     }
 }

@@ -5,21 +5,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MasterRad.Entities
 {
-    public class StudentEntity
+    public class AzureSqlUserMapEntity
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public Guid AzureId { get; set; }
 
         public DateTime? DateCreated { get; set; }
 
         public List<SynthesisTestStudentEntity> SynthesisTestStudents { get; set; }
         public List<AnalysisTestStudentEntity> AnalysisTestStudents { get; set; }
 
-        [EmailAddress, Required, MaxLength(255)]
-        public string Email { get; set; }
-        [MaxLength(255)]
-        public string FirstName { get; set; }
-        [MaxLength(255)]
-        public string LastName { get; set; }
+        [Required, MaxLength(255)]
+        public string SqlUsername { get; set; }
+        [Required, MaxLength(255)]
+        public string SqlPassword { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace MasterRad
         public DbSet<TemplateEntity> Templates { get; set; }
         public DbSet<TaskEntity> Tasks { get; set; }
         public DbSet<SolutionColumnEntity> SolutionColums { get; set; }
-        public DbSet<StudentEntity> Students { get; set; }
+        public DbSet<AzureSqlUserMapEntity> AzureSqlUserMap { get; set; }
         public DbSet<SynthesisTestEntity> SynthesisTests { get; set; }
         public DbSet<SynthesisTestStudentEntity> SynthesysTestStudents { get; set; }
         public DbSet<SynthesisEvaluationEntity> SynthesysTestEvaluations { get; set; }
@@ -34,7 +34,7 @@ namespace MasterRad
             modelBuilder.Entity<TemplateEntity>().ToTable("Template");
             modelBuilder.Entity<TaskEntity>().ToTable("Task");
             modelBuilder.Entity<SolutionColumnEntity>().ToTable("SolutionColumn");
-            modelBuilder.Entity<StudentEntity>().ToTable("Student");
+            modelBuilder.Entity<AzureSqlUserMapEntity>().ToTable("AzureSqlUserMap");
             modelBuilder.Entity<SynthesisTestEntity>().ToTable("SynthesisTest");
             modelBuilder.Entity<SynthesisTestStudentEntity>().ToTable("SynthesisTestStudent");
             modelBuilder.Entity<SynthesisEvaluationEntity>().ToTable("SynthesisEvaluation");
@@ -43,19 +43,17 @@ namespace MasterRad
             modelBuilder.Entity<AnalysisEvaluationEntity>().ToTable("AnalysisEvaluation");
 
             //seed data - DEV ONLY (comment out for production)
-            modelBuilder.Entity<StudentEntity>() 
-                .HasData(SeedHelper.SeedData<StudentEntity>("students"));
+
+            #region Seed_Data
+            //modelBuilder.Entity<AzureSqlUserMapEntity>() 
+            //    .HasData(SeedHelper.SeedData<AzureSqlUserMapEntity>("students"));
 
             //modelBuilder.Entity<TemplateEntity>()
             //   .HasData(SeedHelper.SeedData<TemplateEntity>("templates"));
 
             //modelBuilder.Entity<TaskEntity>()
             //    .HasData(SeedHelper.SeedData<TaskEntity>("tasks"));
-
-            //students - temp solution for auth (comment out for production)
-            modelBuilder.Entity<StudentEntity>()
-               .HasIndex(s => s.Email)
-               .IsUnique();
+            #endregion
 
             //unique constraints
             modelBuilder.Entity<TemplateEntity>()
@@ -142,12 +140,12 @@ namespace MasterRad
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
             //delete student
-            modelBuilder.Entity<StudentEntity>()
+            modelBuilder.Entity<AzureSqlUserMapEntity>()
                 .HasMany(s => s.SynthesisTestStudents)
                 .WithOne(sps => sps.Student)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<StudentEntity>()
+            modelBuilder.Entity<AzureSqlUserMapEntity>()
                 .HasMany(s => s.AnalysisTestStudents)
                 .WithOne(sts => sts.Student)
                 .OnDelete(DeleteBehavior.Restrict);

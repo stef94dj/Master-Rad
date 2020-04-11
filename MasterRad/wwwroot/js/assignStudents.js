@@ -200,11 +200,11 @@ function hidePageBtn(pageBtn) {
 }
 
 //marked and assigned
-function getSearched() {
+function getSearchedRows() {
     return searchResList.find('tr');
 }
-function getMarked() {
-    var searched = getSearched();
+function getMarkedRows() {
+    var searched = getSearchedRows();
     var marked = $.map(searched, function (item, index) {
         var cbx = $(item).find('input:checkbox')[0];
         if ($(cbx).is(':checked'))
@@ -213,11 +213,11 @@ function getMarked() {
 
     return marked;
 }
-function getAssigned() {
+function getAssignedRows() {
     return assignedStudents.find('tr');
 }
 function onMarkCbxChange() {
-    var markedCnt = getMarked().length;
+    var markedCnt = getMarkedRows().length;
     if (markedCnt > 0)
         enableAssignBtn(markedCnt);
     else
@@ -236,12 +236,12 @@ function setAssignBtnLabel(markedCnt) {
 }
 
 function disableCbxForAssigned() {
-    var searched = getSearched();
+    var searched = getSearchedRows();
     $.each(searched, function (index, item) {
         enableSearchResult(item);
     });
 
-    var assigned = getAssigned();
+    var assigned = getAssignedRows();
     var assignedMsIds = $.map(assigned, function (item, index) {
         return $(item).data('ms-id');
     });
@@ -269,16 +269,15 @@ function disableSearchResult(tr) {
 
 
 function assign() {
-    var selectedStudents = searchResList.find('option:selected');
-
-    var selectedStudentIds = $.map(selectedStudents, function (student, index) {
-        return $(student).data('id');
+    var markedRows = getMarkedRows();
+    var markedIds = $.map(markedRows, function (item, index) {
+        return $(item).data('ms-id')
     });
 
     var rqBody = {
         "TestType": testType,
         "TestId": testId,
-        "StudentIds": selectedStudentIds
+        "StudentMicrosoftIds": markedIds
     }
 
     $.ajax({
@@ -289,7 +288,7 @@ function assign() {
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
             loadAssignedStudents();
-            selectedStudents.remove();
+            //selectedStudents.remove();
         }
     });
 }
