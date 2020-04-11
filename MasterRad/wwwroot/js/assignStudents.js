@@ -42,7 +42,7 @@ function searchStudents() {
     searchAAD()
         .then(data => {
             populateStudentSearchResult(data);
-            populatePagesMenu(data);
+            drawInitialPages(data);
         })
         .catch(() => {
             displaySearchResMessage('Error loading data.');
@@ -85,7 +85,7 @@ function displaySearchResMessage(message) {
     searchResList.html(drawTableMessage(message, 4));
 }
 
-function populatePagesMenu(data) {
+function drawInitialPages(data) {
     var newHtml = '';
 
     if (data != null && data.students != null) {
@@ -120,11 +120,6 @@ function pageClick(pageBtn) {
     var isLastPage = pageNo == allPageNos[allPageNos.length - 1];
 
     if (!isCurrent && !(isFirstPage && isLastPage)) {
-        $.each(allPageBtns, function (index, item) {
-            $(item).removeClass('current');
-        });
-        pageBtn.addClass('current');
-
         if (isFirstPage) {
             searchAAD()
                 .then(data => {
@@ -140,11 +135,60 @@ function pageClick(pageBtn) {
                         pagingUl.html(pagingUl.html() + newBtnHtml);
                     }
                 })
-            if (isLastPage) {
-                //add another page btn (if nextLink != null)
-            }
+        }
+
+        updateCurrentPageBtn(allPageBtns, pageBtn);
+        updateVisiblePageBtns(allPageBtns, pageBtn);
+    }
+}
+
+function updateCurrentPageBtn(allPageBtns, pageBtn) {
+    $.each(allPageBtns, function (index, item) {
+        $(item).removeClass('current');
+    });
+    pageBtn.addClass('current');
+}
+
+function updateVisiblePageBtns(allPageBtns, pageBtn) {
+    //hide all
+    $.each(allPageBtns, function (index, item) {
+        hidePageBtn($(item));
+    });
+
+    //display current
+    showPageBtn(pageBtn);
+
+    //display left & right of current
+    var currentIndex = allPageBtns.index(pageBtn);
+    var leftIndex = currentIndex - 1;
+    var rightIndex = currentIndex + 1;
+
+    var toDisplay = 10;
+    while (toDisplay > 0) {
+        var leftInBounds = leftIndex >= 0;
+        var rightInBounds = rightIndex <= (allPageBtns.length - 1);
+
+        if (!leftInBounds && !rightInBounds)
+            break;
+
+        if (leftInBounds) {
+            showPageBtn(allPageBtns[leftIndex]);
+            toDisplay--;
+            leftIndex--;
+        }
+
+        if (rightInBounds) {
+            showPageBtn(allPageBtns[rightIndex]);
+            toDisplay--;
+            rightIndex++;
         }
     }
+}
+function showPageBtn(pageBtn) {
+    $(pageBtn).parent().attr('hidden', false);
+}
+function hidePageBtn(pageBtn) {
+    $(pageBtn).parent().attr('hidden', true);
 }
 
 function assign() {
