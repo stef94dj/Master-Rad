@@ -65,7 +65,9 @@
                     <td>@student.FirstName</td>
                     <td>@student.LastName</td>
                     <td>@student.Email</td>
-                    <td><input type="checkbox" style="transform:scale(1.5)"></td>
+                    <td>
+                        <input type="checkbox" style="transform:scale(1.5)" onchange="onMarkCbxChange(this)">
+                    </td>
                 </tr>
             }
         }

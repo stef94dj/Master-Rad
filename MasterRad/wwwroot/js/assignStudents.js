@@ -2,6 +2,7 @@
 var testId = null;
 var testType = null;
 var assignedStudents = null;
+var assignBtn = null;
 var pagingUl = null;
 
 $(document).ready(function () {
@@ -9,9 +10,10 @@ $(document).ready(function () {
     testType = $('#test-type').val();;
     assignedStudents = $('#assigned-students');
     searchResList = $('#student-search-res');
+    assignBtn = $('#assign-btn');
     pagingUl = $('#paging-ul');
 
-    searchResList.on('change', studentSelection);
+    //searchResList.on('change', studentSelection);
     initTooltips();
     loadAssignedStudents();
 });
@@ -32,6 +34,7 @@ function loadAssignedStudents() {
         type: 'GET',
         success: function (data) {
             displayAssignedStudents(data);
+            disableCbxForAssigned();
         }
     });
 }
@@ -43,6 +46,8 @@ function searchStudents() {
         .then(data => {
             populateStudentSearchResult(data);
             drawInitialPages(data);
+            disableAssignBtn();
+            disableCbxForAssigned();
         })
         .catch(() => {
             displaySearchResMessage('Error loading data.');
@@ -58,13 +63,6 @@ function searchAAD() {
 
     return promisifyAjaxPost('/api/Student/azure/search', rqBody);
 }
-function getAADPage(pageUrl) {
-    var rqBody = {
-        "PageUrl": pageUrl
-    }
-
-    return promisifyAjaxPost('/api/Student/azure/page', rqBody);
-}
 function populateStudentSearchResult(data) {
     displaySearchResMessage('No data.');
 
@@ -75,16 +73,12 @@ function populateStudentSearchResult(data) {
             trHtml += `<td>${student.firstName == null ? "" : student.firstName}</td>`;
             trHtml += `<td>${student.lastName == null ? "" : student.lastName}</td>`;
             trHtml += `<td>${student.email == null ? "" : student.email}</td>`;
-            trHtml += '<td><input type="checkbox" style="transform:scale(1.5)"></td>';
+            trHtml += '<td><div><input type="checkbox" style="transform:scale(1.5)" onchange="onMarkCbxChange(this)"></div></td>';
             trHtml += '</tr>';
             searchResList.append(trHtml);
         });
     }
 }
-function displaySearchResMessage(message) {
-    searchResList.html(drawTableMessage(message, 4));
-}
-
 function drawInitialPages(data) {
     var newHtml = '';
 
@@ -105,7 +99,11 @@ function drawPageBtn(number, isCurrent, pageUrl) {
     pagehtml += '</li>';
     return pagehtml;
 }
+function displaySearchResMessage(message) {
+    searchResList.html(drawTableMessage(message, 4));
+}
 
+//page click
 function pageClick(pageBtn) {
     pageBtn = $(pageBtn);
     var allPageBtns = pageBtn.parent().parent().find('a');
@@ -124,6 +122,7 @@ function pageClick(pageBtn) {
             searchAAD()
                 .then(data => {
                     populateStudentSearchResult(data);
+                    afterRenderSearchResUI(allPageBtns, pageBtn);
                 })
         }
         else {
@@ -134,21 +133,30 @@ function pageClick(pageBtn) {
                         var newBtnHtml = drawPageBtn(pageNo + 1, false, data.nextPageUrl);
                         pagingUl.html(pagingUl.html() + newBtnHtml);
                     }
+                    afterRenderSearchResUI(allPageBtns, pageBtn);
                 })
         }
-
-        updateCurrentPageBtn(allPageBtns, pageBtn);
-        updateVisiblePageBtns(allPageBtns, pageBtn);
     }
 }
+function afterRenderSearchResUI(allPageBtns, pageBtn) {
+    updateCurrentPageBtn(allPageBtns, pageBtn);
+    updateVisiblePageBtns(allPageBtns, pageBtn);
+    disableAssignBtn();
+    disableCbxForAssigned();
+}
+function getAADPage(pageUrl) {
+    var rqBody = {
+        "PageUrl": pageUrl
+    }
 
+    return promisifyAjaxPost('/api/Student/azure/page', rqBody);
+}
 function updateCurrentPageBtn(allPageBtns, pageBtn) {
     $.each(allPageBtns, function (index, item) {
         $(item).removeClass('current');
     });
     pageBtn.addClass('current');
 }
-
 function updateVisiblePageBtns(allPageBtns, pageBtn) {
     //hide all
     $.each(allPageBtns, function (index, item) {
@@ -191,6 +199,75 @@ function hidePageBtn(pageBtn) {
     $(pageBtn).parent().attr('hidden', true);
 }
 
+//marked and assigned
+function getSearched() {
+    return searchResList.find('tr');
+}
+function getMarked() {
+    var searched = getSearched();
+    var marked = $.map(searched, function (item, index) {
+        var cbx = $(item).find('input:checkbox')[0];
+        if ($(cbx).is(':checked'))
+            return item;
+    });
+
+    return marked;
+}
+function getAssigned() {
+    return assignedStudents.find('tr');
+}
+function onMarkCbxChange() {
+    var markedCnt = getMarked().length;
+    if (markedCnt > 0)
+        enableAssignBtn(markedCnt);
+    else
+        disableAssignBtn();
+}
+function enableAssignBtn(markedCnt) {
+    setAssignBtnLabel(markedCnt);
+    $(assignBtn).attr('disabled', false);
+}
+function disableAssignBtn() {
+    setAssignBtnLabel(0);
+    $(assignBtn).attr('disabled', true);
+}
+function setAssignBtnLabel(markedCnt) {
+    $(assignBtn).html(`Assign marked (${markedCnt})`);
+}
+
+function disableCbxForAssigned() {
+    var searched = getSearched();
+    $.each(searched, function (index, item) {
+        enableSearchResult(item);
+    });
+
+    var assigned = getAssigned();
+    var assignedMsIds = $.map(assigned, function (item, index) {
+        return $(item).data('ms-id');
+    });
+
+    $.each(searched, function (index, item) {
+        var msid = $(item).data('ms-id');
+        if (assignedMsIds.includes(msid))
+            disableSearchResult(item);
+    });
+
+    initTooltips();
+}
+function enableSearchResult(tr) {
+    $(tr).attr('style', 'color:black');
+    cbx = $(tr).find('input:checkbox')[0];
+    cbx = $(cbx);
+    cbx.attr('disabled', false);
+}
+function disableSearchResult(tr) {
+    $(tr).attr('style', 'color:grey');
+    cbx = $(tr).find('input:checkbox')[0];
+    cbx = $(cbx);
+    cbx.attr('disabled', true);
+}
+
+
 function assign() {
     var selectedStudents = searchResList.find('option:selected');
 
@@ -216,13 +293,13 @@ function assign() {
         }
     });
 }
-function renderAssignedListItem(id, timestamp, email, firstName, lastName) {
-    var result = '<tr data-id="' + id + '">'
+function renderAssignedListItem(msid, timestamp, email, firstName, lastName) {
+    var result = '<tr data-ms-id="' + msid + '">'
 
     result += '<td>' + firstName + '</td>';
     result += '<td>' + lastName + '</td>';
     result += '<td>' + email + '</td>';
-    result += '<td><button onclick="removeStudent(' + id + ',' + "'" + timestamp + "'" + ')" type="button" class="btn btn-outline-danger btn-sm">Remove</button></td>';
+    result += '<td><button onclick="removeStudent(' + msid + ',' + "'" + timestamp + "'" + ')" type="button" class="btn btn-outline-danger btn-sm">Remove</button></td>';
     result += '</tr>';
 
     return result;
@@ -231,18 +308,19 @@ function displayAssignedStudents(data) {
     assignedStudents.html('');
 
     $.each(data, function (index, sts) {
+        sts.studentId = '7868902e-c96d-403e-b4ea-05349720b2f2'; //Mihailo Popesku
         var studentRow = renderAssignedListItem(sts.studentId, sts.timeStamp, sts.student.email, sts.student.firstName, sts.student.lastName);
         assignedStudents.append(studentRow);
     });
 }
-function removeFromSearchResultsList(students) {
-    searchResList.remove(students);
-}
-function removeStudent(studentId, timestamp) {
+//function removeFromSearchResultsList(students) {
+//    searchResList.remove(students);
+//}
+function removeStudent(msid, timestamp) {
     var rqBody = {
         "TestType": testType,
         "TestId": testId,
-        "StudentId": studentId,
+        "StudentId": msid,
         "TimeStamp": timestamp
     };
 
@@ -257,11 +335,11 @@ function removeStudent(studentId, timestamp) {
         }
     });
 }
-function studentSelection() {
-    var selectedStudents = searchResList.find('option:selected');
-    var assignBtn = $('#assign-btn');
-    if (selectedStudents.length > 0)
-        assignBtn.removeAttr('disabled');
-    else
-        assignBtn.attr('disabled', true);
-}
+//function studentSelection() {
+//    var selectedStudents = searchResList.find('option:selected');
+//    var assignBtn = $('#assign-btn');
+//    if (selectedStudents.length > 0)
+//        assignBtn.removeAttr('disabled');
+//    else
+//        assignBtn.attr('disabled', true);
+//}
