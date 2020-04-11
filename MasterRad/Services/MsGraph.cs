@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WebApp_OpenIDConnect_DotNet.Services;
 using Graph = Microsoft.Graph;
+using MasterRad.Extensions;
 
 namespace MasterRad.Services
 {
@@ -21,6 +22,7 @@ namespace MasterRad.Services
     {
         Task<SearchStudentsRS> SearchStudentsAsync(SearchStudentsRQ model);
         Task<SearchStudentsRS> ListStudentsByPageAsync(string pageUrl);
+        Task<IEnumerable<StudentDTO>> GetStudentsByIds(List<Guid> studendIds);
     }
 
     public class MsGraph : IMsGraph
@@ -100,6 +102,31 @@ namespace MasterRad.Services
             #endregion
 
             return new SearchStudentsRS(studentDTOs, nextPageURL);
+        }
+
+        public async Task<IEnumerable<StudentDTO>> GetStudentsByIds(List<Guid> studendIds)
+        {
+            if (studendIds == null || !studendIds.Where(id => id != Guid.Empty).Any())
+                throw new ArgumentException();
+
+            GraphServiceClient graphClient = GetGraphServiceClient(new[] { Constants.ScopeUserReadBasicAll });
+
+            studendIds = studendIds.Distinct()
+                                   .ToList();
+
+            var studentIdChunks = studendIds.ToChunks(15);
+            var requests = new List<IGraphServiceUsersCollectionRequest>();
+            foreach (var chunkIds in studentIdChunks)
+            {
+                var qry = graphClient.Users.Request();
+                var idEqExpressions = chunkIds.Select(id => $"(id eq '{id.ToString()}')");
+                qry = qry.Filter(string.Join(" or ", idEqExpressions));
+                requests.Add(qry);
+            }
+
+            var studentChunks = await Task.WhenAll(requests.Select(rq => rq.GetAsync()));
+            return studentChunks.SelectMany(x => x)
+                                .Select(x => new StudentDTO(x));
         }
 
         private GraphServiceClient GetGraphServiceClient(string[] scopes)

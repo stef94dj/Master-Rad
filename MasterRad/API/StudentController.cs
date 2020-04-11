@@ -57,6 +57,7 @@ namespace MasterRad.API
         [HttpGet, Route("get/assigned/{testType}/{testId}")]
         public ActionResult<IEnumerable<BaseTestStudentEntity>> GetStudentsAssignedToTest([FromRoute]TestType testType, int testId)
         {
+            //get ms-graph ids of assigned students (set assignedStudentIds)
             switch (testType)
             {
                 case TestType.Synthesis:
@@ -66,6 +67,9 @@ namespace MasterRad.API
                 default:
                     return StatusCode(500);
             }
+
+            //get details on assigned students
+            //var students = await _msGraph.GetStudentsByIds(assignedStudentIds).ToList());
         }
 
         [HttpPost, Route("assign")]
