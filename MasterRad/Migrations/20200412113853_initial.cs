@@ -1,25 +1,42 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MasterRad.Migrations
 {
-    public partial class initialmodel : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Student",
+                name: "AzureSqlUserMap",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    AzureId = table.Column<Guid>(nullable: false),
                     DateCreated = table.Column<DateTime>(nullable: true),
-                    Email = table.Column<string>(nullable: false)
+                    SqlUsername = table.Column<string>(maxLength: 255, nullable: false),
+                    SqlPassword = table.Column<string>(maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Student", x => x.Id);
+                    table.PrimaryKey("PK_AzureSqlUserMap", x => x.AzureId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExceptionLog",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
+                    DateCreated = table.Column<DateTime>(nullable: true),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    Exception = table.Column<string>(nullable: true),
+                    LogMethod = table.Column<int>(nullable: false),
+                    SerializeError = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExceptionLog", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -27,14 +44,14 @@ namespace MasterRad.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
                     DateModified = table.Column<DateTime>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(maxLength: 63, nullable: false),
-                    ModelDescription = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(maxLength: 50, nullable: false),
+                    ModelDescription = table.Column<string>(maxLength: 8191, nullable: true),
                     NameOnServer = table.Column<string>(maxLength: 255, nullable: true)
                 },
                 constraints: table =>
@@ -43,19 +60,16 @@ namespace MasterRad.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UnhandledExceptionLog",
+                name: "RequestLog",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
                     DateModified = table.Column<DateTime>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
-                    Exception = table.Column<string>(nullable: true),
-                    LogMethod = table.Column<int>(nullable: false),
-                    SerializeError = table.Column<string>(nullable: true),
                     Body = table.Column<string>(nullable: true),
                     Headers = table.Column<string>(nullable: true),
                     Cookies = table.Column<string>(nullable: true),
@@ -64,11 +78,18 @@ namespace MasterRad.Migrations
                     Method = table.Column<string>(nullable: true),
                     Protocol = table.Column<string>(nullable: true),
                     QueryString = table.Column<string>(nullable: true),
-                    Query = table.Column<string>(nullable: true)
+                    Query = table.Column<string>(nullable: true),
+                    ExceptionLogId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UnhandledExceptionLog", x => x.Id);
+                    table.PrimaryKey("PK_RequestLog", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RequestLog_ExceptionLog_ExceptionLogId",
+                        column: x => x.ExceptionLogId,
+                        principalTable: "ExceptionLog",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -76,13 +97,13 @@ namespace MasterRad.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
                     DateModified = table.Column<DateTime>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(maxLength: 63, nullable: false),
+                    Name = table.Column<string>(maxLength: 50, nullable: false),
                     Description = table.Column<string>(maxLength: 8191, nullable: true),
                     NameOnServer = table.Column<string>(maxLength: 255, nullable: true),
                     TemplateId = table.Column<int>(nullable: false),
@@ -104,12 +125,13 @@ namespace MasterRad.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
                     TaskId = table.Column<int>(nullable: false),
-                    ColumnName = table.Column<string>(maxLength: 255, nullable: false)
+                    ColumnName = table.Column<string>(maxLength: 255, nullable: false),
+                    SqlType = table.Column<string>(maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -127,13 +149,13 @@ namespace MasterRad.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
                     DateModified = table.Column<DateTime>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
+                    Name = table.Column<string>(maxLength: 50, nullable: false),
                     Status = table.Column<int>(nullable: false),
                     TaskId = table.Column<int>(nullable: false)
                 },
@@ -152,18 +174,25 @@ namespace MasterRad.Migrations
                 name: "SynthesisTestStudent",
                 columns: table => new
                 {
-                    StudentId = table.Column<int>(nullable: false),
+                    StudentId = table.Column<Guid>(nullable: false),
                     SynthesisTestId = table.Column<int>(nullable: false),
-                    NameOnServer = table.Column<string>(maxLength: 255, nullable: false)
+                    TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
+                    DateCreated = table.Column<DateTime>(nullable: true),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    DateModified = table.Column<DateTime>(nullable: true),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    NameOnServer = table.Column<string>(maxLength: 255, nullable: false),
+                    TakenTest = table.Column<bool>(nullable: false),
+                    SqlScript = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SynthesisTestStudent", x => new { x.StudentId, x.SynthesisTestId });
                     table.ForeignKey(
-                        name: "FK_SynthesisTestStudent_Student_StudentId",
+                        name: "FK_SynthesisTestStudent_AzureSqlUserMap_StudentId",
                         column: x => x.StudentId,
-                        principalTable: "Student",
-                        principalColumn: "Id",
+                        principalTable: "AzureSqlUserMap",
+                        principalColumn: "AzureId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_SynthesisTestStudent_SynthesisTest_SynthesisTestId",
@@ -174,54 +203,57 @@ namespace MasterRad.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SynthesisPaper",
+                name: "AnalysisTest",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
                     DateModified = table.Column<DateTime>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
-                    SqlScript = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(maxLength: 50, nullable: false),
+                    Status = table.Column<int>(nullable: false),
                     STS_SynthesisTestId = table.Column<int>(nullable: false),
-                    STS_StudentId = table.Column<int>(nullable: false)
+                    STS_StudentId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SynthesisPaper", x => x.Id);
+                    table.PrimaryKey("PK_AnalysisTest", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SynthesisPaper_SynthesisTestStudent_STS_SynthesisTestId_STS_StudentId",
-                        columns: x => new { x.STS_SynthesisTestId, x.STS_StudentId },
+                        name: "FK_AnalysisTest_SynthesisTestStudent_STS_StudentId_STS_SynthesisTestId",
+                        columns: x => new { x.STS_StudentId, x.STS_SynthesisTestId },
                         principalTable: "SynthesisTestStudent",
                         principalColumns: new[] { "StudentId", "SynthesisTestId" },
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AnalysisTest",
+                name: "SynthesisEvaluation",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
                     DateModified = table.Column<DateTime>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(maxLength: 255, nullable: false),
-                    Status = table.Column<int>(nullable: false),
-                    SynthesisPaperId = table.Column<int>(nullable: false)
+                    STS_SynthesisTestId = table.Column<int>(nullable: false),
+                    STS_StudentId = table.Column<Guid>(nullable: false),
+                    Progress = table.Column<int>(nullable: false),
+                    Message = table.Column<string>(nullable: true),
+                    IsSecretDataUsed = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AnalysisTest", x => x.Id);
+                    table.PrimaryKey("PK_SynthesisEvaluation", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AnalysisTest_SynthesisPaper_SynthesisPaperId",
-                        column: x => x.SynthesisPaperId,
-                        principalTable: "SynthesisPaper",
-                        principalColumn: "Id",
+                        name: "FK_SynthesisEvaluation_SynthesisTestStudent_STS_StudentId_STS_SynthesisTestId",
+                        columns: x => new { x.STS_StudentId, x.STS_SynthesisTestId },
+                        principalTable: "SynthesisTestStudent",
+                        principalColumns: new[] { "StudentId", "SynthesisTestId" },
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -229,9 +261,17 @@ namespace MasterRad.Migrations
                 name: "AnalysisTestStudent",
                 columns: table => new
                 {
-                    StudentId = table.Column<int>(nullable: false),
+                    StudentId = table.Column<Guid>(nullable: false),
                     AnalysisTestId = table.Column<int>(nullable: false),
-                    NameOnServer = table.Column<string>(maxLength: 255, nullable: false)
+                    TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
+                    DateCreated = table.Column<DateTime>(nullable: true),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    DateModified = table.Column<DateTime>(nullable: true),
+                    ModifiedBy = table.Column<string>(nullable: true),
+                    TakenTest = table.Column<bool>(nullable: false),
+                    InputNameOnServer = table.Column<string>(maxLength: 255, nullable: false),
+                    TeacherOutputNameOnServer = table.Column<string>(nullable: true),
+                    StudentOutputNameOnServer = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -243,68 +283,45 @@ namespace MasterRad.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_AnalysisTestStudent_Student_StudentId",
+                        name: "FK_AnalysisTestStudent_AzureSqlUserMap_StudentId",
                         column: x => x.StudentId,
-                        principalTable: "Student",
-                        principalColumn: "Id",
+                        principalTable: "AzureSqlUserMap",
+                        principalColumn: "AzureId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AnalysisPaper",
+                name: "AnalysisEvaluation",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     TimeStamp = table.Column<byte[]>(rowVersion: true, nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
                     DateModified = table.Column<DateTime>(nullable: true),
                     ModifiedBy = table.Column<string>(nullable: true),
-                    SqlScript = table.Column<string>(nullable: true),
                     ATS_AnalysisTestId = table.Column<int>(nullable: false),
-                    ATS_StudentId = table.Column<int>(nullable: false)
+                    ATS_StudentId = table.Column<Guid>(nullable: false),
+                    Progress = table.Column<int>(nullable: false),
+                    Message = table.Column<string>(nullable: true),
+                    Type = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AnalysisPaper", x => x.Id);
+                    table.PrimaryKey("PK_AnalysisEvaluation", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AnalysisPaper_AnalysisTestStudent_ATS_AnalysisTestId_ATS_StudentId",
-                        columns: x => new { x.ATS_AnalysisTestId, x.ATS_StudentId },
+                        name: "FK_AnalysisEvaluation_AnalysisTestStudent_ATS_StudentId_ATS_AnalysisTestId",
+                        columns: x => new { x.ATS_StudentId, x.ATS_AnalysisTestId },
                         principalTable: "AnalysisTestStudent",
                         principalColumns: new[] { "StudentId", "AnalysisTestId" },
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.InsertData(
-                table: "Student",
-                columns: new[] { "Id", "DateCreated", "Email" },
-                values: new object[,]
-                {
-                    { 1, null, "stud1@student.etf.bg.ac.rs" },
-                    { 2, null, "stud2@student.etf.bg.ac.rs" },
-                    { 3, null, "stud3@student.etf.bg.ac.rs" },
-                    { 4, null, "stud4@student.etf.bg.ac.rs" },
-                    { 5, null, "stud5@student.etf.bg.ac.rs" },
-                    { 6, null, "stud6@student.etf.bg.ac.rs" },
-                    { 7, null, "stud7@student.etf.bg.ac.rs" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Template",
-                columns: new[] { "Id", "CreatedBy", "DateCreated", "DateModified", "ModelDescription", "ModifiedBy", "Name", "NameOnServer" },
-                values: new object[] { 1, null, null, null, null, null, "template", "Tmp_template" });
-
-            migrationBuilder.InsertData(
-                table: "Task",
-                columns: new[] { "Id", "CreatedBy", "DateCreated", "DateModified", "Description", "ModifiedBy", "Name", "NameOnServer", "SolutionSqlScript", "TemplateId" },
-                values: new object[] { 1, null, null, null, null, null, "task", "Tsk_task", null, 1 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AnalysisPaper_ATS_AnalysisTestId_ATS_StudentId",
-                table: "AnalysisPaper",
-                columns: new[] { "ATS_AnalysisTestId", "ATS_StudentId" },
-                unique: true);
+                name: "IX_AnalysisEvaluation_ATS_StudentId_ATS_AnalysisTestId",
+                table: "AnalysisEvaluation",
+                columns: new[] { "ATS_StudentId", "ATS_AnalysisTestId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AnalysisTest_Name",
@@ -313,9 +330,9 @@ namespace MasterRad.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AnalysisTest_SynthesisPaperId",
+                name: "IX_AnalysisTest_STS_StudentId_STS_SynthesisTestId",
                 table: "AnalysisTest",
-                column: "SynthesisPaperId");
+                columns: new[] { "STS_StudentId", "STS_SynthesisTestId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AnalysisTestStudent_AnalysisTestId",
@@ -323,21 +340,19 @@ namespace MasterRad.Migrations
                 column: "AnalysisTestId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RequestLog_ExceptionLogId",
+                table: "RequestLog",
+                column: "ExceptionLogId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SolutionColumn_TaskId",
                 table: "SolutionColumn",
                 column: "TaskId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Student_Email",
-                table: "Student",
-                column: "Email",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SynthesisPaper_STS_SynthesisTestId_STS_StudentId",
-                table: "SynthesisPaper",
-                columns: new[] { "STS_SynthesisTestId", "STS_StudentId" },
-                unique: true);
+                name: "IX_SynthesisEvaluation_STS_StudentId_STS_SynthesisTestId",
+                table: "SynthesisEvaluation",
+                columns: new[] { "STS_StudentId", "STS_SynthesisTestId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_SynthesisTest_Name",
@@ -376,28 +391,31 @@ namespace MasterRad.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AnalysisPaper");
+                name: "AnalysisEvaluation");
+
+            migrationBuilder.DropTable(
+                name: "RequestLog");
 
             migrationBuilder.DropTable(
                 name: "SolutionColumn");
 
             migrationBuilder.DropTable(
-                name: "UnhandledExceptionLog");
+                name: "SynthesisEvaluation");
 
             migrationBuilder.DropTable(
                 name: "AnalysisTestStudent");
 
             migrationBuilder.DropTable(
-                name: "AnalysisTest");
+                name: "ExceptionLog");
 
             migrationBuilder.DropTable(
-                name: "SynthesisPaper");
+                name: "AnalysisTest");
 
             migrationBuilder.DropTable(
                 name: "SynthesisTestStudent");
 
             migrationBuilder.DropTable(
-                name: "Student");
+                name: "AzureSqlUserMap");
 
             migrationBuilder.DropTable(
                 name: "SynthesisTest");

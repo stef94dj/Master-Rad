@@ -10,7 +10,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DataController : Controller
+    public class DataController : BaseController
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly IConfiguration _config;

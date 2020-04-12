@@ -12,13 +12,13 @@ namespace MasterRad.Entities
         [Timestamp]
         public virtual byte[] TimeStamp { get; set; }
         public DateTime? DateCreated { get; set; }
-        public string CreatedBy { get; set; }
+        public Guid CreatedBy { get; set; }
     }
 
     public abstract class BaseEntity<TPrimaryKey> : BaseEntityInsertOnly<TPrimaryKey>
     {
         public DateTime? DateModified { get; set; }
-        public string ModifiedBy { get; set; }
+        public Guid ModifiedBy { get; set; }
     }
 
     public abstract class BaseManyToManyEntity
@@ -26,8 +26,8 @@ namespace MasterRad.Entities
         [Timestamp]
         public virtual byte[] TimeStamp { get; set; }
         public DateTime? DateCreated { get; set; }
-        public string CreatedBy { get; set; }
+        public Guid CreatedBy { get; set; }
         public DateTime? DateModified { get; set; }
-        public string ModifiedBy { get; set; }
+        public Guid ModifiedBy { get; set; }
     }
 }

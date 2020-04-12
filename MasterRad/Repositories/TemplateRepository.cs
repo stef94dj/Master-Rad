@@ -12,9 +12,9 @@ namespace MasterRad.Repositories
         TemplateEntity Get(int id);
         List<TemplateEntity> Get();
         TemplateEntity GetWithTaks(int id);
-        bool Create(string templateName, string dbName);
-        bool UpdateDescription(UpdateDescriptionRQ request);
-        bool UpdateName(UpdateNameRQ request);
+        bool Create(string templateName, string dbName, Guid userId);
+        bool UpdateDescription(UpdateDescriptionRQ request, Guid userId);
+        bool UpdateName(UpdateNameRQ request, Guid userId);
         bool DatabaseRegisteredAsTemplate(string name);
         bool TemplateExists(string templateName);
     }
@@ -46,21 +46,21 @@ namespace MasterRad.Repositories
                        .OrderByDescending(t => t.DateCreated)
                        .ToList();
 
-        public bool Create(string templateName, string dbName)
+        public bool Create(string templateName, string dbName, Guid userId)
         {
             var templateEntity = new TemplateEntity() //AutoMapper
             {
                 Name = templateName,
                 NameOnServer = dbName,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED",
+                CreatedBy = userId,
             };
 
             _context.Templates.Add(templateEntity);
             return _context.SaveChanges() == 1;
         }
 
-        public bool UpdateDescription(UpdateDescriptionRQ request)
+        public bool UpdateDescription(UpdateDescriptionRQ request, Guid userId)
         {
             var templateEntity = new TemplateEntity() //AutoMapper
             {
@@ -68,7 +68,7 @@ namespace MasterRad.Repositories
                 TimeStamp = request.TimeStamp,
                 ModelDescription = request.Description,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = userId,
             };
 
             _context.Templates.Attach(templateEntity);
@@ -79,7 +79,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        public bool UpdateName(UpdateNameRQ request)
+        public bool UpdateName(UpdateNameRQ request, Guid userId)
         {
             var templateEntity = new TemplateEntity() //AutoMapper
             {
@@ -87,7 +87,7 @@ namespace MasterRad.Repositories
                 TimeStamp = request.TimeStamp,
                 Name = request.Name,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = userId,
             };
 
             _context.Templates.Attach(templateEntity);

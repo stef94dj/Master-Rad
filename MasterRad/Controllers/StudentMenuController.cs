@@ -12,7 +12,7 @@ using MasterRad.Extensions;
 
 namespace MasterRad.Controllers
 {
-    public class StudentMenuController : Controller
+    public class StudentMenuController : BaseController
     {
         public IActionResult Exercises()
             => View();

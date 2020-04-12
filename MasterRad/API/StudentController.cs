@@ -19,7 +19,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentController : Controller
+    public class StudentController : BaseController
     {
         private readonly IStudentRepository _studentRepository;
         private readonly ISynthesisRepository _synthesisRepository;
@@ -95,7 +95,7 @@ namespace MasterRad.API
 
             synthesisExamDbNames = synthesisExamDbNames.Where(x => synthesisCloneSuccess.Contains(x.Value));
 
-            var synthesisAssigned = _studentRepository.AssignSynthesisTest(synthesisExamDbNames, body.TestId);
+            var synthesisAssigned = _studentRepository.AssignSynthesisTest(synthesisExamDbNames, body.TestId, UserId);
             if (synthesisAssigned != body.StudentIds.Count())
                 return Result<bool>.Fail("One or more students have not been assigned");
             else
@@ -148,7 +148,7 @@ namespace MasterRad.API
             assignModels = assignModels.Where(x => teacherTableCreateSuccess.Contains(x.TeacherOutputTable));
             #endregion
 
-            var analysisAssigned = _studentRepository.AssignAnalysisTest(assignModels, body.TestId);
+            var analysisAssigned = _studentRepository.AssignAnalysisTest(assignModels, body.TestId, UserId);
 
             #region Return_Result
             if (analysisAssigned != new List<int>().Count()) //new List<int>()-> body.StudentIds

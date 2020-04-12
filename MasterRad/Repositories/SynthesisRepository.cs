@@ -18,15 +18,15 @@ namespace MasterRad.Repositories
         IEnumerable<SynthesisTestStudentEntity> GetAssigned(Guid studentId);
         IEnumerable<string> GetSolutionFormat(int testId);
         bool IsAssigned(Guid studentId, int testId);
-        bool Create(SynthesisCreateRQ request);
+        bool Create(SynthesisCreateRQ request, Guid userId);
         void Delete(DeleteDTO request);
-        bool UpdateName(UpdateNameRQ request);
-        bool StatusNext(UpdateDTO request);
+        bool UpdateName(UpdateNameRQ request, Guid userId);
+        bool StatusNext(UpdateDTO request, Guid userId);
         bool MarkExamAsTaken(int testId, Guid studentId, byte[] timeStamp);
         byte[] SubmitAnswer(int testId, Guid studentId, byte[] timeStamp, string sqlScript);
         bool HasAnswer(int testId, Guid userId);
         SynthesisTestStudentEntity GetEvaluationData(int testId, Guid studentId);
-        bool SaveProgress(SynthesisTestStudentEntity entity, bool isSecret, EvaluationProgress status, string message = null);
+        bool SaveProgress(SynthesisTestStudentEntity entity, bool isSecret, EvaluationProgress status, Guid userId, string message = null);
         bool TestExists(string name);
         IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId);
     }
@@ -98,7 +98,7 @@ namespace MasterRad.Repositories
                        .AsNoTracking()
                        .Any();
 
-        public bool Create(SynthesisCreateRQ request)
+        public bool Create(SynthesisCreateRQ request, Guid userId)
         {
             var synthesisTestEntity = new SynthesisTestEntity() //AutoMapper
             {
@@ -106,7 +106,7 @@ namespace MasterRad.Repositories
                 Status = TestStatus.Scheduled,
                 TaskId = request.TaskId,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED",
+                CreatedBy = userId,
             };
 
             _context.SynthesisTests.Add(synthesisTestEntity);
@@ -126,7 +126,7 @@ namespace MasterRad.Repositories
             _context.SaveChanges();
         }
 
-        public bool UpdateName(UpdateNameRQ request)
+        public bool UpdateName(UpdateNameRQ request, Guid userId)
         {
             var synthesisTestEntity = new SynthesisTestEntity() //AutoMapper
             {
@@ -134,7 +134,7 @@ namespace MasterRad.Repositories
                 TimeStamp = request.TimeStamp,
                 Name = request.Name,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = userId,
             };
 
             _context.SynthesisTests.Attach(synthesisTestEntity);
@@ -145,7 +145,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        public bool StatusNext(UpdateDTO request)
+        public bool StatusNext(UpdateDTO request, Guid userId)
         {
             var currentStatus = Get(request.Id).Status;
 
@@ -158,7 +158,7 @@ namespace MasterRad.Repositories
                 TimeStamp = request.TimeStamp,
                 Status = currentStatus + 1,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = userId,
             };
 
             _context.SynthesisTests.Attach(synthesisTestEntity);
@@ -189,7 +189,7 @@ namespace MasterRad.Repositories
                 TimeStamp = timeStamp,
                 TakenTest = true,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = studentId,
             };
 
             _context.SynthesysTestStudents.Attach(entity);
@@ -210,7 +210,7 @@ namespace MasterRad.Repositories
                 TimeStamp = timeStamp,
                 SqlScript = sqlScript,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = studentId,
             };
 
             _context.SynthesysTestStudents.Attach(entity);
@@ -233,15 +233,15 @@ namespace MasterRad.Repositories
                                           .ThenInclude(task => task.SolutionColumns)
                                           .Single();
 
-        public bool SaveProgress(SynthesisTestStudentEntity entity, bool isSecret, EvaluationProgress status, string message = null)
+        public bool SaveProgress(SynthesisTestStudentEntity entity, bool isSecret, EvaluationProgress status, Guid userId, string message = null)
         {
             var progressEntity = entity.EvaluationProgress.Single(x => x.IsSecretDataUsed == isSecret);
 
             progressEntity.DateModified = DateTime.UtcNow;
-            progressEntity.ModifiedBy = "Current user - NOT IMPLEMENTED";
+            progressEntity.ModifiedBy = userId;
             progressEntity.Progress = status;
             progressEntity.Message = message;
-            
+
             return _context.SaveChanges() == 1;
         }
 

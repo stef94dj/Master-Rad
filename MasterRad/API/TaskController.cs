@@ -11,7 +11,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TaskController : Controller
+    public class TaskController : BaseController
     {
         private readonly ITaskRepository _taskRepo;
         private readonly ITemplateRepository _templateRepo;
@@ -60,7 +60,7 @@ namespace MasterRad.API
             if (!cloneSuccess)
                 return Result<bool>.Fail($"Failed to clone database '{templateEntity.NameOnServer}' into '{newDbName}'.");
 
-            var success = _taskRepo.Create(body, newDbName);
+            var success = _taskRepo.Create(body, newDbName, UserId);
             if (success)
                 return Result<bool>.Success(true);
             else
@@ -70,7 +70,7 @@ namespace MasterRad.API
         [HttpPost, Route("Update/Description")]
         public ActionResult<Result<bool>> UpdateDescription([FromBody] UpdateDescriptionRQ body)
         {
-            var success = _taskRepo.UpdateDescription(body);
+            var success = _taskRepo.UpdateDescription(body, UserId);
             if (success)
                 return Result<bool>.Success(true);
             else
@@ -87,7 +87,7 @@ namespace MasterRad.API
             if (taskExists)
                 return Result<bool>.Fail($"Task '{body.Name}' already exists.");
 
-            var success = _taskRepo.UpdateName(body);
+            var success = _taskRepo.UpdateName(body, UserId);
             if (success)
                 return Result<bool>.Success(true);
             else
@@ -96,6 +96,6 @@ namespace MasterRad.API
 
         [HttpPost, Route("Update/Solution")]
         public ActionResult<TaskEntity> UpdateSolution([FromBody] UpdateTaskSolutionRQ body)
-            => _taskRepo.UpdateSolution(body);
+            => _taskRepo.UpdateSolution(body, UserId);
     }
 }

@@ -13,7 +13,7 @@ using Microsoft.Identity.Web;
 
 namespace MasterRad.Controllers
 {
-    public class TeacherMenuController : Controller
+    public class TeacherMenuController : BaseController
     {
         [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll })]
         public IActionResult Templates()

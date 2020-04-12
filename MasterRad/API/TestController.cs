@@ -9,7 +9,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TestController : ControllerBase
+    public class TestController : BaseController
     {
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
@@ -30,11 +30,11 @@ namespace MasterRad.API
             var res = new List<StudentTestDto>();
 
             //AutoMapper with LINQ ProjectTo:
-            var sytnhesisTests = _synthesisRepository.GetAssigned(Guid.Empty);
+            var sytnhesisTests = _synthesisRepository.GetAssigned(UserId);
             if (sytnhesisTests != null && sytnhesisTests.Any())
                 res.AddRange(sytnhesisTests.Select(sts => new StudentTestDto(sts)));
 
-            var analysisTests = _analysisRepository.GetAssigned(Guid.Empty);
+            var analysisTests = _analysisRepository.GetAssigned(UserId);
             if (analysisTests != null && analysisTests.Any())
                 res.AddRange(analysisTests.Select(ats => new StudentTestDto(ats)));
 

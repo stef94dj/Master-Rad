@@ -11,7 +11,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AnalysisController : ControllerBase
+    public class AnalysisController : BaseController
     {
         private readonly IAnalysisRepository _analysisRepository;
 
@@ -26,7 +26,7 @@ namespace MasterRad.API
 
         [HttpPost, Route("create/test")]
         public ActionResult<bool> CreateTest([FromBody] AnalysisCreateRQ body)
-           => _analysisRepository.Create(body);
+           => _analysisRepository.Create(body, UserId);
 
         [HttpPost, Route("update/name")]
         public ActionResult<Result<bool>> UpdateTestName([FromBody] UpdateNameRQ body)
@@ -38,7 +38,7 @@ namespace MasterRad.API
             if (testExists)
                 return Result<bool>.Fail($"Test '{body.Name}' already exists.");
 
-            var success = _analysisRepository.UpdateName(body);
+            var success = _analysisRepository.UpdateName(body, UserId);
             if (success)
                 return Result<bool>.Success(true);
             else
@@ -47,6 +47,6 @@ namespace MasterRad.API
 
         [HttpPost, Route("status/next")]
         public ActionResult<bool> GoToNextStatus([FromBody] UpdateDTO body)
-            => _analysisRepository.StatusNext(body);
+            => _analysisRepository.StatusNext(body, UserId);
     }
 }

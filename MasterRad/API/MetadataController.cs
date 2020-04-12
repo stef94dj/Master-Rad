@@ -12,7 +12,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MetadataController : ControllerBase
+    public class MetadataController : BaseController
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
         //private readonly IProfile _profileService;

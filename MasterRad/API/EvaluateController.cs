@@ -20,7 +20,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EvaluateController : Controller
+    public class EvaluateController : BaseController
     {
         private readonly IEvaluator _evaluatorService;
         private readonly ISynthesisRepository _synthesisRepository;
@@ -66,7 +66,7 @@ namespace MasterRad.API
             var jobId = $"evaluate_synthesis_{model.TestId}";
             foreach (var request in model.EvaluationRequests)
             {
-                _queue.QueueAsyncTask(() => EvaluateSynthesisPaper(_serviceScopeFactory, jobId, model.TestId, request.StudentId, request.UseSecretData));
+                _queue.QueueAsyncTask(() => EvaluateSynthesisPaper(_serviceScopeFactory, jobId, model.TestId, request.StudentId, request.UseSecretData, UserId));
 
                 //SET STATUS IN DB TO Queued -> To be implemented (remove synthesis paper entity first): posalji timeStamp sa FE + novi setStatus endpoint koji sam pravi entity
 
@@ -82,7 +82,7 @@ namespace MasterRad.API
         }
 
         [NonAction]
-        private async Task EvaluateSynthesisPaper(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId, bool useSecretData)
+        private async Task EvaluateSynthesisPaper(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId, bool useSecretData, Guid userId)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -94,7 +94,7 @@ namespace MasterRad.API
                     var sts = synthesisRepository.GetEvaluationData(testId, studentId);
 
                     #region Record_Start
-                    var setStatusSuccess = synthesisRepository.SaveProgress(sts, useSecretData, EvaluationProgress.Evaluating);
+                    var setStatusSuccess = synthesisRepository.SaveProgress(sts, useSecretData, EvaluationProgress.Evaluating, userId);
                     if (setStatusSuccess)
                         await _synthesisSignalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
                         {
@@ -138,7 +138,7 @@ namespace MasterRad.API
                     #endregion
 
                     #region Record_End_And_CleanUp
-                    var saveResultSuccess = synthesisRepository.SaveProgress(sts, useSecretData, result.PassStatus, result.Message);
+                    var saveResultSuccess = synthesisRepository.SaveProgress(sts, useSecretData, result.PassStatus, userId, result.Message);
                     if (saveResultSuccess)
                         await _synthesisSignalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
                         {
@@ -173,10 +173,10 @@ namespace MasterRad.API
             var jobId = $"evaluate_analysis_{model.TestId}";
             foreach (var studentId in model.StudentIds)
             {
-                _queue.QueueAsyncTask(() => EvaluateAnalysisPaper(_serviceScopeFactory, jobId, model.TestId, studentId));
-                
+                _queue.QueueAsyncTask(() => EvaluateAnalysisPaper(_serviceScopeFactory, jobId, model.TestId, studentId, UserId));
+
                 //SET STATUS IN DB TO Queued
-                
+
                 await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                 {
                     id = studentId,
@@ -189,7 +189,7 @@ namespace MasterRad.API
         }
 
         [NonAction]
-        private async Task EvaluateAnalysisPaper(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId)
+        private async Task EvaluateAnalysisPaper(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId, Guid userId)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -201,7 +201,7 @@ namespace MasterRad.API
                     var ats = analysisRepository.GetEvaluationData(testId, studentId);
 
                     #region Record_Start
-                    var setStatusSuccess = analysisRepository.SaveProgress(ats, type, EvaluationProgress.Evaluating);
+                    var setStatusSuccess = analysisRepository.SaveProgress(ats, type, EvaluationProgress.Evaluating, userId);
                     if (setStatusSuccess)
                         await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                         {
@@ -248,8 +248,8 @@ namespace MasterRad.API
                     #region Invoke_New_Jobs
                     if (result.Pass)
                     {
-                        _queue.QueueAsyncTask(() => EvaluateAnalysisInput(_serviceScopeFactory, jobId, testId, studentId, studentOutput, teacherOutput, solutionFormat));
-                        analysisRepository.SaveProgress(ats, AnalysisEvaluationType.FailingInput, EvaluationProgress.Queued);
+                        _queue.QueueAsyncTask(() => EvaluateAnalysisInput(_serviceScopeFactory, jobId, testId, studentId, userId, studentOutput, teacherOutput, solutionFormat));
+                        analysisRepository.SaveProgress(ats, AnalysisEvaluationType.FailingInput, EvaluationProgress.Queued, userId);
                         await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                         {
                             id = studentId,
@@ -257,8 +257,8 @@ namespace MasterRad.API
                             status = (int)EvaluationProgress.Queued
                         });
 
-                        _queue.QueueAsyncTask(() => EvaluateAnalysisOutput(_serviceScopeFactory, jobId, testId, studentId, studentOutput, AnalysisEvaluationType.QueryOutput, solutionFormat));
-                        analysisRepository.SaveProgress(ats, AnalysisEvaluationType.QueryOutput, EvaluationProgress.Queued);
+                        _queue.QueueAsyncTask(() => EvaluateAnalysisOutput(_serviceScopeFactory, jobId, testId, studentId, userId, studentOutput, AnalysisEvaluationType.QueryOutput, solutionFormat));
+                        analysisRepository.SaveProgress(ats, AnalysisEvaluationType.QueryOutput, EvaluationProgress.Queued, userId);
                         await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                         {
                             id = studentId,
@@ -266,8 +266,8 @@ namespace MasterRad.API
                             status = (int)EvaluationProgress.Queued
                         });
 
-                        _queue.QueueAsyncTask(() => EvaluateAnalysisOutput(_serviceScopeFactory, jobId, testId, studentId, teacherOutput, AnalysisEvaluationType.CorrectOutput, solutionFormat));
-                        analysisRepository.SaveProgress(ats, AnalysisEvaluationType.CorrectOutput, EvaluationProgress.Queued);
+                        _queue.QueueAsyncTask(() => EvaluateAnalysisOutput(_serviceScopeFactory, jobId, testId, studentId, userId, teacherOutput, AnalysisEvaluationType.CorrectOutput, solutionFormat));
+                        analysisRepository.SaveProgress(ats, AnalysisEvaluationType.CorrectOutput, EvaluationProgress.Queued, userId);
                         await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                         {
                             id = studentId,
@@ -278,7 +278,7 @@ namespace MasterRad.API
                     #endregion
 
                     #region Save_And_CleanUp
-                    var saveResultSuccess = analysisRepository.SaveProgress(ats, type, result.PassStatus, result.Message);
+                    var saveResultSuccess = analysisRepository.SaveProgress(ats, type, result.PassStatus, userId, result.Message);
                     await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                     {
                         id = studentId,
@@ -302,7 +302,7 @@ namespace MasterRad.API
         }
 
         [NonAction]
-        private async Task EvaluateAnalysisInput(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId, QueryExecuteRS studentQueryOutput, QueryExecuteRS teacherQueryOutput, IEnumerable<string> solutionFormat)
+        private async Task EvaluateAnalysisInput(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId, Guid userId, QueryExecuteRS studentQueryOutput, QueryExecuteRS teacherQueryOutput, IEnumerable<string> solutionFormat)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -314,7 +314,7 @@ namespace MasterRad.API
                     var ats = analysisRepository.GetEvaluationData(testId, studentId);
 
                     #region Record_Start
-                    var setStatusSuccess = analysisRepository.SaveProgress(ats, type, EvaluationProgress.Evaluating);
+                    var setStatusSuccess = analysisRepository.SaveProgress(ats, type, EvaluationProgress.Evaluating, userId);
                     if (setStatusSuccess)
                         await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                         {
@@ -329,7 +329,7 @@ namespace MasterRad.API
                     var result = _evaluatorService.EvaluateQueryOutputs(studentQueryOutput, teacherQueryOutput, solutionFormat, false);
 
                     #region Record_End
-                    var saveResultSuccess = analysisRepository.SaveProgress(ats, type, result.PassStatus, result.Message);
+                    var saveResultSuccess = analysisRepository.SaveProgress(ats, type, result.PassStatus, userId, result.Message);
                     if (saveResultSuccess)
                         await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                         {
@@ -350,7 +350,7 @@ namespace MasterRad.API
         }
 
         [NonAction]
-        private async Task EvaluateAnalysisOutput(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId, QueryExecuteRS actualOutput, AnalysisEvaluationType type, IEnumerable<string> solutionFormat)
+        private async Task EvaluateAnalysisOutput(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId, Guid userId, QueryExecuteRS actualOutput, AnalysisEvaluationType type, IEnumerable<string> solutionFormat)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -360,7 +360,7 @@ namespace MasterRad.API
                     var ats = analysisRepository.GetEvaluationData(testId, studentId);
 
                     #region Record_Start
-                    var setStatusSuccess = analysisRepository.SaveProgress(ats, type, EvaluationProgress.Evaluating);
+                    var setStatusSuccess = analysisRepository.SaveProgress(ats, type, EvaluationProgress.Evaluating, userId);
                     if (setStatusSuccess)
                         await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                         {
@@ -397,7 +397,7 @@ namespace MasterRad.API
                     #endregion
 
                     #region Record_End
-                    var saveResultSuccess = analysisRepository.SaveProgress(ats, type, result.PassStatus, result.Message);
+                    var saveResultSuccess = analysisRepository.SaveProgress(ats, type, result.PassStatus, userId, result.Message);
                     if (saveResultSuccess)
                         await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                         {

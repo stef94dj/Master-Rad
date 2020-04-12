@@ -15,7 +15,7 @@ using Graph = Microsoft.Graph;
 
 namespace MasterRad.Controllers
 {
-    public class TestController : Controller
+    public class TestController : BaseController
     {
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
@@ -38,13 +38,13 @@ namespace MasterRad.Controllers
 
         public IActionResult SynthesisExam(int testId, byte[] timeStamp)
         {
-            var stsEntity = _synthesisRepository.GetAssignmentWithTaskAndTemplate(Guid.Empty, testId);
+            var stsEntity = _synthesisRepository.GetAssignmentWithTaskAndTemplate(UserId, testId);
 
             if (stsEntity == null)
                 return Unauthorized();
 
             if (!stsEntity.TakenTest)
-                _synthesisRepository.MarkExamAsTaken(testId, Guid.Empty, timeStamp);
+                _synthesisRepository.MarkExamAsTaken(testId, UserId, timeStamp);
 
             var vm = new SynthesisExamVM()
             {
@@ -61,13 +61,13 @@ namespace MasterRad.Controllers
         }
         public IActionResult AnalysisExam(int testId, byte[] timeStamp)
         {
-            var atsEntity = _analysisRepository.GetAssignment(Guid.Empty, testId);
+            var atsEntity = _analysisRepository.GetAssignment(UserId, testId);
 
             if (atsEntity == null)
                 return Unauthorized();
 
             if (!atsEntity.TakenTest)
-                _analysisRepository.MarkExamAsTaken(testId, Guid.Empty, timeStamp);
+                _analysisRepository.MarkExamAsTaken(testId, UserId, timeStamp);
 
             var outputTablesDb = _adminConnectionConf.DbName;
 

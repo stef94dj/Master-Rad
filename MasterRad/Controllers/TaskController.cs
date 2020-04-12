@@ -12,7 +12,7 @@ using MasterRad.Extensions;
 
 namespace MasterRad.Controllers
 {
-    public class TaskController : Controller
+    public class TaskController : BaseController
     {
         private readonly ITaskRepository _taskRepo;
 

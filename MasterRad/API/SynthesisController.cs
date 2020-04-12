@@ -12,7 +12,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SynthesisController : ControllerBase
+    public class SynthesisController : BaseController
     {
         private readonly ISynthesisRepository _synthesisRepository;
 
@@ -38,7 +38,7 @@ namespace MasterRad.API
             if (testExists)
                 return Result<bool>.Fail($"Test '{body.Name}' already exists.");
 
-            var success = _synthesisRepository.Create(body);
+            var success = _synthesisRepository.Create(body, UserId);
             if (success)
                 return Result<bool>.Success(true);
             else
@@ -55,7 +55,7 @@ namespace MasterRad.API
             if (testExists)
                 return Result<bool>.Fail($"Test '{body.Name}' already exists.");
 
-            var success = _synthesisRepository.UpdateName(body);
+            var success = _synthesisRepository.UpdateName(body, UserId);
             if (success)
                 return Result<bool>.Success(true);
             else
@@ -64,7 +64,7 @@ namespace MasterRad.API
 
         [HttpPost, Route("status/next")]
         public ActionResult<bool> GoToNextStatus([FromBody] UpdateDTO body)
-            => _synthesisRepository.StatusNext(body);
+            => _synthesisRepository.StatusNext(body, UserId);
 
 
         [HttpGet, Route("Solution/Format/{testId}")]
@@ -81,10 +81,10 @@ namespace MasterRad.API
         [HttpPost, Route("Submit/Answer")]
         public ActionResult<byte[]> SubmitAnswer([FromBody] AnswerSynthesisRQ body)
         {
-            if (!_synthesisRepository.IsAssigned(Guid.Empty, body.TestId))
+            if (!_synthesisRepository.IsAssigned(UserId, body.TestId))
                 return Unauthorized();
 
-            return _synthesisRepository.SubmitAnswer(body.TestId, Guid.Empty, body.TimeStamp, body.SqlScript);
+            return _synthesisRepository.SubmitAnswer(body.TestId, UserId, body.TimeStamp, body.SqlScript);
         }
     }
 }

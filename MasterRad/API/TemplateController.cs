@@ -12,7 +12,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TemplateController : Controller
+    public class TemplateController : BaseController
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly ITemplateRepository _templateRepo;
@@ -54,7 +54,7 @@ namespace MasterRad.API
             if (!dbCreateSuccess)
                 return Result<bool>.Fail($"Failed to create databse '{newDbName}' on database server");
 
-            var success = _templateRepo.Create(body.Name, newDbName);
+            var success = _templateRepo.Create(body.Name, newDbName, UserId);
             if (success)
                 return Result<bool>.Success(true);
             else
@@ -64,7 +64,7 @@ namespace MasterRad.API
         [HttpPost, Route("Update/Description")]
         public ActionResult<Result<bool>> UpdateDescription([FromBody] UpdateDescriptionRQ body)
         {
-            var success = _templateRepo.UpdateDescription(body);
+            var success = _templateRepo.UpdateDescription(body, UserId);
             if (success)
                 return Result<bool>.Success(true);
             else
@@ -81,7 +81,7 @@ namespace MasterRad.API
             if (templateExists)
                 return Result<bool>.Fail($"Template '{body.Name}' already exists in the system");
 
-            var success = _templateRepo.UpdateName(body);
+            var success = _templateRepo.UpdateName(body, UserId);
             if (success)
                 return Result<bool>.Success(true);
             else

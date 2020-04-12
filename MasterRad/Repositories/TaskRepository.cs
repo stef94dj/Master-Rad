@@ -11,10 +11,10 @@ namespace MasterRad.Repositories
     {
         List<TaskEntity> Get();
         TaskEntity Get(int id);
-        bool Create(CreateTaskRQ request, string nameOnServer);
-        bool UpdateName(UpdateNameRQ request);
-        bool UpdateDescription(UpdateDescriptionRQ request);
-        TaskEntity UpdateSolution(UpdateTaskSolutionRQ request);
+        bool Create(CreateTaskRQ request, string nameOnServer, Guid userId);
+        bool UpdateName(UpdateNameRQ request, Guid userId);
+        bool UpdateDescription(UpdateDescriptionRQ request, Guid userId);
+        TaskEntity UpdateSolution(UpdateTaskSolutionRQ request, Guid userId);
         bool TaskExists(string taskName);
         bool DatabaseRegisteredAsTask(string dbName);
     }
@@ -39,7 +39,7 @@ namespace MasterRad.Repositories
                        .Where(x => x.Id == id)
                        .Single();
 
-        public bool Create(CreateTaskRQ request, string nameOnServer)
+        public bool Create(CreateTaskRQ request, string nameOnServer, Guid userId)
         {
             var taskEntity = new TaskEntity() //AutoMapper
             {
@@ -47,14 +47,14 @@ namespace MasterRad.Repositories
                 TemplateId = request.TemplateId,
                 NameOnServer = nameOnServer,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED",
+                CreatedBy = userId,
             };
 
             _context.Tasks.Add(taskEntity);
             return _context.SaveChanges() == 1;
         }
 
-        public bool UpdateName(UpdateNameRQ request)
+        public bool UpdateName(UpdateNameRQ request, Guid userId)
         {
             var taskEntity = new TaskEntity() //AutoMapper
             {
@@ -62,7 +62,7 @@ namespace MasterRad.Repositories
                 TimeStamp = request.TimeStamp,
                 Name = request.Name,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = userId,
             };
 
             _context.Tasks.Attach(taskEntity);
@@ -73,7 +73,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        public bool UpdateDescription(UpdateDescriptionRQ request)
+        public bool UpdateDescription(UpdateDescriptionRQ request, Guid userId)
         {
             var taskEntity = new TaskEntity() //AutoMapper
             {
@@ -81,7 +81,7 @@ namespace MasterRad.Repositories
                 TimeStamp = request.TimeStamp,
                 Description = request.Description,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = userId,
             };
 
             _context.Tasks.Attach(taskEntity);
@@ -92,7 +92,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        public TaskEntity UpdateSolution(UpdateTaskSolutionRQ request)
+        public TaskEntity UpdateSolution(UpdateTaskSolutionRQ request, Guid userId)
         {
             var taskEntity = new TaskEntity() //AutoMapper
             {
@@ -100,7 +100,7 @@ namespace MasterRad.Repositories
                 TimeStamp = request.TimeStamp,
                 SolutionSqlScript = request.SolutionSqlScript,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = userId,
             };
 
             var newColumnEntities = request.Columns.Select(cn => new SolutionColumnEntity() //AutoMapper
@@ -109,7 +109,7 @@ namespace MasterRad.Repositories
                 SqlType = cn.SqlType,
                 TaskId = request.Id,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED"
+                CreatedBy = userId
             });
 
             _context.Tasks.Attach(taskEntity);

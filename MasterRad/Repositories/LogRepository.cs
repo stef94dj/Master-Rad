@@ -52,7 +52,7 @@ namespace MasterRad.Repositories
             var res = new ExceptionLogEntity()
             {
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED"
+                CreatedBy = Guid.Empty
             };
 
             try
@@ -74,7 +74,7 @@ namespace MasterRad.Repositories
         {
             var res = new RequestLogEntity()
             {
-                CreatedBy = "NOT IMPLEMENTED",
+                CreatedBy = Guid.Empty,
                 DateCreated = DateTime.UtcNow,
                 Headers = JsonConvert.SerializeObject(httpRequest.Headers),
                 Cookies = JsonConvert.SerializeObject(httpRequest.Cookies),

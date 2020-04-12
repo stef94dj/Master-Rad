@@ -12,7 +12,7 @@ using MasterRad.Extensions;
 
 namespace MasterRad.Controllers
 {
-    public class TemplateController : Controller
+    public class TemplateController : BaseController
     {
         private readonly ITemplateRepository _templateRepo;
 

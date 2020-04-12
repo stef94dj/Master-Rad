@@ -11,8 +11,8 @@ namespace MasterRad.Repositories
     {
         IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId);
         IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId);
-        int AssignSynthesisTest(IEnumerable<KeyValuePair<Guid, string>> studDbNamePairs, int testId);
-        int AssignAnalysisTest(IEnumerable<AnalysisAssignModel> assignModels, int testId);
+        int AssignSynthesisTest(IEnumerable<KeyValuePair<Guid, string>> studDbNamePairs, int testId, Guid userId);
+        int AssignAnalysisTest(IEnumerable<AnalysisAssignModel> assignModels, int testId, Guid userId);
         bool RemoveSynthesis(Guid studentId, byte[] timeStamp, int testId);
         bool RemoveAnalysis(Guid studentId, byte[] timeStamp, int testId);
     }
@@ -36,7 +36,7 @@ namespace MasterRad.Repositories
                        .Where(sts => sts.AnalysisTestId == testId)
                        .Include(sts => sts.Student);
 
-        public int AssignSynthesisTest(IEnumerable<KeyValuePair<Guid, string>> studDbNamePairs, int testId)
+        public int AssignSynthesisTest(IEnumerable<KeyValuePair<Guid, string>> studDbNamePairs, int testId, Guid userId)
         {
             var stsEntities = studDbNamePairs.Select(pair => new SynthesisTestStudentEntity()
             {
@@ -44,7 +44,7 @@ namespace MasterRad.Repositories
                 StudentId = pair.Key,
                 NameOnServer = pair.Value,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED",
+                CreatedBy = userId,
             });
 
             var progressEntites = stsEntities.Select(sts => new SynthesisEvaluationEntity()
@@ -54,7 +54,7 @@ namespace MasterRad.Repositories
                 STS_SynthesisTestId = sts.SynthesisTestId,
                 Progress = EvaluationProgress.NotEvaluated,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED",
+                CreatedBy = userId,
             }).Union(stsEntities.Select(sts => new SynthesisEvaluationEntity()
             {
                 IsSecretDataUsed = true,
@@ -62,7 +62,7 @@ namespace MasterRad.Repositories
                 STS_SynthesisTestId = sts.SynthesisTestId,
                 Progress = EvaluationProgress.NotEvaluated,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED",
+                CreatedBy = userId,
             }));
 
             _context.SynthesysTestEvaluations.AddRange(progressEntites);
@@ -70,7 +70,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges();
         }
 
-        public int AssignAnalysisTest(IEnumerable<AnalysisAssignModel> assignModels, int testId)
+        public int AssignAnalysisTest(IEnumerable<AnalysisAssignModel> assignModels, int testId, Guid userId)
         {
             var atsEntities = assignModels.Select(assignModel => new AnalysisTestStudentEntity()
             {
@@ -80,7 +80,7 @@ namespace MasterRad.Repositories
                 StudentOutputNameOnServer = assignModel.StudentOutputTable,
                 TeacherOutputNameOnServer = assignModel.TeacherOutputTable,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED"
+                CreatedBy = userId
             });
 
             var progressEntities = atsEntities.Select(ats => new AnalysisEvaluationEntity()
@@ -90,7 +90,7 @@ namespace MasterRad.Repositories
                 Type = AnalysisEvaluationType.PrepareData,
                 Progress = EvaluationProgress.NotEvaluated,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED"
+                CreatedBy = userId
 
             }).Union(atsEntities.Select(ats => new AnalysisEvaluationEntity()
             {
@@ -99,7 +99,7 @@ namespace MasterRad.Repositories
                 Type = AnalysisEvaluationType.FailingInput,
                 Progress = EvaluationProgress.NotEvaluated,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED"
+                CreatedBy = userId
 
             }).Union(atsEntities.Select(ats => new AnalysisEvaluationEntity()
             {
@@ -108,7 +108,7 @@ namespace MasterRad.Repositories
                 Type = AnalysisEvaluationType.QueryOutput,
                 Progress = EvaluationProgress.NotEvaluated,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED"
+                CreatedBy = userId
 
             }).Union(atsEntities.Select(ats => new AnalysisEvaluationEntity()
             {
@@ -117,7 +117,7 @@ namespace MasterRad.Repositories
                 Type = AnalysisEvaluationType.CorrectOutput,
                 Progress = EvaluationProgress.NotEvaluated,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED"
+                CreatedBy = userId
 
             }))));
 

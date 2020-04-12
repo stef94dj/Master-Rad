@@ -17,14 +17,14 @@ namespace MasterRad.Repositories
         AnalysisTestEntity GetWithTaskTemplateAndSolutionFormat(int testId);
         IEnumerable<AnalysisTestStudentEntity> GetAssigned(Guid studentId);
 
-        bool Create(AnalysisCreateRQ request);
-        bool UpdateName(UpdateNameRQ request);
-        bool StatusNext(UpdateDTO request);
+        bool Create(AnalysisCreateRQ request, Guid userId);
+        bool UpdateName(UpdateNameRQ request, Guid userId);
+        bool StatusNext(UpdateDTO request, Guid userId);
 
         IEnumerable<AnalysisTestStudentEntity> GetPapers(int testId);
         bool MarkExamAsTaken(int testId, Guid studentId, byte[] timeStamp);
         AnalysisTestStudentEntity GetEvaluationData(int testId, Guid studentId);
-        bool SaveProgress(AnalysisTestStudentEntity entity, AnalysisEvaluationType type, EvaluationProgress status, string message = null);
+        bool SaveProgress(AnalysisTestStudentEntity entity, AnalysisEvaluationType type, EvaluationProgress status, Guid userId, string message = null);
         bool TestExists(string name);
     }
 
@@ -79,7 +79,7 @@ namespace MasterRad.Repositories
                        .Include(ats => ats.AnalysisTest)
                        .Where(ats => ats.StudentId == studentId);
 
-        public bool Create(AnalysisCreateRQ request)
+        public bool Create(AnalysisCreateRQ request, Guid userId)
         {
             var analysisTestEntity = new AnalysisTestEntity() //AutoMapper
             {
@@ -88,14 +88,14 @@ namespace MasterRad.Repositories
                 STS_SynthesisTestId = request.SynthesisTestId,
                 Status = TestStatus.Scheduled,
                 DateCreated = DateTime.UtcNow,
-                CreatedBy = "Current user - NOT IMPLEMENTED",
+                CreatedBy = userId,
             };
 
             _context.AnalysisTests.Add(analysisTestEntity);
             return _context.SaveChanges() == 1;
         }
 
-        public bool UpdateName(UpdateNameRQ request)
+        public bool UpdateName(UpdateNameRQ request, Guid userId)
         {
             var analysisTestEntity = new AnalysisTestEntity() //AutoMapper
             {
@@ -103,7 +103,7 @@ namespace MasterRad.Repositories
                 TimeStamp = request.TimeStamp,
                 Name = request.Name,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = userId,
             };
 
             _context.AnalysisTests.Attach(analysisTestEntity);
@@ -114,7 +114,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        public bool StatusNext(UpdateDTO request)
+        public bool StatusNext(UpdateDTO request, Guid userId)
         {
             var currentStatus = Get(request.Id).Status;
 
@@ -127,7 +127,7 @@ namespace MasterRad.Repositories
                 TimeStamp = request.TimeStamp,
                 Status = currentStatus + 1,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = userId,
             };
 
             _context.AnalysisTests.Attach(analysisTestEntity);
@@ -153,7 +153,7 @@ namespace MasterRad.Repositories
                 TimeStamp = timeStamp,
                 TakenTest = true,
                 DateModified = DateTime.UtcNow,
-                ModifiedBy = "Current user - NOT IMPLEMENTED",
+                ModifiedBy = studentId,
             };
 
             _context.AnalysisTestStudents.Attach(analysisTestEntity);
@@ -174,12 +174,12 @@ namespace MasterRad.Repositories
                                         .ThenInclude(t => t.SolutionColumns)
                                         .Single();
 
-        public bool SaveProgress(AnalysisTestStudentEntity entity, AnalysisEvaluationType type, EvaluationProgress status, string message = null)
+        public bool SaveProgress(AnalysisTestStudentEntity entity, AnalysisEvaluationType type, EvaluationProgress status, Guid userId, string message = null)
         {
             var progressEntity = entity.EvaluationProgress.Single(x => x.Type == type);
 
             progressEntity.DateModified = DateTime.UtcNow;
-            progressEntity.ModifiedBy = "Current user - NOT IMPLEMENTED";
+            progressEntity.ModifiedBy = userId;
             progressEntity.Progress = status;
             progressEntity.Message = message;
 
