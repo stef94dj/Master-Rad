@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MasterRad.DTO
 {
-    public class StudentDTO
+    public class AzureUserDTO
     {
 
-        public StudentDTO(User graphUser)
+        public AzureUserDTO(User graphUser)
         {
             MicrosoftId = Guid.Parse(graphUser.Id);
             MicrososftUserName = graphUser.UserPrincipalName;

@@ -7,19 +7,22 @@ namespace MasterRad.Extensions
 {
     public static class ListExtensions
     {
-        public static List<List<T>> ToChunks<T>(this List<T> collection, int maxSize)
+        public static IEnumerable<IEnumerable<T>> ToChunks<T>(this IEnumerable<T> collection, int maxSize)
         {
             var res = new List<List<T>>();
             var chunk = new List<T>();
-            for (int i = 0; i < collection.Count(); i++)
+            var i = 0;
+            foreach (var item in collection)
             {
-                chunk.Add(collection[i]);
+                chunk.Add(item);
 
                 if (chunk.Count() == maxSize || i + 1 == collection.Count())
                 {
                     res.Add(chunk);
                     chunk = new List<T>();
                 }
+
+                i++;
             }
             return res;
         }

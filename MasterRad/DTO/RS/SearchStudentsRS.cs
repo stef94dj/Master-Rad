@@ -7,13 +7,13 @@ namespace MasterRad.DTO.RS
 {
     public class SearchStudentsRS
     {
-        public SearchStudentsRS(IEnumerable<StudentDTO> students, string nextPageUrl)
+        public SearchStudentsRS(IEnumerable<AzureUserDTO> students, string nextPageUrl)
         {
             Students = students;
             NextPageUrl = nextPageUrl;
         }
 
-        public IEnumerable<StudentDTO> Students { get; set; }
+        public IEnumerable<AzureUserDTO> Students { get; set; }
         public string NextPageUrl { get; set; }
     }
 }

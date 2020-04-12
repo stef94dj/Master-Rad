@@ -10,14 +10,37 @@ using MasterRad.Repositories;
 using MasterRad.DTO;
 using MasterRad.Extensions;
 using Microsoft.Identity.Web;
+using MasterRad.Models.Configuration;
+using Microsoft.Graph;
+using WebApp_OpenIDConnect_DotNet.Services;
+using Microsoft.Extensions.Options;
 
 namespace MasterRad.Controllers
 {
     public class TeacherMenuController : BaseController
     {
-        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserRead, Constants.ScopeUserReadBasicAll })]
-        public IActionResult Templates()
-            => View();
+        private readonly ITokenAcquisition _tokenAcquisition;
+        private readonly WebOptions _webOptions;
+
+        public TeacherMenuController
+        (
+             ITokenAcquisition tokenAcquisition,
+             IOptions<WebOptions> webOptions
+        )
+        {
+            _tokenAcquisition = tokenAcquisition;
+            _webOptions = webOptions.Value;
+        }
+
+        [Route("Templates")]
+        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserReadBasicAll })]
+        public async Task<IActionResult> TemplatesAsync()
+        {
+            var scopes = new[] { Constants.ScopeUserReadBasicAll };
+            await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+
+            return View();
+        }
 
         public IActionResult Tasks()
             => View();

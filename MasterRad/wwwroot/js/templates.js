@@ -74,10 +74,12 @@ function drawDataCell(template) {
     return '<td>' + drawCellEditNavigationButton('Modify', 'dark', 'updateData', template.id, true) + '</td>';
 }
 function drawAuthorCell(template) {
-    return '<td><div class="text">' + 'cmilos@etf.bg.ac.rs' + '</div></td>'
+    var author = template.createdBy;
+    var cellContent = `${author.firstName} ${author.lastName}<br/>${author.micrososftUserName}`;
+    return `<td><div class="text">${cellContent}</div></td>`
 }
 function drawCreatedOnCell(template) {
-    return '<td><div class="text">' + '08/03/2020 20:22' + '</div></td>'
+    return '<td><div class="text">' + template.dateCreated + '</div></td>'
 }
 function drawDeleteCell(template) {
     return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', template.id, template.timeStamp, true) + '</td>';

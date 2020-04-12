@@ -22,7 +22,7 @@ namespace MasterRad.Services
     {
         Task<SearchStudentsRS> SearchStudentsAsync(SearchStudentsRQ model);
         Task<SearchStudentsRS> ListStudentsByPageAsync(string pageUrl);
-        Task<IEnumerable<StudentDTO>> GetStudentsByIds(List<Guid> studendIds);
+        Task<IEnumerable<AzureUserDTO>> GetStudentsByIds(IEnumerable<Guid> studendIds);
     }
 
     public class MsGraph : IMsGraph
@@ -76,7 +76,7 @@ namespace MasterRad.Services
                                     ?.AbsoluteUri
                                     ?.ToString();
 
-            var students = qryRes.Select(x => new StudentDTO(x));
+            var students = qryRes.Select(x => new AzureUserDTO(x));
             #endregion
 
             return new SearchStudentsRS(students, nextPageUrl);
@@ -98,24 +98,26 @@ namespace MasterRad.Services
             var nextPageURL = responseJObject["@odata.nextLink"]?.ToString();
             var currentPageJSON = responseJObject["value"]?.ToString() ?? string.Empty;
             var currentPageData = JsonConvert.DeserializeObject<IList<Graph.User>>(currentPageJSON);
-            var studentDTOs = currentPageData?.Select(s => new StudentDTO(s));
+            var studentDTOs = currentPageData?.Select(s => new AzureUserDTO(s));
             #endregion
 
             return new SearchStudentsRS(studentDTOs, nextPageURL);
         }
 
-        public async Task<IEnumerable<StudentDTO>> GetStudentsByIds(List<Guid> studendIds)
+        public async Task<IEnumerable<AzureUserDTO>> GetStudentsByIds(IEnumerable<Guid> studendIds)
         {
-            if (studendIds == null || !studendIds.Where(id => id != Guid.Empty).Any())
-                throw new ArgumentException();
+            if (studendIds == null)
+                throw new ArgumentNullException();
 
-            GraphServiceClient graphClient = GetGraphServiceClient(new[] { Constants.ScopeUserReadBasicAll });
+            if (!studendIds.Where(id => id != Guid.Empty).Any())
+                return new List<AzureUserDTO>();
 
             studendIds = studendIds.Distinct()
                                    .ToList();
 
             var studentIdChunks = studendIds.ToChunks(15);
             var requests = new List<IGraphServiceUsersCollectionRequest>();
+            GraphServiceClient graphClient = GetGraphServiceClient(new[] { Constants.ScopeUserReadBasicAll });
             foreach (var chunkIds in studentIdChunks)
             {
                 var qry = graphClient.Users.Request();
@@ -126,7 +128,7 @@ namespace MasterRad.Services
 
             var studentChunks = await Task.WhenAll(requests.Select(rq => rq.GetAsync()));
             return studentChunks.SelectMany(x => x)
-                                .Select(x => new StudentDTO(x));
+                                .Select(x => new AzureUserDTO(x));
         }
 
         private GraphServiceClient GetGraphServiceClient(string[] scopes)

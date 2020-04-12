@@ -1,4 +1,5 @@
-﻿using MasterRad.DTO.RQ;
+﻿using MasterRad.DTO;
+using MasterRad.DTO.RQ;
 using MasterRad.Entities;
 using MasterRad.Helpers;
 using MasterRad.Models;
@@ -7,6 +8,7 @@ using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MasterRad.API
 {
@@ -16,20 +18,36 @@ namespace MasterRad.API
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly ITemplateRepository _templateRepo;
+        private readonly IMsGraph _msGraph;
 
         public TemplateController
         (
             IMicrosoftSQL microsoftSQLService,
-            ITemplateRepository templateRepo
+            ITemplateRepository templateRepo,
+            IMsGraph msGraph
         )
         {
             _microsoftSQLService = microsoftSQLService;
             _templateRepo = templateRepo;
+            _msGraph = msGraph;
         }
 
         [HttpGet, Route("Get")]
-        public ActionResult<IEnumerable<TemplateEntity>> GetTemplates()
-            => _templateRepo.Get();
+        public async Task<ActionResult<IEnumerable<TemplateDTO>>> GetTemplatesAsync()
+        {
+            var templateEntities = _templateRepo.Get();
+
+            var createdByIds = templateEntities.Select(te => te.CreatedBy);
+            var createdByDetails = await _msGraph.GetStudentsByIds(createdByIds);
+
+            var res = templateEntities.Select(te =>
+            {
+                var createdByDetail = createdByDetails.Single(ud => ud.MicrosoftId == te.CreatedBy);
+                return new TemplateDTO(te, createdByDetail);
+            });
+
+            return Ok(res);
+        }
 
         [HttpPost, Route("Create")]
         public ActionResult<Result<bool>> CreateTemplate([FromBody] CreateTemplateRQ body)
