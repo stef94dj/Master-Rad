@@ -9,7 +9,7 @@ namespace MasterRad.DTO.RQ
     {
         public TestType TestType { get; set; }
         public int TestId { get; set; }
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
         public byte[] TimeStamp { get; set; }
     }
 }

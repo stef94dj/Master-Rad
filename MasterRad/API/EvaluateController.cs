@@ -82,7 +82,7 @@ namespace MasterRad.API
         }
 
         [NonAction]
-        private async Task EvaluateSynthesisPaper(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, int studentId, bool useSecretData)
+        private async Task EvaluateSynthesisPaper(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId, bool useSecretData)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -189,7 +189,7 @@ namespace MasterRad.API
         }
 
         [NonAction]
-        private async Task EvaluateAnalysisPaper(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, int studentId)
+        private async Task EvaluateAnalysisPaper(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -302,7 +302,7 @@ namespace MasterRad.API
         }
 
         [NonAction]
-        private async Task EvaluateAnalysisInput(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, int studentId, QueryExecuteRS studentQueryOutput, QueryExecuteRS teacherQueryOutput, IEnumerable<string> solutionFormat)
+        private async Task EvaluateAnalysisInput(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId, QueryExecuteRS studentQueryOutput, QueryExecuteRS teacherQueryOutput, IEnumerable<string> solutionFormat)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
@@ -350,7 +350,7 @@ namespace MasterRad.API
         }
 
         [NonAction]
-        private async Task EvaluateAnalysisOutput(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, int studentId, QueryExecuteRS actualOutput, AnalysisEvaluationType type, IEnumerable<string> solutionFormat)
+        private async Task EvaluateAnalysisOutput(IServiceScopeFactory serviceScopeFactory, string jobId, int testId, Guid studentId, QueryExecuteRS actualOutput, AnalysisEvaluationType type, IEnumerable<string> solutionFormat)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {

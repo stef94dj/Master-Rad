@@ -7,7 +7,7 @@ namespace MasterRad.Exceptions
 {
     public class SynthesisEvaluationException: Exception
     {
-        public SynthesisEvaluationException(bool isSecret, int testId, int studentId, string message): base($"TestId:'{testId}', StudentId:'{studentId}', IsSecret: '{isSecret}'. Synthesis Test Evaluation Error: '{message}'")
+        public SynthesisEvaluationException(bool isSecret, int testId, Guid studentId, string message): base($"TestId:'{testId}', StudentId:'{studentId}', IsSecret: '{isSecret}'. Synthesis Test Evaluation Error: '{message}'")
         {
            
         }

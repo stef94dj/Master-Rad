@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MasterRad.Entities
@@ -9,7 +10,7 @@ namespace MasterRad.Entities
         public override int Id { get; set; }
 
         public int ATS_AnalysisTestId { get; set; }
-        public int ATS_StudentId { get; set; }
+        public Guid ATS_StudentId { get; set; }
         [ForeignKey("ATS_StudentId,ATS_AnalysisTestId")]
         public AnalysisTestStudentEntity AnalysisTestStudent { get; set; }
 

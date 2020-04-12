@@ -13,19 +13,19 @@ namespace MasterRad.Repositories
         SynthesisTestEntity Get(int testId);
         SynthesisTestEntity GetWithTaskAndTemplate(int testId);
         IEnumerable<SynthesisTestEntity> Get();
-        SynthesisTestStudentEntity GetAssignment(int studentId, int testId);
-        SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(int studentId, int testId);
-        IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId);
+        SynthesisTestStudentEntity GetAssignment(Guid studentId, int testId);
+        SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(Guid studentId, int testId);
+        IEnumerable<SynthesisTestStudentEntity> GetAssigned(Guid studentId);
         IEnumerable<string> GetSolutionFormat(int testId);
-        bool IsAssigned(int studentId, int testId);
+        bool IsAssigned(Guid studentId, int testId);
         bool Create(SynthesisCreateRQ request);
         void Delete(DeleteDTO request);
         bool UpdateName(UpdateNameRQ request);
         bool StatusNext(UpdateDTO request);
-        bool MarkExamAsTaken(int testId, int studentId, byte[] timeStamp);
-        byte[] SubmitAnswer(int testId, int studentId, byte[] timeStamp, string sqlScript);
-        bool HasAnswer(int testId, int userId);
-        SynthesisTestStudentEntity GetEvaluationData(int testId, int studentId);
+        bool MarkExamAsTaken(int testId, Guid studentId, byte[] timeStamp);
+        byte[] SubmitAnswer(int testId, Guid studentId, byte[] timeStamp, string sqlScript);
+        bool HasAnswer(int testId, Guid userId);
+        SynthesisTestStudentEntity GetEvaluationData(int testId, Guid studentId);
         bool SaveProgress(SynthesisTestStudentEntity entity, bool isSecret, EvaluationProgress status, string message = null);
         bool TestExists(string name);
         IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId);
@@ -61,13 +61,13 @@ namespace MasterRad.Repositories
                        .ThenInclude(t => t.Template)
                        .OrderByDescending(t => t.DateCreated);
 
-        public SynthesisTestStudentEntity GetAssignment(int studentId, int testId)
+        public SynthesisTestStudentEntity GetAssignment(Guid studentId, int testId)
             => _context.SynthesysTestStudents
                        .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
                        .AsNoTracking()
                        .SingleOrDefault();
 
-        public SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(int studentId, int testId)
+        public SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(Guid studentId, int testId)
             => _context.SynthesysTestStudents
                        .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
                        .Include(sts => sts.SynthesisTest)
@@ -76,7 +76,7 @@ namespace MasterRad.Repositories
                        .AsNoTracking()
                        .SingleOrDefault();
 
-        public IEnumerable<SynthesisTestStudentEntity> GetAssigned(int studentId)
+        public IEnumerable<SynthesisTestStudentEntity> GetAssigned(Guid studentId)
             => _context.SynthesysTestStudents
                        .Include(sts => sts.EvaluationProgress)
                        .Include(sts => sts.SynthesisTest)
@@ -92,7 +92,7 @@ namespace MasterRad.Repositories
                        .SolutionColumns
                        .Select(sc => sc.ColumnName);
 
-        public bool IsAssigned(int studentId, int testId)
+        public bool IsAssigned(Guid studentId, int testId)
             => _context.SynthesysTestStudents
                        .Where(sts => sts.StudentId == studentId && sts.SynthesisTestId == testId)
                        .AsNoTracking()
@@ -169,7 +169,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        public bool HasAnswer(int testId, int userId)
+        public bool HasAnswer(int testId, Guid userId)
         {
             var sqlAnswer = _context.SynthesysTestStudents
                                                .Where(sts => sts.SynthesisTestId == testId && sts.StudentId == userId)
@@ -180,7 +180,7 @@ namespace MasterRad.Repositories
             return !string.IsNullOrEmpty(sqlAnswer);
         }
 
-        public bool MarkExamAsTaken(int testId, int studentId, byte[] timeStamp)
+        public bool MarkExamAsTaken(int testId, Guid studentId, byte[] timeStamp)
         {
             var entity = new SynthesisTestStudentEntity() //AutoMapper
             {
@@ -200,7 +200,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        public byte[] SubmitAnswer(int testId, int studentId, byte[] timeStamp, string sqlScript)
+        public byte[] SubmitAnswer(int testId, Guid studentId, byte[] timeStamp, string sqlScript)
         {
 
             var entity = new SynthesisTestStudentEntity() //AutoMapper
@@ -221,7 +221,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1 ? entity.TimeStamp : null;
         }
 
-        public SynthesisTestStudentEntity GetEvaluationData(int testId, int studentId)
+        public SynthesisTestStudentEntity GetEvaluationData(int testId, Guid studentId)
         =>
             _context.SynthesysTestStudents.Where(sts => sts.SynthesisTestId == testId && sts.StudentId == studentId)
                                           .Include(sts => sts.EvaluationProgress)

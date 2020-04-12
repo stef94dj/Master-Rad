@@ -8,7 +8,7 @@ namespace MasterRad.Models.ViewModels
     public class SynthesisExamVM
     {
         public int TestId { get; set; }
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
         public string TimeStamp { get; set; }
         public string NameOnServer { get; set; }
 

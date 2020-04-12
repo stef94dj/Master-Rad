@@ -13,17 +13,17 @@ namespace MasterRad.Repositories
     {
         IEnumerable<AnalysisTestEntity> Get();
         AnalysisTestEntity Get(int testId);
-        AnalysisTestStudentEntity GetAssignment(int studentId, int testId);
+        AnalysisTestStudentEntity GetAssignment(Guid studentId, int testId);
         AnalysisTestEntity GetWithTaskTemplateAndSolutionFormat(int testId);
-        IEnumerable<AnalysisTestStudentEntity> GetAssigned(int studentId);
+        IEnumerable<AnalysisTestStudentEntity> GetAssigned(Guid studentId);
 
         bool Create(AnalysisCreateRQ request);
         bool UpdateName(UpdateNameRQ request);
         bool StatusNext(UpdateDTO request);
 
         IEnumerable<AnalysisTestStudentEntity> GetPapers(int testId);
-        bool MarkExamAsTaken(int testId, int studentId, byte[] timeStamp);
-        AnalysisTestStudentEntity GetEvaluationData(int testId, int studentId);
+        bool MarkExamAsTaken(int testId, Guid studentId, byte[] timeStamp);
+        AnalysisTestStudentEntity GetEvaluationData(int testId, Guid studentId);
         bool SaveProgress(AnalysisTestStudentEntity entity, AnalysisEvaluationType type, EvaluationProgress status, string message = null);
         bool TestExists(string name);
     }
@@ -52,7 +52,7 @@ namespace MasterRad.Repositories
                        .AsNoTracking()
                        .SingleOrDefault();
 
-        public AnalysisTestStudentEntity GetAssignment(int studentId, int testId)
+        public AnalysisTestStudentEntity GetAssignment(Guid studentId, int testId)
             => _context.AnalysisTestStudents
                        .Where(ats => ats.StudentId == studentId && ats.AnalysisTestId == testId)
                        .Include(ats => ats.AnalysisTest)
@@ -73,7 +73,7 @@ namespace MasterRad.Repositories
                        .AsNoTracking()
                        .SingleOrDefault();
 
-        public IEnumerable<AnalysisTestStudentEntity> GetAssigned(int studentId)
+        public IEnumerable<AnalysisTestStudentEntity> GetAssigned(Guid studentId)
             => _context.AnalysisTestStudents
                        .Include(sts => sts.EvaluationProgress)
                        .Include(ats => ats.AnalysisTest)
@@ -144,7 +144,7 @@ namespace MasterRad.Repositories
                        .Include(sts => sts.Student)
                        .Where(sts => sts.AnalysisTestId == testId);
 
-        public bool MarkExamAsTaken(int testId, int studentId, byte[] timeStamp)
+        public bool MarkExamAsTaken(int testId, Guid studentId, byte[] timeStamp)
         {
             var analysisTestEntity = new AnalysisTestStudentEntity() //AutoMapper
             {
@@ -164,7 +164,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        public AnalysisTestStudentEntity GetEvaluationData(int testId, int studentId)
+        public AnalysisTestStudentEntity GetEvaluationData(int testId, Guid studentId)
         => _context.AnalysisTestStudents.Where(ats => ats.AnalysisTestId == testId && ats.StudentId == studentId)
                                         .Include(ats => ats.EvaluationProgress)
                                         .Include(ats => ats.AnalysisTest)

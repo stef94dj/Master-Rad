@@ -17,7 +17,6 @@ namespace MasterRad.Controllers
 {
     public class TestController : Controller
     {
-        private readonly IUser _userService;
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
         private readonly SqlServerAdminConnection _adminConnectionConf;
@@ -25,14 +24,12 @@ namespace MasterRad.Controllers
 
         public TestController
         (
-            IUser userService,
             ISynthesisRepository synthesisRepository,
             IAnalysisRepository analysisRepository,
             IOptions<SqlServerAdminConnection> adminConnectionConf,
             IMsGraph msGraph
         )
         {
-            _userService = userService;
             _synthesisRepository = synthesisRepository;
             _analysisRepository = analysisRepository;
             _adminConnectionConf = adminConnectionConf.Value;
@@ -41,13 +38,13 @@ namespace MasterRad.Controllers
 
         public IActionResult SynthesisExam(int testId, byte[] timeStamp)
         {
-            var stsEntity = _synthesisRepository.GetAssignmentWithTaskAndTemplate(_userService.UserId, testId);
+            var stsEntity = _synthesisRepository.GetAssignmentWithTaskAndTemplate(Guid.Empty, testId);
 
             if (stsEntity == null)
                 return Unauthorized();
 
             if (!stsEntity.TakenTest)
-                _synthesisRepository.MarkExamAsTaken(testId, _userService.UserId, timeStamp);
+                _synthesisRepository.MarkExamAsTaken(testId, Guid.Empty, timeStamp);
 
             var vm = new SynthesisExamVM()
             {
@@ -64,13 +61,13 @@ namespace MasterRad.Controllers
         }
         public IActionResult AnalysisExam(int testId, byte[] timeStamp)
         {
-            var atsEntity = _analysisRepository.GetAssignment(_userService.UserId, testId);
+            var atsEntity = _analysisRepository.GetAssignment(Guid.Empty, testId);
 
             if (atsEntity == null)
                 return Unauthorized();
 
             if (!atsEntity.TakenTest)
-                _analysisRepository.MarkExamAsTaken(testId, _userService.UserId, timeStamp);
+                _analysisRepository.MarkExamAsTaken(testId, Guid.Empty, timeStamp);
 
             var outputTablesDb = _adminConnectionConf.DbName;
 

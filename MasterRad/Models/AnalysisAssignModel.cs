@@ -7,7 +7,7 @@ namespace MasterRad.Models
 {
     public class AnalysisAssignModel
     {
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
 
         public string Database { get; set; }
         public string StudentOutputTable { get; set; }

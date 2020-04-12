@@ -13,12 +13,10 @@ namespace MasterRad.API
     [ApiController]
     public class AnalysisController : ControllerBase
     {
-        private readonly IUser _userService;
         private readonly IAnalysisRepository _analysisRepository;
 
-        public AnalysisController(IUser userService, IAnalysisRepository analysisRepository)
+        public AnalysisController(IAnalysisRepository analysisRepository)
         {
-            _userService = userService;
             _analysisRepository = analysisRepository;
         }
 

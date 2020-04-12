@@ -88,7 +88,7 @@ namespace MasterRad.API
             if (synthesisEntity.Status >= TestStatus.Completed)
                 return StatusCode(500);
 
-            var synthesisExamDbNames = NameHelper.SynthesisTestExam(new List<int>(), synthesisEntity.Id); //new List<int>()-> body.StudentIds
+            var synthesisExamDbNames = NameHelper.SynthesisTestExam(body.StudentIds, synthesisEntity.Id);
 
             var synthesisTemplateName = synthesisEntity.Task.Template.NameOnServer;
             var synthesisCloneSuccess = _microsoftSQLService.CloneDatabases(synthesisTemplateName, synthesisExamDbNames.Select(snp => snp.Value), false);
@@ -96,7 +96,7 @@ namespace MasterRad.API
             synthesisExamDbNames = synthesisExamDbNames.Where(x => synthesisCloneSuccess.Contains(x.Value));
 
             var synthesisAssigned = _studentRepository.AssignSynthesisTest(synthesisExamDbNames, body.TestId);
-            if (synthesisAssigned != new List<int>().Count()) //new List<int>()-> body.StudentIds
+            if (synthesisAssigned != body.StudentIds.Count())
                 return Result<bool>.Fail("One or more students have not been assigned");
             else
                 return Result<bool>.Success(true);
@@ -118,7 +118,7 @@ namespace MasterRad.API
                             .Select(c => new ColumnDTO(c.ColumnName, c.SqlType));
             #endregion
 
-            var assignModels = NameHelper.AnalysisTestExam(new List<int>(), analysisEntity.Id); //new List<int>()-> body.StudentIds
+            var assignModels = NameHelper.AnalysisTestExam(body.StudentIds, analysisEntity.Id);
 
             #region Clone_Databases
             var analysisTemplateName = analysisEntity.SynthesisTestStudent.SynthesisTest.Task.Template.NameOnServer;

@@ -11,10 +11,10 @@ namespace MasterRad.Repositories
     {
         IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId);
         IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId);
-        int AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId);
+        int AssignSynthesisTest(IEnumerable<KeyValuePair<Guid, string>> studDbNamePairs, int testId);
         int AssignAnalysisTest(IEnumerable<AnalysisAssignModel> assignModels, int testId);
-        bool RemoveSynthesis(int studentId, byte[] timeStamp, int testId);
-        bool RemoveAnalysis(int studentId, byte[] timeStamp, int testId);
+        bool RemoveSynthesis(Guid studentId, byte[] timeStamp, int testId);
+        bool RemoveAnalysis(Guid studentId, byte[] timeStamp, int testId);
     }
 
     public class StudentRepository : IStudentRepository
@@ -36,7 +36,7 @@ namespace MasterRad.Repositories
                        .Where(sts => sts.AnalysisTestId == testId)
                        .Include(sts => sts.Student);
 
-        public int AssignSynthesisTest(IEnumerable<KeyValuePair<int, string>> studDbNamePairs, int testId)
+        public int AssignSynthesisTest(IEnumerable<KeyValuePair<Guid, string>> studDbNamePairs, int testId)
         {
             var stsEntities = studDbNamePairs.Select(pair => new SynthesisTestStudentEntity()
             {
@@ -126,7 +126,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges();
         }
 
-        public bool RemoveSynthesis(int studentId, byte[] timeStamp, int testId)
+        public bool RemoveSynthesis(Guid studentId, byte[] timeStamp, int testId)
         {
             var stsEntity = new SynthesisTestStudentEntity()
             {
@@ -140,7 +140,7 @@ namespace MasterRad.Repositories
             return _context.SaveChanges() == 1;
         }
 
-        public bool RemoveAnalysis(int studentId, byte[] timeStamp, int testId)
+        public bool RemoveAnalysis(Guid studentId, byte[] timeStamp, int testId)
         {
             var atsEntity = new AnalysisTestStudentEntity()
             {

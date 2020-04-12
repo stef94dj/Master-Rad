@@ -5,6 +5,7 @@ using MasterRad.Models;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 
 namespace MasterRad.API
@@ -13,12 +14,10 @@ namespace MasterRad.API
     [ApiController]
     public class SynthesisController : ControllerBase
     {
-        private readonly IUser _userService;
         private readonly ISynthesisRepository _synthesisRepository;
 
-        public SynthesisController(IUser userService, ISynthesisRepository synthesisRepository)
+        public SynthesisController(ISynthesisRepository synthesisRepository)
         {
-            _userService = userService;
             _synthesisRepository = synthesisRepository;
         }
 
@@ -56,7 +55,7 @@ namespace MasterRad.API
             if (testExists)
                 return Result<bool>.Fail($"Test '{body.Name}' already exists.");
 
-            var success  = _synthesisRepository.UpdateName(body);
+            var success = _synthesisRepository.UpdateName(body);
             if (success)
                 return Result<bool>.Success(true);
             else
@@ -82,10 +81,10 @@ namespace MasterRad.API
         [HttpPost, Route("Submit/Answer")]
         public ActionResult<byte[]> SubmitAnswer([FromBody] AnswerSynthesisRQ body)
         {
-            if (!_userService.IsAssigned(body.TestId))
+            if (!_synthesisRepository.IsAssigned(Guid.Empty, body.TestId))
                 return Unauthorized();
 
-            return _synthesisRepository.SubmitAnswer(body.TestId, _userService.UserId, body.TimeStamp, body.SqlScript);
+            return _synthesisRepository.SubmitAnswer(body.TestId, Guid.Empty, body.TimeStamp, body.SqlScript);
         }
     }
 }

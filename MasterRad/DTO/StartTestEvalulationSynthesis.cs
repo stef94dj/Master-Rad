@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MasterRad.DTO
 {
@@ -10,7 +11,7 @@ namespace MasterRad.DTO
 
     public class StudentEvaluationRequestSynthesis
     {
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
         public bool UseSecretData { get; set; }
     }
 }

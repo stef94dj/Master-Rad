@@ -64,7 +64,6 @@ namespace MasterRad
             //services
             services.AddScoped<IMicrosoftSQL, MicrosoftSQL>();
             services.AddSingleton<IMsSqlQueryBuilder, MsSqlQueryBuilder>();
-            services.AddScoped<IUser, User>();
             services.AddScoped<IEvaluator, Evaluator>();
             services.AddScoped(typeof(ISignalR<>), typeof(SignalR<>));
             services.AddScoped<ILogRepository, LogRepository>();
