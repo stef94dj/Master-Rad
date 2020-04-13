@@ -6,8 +6,9 @@ using Microsoft.Identity.Web;
 namespace MasterRad.Attributes
 {
     /// <summary>
-    /// Filter used on AJAX endpoint to inform client that page reload is required. 
-    /// AuthorizeForScopes attribute on the MVC controller action will then trigger incremental consent.
+    /// Filter used on AJAX endpoint to inform client-side that page reload is required.
+    /// Code on client-side should trigger a reload/resubmit to the page's MVC controller action.
+    /// AuthorizeForScopes attribute on the MVC controller action will then handle incremental consent.
     /// </summary>
     public class AjaxMsGraphProxyAttribute : ExceptionFilterAttribute
     {
