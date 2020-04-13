@@ -17,7 +17,7 @@ namespace WebApp_OpenIDConnect_DotNet.Services
         }
     }
 
-    public class CustomAuthenticationProvider : IAuthenticationProvider
+    class CustomAuthenticationProvider : IAuthenticationProvider
     {
         public CustomAuthenticationProvider(Func<Task<string>> acquireTokenCallback)
         {
@@ -33,11 +33,6 @@ namespace WebApp_OpenIDConnect_DotNet.Services
             // Append the access token to the request.
             request.Headers.Authorization = new AuthenticationHeaderValue(
                 MasterRad.Constants.BearerAuthorizationScheme, accessToken);
-        }
-
-        public async Task CheckAccessToken()
-        {
-            await acquireAccessToken.Invoke();
         }
     }
 }

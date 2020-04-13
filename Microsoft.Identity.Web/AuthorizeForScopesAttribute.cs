@@ -93,7 +93,7 @@ namespace Microsoft.Identity.Web
             base.OnException(context);
         }
 
-        private bool CanBeSolvedByReSignInOfUser(MsalUiRequiredException ex)
+        public static bool CanBeSolvedByReSignInOfUser(MsalUiRequiredException ex)
         {
             // ex.ErrorCode != MsalUiRequiredException.UserNullError indicates a cache problem.
             // When calling an [Authenticate]-decorated controller we expect an authenticated

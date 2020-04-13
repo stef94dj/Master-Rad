@@ -40,4 +40,9 @@ namespace MasterRad
         Failed = 4,
         Passed = 5
     }
+
+    public enum HttpCodes
+    {
+        ReloadRequired = 309
+    }
 }

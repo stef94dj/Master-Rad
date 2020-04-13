@@ -50,12 +50,12 @@ var AnalysisEvaluationType = {
 }
 
 var EvaluationStatus = {
-    NotSubmited : 0,
-    NotEvaluated : 1,
-    Queued : 2,
-    Evaluating : 3,
-    Failed : 4,
-    Passed : 5
+    NotSubmited: 0,
+    NotEvaluated: 1,
+    Queued: 2,
+    Evaluating: 3,
+    Failed: 4,
+    Passed: 5
 }
 
 var Shapes = {
@@ -71,4 +71,8 @@ var ColorCodes = {
     Blue: "#007bfe",
     Green: "#27a745",
     Red: "#DC3545"
+}
+
+var HttpCodes = {
+    ReloadRequired: 309
 }

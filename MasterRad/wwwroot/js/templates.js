@@ -14,7 +14,13 @@ function loadTemplates() {
             drawTemplateTable($('#templates-tbody'), data);
         })
         .catch(error => {
-            drawTemplateTableMessage('Error loading data...');
+            if (error?.status && error.status === HttpCodes.ReloadRequired) {
+                drawTemplateTableMessage('Reloading...');
+                location.reload();
+            }
+            else {
+                drawTemplateTableMessage('Error loading data...');
+            }
         })
         .then(data => {
             defineNameHoverBehaviour($('td.hover-text-button'));

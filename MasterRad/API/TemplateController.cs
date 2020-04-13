@@ -1,4 +1,5 @@
-﻿using MasterRad.DTO;
+﻿using MasterRad.Attributes;
+using MasterRad.DTO;
 using MasterRad.DTO.RQ;
 using MasterRad.Entities;
 using MasterRad.Helpers;
@@ -6,6 +7,9 @@ using MasterRad.Models;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Graph;
+using Microsoft.Identity.Client;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,19 +36,24 @@ namespace MasterRad.API
             _msGraph = msGraph;
         }
 
+        [AjaxMsGraphProxy]
         [HttpGet, Route("Get")]
         public async Task<ActionResult<IEnumerable<TemplateDTO>>> GetTemplatesAsync()
         {
             var templateEntities = _templateRepo.Get();
 
+            #region Get_CreatedBy_Users_Details
             var createdByIds = templateEntities.Select(te => te.CreatedBy);
             var createdByDetails = await _msGraph.GetStudentsByIds(createdByIds);
+            #endregion
 
+            #region Map_Result
             var res = templateEntities.Select(te =>
             {
                 var createdByDetail = createdByDetails.Single(ud => ud.MicrosoftId == te.CreatedBy);
                 return new TemplateDTO(te, createdByDetail);
             });
+            #endregion
 
             return Ok(res);
         }
