@@ -89,7 +89,8 @@ function drawAuthorCell(template) {
     return `<td><div class="text">${cellContent}</div></td>`
 }
 function drawCreatedOnCell(template) {
-    return '<td><div class="text">' + template.dateCreated + '</div></td>'
+    var value = toLocaleDateTimeString(template.dateCreated);
+    return '<td><div class="text">' + value + '</div></td>'
 }
 function drawDeleteCell(template) {
     return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', template.id, template.timeStamp, true) + '</td>';

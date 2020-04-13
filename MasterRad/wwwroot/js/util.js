@@ -158,6 +158,17 @@ function promisifyAjaxGet(apiUrl) {
     });
 }
 
+function toLocaleDateTimeString(serverUtcDateString) {
+    try {
+        var paresdUtcDate = Date.parse(serverUtcDateString);
+        var utcDateObj = new Date(paresdUtcDate);
+        return utcDateObj.toLocaleDateString() + " " + utcDateObj.toLocaleTimeString();
+    }
+    catch (err) {
+        return "error"
+    }
+}
+
 var progressReader = {
     //sunthesis
     PublicData: function (testStudentDto) {

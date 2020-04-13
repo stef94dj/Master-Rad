@@ -15,7 +15,7 @@ namespace MasterRad.DTO
             ModelDescription = te.ModelDescription;
             NameOnServer = te.NameOnServer;
             TimeStamp = te.TimeStamp;
-            DateCreated = te.DateCreated.HasValue ? te.DateCreated.Value.ToString("dd/MM/yyyy hh:mm") : "N/A";
+            DateCreated = te.DateCreated.HasValue ? te.DateCreated.Value.ToString(Constants.JSDateFormat) : "N/A"; 
 
             CreatedBy = userDetail;
         }
