@@ -33,26 +33,27 @@ function drawAnalysisTestsTableMessage(message) {
     testsList.html(drawTableMessage(message, 9));
 }
 function drawTestsList(data) {
-    testsList.html('');
-    $.each(data, function (index, test) {
+    drawAnalysisTestsTableMessage("No records.");
 
-        var sts = test.synthesisTestStudent;
+    if (data != null && data.lenght > 1) {
+        testsList.html('');
+        $.each(data, function (index, test) {
+            var sts = test.synthesisTestStudent;
+            var testItem = '<tr>';
+            testItem += drawNameCell(test);
+            testItem += drawTextCell(`${sts.synthesisTest.name} <br/> <i>student: ${sts.student.firstName} ${sts.student.lastName}</i>`);
+            testItem += drawTextCell(sts.synthesisTest.task.name);
+            testItem += drawTextCell(sts.synthesisTest.task.template.name);
+            testItem += drawAuthorCell(test);
+            testItem += drawCreatedOnCell(test);
+            testItem += drawStudentsCell(test);
+            testItem += drawStateCell(test);
+            testItem += drawDeleteCell(test);
+            testItem += '</tr>'
 
-        var testItem = '<tr>';
-        testItem += drawNameCell(test);
-        testItem += drawTextCell(`${sts.synthesisTest.name} <br/> <i>student: ${sts.student.firstName} ${sts.student.lastName}</i>`);
-        testItem += drawTextCell(sts.synthesisTest.task.name);
-        testItem += drawTextCell(sts.synthesisTest.task.template.name);
-        testItem += drawAuthorCell(test);
-        testItem += drawCreatedOnCell(test);
-        testItem += drawStudentsCell(test);
-        testItem += drawStateCell(test);
-        testItem += drawDeleteCell(test);
-        testItem += '</tr>'
-
-
-        testsList.append(testItem);
-    });
+            testsList.append(testItem);
+        });
+    }
 }
 function drawNameCell(test) {
     var result = '<td class="hover-text-button">';

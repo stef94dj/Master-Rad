@@ -11,7 +11,7 @@ $(document).ready(function () {
     createTestModalSelector = '#create-test-modal';
     nameModalSelector = '#update-name-modal';
     statusModalSelector = '#update-staus-modal';
-    
+
     loadTests();
     loadTasks();
 
@@ -42,25 +42,25 @@ function drawSynthesisTestsTableMessage(message) {
     testsList.html(drawTableMessage(message, 8));
 }
 function drawTestsList(data) {
-    testsList.html('');
-    $.each(data, function (index, test) {
-        var task = test.task;
-        var template = task.template;
+    drawSynthesisTestsTableMessage("No records.");
 
-        var testItem = '<tr>';
-        testItem += drawNameCell(test);
-        testItem += drawTaskCell(test);
-        testItem += drawTemplateCell(test);
-        testItem += drawAuthorCell(test);
-        testItem += drawCreatedOnCell(test);
-        testItem += drawStudentsCell(test);
-        testItem += drawStateCell(test);
-        testItem += drawDeleteCell(test);
-        testItem += '</tr>'
+    if (data != null && data.lenght > 1) {
+        testsList.html('');
+        $.each(data, function (index, test) {
+            var testItem = '<tr>';
+            testItem += drawNameCell(test);
+            testItem += drawTaskCell(test);
+            testItem += drawTemplateCell(test);
+            testItem += drawAuthorCell(test);
+            testItem += drawCreatedOnCell(test);
+            testItem += drawStudentsCell(test);
+            testItem += drawStateCell(test);
+            testItem += drawDeleteCell(test);
+            testItem += '</tr>'
 
-
-        testsList.append(testItem);
-    });
+            testsList.append(testItem);
+        });
+    }
 }
 function drawNameCell(test) {
     var result = '<td class="hover-text-button">';

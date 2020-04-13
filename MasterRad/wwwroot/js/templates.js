@@ -29,21 +29,25 @@ function drawTemplateTableMessage(message) {
     $('tbody').html(drawTableMessage(message, 7));
 }
 function drawTemplateTable(tbody, templates) {
-    tbody.html('');
-    $.each(templates, function (index, template) {
-        var tableRow = '<tr>';
+    drawTemplateTableMessage('No records.');
 
-        tableRow += drawNameCell(template);
-        tableRow += drawDescriptionCell(template);
-        tableRow += drawModelCell(template);
-        tableRow += drawDataCell(template);
-        tableRow += drawAuthorCell(template);
-        tableRow += drawCreatedOnCell(template);
-        tableRow += drawDeleteCell(template);
+    if (templates != null && templates.length > 0) {
+        tbody.html('');
+        $.each(templates, function (index, template) {
+            var tableRow = '<tr>';
 
-        tableRow += '</tr>'
-        tbody.append(tableRow)
-    });
+            tableRow += drawNameCell(template);
+            tableRow += drawDescriptionCell(template);
+            tableRow += drawModelCell(template);
+            tableRow += drawDataCell(template);
+            tableRow += drawAuthorCell(template);
+            tableRow += drawCreatedOnCell(template);
+            tableRow += drawDeleteCell(template);
+
+            tableRow += '</tr>'
+            tbody.append(tableRow)
+        });
+    }
 }
 function drawNameCell(template) {
     var result = '<td class="hover-text-button">';

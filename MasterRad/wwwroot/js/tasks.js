@@ -30,23 +30,27 @@ function drawTaskTableMessage(message) {
     $('#tasks-tbody').html(drawTableMessage(message, 8));
 }
 function drawTaskTable(tasks) {
-    tbody = $('#tasks-tbody');
-    tbody.html('');
-    $.each(tasks, function (index, task) {
-        var tableRow = '<tr>';
+    drawTaskTableMessage('No records.');
 
-        tableRow += drawNameCell(task);
-        tableRow += drawTemplateCell(task);
-        tableRow += drawDescriptionCell(task);
-        tableRow += drawDataCell(task);
-        tableRow += drawSolutionCell(task);
-        tableRow += drawAuthorCell(task);
-        tableRow += drawCreatedOnCell(task);
-        tableRow += drawDeleteCell(task);
+    if (tasks != null && tasks.length > 0) {
+        tbody = $('#tasks-tbody');
+        tbody.html('');
+        $.each(tasks, function (index, task) {
+            var tableRow = '<tr>';
 
-        tableRow += '</tr>'
-        tbody.append(tableRow)
-    });
+            tableRow += drawNameCell(task);
+            tableRow += drawTemplateCell(task);
+            tableRow += drawDescriptionCell(task);
+            tableRow += drawDataCell(task);
+            tableRow += drawSolutionCell(task);
+            tableRow += drawAuthorCell(task);
+            tableRow += drawCreatedOnCell(task);
+            tableRow += drawDeleteCell(task);
+
+            tableRow += '</tr>'
+            tbody.append(tableRow)
+        });
+    }
 }
 function drawNameCell(task) {
     //var result = '<td><div>';
