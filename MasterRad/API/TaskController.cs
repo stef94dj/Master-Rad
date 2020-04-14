@@ -1,4 +1,6 @@
-﻿using MasterRad.DTO.RQ;
+﻿using MasterRad.Attributes;
+using MasterRad.DTO.RQ;
+using MasterRad.DTO.RS.TableRow;
 using MasterRad.Entities;
 using MasterRad.Helpers;
 using MasterRad.Models;
@@ -6,6 +8,8 @@ using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MasterRad.API
 {
@@ -16,21 +20,42 @@ namespace MasterRad.API
         private readonly ITaskRepository _taskRepo;
         private readonly ITemplateRepository _templateRepo;
         private readonly IMicrosoftSQL _microsoftSQLService;
+        private readonly IMsGraph _msGraph;
 
         public TaskController(
             ITaskRepository taskRepo,
             ITemplateRepository templateRepo,
-            IMicrosoftSQL microsoftSQLService
+            IMicrosoftSQL microsoftSQLService,
+            IMsGraph msGraph
         )
         {
             _taskRepo = taskRepo;
             _templateRepo = templateRepo;
             _microsoftSQLService = microsoftSQLService;
+            _msGraph = msGraph;
         }
 
+        [AjaxMsGraphProxy]
         [HttpGet, Route("Get")]
-        public ActionResult<IEnumerable<TaskEntity>> GetTasks()
-            => _taskRepo.Get();
+        public async Task<ActionResult<IEnumerable<TaskDTO>>> GetTasksAsync()
+        { 
+            var entities = _taskRepo.Get();
+
+            #region Get_CreatedBy_Users_Details
+            var createdByIds = entities.Select(e => e.CreatedBy);
+            var createdByDetails = await _msGraph.GetStudentsByIds(createdByIds);
+            #endregion
+
+            #region Map_Result
+            var res = entities.Select(te =>
+            {
+                var createdByDetail = createdByDetails.Single(ud => ud.MicrosoftId == te.CreatedBy);
+                return new TaskDTO(te, createdByDetail);
+            });
+            #endregion
+
+            return Ok(res);
+        }
 
         [HttpPost, Route("Create")]
         public ActionResult<Result<bool>> CreateTask([FromBody] CreateTaskRQ body)

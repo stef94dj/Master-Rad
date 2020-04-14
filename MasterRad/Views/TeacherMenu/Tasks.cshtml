@@ -41,7 +41,7 @@
                     <div class="row">
                         <div class="col-12">
                             <label for="task-name" class="col-form-label">Name:</label>
-                            <input type="text" class="form-control" id="task-name" maxlength="50" onkeyup="hideModalError($(this).parent());"/>
+                            <input type="text" class="form-control" id="task-name" maxlength="50" onkeyup="hideModalError($(this).parent());" />
                             <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
                             <br />
                             <label for="templates-list" class="col-form-label">Template:</label>
@@ -67,7 +67,7 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="task-name" class="col-form-label">Name:</label>
-                    <input type="text" class="form-control" id="task-name" maxlength="50" onkeyup="hideModalError($(this).parent());"/>
+                    <input type="text" class="form-control" id="task-name" maxlength="50" onkeyup="hideModalError($(this).parent());" />
                     <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
                     <input type="text" class="form-control" id="task-id" hidden>
                     <input type="text" class="form-control" id="task-timestamp" hidden>
@@ -111,6 +111,7 @@
 </form>
 
 @section Scripts {
-    <script src="~/js/tasks.js" asp-append-version="true"></script>
+    <script src="~/js/enums.js" asp-append-version="true"></script>
     <script src="~/js/util.js" asp-append-version="true"></script>
+    <script src="~/js/tasks.js" asp-append-version="true"></script>
 }

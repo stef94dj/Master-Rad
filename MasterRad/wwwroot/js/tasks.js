@@ -15,7 +15,13 @@ function loadTasks() {
             drawTaskTable(data);
         })
         .catch(error => {
-            drawTaskTableMessage('Error loading data...');
+            if (error?.status && error.status === HttpCodes.ReloadRequired) {
+                drawTaskTableMessage('Reloading...');
+                location.reload();
+            }
+            else {
+                drawTaskTableMessage('Error loading data...');
+            }
         })
         .then(data => {
             defineNameHoverBehaviour($('td.hover-text-button'));
@@ -72,7 +78,7 @@ function drawDescriptionCell(task) {
     return `<td>${hiddenDescription}${editBtn}</td>`;
 }
 function drawTemplateCell(task) {
-    return '<td>' + task.template.name + '</td>';
+    return '<td>' + task.templateName + '</td>';
 }
 function drawDataCell(task) {
     return `<td>${drawCellEditNavigationButton('Modify', 'dark', 'updateData', task.id, true)}</td>`;
@@ -81,10 +87,12 @@ function drawSolutionCell(task) {
     return `<td>${drawCellEditNavigationButton('Modify', 'dark', 'updateSolution', task.id, true)}</td>`
 }
 function drawAuthorCell(task) {
-    return '<td><div class="text">' + 'cmilos@etf.bg.ac.rs' + '</div></td>'
+    var author = task.createdBy;
+    return drawAuthorCellUtil(author.firstName, author.lastName, author.email)
 }
 function drawCreatedOnCell(task) {
-    return '<td><div class="text">' + '08/03/2020 20:22' + '</div></td>'
+    var value = toLocaleDateTimeString(task.dateCreated);
+    return '<td><div class="text">' + value + '</div></td>'
 }
 function drawDeleteCell(task) {
     return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', task.id, task.timestamp, true) + '</td>';

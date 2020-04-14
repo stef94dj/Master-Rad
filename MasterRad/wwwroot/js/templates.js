@@ -67,8 +67,8 @@ function drawDescriptionCell(template) {
     var result = '<td>';
 
     result += '<p style="float:left" hidden>';
-    if (template.modelDescription != null)
-        result += template.modelDescription;
+    if (template.description != null)
+        result += template.description;
     result += '</p>';
 
     result += drawCellEditModalButton('Modify', 'dark', '#update-description-modal', template.id, template.timeStamp, true);
@@ -85,8 +85,7 @@ function drawDataCell(template) {
 }
 function drawAuthorCell(template) {
     var author = template.createdBy;
-    var cellContent = `${author.firstName} ${author.lastName}<br/>${author.micrososftUserName}`;
-    return `<td><div class="text">${cellContent}</div></td>`
+    return drawAuthorCellUtil(author.firstName, author.lastName, author.email)
 }
 function drawCreatedOnCell(template) {
     var value = toLocaleDateTimeString(template.dateCreated);

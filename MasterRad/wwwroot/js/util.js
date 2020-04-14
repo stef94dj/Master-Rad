@@ -169,6 +169,11 @@ function toLocaleDateTimeString(serverUtcDateString) {
     }
 }
 
+function drawAuthorCellUtil(firstName, lastName, email) {
+    var cellContent = `${firstName} ${lastName}<br/>${email}`;
+    return `<td><div class="text">${cellContent}</div></td>`
+}
+
 var progressReader = {
     //sunthesis
     PublicData: function (testStudentDto) {
