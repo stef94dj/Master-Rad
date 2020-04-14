@@ -160,9 +160,13 @@ function promisifyAjaxGet(apiUrl) {
 
 function toLocaleDateTimeString(serverUtcDateString) {
     try {
-        var paresdUtcDate = Date.parse(serverUtcDateString);
-        var utcDateObj = new Date(paresdUtcDate);
-        return utcDateObj.toLocaleDateString() + " " + utcDateObj.toLocaleTimeString();
+        var dateStringArray = serverUtcDateString.split('-');
+        var dateNoArray = $.map(dateStringArray, function (item, index) {
+            return parseInt(item)
+        });
+        var utcDate = Date.UTC(dateNoArray[0], dateNoArray[1], dateNoArray[2], dateNoArray[3], dateNoArray[4], dateNoArray[5], 0);
+        var dateObj = new Date(utcDate);
+        return dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString();
     }
     catch (err) {
         return "error"

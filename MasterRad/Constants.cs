@@ -13,7 +13,7 @@ namespace MasterRad
         public const string MicrosoftSQLConnectionStringTemplate = "Data Source={0};Initial Catalog={1};User ID={2};Password={3}";
         public const string RoleProfessor = "Professor";
         public const string RoleStudent = "Student";
-        public const string JSDateFormat = "o";
+        public const string JSDateFormat = "yyyy-MM-dd-HH-mm-ss";
 
     }
 }
