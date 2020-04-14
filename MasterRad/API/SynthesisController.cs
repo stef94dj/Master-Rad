@@ -1,15 +1,15 @@
-﻿using System.Threading.Tasks;
+﻿using MasterRad.Attributes;
 using MasterRad.DTO;
 using MasterRad.DTO.RQ;
+using MasterRad.DTO.RS.TableRow;
 using MasterRad.Entities;
 using MasterRad.Models;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using MasterRad.DTO.RS.TableRow;
+using System.Threading.Tasks;
 
 namespace MasterRad.API
 {
@@ -30,6 +30,7 @@ namespace MasterRad.API
             _msGraph = msGraph;
         }
 
+        [AjaxMsGraphProxy]
         [HttpGet, Route("get")]
         public async Task<ActionResult<IEnumerable<SynthesisTestDTO>>> GetTestsAsync()
         {

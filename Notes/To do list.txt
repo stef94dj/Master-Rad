@@ -1,3 +1,25 @@
+- Assign students
+  1. sve na ajax
+  2. assign: keiranje sql usera + mapiranje na azure usera
+  3. remove: API tesitraj UI
+
+- (odradi test i kreiraj analysis test) => analysis tests ekran:
+  1. reload logika za ajax endpoint
+  2. dodaj dto, citaj creatad by detalje sa ms graph
+
+=============================================================================================================================
+Open templates page, stop & start server, create new template (triggers reload) -> handle missing ms graph permissions in ajax call, send appropriate response to client (custom http code) and refresh page from client side
+moment.js => map Created On to local time
+encrypt assign students url
+graph api filtering (encode, remove whitespaces)
+order by
+UI: marked count & enable (assign marked btn), pagination show max n page buttons, disable checkboxes for already assigned (and set tooltip - make sure to initialize)
+redirect (reload) if missing permisssions  (stop server while on page): on all ms graph endpoints
+=============================================================================================================================
+=============================================================================================================================
+=============================================================================================================================
+
+
 graph api
 SetupScript for SQL server (enable contained DB + create login for readonly)
 prof. kada definise solution ne bi trebao da moze da modifikuje bazu - readonly user na nivou sql servera za ove situacije

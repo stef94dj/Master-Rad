@@ -1,9 +1,9 @@
-﻿using MasterRad.DTO;
+﻿using MasterRad.Attributes;
+using MasterRad.DTO;
 using MasterRad.DTO.RQ;
 using MasterRad.Entities;
 using MasterRad.Models;
 using MasterRad.Repositories;
-using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -20,6 +20,7 @@ namespace MasterRad.API
             _analysisRepository = analysisRepository;
         }
 
+        [AjaxMsGraphProxy]
         [HttpGet, Route("get")]
         public ActionResult<IEnumerable<AnalysisTestEntity>> GetTests()
             => Ok(_analysisRepository.Get());
