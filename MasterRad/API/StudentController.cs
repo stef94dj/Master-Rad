@@ -2,6 +2,7 @@
 using MasterRad.DTO;
 using MasterRad.DTO.RQ;
 using MasterRad.DTO.RS;
+using MasterRad.DTO.RS.TableRow;
 using MasterRad.Entities;
 using MasterRad.Helpers;
 using MasterRad.Models;
@@ -60,22 +61,37 @@ namespace MasterRad.API
         public async Task<ActionResult<SearchStudentsRS>> ListStudentsByPageAsync([FromBody] ListStudentsByPageRQ body)
             => await _msGraph.ListStudentsByPageAsync(body.PageUrl);
 
+        [AjaxMsGraphProxy]
         [HttpGet, Route("get/assigned/{testType}/{testId}")]
-        public ActionResult<IEnumerable<BaseTestStudentEntity>> GetStudentsAssignedToTest([FromRoute]TestType testType, int testId)
+        public async Task<ActionResult<IEnumerable<AssignedStudentDTO>>> GetStudentsAssignedToTestAsync([FromRoute]TestType testType, int testId)
         {
-            //get ms-graph ids of assigned students (set assignedStudentIds)
+            IEnumerable<BaseTestStudentEntity> entities;
             switch (testType)
             {
                 case TestType.Synthesis:
-                    return Ok(_studentRepository.GetAssignedSynthesis(testId));
+                    entities = _studentRepository.GetAssignedSynthesis(testId);
+                    break;
                 case TestType.Analysis:
-                    return Ok(_studentRepository.GetAssignedAnalysis(testId));
+                    entities = _studentRepository.GetAssignedAnalysis(testId);
+                    break;
                 default:
                     return StatusCode(500);
             }
 
-            //get details on assigned students
-            //var students = await _msGraph.GetStudentsByIds(assignedStudentIds).ToList());
+            #region Get_Users_Details
+            var userIds = entities.Select(e => e.StudentId);
+            var userDetails = await _msGraph.GetStudentsByIds(userIds);
+            #endregion
+
+            #region Map_Result
+            var res = entities.Select(entity =>
+            {
+                var userDetail = userDetails.Single(ud => ud.MicrosoftId == entity.StudentId);
+                return new AssignedStudentDTO(entity, userDetail);
+            });
+            #endregion
+
+            return Ok(res);
         }
 
         [HttpPost, Route("assign")]

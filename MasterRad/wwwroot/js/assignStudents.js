@@ -4,6 +4,7 @@ var testType = null;
 var assignedStudents = null;
 var assignBtn = null;
 var pagingUl = null;
+var assignedStudentsHeader = null;
 
 $(document).ready(function () {
     testId = $('#test-id').val();
@@ -12,6 +13,7 @@ $(document).ready(function () {
     searchResList = $('#student-search-res');
     assignBtn = $('#assign-btn');
     pagingUl = $('#paging-ul');
+    assignedStudentsHeader = $('#assigned-students-header');
 
     //searchResList.on('change', studentSelection);
     initTooltips();
@@ -36,6 +38,7 @@ function loadAssignedStudents() {
         success: function (data) {
             displayAssignedStudents(data);
             disableCbxForAssigned();
+            setAssignedCount();
         }
     });
 }
@@ -289,8 +292,16 @@ function disableSearchResult(tr) {
     cbx = $(tr).find('input:checkbox')[0];
     cbx = $(cbx);
     cbx.attr('disabled', true);
-}
 
+    if (cbx.is(':checked'))
+        cbx.prop('checked', false);
+}
+function setAssignedCount() {
+    debugger;
+    var assignedCnt = assignedStudents.find('tr').length;
+    var text = `Assigned students (${assignedCnt})`;
+    assignedStudentsHeader.html(text);
+}
 
 function assign() {
     var markedRows = getMarkedRows();
@@ -312,7 +323,7 @@ function assign() {
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
             loadAssignedStudents();
-            //selectedStudents.remove();
+            disableAssignBtn();
         }
     });
 }
@@ -331,13 +342,10 @@ function displayAssignedStudents(data) {
     assignedStudents.html('');
 
     $.each(data, function (index, sts) {
-        var studentRow = renderAssignedListItem(sts.studentId, sts.timeStamp, sts.student.email, sts.student.firstName, sts.student.lastName);
+        var studentRow = renderAssignedListItem(sts.studentId, sts.timeStamp, sts.email, sts.firstName, sts.lastName);
         assignedStudents.append(studentRow);
     });
 }
-//function removeFromSearchResultsList(students) {
-//    searchResList.remove(students);
-//}
 function removeStudent(msid, timestamp) {
     var rqBody = {
         "TestType": testType,
@@ -357,11 +365,3 @@ function removeStudent(msid, timestamp) {
         }
     });
 }
-//function studentSelection() {
-//    var selectedStudents = searchResList.find('option:selected');
-//    var assignBtn = $('#assign-btn');
-//    if (selectedStudents.length > 0)
-//        assignBtn.removeAttr('disabled');
-//    else
-//        assignBtn.attr('disabled', true);
-//}
