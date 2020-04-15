@@ -1,4 +1,6 @@
-sql password for new users: API/StudentController var sqlPass = "Pass123!"; //should be random, should be encrypted, should be valid sql user password https://docs.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver15
+sql password for new users: API/StudentController 
+  1. var sqlPass = "Pass123!"; //should be random, should be encrypted, should be valid sql user password https://docs.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver15
+  2. _microsoftSQLService.CreateSQLServerUser should probably be idempotent
 
 - Assign students
   4. GetStudentsAssignedToTest - mapiranje studentId-a na user-e
