@@ -21,7 +21,7 @@ namespace MasterRad.API
         [HttpPost, Route("msSqlServer/login/create")]
         public ActionResult<string> CreateLogin([FromBody] TestCreateLoginRQ body)
         {
-            _microsoftSQLService.CreateSQLServerUser(body.Username);
+            _microsoftSQLService.CreateSQLServerUser("", "");
 
             return "test completed";
         }

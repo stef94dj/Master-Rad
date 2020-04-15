@@ -28,6 +28,7 @@ namespace MasterRad.API
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly SqlServerAdminConnection _adminConnectionConf;
         private readonly IMsGraph _msGraph;
+        private readonly IUserRepository _userRepository;
 
         public StudentController
         (
@@ -36,7 +37,8 @@ namespace MasterRad.API
             IAnalysisRepository analysisRepository,
             IMicrosoftSQL microsoftSQLService,
             IOptions<SqlServerAdminConnection> adminConnectionConf,
-            IMsGraph msGraph
+            IMsGraph msGraph,
+            IUserRepository userRepository
         )
         {
             _studentRepository = studentRepository;
@@ -45,6 +47,7 @@ namespace MasterRad.API
             _microsoftSQLService = microsoftSQLService;
             _adminConnectionConf = adminConnectionConf.Value;
             _msGraph = msGraph;
+            _userRepository = userRepository;
         }
 
         [AjaxMsGraphProxy]
@@ -77,12 +80,29 @@ namespace MasterRad.API
 
         [HttpPost, Route("assign")]
         public ActionResult<Result<bool>> AssignStudentsToTest([FromBody] AssignStudentsRQ body)
-            => body.TestType switch
-               {
-                   TestType.Synthesis => AssignStudentsToSynthesis(body),
-                   TestType.Analysis => AssignStudentsToAnalysis(body),
-                   _ => StatusCode(500),
-               };
+        {
+            var idsToMap = _userRepository.UnmappedIds(body.StudentIds);
+            foreach (var id in idsToMap)
+            {
+                var sqlUsername = $"sql-grader-{id}";
+                var sqlPass = "Pass123!"; //should be random, should be encrypted, should be valid sql user password https://docs.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver15
+
+                var mapRes = _microsoftSQLService.CreateSQLServerUser(sqlUsername, sqlPass);
+                if (mapRes == null || !mapRes.IsSuccess)
+                    Result<bool>.Fail($"Failed to map user {id}.");
+
+                var mapSaveSuccess = _userRepository.CreateMapping(id, sqlUsername, sqlPass, UserId);
+                if (!mapSaveSuccess)
+                    Result<bool>.Fail($"Failed to save user mapping for {id}.");
+            }
+
+            return body.TestType switch
+            {
+                TestType.Synthesis => AssignStudentsToSynthesis(body),
+                TestType.Analysis => AssignStudentsToAnalysis(body),
+                _ => StatusCode(500),
+            };
+        }
 
         private ActionResult<Result<bool>> AssignStudentsToSynthesis(AssignStudentsRQ body)
         {

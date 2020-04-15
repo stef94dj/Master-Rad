@@ -116,7 +116,7 @@ namespace MasterRad.Controllers
             {
                 TestId = testId,
                 TestType = testType,
-                InitialPageSize = 15
+                InitialPageSize = 10
             };
             return View(vm);
         }

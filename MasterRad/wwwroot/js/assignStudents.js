@@ -301,7 +301,7 @@ function assign() {
     var rqBody = {
         "TestType": testType,
         "TestId": testId,
-        "StudentMicrosoftIds": markedIds
+        "StudentIds": markedIds
     }
 
     $.ajax({
@@ -331,7 +331,6 @@ function displayAssignedStudents(data) {
     assignedStudents.html('');
 
     $.each(data, function (index, sts) {
-        sts.studentId = '7868902e-c96d-403e-b4ea-05349720b2f2'; //Mihailo Popesku
         var studentRow = renderAssignedListItem(sts.studentId, sts.timeStamp, sts.student.email, sts.student.firstName, sts.student.lastName);
         assignedStudents.append(studentRow);
     });

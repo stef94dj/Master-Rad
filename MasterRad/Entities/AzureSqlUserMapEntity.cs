@@ -7,9 +7,10 @@ namespace MasterRad.Entities
 {
     public class AzureSqlUserMapEntity
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
         public Guid AzureId { get; set; }
 
+        public Guid CreatedBy { get; set; }
         public DateTime? DateCreated { get; set; }
 
         public List<SynthesisTestStudentEntity> SynthesisTestStudents { get; set; }

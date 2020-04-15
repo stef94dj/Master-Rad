@@ -79,6 +79,7 @@ namespace MasterRad
             services.AddScoped<ISynthesisRepository, SynthesisRepository>();
             services.AddScoped<IAnalysisRepository, AnalysisRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddControllersWithViews(options =>
                     {

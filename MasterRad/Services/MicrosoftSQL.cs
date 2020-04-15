@@ -18,7 +18,7 @@ namespace MasterRad.Services
         QueryExecuteRS ExecuteSQLAsAdmin(string sqlQuery, string dbName = "master");
         QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams);
         QueryExecuteRS ReadTable(string dbName, string schemaName, string tableName);
-        Result<bool> CreateSQLServerUser(string login);
+        Result<bool> CreateSQLServerUser(string login, string password);
         Result<bool> AssignSQLServerUserToDb(string userLogin, string dbName);
         Result<bool> DeleteSQLServerUser(string userLogin);
         IEnumerable<string> GetTableNames(ConnectionParams connParams);
@@ -125,10 +125,10 @@ namespace MasterRad.Services
             return new QueryExecuteRS(messages, tables, rowsAffected);
         }
 
-        public Result<bool> CreateSQLServerUser(string login)
+        public Result<bool> CreateSQLServerUser(string login, string password)
         {
             var sqlCommand = $"CREATE LOGIN [{login}] " +
-                              $"WITH PASSWORD='{Guid.NewGuid().ToString()}', " +
+                              $"WITH PASSWORD='{password}', " +
                               "DEFAULT_DATABASE=[master], " +
                               "DEFAULT_LANGUAGE=[us_english], " +
                               "CHECK_EXPIRATION=OFF, " +
