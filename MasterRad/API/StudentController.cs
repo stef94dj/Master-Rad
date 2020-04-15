@@ -1,4 +1,5 @@
-﻿using MasterRad.DTO;
+﻿using MasterRad.Attributes;
+using MasterRad.DTO;
 using MasterRad.DTO.RQ;
 using MasterRad.DTO.RS;
 using MasterRad.Entities;
@@ -46,10 +47,12 @@ namespace MasterRad.API
             _msGraph = msGraph;
         }
 
+        [AjaxMsGraphProxy]
         [HttpPost, Route("azure/search")]
         public async Task<ActionResult<SearchStudentsRS>> SearchStudentsAsync([FromBody] SearchStudentsRQ body)
             => await _msGraph.SearchStudentsAsync(body);
 
+        [AjaxMsGraphProxy]
         [HttpPost, Route("azure/page")]
         public async Task<ActionResult<SearchStudentsRS>> ListStudentsByPageAsync([FromBody] ListStudentsByPageRQ body)
             => await _msGraph.ListStudentsByPageAsync(body.PageUrl);

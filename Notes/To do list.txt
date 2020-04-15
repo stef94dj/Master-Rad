@@ -1,5 +1,5 @@
 - Assign students
-  1. sve na ajax
+  4. GetStudentsAssignedToTest - mapiranje studentId-a na user-e
   2. assign: keiranje sql usera + mapiranje na azure usera
   3. remove: API tesitraj UI
 

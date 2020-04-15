@@ -56,28 +56,7 @@
             <th>Marked</th>
         </tr>
     </thead>
-    <tbody id="student-search-res">
-        @if (Model?.StudentSearchRes?.Students != null)
-        {
-            foreach (var student in Model.StudentSearchRes.Students)
-            {
-                <tr data-ms-id="@student.MicrosoftId">
-                    <td>@student.FirstName</td>
-                    <td>@student.LastName</td>
-                    <td>@student.Email</td>
-                    <td>
-                        <input type="checkbox" style="transform:scale(1.5)" onchange="onMarkCbxChange(this)">
-                    </td>
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="4">No data.</td>
-            </tr>
-        }
-    </tbody>
+    <tbody id="student-search-res"></tbody>
 </table>
 
 <!--Search footer-->
@@ -88,17 +67,7 @@
         </th>
         <th style="border:none; float:right; font-weight:400;">
             <nav>
-                <ul class="pagination" id="paging-ul">
-                    <li class="page-item">
-                        <a class="page-link current" href="javascript:void(0)" onclick="pageClick(this)">1</a>
-                    </li>
-                    @if (!string.IsNullOrEmpty(@Model?.StudentSearchRes?.NextPageUrl))
-                    {
-                        <li class="page-item">
-                            <a class="page-link" href="javascript:void(0)" onclick="pageClick(this)" data-url="@Model.StudentSearchRes.NextPageUrl">2</a>
-                        </li>
-                    }
-                </ul>
+                <ul class="pagination" id="paging-ul"></ul>
             </nav>
         </th>
     </tr>
@@ -121,6 +90,7 @@
 </table>
 
 @section Scripts {
-    <script src="~/js/assignStudents.js" asp-append-version="true"></script>
+    <script src="~/js/enums.js" asp-append-version="true"></script>
     <script src="~/js/util.js" asp-append-version="true"></script>
+    <script src="~/js/assignStudents.js" asp-append-version="true"></script>
 }

@@ -15,6 +15,7 @@ $(document).ready(function () {
 
     //searchResList.on('change', studentSelection);
     initTooltips();
+    searchStudents();
     loadAssignedStudents();
 });
 
@@ -49,8 +50,8 @@ function searchStudents() {
             disableAssignBtn();
             disableCbxForAssigned();
         })
-        .catch(() => {
-            displaySearchResMessage('Error loading data.');
+        .catch(error => {
+            handleMsGraphAjaxError(error);
         })
 }
 function searchAAD() {
@@ -106,7 +107,7 @@ function displaySearchResMessage(message) {
 //page click
 function pageClick(pageBtn) {
     pageBtn = $(pageBtn);
-    var allPageBtns = pageBtn.parent().parent().find('a');
+    var allPageBtns = pagingUl.find('a');
     var allPageNos = $.map(allPageBtns, function (item, index) {
         return parseInt($(item).html())
     });
@@ -122,23 +123,37 @@ function pageClick(pageBtn) {
             searchAAD()
                 .then(data => {
                     populateStudentSearchResult(data);
-                    afterRenderSearchResUI(allPageBtns, pageBtn);
+                    afterRenderSearchResUI(pageNo);
+                })
+                .catch(error => {
+                    handleMsGraphAjaxError(error);
                 })
         }
         else {
             getAADPage(pageUrl)
                 .then(data => {
-                    populateStudentSearchResult(data)
+                    populateStudentSearchResult(data);
                     if (isLastPage && data != null && data.nextPageUrl) {
                         var newBtnHtml = drawPageBtn(pageNo + 1, false, data.nextPageUrl);
                         pagingUl.html(pagingUl.html() + newBtnHtml);
+
                     }
-                    afterRenderSearchResUI(allPageBtns, pageBtn);
+                    afterRenderSearchResUI(pageNo);
+                })
+                .catch(error => {
+                    handleMsGraphAjaxError(error);
                 })
         }
     }
 }
-function afterRenderSearchResUI(allPageBtns, pageBtn) {
+function afterRenderSearchResUI(currentPageBtnNo) {
+    var allPageBtns = pagingUl.find('a');
+    var pageBtn = $.map(allPageBtns, function (item, index) {
+        var pageNo = parseInt($(item).html());
+        if (currentPageBtnNo == pageNo)
+            return $(item)
+    })[0];
+
     updateCurrentPageBtn(allPageBtns, pageBtn);
     updateVisiblePageBtns(allPageBtns, pageBtn);
     disableAssignBtn();
@@ -157,7 +172,7 @@ function updateCurrentPageBtn(allPageBtns, pageBtn) {
     });
     pageBtn.addClass('current');
 }
-function updateVisiblePageBtns(allPageBtns, pageBtn) {
+function updateVisiblePageBtns(allPageBtns, pageBtn, toDisplay) {
     //hide all
     $.each(allPageBtns, function (index, item) {
         hidePageBtn($(item));
@@ -197,6 +212,15 @@ function showPageBtn(pageBtn) {
 }
 function hidePageBtn(pageBtn) {
     $(pageBtn).parent().attr('hidden', true);
+}
+function handleMsGraphAjaxError(error) {
+    if (error?.status && error.status === HttpCodes.ReloadRequired) {
+        displaySearchResMessage('Reloading...');
+        location.reload();
+    }
+    else {
+        displaySearchResMessage('Error loading data...');
+    }
 }
 
 //marked and assigned

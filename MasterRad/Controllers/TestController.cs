@@ -1,4 +1,5 @@
-﻿using MasterRad.DTO;
+﻿using MasterRad.Attributes;
+using MasterRad.DTO;
 using MasterRad.DTO.RQ;
 using MasterRad.Models;
 using MasterRad.Models.Configuration;
@@ -94,7 +95,8 @@ namespace MasterRad.Controllers
         }
 
         [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserReadBasicAll })]
-        public async Task<IActionResult> AssignStudentsAsync(int testId, TestType testType)
+        [ImplicitAuthoriseForScopesTrigger(Scopes = new[] { Constants.ScopeUserReadBasicAll })]
+        public IActionResult AssignStudents(int testId, TestType testType)
         {
             switch (testType)
             {
@@ -110,17 +112,11 @@ namespace MasterRad.Controllers
                     return StatusCode(500);
             }
 
-            var initialPageSize = 15;
-            var ssrq = new SearchStudentsRQ(initialPageSize);
-
-            var students = await _msGraph.SearchStudentsAsync(ssrq);
-
             var vm = new AssignStudentsVM
             {
                 TestId = testId,
                 TestType = testType,
-                StudentSearchRes = students,
-                InitialPageSize = initialPageSize
+                InitialPageSize = 15
             };
             return View(vm);
         }
