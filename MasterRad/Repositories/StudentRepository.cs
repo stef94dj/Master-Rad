@@ -28,8 +28,7 @@ namespace MasterRad.Repositories
 
         public IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId)
             => _context.SynthesysTestStudents
-                       .Where(sts => sts.SynthesisTestId == testId)
-                       .Include(sts => sts.Student);
+                       .Where(sts => sts.SynthesisTestId == testId);
 
         public IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId)
             => _context.AnalysisTestStudents
