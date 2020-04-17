@@ -1,6 +1,8 @@
 ﻿using Coravel.Queuing.Interfaces;
+using MasterRad.Attributes;
 using MasterRad.DTO;
 using MasterRad.DTO.RS;
+using MasterRad.DTO.RS.TableRow;
 using MasterRad.Entities;
 using MasterRad.Exceptions;
 using MasterRad.Helpers;
@@ -31,6 +33,7 @@ namespace MasterRad.API
         private readonly IQueue _queue;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly SqlServerAdminConnection _sqlServerAdmin;
+        private readonly IMsGraph _msGraph;
 
         public EvaluateController
         (
@@ -42,7 +45,8 @@ namespace MasterRad.API
             ISignalR<SynthesisProgressHub> synthesisSignalR,
             ISignalR<AnalysisProgressHub> analysisSignalR,
             IServiceScopeFactory serviceScopeFactory,
-            IOptions<SqlServerAdminConnection> sqlServerAdmin
+            IOptions<SqlServerAdminConnection> sqlServerAdmin,
+            IMsGraph msGraph
         )
         {
             _evaluatorService = evaluatorService;
@@ -54,11 +58,31 @@ namespace MasterRad.API
             _analysisSignalR = analysisSignalR;
             _serviceScopeFactory = serviceScopeFactory;
             _sqlServerAdmin = sqlServerAdmin.Value;
+            _msGraph = msGraph;
         }
 
+        [AjaxMsGraphProxy]
         [HttpGet, Route("get/papers/synthesis/{testId}")]
-        public ActionResult<IEnumerable<SynthesisTestStudentEntity>> SynthesisEvaluationData([FromRoute] int testId)
-            => Ok(_synthesisRepository.GetPapers(testId));
+        public async Task<ActionResult<IEnumerable<SynthesisEvaluationItemDTO>>> SynthesisEvaluationDataAsync([FromRoute] int testId)
+        {
+            var entities = _synthesisRepository.GetPapers(testId);
+
+            #region Get_CreatedBy_Users_Details
+            var studentIds = entities.Select(e => e.StudentId);
+            var studentDetails = await _msGraph.GetStudentsByIds(studentIds);
+            #endregion
+
+            #region Map_Result
+            var res = entities.Select(entity =>
+            {
+                var studentDetail = studentDetails.Single(ud => ud.MicrosoftId == entity.StudentId);
+                return new SynthesisEvaluationItemDTO(entity, studentDetail);
+            });
+            #endregion
+
+            return Ok(res);
+        }
+        
 
         [HttpPost, Route("Start/Evaluation/Synthesis")]
         public async Task<ActionResult> StartSynthesisEvaluationAsync([FromBody] StartTestEvalulationSynthesis model)

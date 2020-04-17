@@ -248,7 +248,6 @@ namespace MasterRad.Repositories
         public IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId)
             => _context.SynthesysTestStudents
                        .Include(sts => sts.EvaluationProgress)
-                       .Include(sts => sts.Student)
                        .Where(sts => sts.SynthesisTestId == testId);
 
         public bool TestExists(string name)

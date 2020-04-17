@@ -121,6 +121,8 @@ namespace MasterRad.Controllers
             return View(vm);
         }
 
+        [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserReadBasicAll })]
+        [ImplicitAuthoriseForScopesTrigger(Scopes = new[] { Constants.ScopeUserReadBasicAll })]
         public IActionResult Results(int testId, TestType testType)
         {
             if (testType != TestType.Synthesis && testType != TestType.Analysis)

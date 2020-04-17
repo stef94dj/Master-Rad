@@ -104,17 +104,17 @@ function drawEvaluationResultsTable(tbody, testStudents) {
 function drawTableSynthesis(tbody, testStudents) {
     tbody.html('');
     $.each(testStudents, function (index, testStudent) {
-        var student = testStudent.student;
+        var student = testStudent.studentDetail;
 
         var takenTest = testStudent.takenTest;
         var notSubmitedFlag = takenTest ? '' : 'data-not-submited="true"';
-        var tableRow = `<tr data-student-id="${student.id}" ${notSubmitedFlag}>`;
+        var tableRow = `<tr data-student-id="${student.microsoftId}" ${notSubmitedFlag}>`;
 
         tableRow += drawStudentCell(student);
 
-        var progressPublic = progressReader.PublicData(testStudent);
+        var progressPublic = testStudent.publicDataProgress;
 
-        var progressSecret = progressReader.SecretData(testStudent);
+        var progressSecret = testStudent.secretDataProgress;
 
         tableRow += drawEvaluationProgressCell(takenTest, takenTest ? progressPublic : null, "public-data-progress");
         tableRow += drawEvaluationProgressCell(takenTest, takenTest ? progressSecret : null, "secret-data-progress");
@@ -125,7 +125,7 @@ function drawTableSynthesis(tbody, testStudents) {
     });
 }
 function drawStudentCell(student) {
-    return `<td>${student.firstName} ${student.lastName}</td>`;
+    return `<td>${student.firstName} ${student.lastName} <br/> ${student.email}</td>`;
 };
 function drawEvaluationProgressCell(takenTest, progress, cssClass) {
     var cellContent = evaluationProgressUI.drawEvaluationStatus(EvaluationStatus.NotSubmited);
