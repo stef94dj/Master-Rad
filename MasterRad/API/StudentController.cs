@@ -198,23 +198,20 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("remove/assigned")]
-        public ActionResult<bool> RemoveStudentFromTest([FromBody] RemoveAssignedStudentRQ body)
+        public ActionResult<Result<bool>> RemoveStudentFromTest([FromBody] RemoveAssignedStudentRQ body)
         {
+            var success = false;
             switch (body.TestType)
             {
                 case TestType.Synthesis:
-                    if (!RemoveStudentFromSynthesis(body))
-                        return StatusCode(500);
+                    success = RemoveStudentFromSynthesis(body);
                     break;
                 case TestType.Analysis:
-                    if (!RemoveStudentFromAnalysis(body))
-                        return StatusCode(500);
+                    success = RemoveStudentFromAnalysis(body);
                     break;
-                default:
-                    return StatusCode(500);
             }
 
-            return true;
+            return success ? Result<bool>.Success(true) : Result<bool>.Fail("Operation failed");
         }
 
         private bool RemoveStudentFromSynthesis(RemoveAssignedStudentRQ model)

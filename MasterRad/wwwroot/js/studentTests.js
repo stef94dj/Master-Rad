@@ -70,7 +70,7 @@ function drawTestContent(status, studentId, testId, testType, testStudent, testS
         case TestStatus.Scheduled:
             return '<a href="javascript:;" class="btn btn-dark disabled">' + 'Take test' + '</a>';
         case TestStatus.InProgress:
-            return `<a href="javascript:;" class="btn btn-dark" onclick="startTest(${studentId},${testId},${testType},${testStudentTimeStamp})">Take test</a>`;
+            return `<a href="javascript:;" class="btn btn-dark" onclick="startTest('${studentId}',${testId},${testType},${testStudentTimeStamp})">Take test</a>`;
         case TestStatus.Completed:
             if (testStudent.takenTest) {
                 switch (testType) {

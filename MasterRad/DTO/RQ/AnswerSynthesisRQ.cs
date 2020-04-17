@@ -8,7 +8,7 @@ namespace MasterRad.DTO.RQ
     public class AnswerSynthesisRQ
     {
         public int TestId { get; set; }
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
         public byte[] TimeStamp { get; set; }
         public string SqlScript { get; set; }
     }

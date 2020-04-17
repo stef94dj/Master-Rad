@@ -1,11 +1,7 @@
-sql password for new users: API/StudentController 
-  1. var sqlPass = "Pass123!"; //should be random, should be encrypted, should be valid sql user password https://docs.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver15
-  2. _microsoftSQLService.CreateSQLServerUser should probably be idempotent (add unque constraint over username in user mapping table + make method idempotent)
+synthesis test - change status modal not closing on success
 
 - Assign students
-  4. GetStudentsAssignedToTest - mapiranje studentId-a na user-e
   2. assign: keiranje sql usera + mapiranje na azure usera
-  3. remove: API tesitraj UI
 
 - (odradi test i kreiraj analysis test) => analysis tests ekran:
   1. reload logika za ajax endpoint

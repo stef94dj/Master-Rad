@@ -297,7 +297,6 @@ function disableSearchResult(tr) {
         cbx.prop('checked', false);
 }
 function setAssignedCount() {
-    debugger;
     var assignedCnt = assignedStudents.find('tr').length;
     var text = `Assigned students (${assignedCnt})`;
     assignedStudentsHeader.html(text);
@@ -333,7 +332,7 @@ function renderAssignedListItem(msid, timestamp, email, firstName, lastName) {
     result += '<td>' + firstName + '</td>';
     result += '<td>' + lastName + '</td>';
     result += '<td>' + email + '</td>';
-    result += '<td><button onclick="removeStudent(' + msid + ',' + "'" + timestamp + "'" + ')" type="button" class="btn btn-outline-danger btn-sm">Remove</button></td>';
+    result += '<td><button onclick="removeStudent(' + "'" + msid + "'" + ',' + "'" + timestamp + "'" + ')" type="button" class="btn btn-outline-danger btn-sm">Remove</button></td>';
     result += '</tr>';
 
     return result;
