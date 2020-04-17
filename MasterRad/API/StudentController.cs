@@ -100,8 +100,8 @@ namespace MasterRad.API
             var idsToMap = _userRepository.UnmappedIds(body.StudentIds);
             foreach (var id in idsToMap)
             {
-                var sqlUsername = $"sql-grader-{id}";
-                var sqlPass = "Pass123!"; //should be random, should be encrypted, should be valid sql user password https://docs.microsoft.com/en-us/sql/relational-databases/security/password-policy?view=sql-server-ver15
+                var sqlUsername = $"sql-grader-user-{id}";
+                var sqlPass = $"Pass-{Guid.NewGuid()}-123!";
 
                 var mapRes = _microsoftSQLService.CreateSQLServerUser(sqlUsername, sqlPass);
                 if (mapRes == null || !mapRes.IsSuccess)

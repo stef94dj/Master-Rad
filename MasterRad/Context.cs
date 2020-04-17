@@ -72,6 +72,10 @@ namespace MasterRad
               .HasIndex(s => s.Name)
               .IsUnique();
 
+            modelBuilder.Entity<AzureSqlUserMapEntity>()
+              .HasIndex(s => s.SqlUsername)
+              .IsUnique();
+
             //delete template
             modelBuilder.Entity<TemplateEntity>()
                 .HasMany(tm => tm.Tasks)
