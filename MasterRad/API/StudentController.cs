@@ -9,8 +9,8 @@ using MasterRad.Models;
 using MasterRad.Models.Configuration;
 using MasterRad.Repositories;
 using MasterRad.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -19,8 +19,9 @@ using System.Threading.Tasks;
 
 namespace MasterRad.API
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Authorize(Roles = UserRole.Professor)]
     public class StudentController : BaseController
     {
         private readonly IStudentRepository _studentRepository;

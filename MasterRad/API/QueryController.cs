@@ -5,11 +5,13 @@ using MasterRad.Models;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MasterRad.API
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Authorize(Roles = UserRole.ProfessorOrStudent)]
     public class QueryController : BaseController
     {
         private readonly IMicrosoftSQL _microsoftSQLService;

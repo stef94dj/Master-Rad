@@ -11,9 +11,14 @@ namespace MasterRad
         public const string ScopeUserRead = "User.Read";
         public const string ScopeUserReadBasicAll = "User.ReadBasic.All";
         public const string MicrosoftSQLConnectionStringTemplate = "Data Source={0};Initial Catalog={1};User ID={2};Password={3}";
-        public const string RoleProfessor = "Professor";
-        public const string RoleStudent = "Student";
+        
         public const string JSDateFormat = "yyyy-MM-dd-HH-mm-ss";
+    }
 
+    public static class UserRole
+    {
+        public const string Professor = "Professor";
+        public const string Student = "Student";
+        public const string ProfessorOrStudent = Professor + "," + Student;
     }
 }

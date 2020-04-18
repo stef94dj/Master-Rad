@@ -7,7 +7,7 @@ namespace MasterRad.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TempTestController : BaseController
+    /*public*/ class TempTestController : BaseController
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly Context _dbContext;

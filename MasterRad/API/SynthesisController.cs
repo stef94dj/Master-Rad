@@ -6,6 +6,7 @@ using MasterRad.Entities;
 using MasterRad.Models;
 using MasterRad.Repositories;
 using MasterRad.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +14,9 @@ using System.Threading.Tasks;
 
 namespace MasterRad.API
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Authorize(Roles = UserRole.Professor)]
     public class SynthesisController : BaseController
     {
         private readonly ISynthesisRepository _synthesisRepo;

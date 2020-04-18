@@ -38,7 +38,7 @@
                         @if (User?.Identity != null && User.Identity.IsAuthenticated)
                         {
 
-                            @if (User.IsInRole(Constants.RoleProfessor))
+                            @if (User.IsInRole(UserRole.Professor))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-primary" asp-controller="TeacherMenu" asp-action="Templates">Templates</a>
@@ -54,7 +54,7 @@
                                 </li>
                             }
 
-                            @if (User.IsInRole(Constants.RoleStudent))
+                            @if (User.IsInRole(UserRole.Student))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-info" asp-controller="StudentMenu" asp-action="Exercises">Exercises</a>

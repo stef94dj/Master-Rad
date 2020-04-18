@@ -1,18 +1,13 @@
 ﻿using MasterRad.Attributes;
-using MasterRad.DTO;
-using MasterRad.DTO.RQ;
-using MasterRad.Models;
 using MasterRad.Models.Configuration;
 using MasterRad.Models.ViewModels;
 using MasterRad.Repositories;
 using MasterRad.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using System;
-using System.Threading.Tasks;
-using WebApp_OpenIDConnect_DotNet.Services;
-using Graph = Microsoft.Graph;
 
 namespace MasterRad.Controllers
 {
@@ -21,22 +16,20 @@ namespace MasterRad.Controllers
         private readonly ISynthesisRepository _synthesisRepository;
         private readonly IAnalysisRepository _analysisRepository;
         private readonly SqlServerAdminConnection _adminConnectionConf;
-        private readonly IMsGraph _msGraph;
 
         public TestController
         (
             ISynthesisRepository synthesisRepository,
             IAnalysisRepository analysisRepository,
-            IOptions<SqlServerAdminConnection> adminConnectionConf,
-            IMsGraph msGraph
+            IOptions<SqlServerAdminConnection> adminConnectionConf
         )
         {
             _synthesisRepository = synthesisRepository;
             _analysisRepository = analysisRepository;
             _adminConnectionConf = adminConnectionConf.Value;
-            _msGraph = msGraph;
         }
 
+        [Authorize(Roles = UserRole.Student)]
         public IActionResult SynthesisExam(int testId, byte[] timeStamp)
         {
             var stsEntity = _synthesisRepository.GetAssignmentWithTaskAndTemplate(UserId, testId);
@@ -60,6 +53,7 @@ namespace MasterRad.Controllers
 
             return View(vm);
         }
+        [Authorize(Roles = UserRole.Student)]
         public IActionResult AnalysisExam(int testId, byte[] timeStamp)
         {
             var atsEntity = _analysisRepository.GetAssignment(UserId, testId);
@@ -94,6 +88,7 @@ namespace MasterRad.Controllers
             return View("~/Views/Test/AnalysisExam.cshtml", vm);
         }
 
+        [Authorize(Roles = UserRole.Professor)]
         [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserReadBasicAll })]
         [ImplicitAuthoriseForScopesTrigger(Scopes = new[] { Constants.ScopeUserReadBasicAll })]
         public IActionResult AssignStudents(int testId, TestType testType)
@@ -121,6 +116,7 @@ namespace MasterRad.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = UserRole.Professor)]
         [AuthorizeForScopes(Scopes = new[] { Constants.ScopeUserReadBasicAll })]
         [ImplicitAuthoriseForScopesTrigger(Scopes = new[] { Constants.ScopeUserReadBasicAll })]
         public IActionResult Results(int testId, TestType testType)

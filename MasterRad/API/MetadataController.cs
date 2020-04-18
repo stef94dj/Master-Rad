@@ -1,34 +1,23 @@
 ﻿using MasterRad.DTO;
 using MasterRad.DTO.RS;
-using MasterRad.Models;
 using MasterRad.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MasterRad.API
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Authorize(Roles = UserRole.ProfessorOrStudent)]
     public class MetadataController : BaseController
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
-        //private readonly IProfile _profileService;
 
         public MetadataController(IMicrosoftSQL microsoftSQLService)
         {
             _microsoftSQLService = microsoftSQLService;
-            //_profileService = profileService;
-        }
-
-        [HttpGet, Route("databases")]
-        public ActionResult<IEnumerable<string>> GetDatabaseNames()
-        {
-            //var tables = _profileService.GetDatabaseNames(token);
-
-            return new List<string>() { "tableName1", "tableName2", "tableName3" };
         }
 
         [HttpGet, Route("tables/{dbName}")]

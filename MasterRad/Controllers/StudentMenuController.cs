@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MasterRad.Models;
-using MasterRad.Models.ViewModels;
-using MasterRad.Repositories;
-using MasterRad.DTO;
-using MasterRad.Extensions;
 
 namespace MasterRad.Controllers
 {
+    [Authorize(Roles = UserRole.Student)]
     public class StudentMenuController : BaseController
     {
         public IActionResult Exercises()

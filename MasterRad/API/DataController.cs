@@ -2,19 +2,20 @@
 using MasterRad.DTO.RQ;
 using MasterRad.Models;
 using MasterRad.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 
 namespace MasterRad.API
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Authorize(Roles = UserRole.ProfessorOrStudent)]
     public class DataController : BaseController
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly IConfiguration _config;
-        //private readonly IJsonHelper _jsonHelper;
 
         public DataController(IMicrosoftSQL microsoftSQLService, IConfiguration config)
         {
