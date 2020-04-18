@@ -90,7 +90,8 @@ namespace MasterRad.API
             var jobId = $"evaluate_synthesis_{model.TestId}";
             foreach (var request in model.EvaluationRequests)
             {
-                _queue.QueueAsyncTask(() => EvaluateSynthesisPaper(_serviceScopeFactory, jobId, model.TestId, request.StudentId, request.UseSecretData, UserId));
+                var userId = UserId;
+                _queue.QueueAsyncTask(() => EvaluateSynthesisPaper(_serviceScopeFactory, jobId, model.TestId, request.StudentId, request.UseSecretData, userId));
 
                 //SET STATUS IN DB TO Queued -> To be implemented (remove synthesis paper entity first): posalji timeStamp sa FE + novi setStatus endpoint koji sam pravi entity
 
@@ -197,7 +198,8 @@ namespace MasterRad.API
             var jobId = $"evaluate_analysis_{model.TestId}";
             foreach (var studentId in model.StudentIds)
             {
-                _queue.QueueAsyncTask(() => EvaluateAnalysisPaper(_serviceScopeFactory, jobId, model.TestId, studentId, UserId));
+                var userId = UserId;
+                _queue.QueueAsyncTask(() => EvaluateAnalysisPaper(_serviceScopeFactory, jobId, model.TestId, studentId, userId));
 
                 //SET STATUS IN DB TO Queued
 
