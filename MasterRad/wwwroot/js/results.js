@@ -78,12 +78,12 @@ function getSignalRConnectionObjAnalysis() {
 }
 
 //DRAW PAPERS TABLE
-function drawEvaluationResultsTableMessage(message, testType) {
+function drawEvaluationResultsTableMessage(message) {
     switch (testType) {
         case TestType.Synthesis:
             return drawTableMessage(message, 4);
         case TestType.Analysis:
-            return drawTableMessage(message, 6);
+            return drawTableMessage(message, 5);
     }
     console.log(`test type '${testType}' not supported`);
     return null;
@@ -146,13 +146,13 @@ function drawTableAnalysis(tbody, analysisTestStudents) {
     tbody.html('');
     $.each(analysisTestStudents, function (index, ats) {
         var notSubmitedFlag = ats.takenTest ? '' : 'data-not-submited="true"';
-        var tableRow = `<tr data-student-id="${ats.studentId}" ${notSubmitedFlag}>`;
+        var tableRow = `<tr data-student-id="${ats.studentDetail.microsoftId}" ${notSubmitedFlag}>`;
 
-        tableRow += drawStudentCell(ats.student);
-        tableRow += drawEvaluationProgressCell(ats.takenTest, progressReader.PrepareData(ats), "prepare-data-progress");
-        tableRow += drawEvaluationProgressCell(ats.takenTest, progressReader.FailingInput(ats), "failing-input-progress");
-        tableRow += drawEvaluationProgressCell(ats.takenTest, progressReader.QueryOutput(ats), "student-output-progress");
-        tableRow += drawEvaluationProgressCell(ats.takenTest, progressReader.CorrectOutput(ats), "teacher-output-progress");
+        tableRow += drawStudentCell(ats.studentDetail);
+        tableRow += drawEvaluationProgressCell(ats.takenTest, ats.prepareDataProgress, "prepare-data-progress");
+        tableRow += drawEvaluationProgressCell(ats.takenTest, ats.failingInputProgress, "failing-input-progress");
+        tableRow += drawEvaluationProgressCell(ats.takenTest, ats.queryOutputProgress, "student-output-progress");
+        tableRow += drawEvaluationProgressCell(ats.takenTest, ats.correctOutputProgress, "teacher-output-progress");
 
         tableRow += '</tr>'
         tbody.append(tableRow)
@@ -203,7 +203,6 @@ function getEvaluationData() {
     }
     return null;
 }
-
 function getEvaluationDataSynthesis() {
     var tableRows = $('#evaluation-results-tbody tr');
     tableRows = $.grep(tableRows, function (v) {
@@ -230,7 +229,6 @@ function getEvaluationDataSynthesis() {
 
     return requests;
 }
-
 function getEvaluationDataAnalysis() {
     var tableRows = $('#evaluation-results-tbody tr');
     tableRows = $.grep(tableRows, function (v) {

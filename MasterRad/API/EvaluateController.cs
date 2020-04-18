@@ -25,8 +25,8 @@ namespace MasterRad.API
     public class EvaluateController : BaseController
     {
         private readonly IEvaluator _evaluatorService;
-        private readonly ISynthesisRepository _synthesisRepository;
-        private readonly IAnalysisRepository _analysisRepository;
+        private readonly ISynthesisRepository _synthesisRepo;
+        private readonly IAnalysisRepository _analysisRepo;
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly ISignalR<SynthesisProgressHub> _synthesisSignalR;
         private readonly ISignalR<AnalysisProgressHub> _analysisSignalR;
@@ -50,8 +50,8 @@ namespace MasterRad.API
         )
         {
             _evaluatorService = evaluatorService;
-            _synthesisRepository = synthesisRepository;
-            _analysisRepository = analysisRepository;
+            _synthesisRepo = synthesisRepository;
+            _analysisRepo = analysisRepository;
             _microsoftSQLService = microsoftSQLService;
             _queue = queue;
             _synthesisSignalR = synthesisSignalR;
@@ -61,13 +61,14 @@ namespace MasterRad.API
             _msGraph = msGraph;
         }
 
+        #region Synthesis
         [AjaxMsGraphProxy]
         [HttpGet, Route("get/papers/synthesis/{testId}")]
         public async Task<ActionResult<IEnumerable<SynthesisEvaluationItemDTO>>> SynthesisEvaluationDataAsync([FromRoute] int testId)
         {
-            var entities = _synthesisRepository.GetPapers(testId);
+            var entities = _synthesisRepo.GetPapers(testId);
 
-            #region Get_CreatedBy_Users_Details
+            #region Get_Student_Details
             var studentIds = entities.Select(e => e.StudentId);
             var studentDetails = await _msGraph.GetStudentsByIds(studentIds);
             #endregion
@@ -82,15 +83,14 @@ namespace MasterRad.API
 
             return Ok(res);
         }
-        
 
         [HttpPost, Route("Start/Evaluation/Synthesis")]
         public async Task<ActionResult> StartSynthesisEvaluationAsync([FromBody] StartTestEvalulationSynthesis model)
         {
+            var userId = UserId;
             var jobId = $"evaluate_synthesis_{model.TestId}";
             foreach (var request in model.EvaluationRequests)
             {
-                var userId = UserId;
                 _queue.QueueAsyncTask(() => EvaluateSynthesisPaper(_serviceScopeFactory, jobId, model.TestId, request.StudentId, request.UseSecretData, userId));
 
                 //SET STATUS IN DB TO Queued -> To be implemented (remove synthesis paper entity first): posalji timeStamp sa FE + novi setStatus endpoint koji sam pravi entity
@@ -187,18 +187,38 @@ namespace MasterRad.API
                 }
             }
         }
+        #endregion
 
+        #region Analysis
+        [AjaxMsGraphProxy]
         [HttpGet, Route("get/papers/analysis/{testId}")]
-        public ActionResult<IEnumerable<AnalysisTestStudentEntity>> AnalysisEvaluationData([FromRoute] int testId)
-            => Ok(_analysisRepository.GetPapers(testId));
+        public async Task<ActionResult<IEnumerable<AnalysisEvaluationItemDTO>>> AnalysisEvaluationDataAsync([FromRoute] int testId)
+        {
+            var entities = _analysisRepo.GetPapers(testId);
+
+            #region Get_CreatedBy_Users_Details
+            var studentIds = entities.Select(e => e.StudentId);
+            var studentDetails = await _msGraph.GetStudentsByIds(studentIds);
+            #endregion
+
+            #region Get_Student_Details
+            var res = entities.Select(entity =>
+            {
+                var studentDetail = studentDetails.Single(ud => ud.MicrosoftId == entity.StudentId);
+                return new AnalysisEvaluationItemDTO(entity, studentDetail);
+            });
+            #endregion
+
+            return Ok(res);
+        }
 
         [HttpPost, Route("Start/Evaluation/Analysis")]
         public async Task<ActionResult> StartAnalysisEvaluationAsync([FromBody] StartTestEvalulationAnalysis model)
         {
+            var userId = UserId;
             var jobId = $"evaluate_analysis_{model.TestId}";
             foreach (var studentId in model.StudentIds)
             {
-                var userId = UserId;
                 _queue.QueueAsyncTask(() => EvaluateAnalysisPaper(_serviceScopeFactory, jobId, model.TestId, studentId, userId));
 
                 //SET STATUS IN DB TO Queued
@@ -443,5 +463,6 @@ namespace MasterRad.API
                 }
             }
         }
+        #endregion
     }
 }

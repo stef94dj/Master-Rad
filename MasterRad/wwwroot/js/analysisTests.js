@@ -182,16 +182,8 @@ function statusNext() {
 
 //NAVIGATION
 function viewResults(testId) {
-    var form = $('#hidden-form');
-    form.find('#test-id').val(testId);
-    form.find('#test-type').val(TestType.Analysis);
-    form.attr('action', '/Test/Results');
-    form.submit();
+    window.location = `/Test/Results?testId=${testId}&testType=${TestType.Analysis}`;
 }
 function assignStudents(testId) {
-    var form = $('#hidden-form');
-    form.find('#test-id').val(testId);
-    form.find('#test-type').val(TestType.Analysis);
-    form.attr('action', '/Test/AssignStudents');
-    form.submit();
+    window.location = `/Test/AssignStudents?testId=${testId}&testType=${TestType.Analysis}`
 }

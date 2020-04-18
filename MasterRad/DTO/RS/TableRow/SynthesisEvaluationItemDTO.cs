@@ -12,8 +12,14 @@ namespace MasterRad.DTO.RS.TableRow
         {
 
             TakenTest = entity.TakenTest;
-            PublicDataProgress = entity.EvaluationProgress.Single(ep => !ep.IsSecretDataUsed).Progress;
-            SecretDataProgress = entity.EvaluationProgress.Single(ep => ep.IsSecretDataUsed).Progress;
+
+            foreach (var prog in entity.EvaluationProgress)
+            {
+                if (prog.IsSecretDataUsed)
+                    SecretDataProgress = prog.Progress;
+                else
+                    PublicDataProgress = prog.Progress;
+            }
 
             StudentDetail = studentDetail;
         }
