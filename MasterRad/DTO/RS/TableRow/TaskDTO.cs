@@ -1,4 +1,5 @@
 ﻿using MasterRad.Entities;
+using MasterRad.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace MasterRad.DTO.RS.TableRow
             Name = taskEntity.Name;
             TemplateName = taskEntity.Template.Name;
             Description = taskEntity.Description;
-            DateCreated = taskEntity.DateCreated.HasValue ? taskEntity.DateCreated.Value.ToString(Constants.JSDateFormat) : "N/A";
+            DateCreated = taskEntity.DateCreated.ToJsonString();
             CreatedBy = userDetail;
         }
 

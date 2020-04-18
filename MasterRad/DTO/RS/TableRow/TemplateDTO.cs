@@ -1,4 +1,5 @@
 ﻿using MasterRad.Entities;
+using MasterRad.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace MasterRad.DTO.RS.TableRow
             Name = te.Name;
             Description = te.ModelDescription;
             NameOnServer = te.NameOnServer;
-            DateCreated = te.DateCreated.HasValue ? te.DateCreated.Value.ToString(Constants.JSDateFormat) : "N/A"; 
+            DateCreated = te.DateCreated.ToJsonString(); 
             CreatedBy = userDetail;
         }
 

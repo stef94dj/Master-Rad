@@ -137,7 +137,7 @@ function drawCreateAnalysisCell(testStudent, publicDataStatus, secretDataStatus)
     var enabled = testStudent != null && (publicDataStatus == EvaluationStatus.Failed || secretDataStatus == EvaluationStatus.Failed);
     var dynamic = `disabled`;
     if (enabled)
-        dynamic = `data-student-id="${testStudent.studentId}"`;
+        dynamic = `data-student-id="${testStudent.studentDetail.microsoftId}"`;
 
     return `<td><button type="button" data-toggle="modal" data-target="#create-analysis-test-modal" ${dynamic} class="btn btn-outline-primary">Create analysis test</button></td>`;
 }
@@ -262,7 +262,6 @@ function createAnalysisTest() {
         "SynthesisTestId": testId,
     }
 
-    debugger;
     $.ajax({
         url: '/api/Analysis/Create/Test',
         dataType: 'json',

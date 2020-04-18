@@ -35,15 +35,14 @@ function drawAnalysisTestsTableMessage(message) {
 function drawTestsList(data) {
     drawAnalysisTestsTableMessage("No records.");
 
-    if (data != null && data.lenght > 1) {
+    if (data != null && data.length > 0) {
         testsList.html('');
         $.each(data, function (index, test) {
-            var sts = test.synthesisTestStudent;
             var testItem = '<tr>';
             testItem += drawNameCell(test);
-            testItem += drawTextCell(`${sts.synthesisTest.name} <br/> <i>student: ${sts.student.firstName} ${sts.student.lastName}</i>`);
-            testItem += drawTextCell(sts.synthesisTest.task.name);
-            testItem += drawTextCell(sts.synthesisTest.task.template.name);
+            testItem += drawTextCell(`${test.synthesisTestName} <br/> <i>${test.student.firstName} ${test.student.lastName}</i> <br/> <i>${test.student.email}</i>`);
+            testItem += drawTextCell(test.taskName);
+            testItem += drawTextCell(test.templateName);
             testItem += drawAuthorCell(test);
             testItem += drawCreatedOnCell(test);
             testItem += drawStudentsCell(test);
@@ -70,10 +69,12 @@ function drawStudentsCell(test) {
     return '<td>' + drawCellEditNavigationButton('Assign', 'dark', 'assignStudents', test.id, enabled) + '</td>';
 }
 function drawAuthorCell(test) {
-    return '<td><div class="text">' + 'cmilos@etf.bg.ac.rs' + '</div></td>'
+    var author = test.createdBy;
+    return drawAuthorCellUtil(author.firstName, author.lastName, author.email);
 }
 function drawCreatedOnCell(test) {
-    return '<td><div class="text">' + '08/03/2020 20:22' + '</div></td>'
+    var value = toLocaleDateTimeString(test.dateCreated);
+    return '<td><div class="text">' + value + '</div></td>'
 }
 function drawStateCell(test) {
     var result = '<td class="hover-text-button">';
