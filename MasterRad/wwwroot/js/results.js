@@ -139,7 +139,7 @@ function drawCreateAnalysisCell(testStudent, publicDataStatus, secretDataStatus)
     if (enabled)
         dynamic = `data-student-id="${testStudent.studentId}"`;
 
-    return `<td><button type="button" data-toggle="modal" data-target="#create-analysis-test-modal" ${dynamic} class="btn btn-outline-primary" style="float:right">Create analysis test</button></td>`;
+    return `<td><button type="button" data-toggle="modal" data-target="#create-analysis-test-modal" ${dynamic} class="btn btn-outline-primary">Create analysis test</button></td>`;
 }
 
 function drawTableAnalysis(tbody, analysisTestStudents) {

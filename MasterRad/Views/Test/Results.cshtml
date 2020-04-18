@@ -2,6 +2,9 @@
 @{
     ViewData["Title"] = "Test results";
 }
+@section Styles {
+    <link rel="stylesheet" href="~/css/datatable.css" />
+}
 
 <div hidden>
     <input type="text" value="@(Model.TestId)" id="test-id">
@@ -24,7 +27,7 @@
 @if (Model.TestType == TestType.Synthesis)
 {
     <!-- Results table -->
-    <table class="table table-bordered">
+    <table class="table table-bordered wrap-single-long-word">
         <thead class="thead-dark" id="table-header">
             <tr id="test-evaluations-table">
                 <th scope="col">Student</th>

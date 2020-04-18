@@ -1,5 +1,4 @@
 public IActionResult Results(int testId, TestType testType) in TestController MVC Controller needs to be http get AuthorizeForScopes
-tidy up table in results page
 
 Evaluate (synthesis) test page - map user names from azure
 synthesis test - change status modal not closing on success
