@@ -12,6 +12,15 @@ namespace MasterRad.Models
         public string Password { get; set; }
         public string ServerName { get; set; }
 
+        public ConnectionParams() { }
+
+        public ConnectionParams(string dbName, string login, string password)
+        {
+            DbName = dbName;
+            Login = login;
+            Password = password;
+        }
+
         public string EFConnectionString
         {
             get

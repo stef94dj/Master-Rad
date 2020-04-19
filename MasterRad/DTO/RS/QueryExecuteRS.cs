@@ -24,8 +24,17 @@ namespace MasterRad.DTO.RS
             get
             {
                 return Messages != null &&
-                       Messages.Any() && 
+                       Messages.Any() &&
                        Messages[0].Equals(Constants.SQLServerCommandSuccessMessage);
+            }
+        }
+
+        [JsonIgnore]
+        public bool IsSelectSuccess
+        {
+            get
+            {
+                return Messages != null && !Messages.Any();
             }
         }
     }

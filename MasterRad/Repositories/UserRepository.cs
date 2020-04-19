@@ -9,6 +9,7 @@ namespace MasterRad.Repositories
 {
     public interface IUserRepository
     {
+        AzureSqlUserMapEntity Get(Guid id);
         IEnumerable<Guid> UnmappedIds(IEnumerable<Guid> userIds);
         bool CreateMapping(Guid id, string sqlUsername, string sqlPass, Guid currentUserId);
     }
@@ -21,6 +22,10 @@ namespace MasterRad.Repositories
         {
             _context = context;
         }
+
+        public AzureSqlUserMapEntity Get(Guid id)
+            => _context.AzureSqlUserMap
+                       .Single(x => x.AzureId == id);
 
         public IEnumerable<Guid> UnmappedIds(IEnumerable<Guid> userIds)
         {
@@ -35,7 +40,7 @@ namespace MasterRad.Repositories
         {
             var entity = new AzureSqlUserMapEntity() //AutoMapper
             {
-                AzureId =  id,
+                AzureId = id,
                 SqlUsername = sqlUsername,
                 SqlPassword = sqlPass,
                 DateCreated = DateTime.UtcNow,

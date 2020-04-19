@@ -1,3 +1,9 @@
+
+Mozda ne bi bilo lose da svuda pozivas ExecuteSQL (da izbacis ExecuteSQLAsAdmin, AsReadonlyAdmin - ovo treba svakako izbaciti) 
+i onda u BaseController razresiti SqlUserName, SqlPassword
+ili to izvuci u servis
+
+
 synthesis test - change status modal not closing on success
 
 - Assign students
