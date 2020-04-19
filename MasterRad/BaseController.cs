@@ -11,11 +11,15 @@ namespace MasterRad
     {
         public BaseController() : base() { }
 
+        private Guid _userId;
         public Guid UserId
         {
             get
             {
-                return new Guid(User.GetObjectId());
+                if (_userId == Guid.Empty)
+                    _userId = new Guid(User.GetObjectId());
+
+                return _userId;
             }
         }
     }

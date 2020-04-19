@@ -7,41 +7,33 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using MasterRad.Repositories;
+using MasterRad.Models.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace MasterRad.API
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = UserRole.ProfessorOrStudent)]
-    public class QueryController : BaseController
+    public class QueryController : BaseUserMapController
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
-        private readonly IUserRepository _userRepo;
 
         public QueryController
         (
-            IMicrosoftSQL microsoftSQLService, 
-            IUserRepository userRepo
-        )
+            IMicrosoftSQL microsoftSQLService,
+            IUserRepository userRepo,
+            IOptions<SqlServerAdminConnection> adminConnectionConf
+        ): base(userRepo, adminConnectionConf)
         {
             _microsoftSQLService = microsoftSQLService;
-            _userRepo = userRepo;
         }
 
         [HttpPost, Route("execute")]
         public ActionResult<Result<QueryExecuteRS>> Execute([FromBody] QueryExecuteRQ body)
         {
-            QueryExecuteRS sqlRes;
-            if (User.IsInRole(UserRole.Professor))
-            {
-                sqlRes = _microsoftSQLService.ExecuteSQLAsAdmin(body.SQLQuery, body.DatabaseName);
-            }
-            else
-            {
-                var userEntity = _userRepo.Get(UserId);
-                var conn = new ConnectionParams(body.DatabaseName, userEntity.SqlUsername, userEntity.SqlPassword);
-                sqlRes = _microsoftSQLService.ExecuteSQL(body.SQLQuery, conn);
-            }
+            var conn = GetSqlConnection(body.DatabaseName);
+            var sqlRes = _microsoftSQLService.ExecuteSQL(body.SQLQuery, conn);
 
             #region Build_Response
             if (sqlRes.IsSelectSuccess)
