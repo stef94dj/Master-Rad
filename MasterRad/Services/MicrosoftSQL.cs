@@ -384,10 +384,8 @@ namespace MasterRad.Services
         }
         public QueryExecuteRS ReadTable(string dbName, string schemaName, string tableName)
         {
-            var conn = GetAdminConnParams(dbName);
             var sqlCommand = $"SELECT * FROM [{schemaName}].[{tableName}]";
-
-            return ExecuteSQL(sqlCommand, connParams);
+            return ExecuteSQLAsReadOnlyAdmin(sqlCommand, dbName);
         }
         public int Count(string schemaName, string tableName, List<CellDTO> recordPrevious, ConnectionParams connParams)
         {

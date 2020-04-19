@@ -1,7 +1,13 @@
-﻿USE master 
+﻿USE [master]
 GO
 
-CREATE LOGIN TestLogin4  WITH PASSWORD = 'readOaad1213nlyuser123!';
+CREATE LOGIN [readonlyadmin] WITH 
+	PASSWORD=N'ROadminpass1234!', 
+	DEFAULT_DATABASE=[master], 
+	DEFAULT_LANGUAGE=[us_english], 
+	CHECK_EXPIRATION=OFF, 
+	CHECK_POLICY=OFF
 GO
 
-GRANT CONNECT ANY DATABASE TO TestLogin4
+ALTER SERVER ROLE [Readonly] ADD MEMBER [readonlyadmin]
+GO
