@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace MasterRad.DTO.RS
@@ -16,5 +17,16 @@ namespace MasterRad.DTO.RS
         public List<string> Messages { get; set; }
         public int? RowsAffected { get; set; }
         public List<TableDTO> Tables { get; set; }
+
+        [JsonIgnore]
+        public bool IsCommandSuccess
+        {
+            get
+            {
+                return Messages != null &&
+                       Messages.Any() && 
+                       Messages[0].Equals(Constants.SQLServerCommandSuccessMessage);
+            }
+        }
     }
 }

@@ -10,6 +10,7 @@ using System.IO;
 using MasterRad.Models.Configuration;
 using Microsoft.Extensions.Options;
 using MasterRad.DTO.RS;
+using MasterRad.Helpers;
 
 namespace MasterRad.Services
 {
@@ -18,9 +19,9 @@ namespace MasterRad.Services
         QueryExecuteRS ExecuteSQLAsAdmin(string sqlQuery, string dbName = "master");
         QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams);
         QueryExecuteRS ReadTable(string dbName, string schemaName, string tableName);
-        Result<bool> CreateSQLServerUser(string login, string password);
-        Result<bool> AssignSQLServerUserToDb(string userLogin, string dbName);
-        Result<bool> DeleteSQLServerUser(string userLogin);
+        bool CreateServerLogin(string login, string password);
+        bool CreateDbUserFromLogin(string userLogin, string dbName);
+        bool DeleteServerLogin(string userLogin);
         IEnumerable<string> GetTableNames(ConnectionParams connParams);
         IEnumerable<TableWithColumns> GetTableNamesWithColumnNames(ConnectionParams connParams);
         IEnumerable<string> GetDatabaseNames();
@@ -58,18 +59,17 @@ namespace MasterRad.Services
             _adminConnectionConf = adminConnectionConf.Value;
         }
 
+        #region SQL_Manager_Base
         private string BuildConnectionString(ConnectionParams connParams)
         {
             var template = Constants.MicrosoftSQLConnectionStringTemplate;
             var serverName = _adminConnectionConf.ServerName;
             return string.Format(template, serverName, connParams.DbName, connParams.Login, connParams.Password);
         }
-
         public QueryExecuteRS ExecuteSQLAsAdmin(string sqlQuery, string dbName = "master")
         {
             return ExecuteSQL(sqlQuery, GetAdminConnParams(dbName));
         }
-
         public QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams)
         {
             var messages = new List<string>();
@@ -124,53 +124,6 @@ namespace MasterRad.Services
 
             return new QueryExecuteRS(messages, tables, rowsAffected);
         }
-
-        public Result<bool> CreateSQLServerUser(string login, string password)
-        {
-            var sqlCommand = $"CREATE LOGIN [{login}] " +
-                              $"WITH PASSWORD='{password}', " +
-                              "DEFAULT_DATABASE=[master], " +
-                              "DEFAULT_LANGUAGE=[us_english], " +
-                              "CHECK_EXPIRATION=OFF, " +
-                              "CHECK_POLICY=ON";
-
-            var connParams = GetAdminConnParams("master");
-            var sqlResult = ExecuteSQL(sqlCommand, connParams);
-
-            if (sqlResult.Messages.Any())
-                return Result<bool>.Fail(sqlResult.Messages);
-
-            return Result<bool>.Success(true);
-        }
-
-        public Result<bool> AssignSQLServerUserToDb(string userLogin, string dbName)
-        {
-            var connParams = GetAdminConnParams(dbName);
-            var sqlCommand = $"CREATE USER [{userLogin}] FOR LOGIN [{userLogin}] WITH DEFAULT_SCHEMA=[dbo] " +
-                             $"EXEC sp_addrolemember 'db_datawriter' , '{userLogin}' " +
-                             $"EXEC sp_addrolemember 'db_datareader' , '{userLogin}'";
-
-            var sqlResult = ExecuteSQL(sqlCommand, connParams);
-
-            if (sqlResult.Messages.Any())
-                return Result<bool>.Fail(sqlResult.Messages);
-
-            return Result<bool>.Success(true);
-        }
-
-        public Result<bool> DeleteSQLServerUser(string userLogin)
-        {
-            var connParams = GetAdminConnParams("master");
-            var sqlCommand = $"DROP LOGIN [{userLogin}]";
-
-            var sqlResult = ExecuteSQL(sqlCommand, connParams);
-
-            if (sqlResult.Messages.Any())
-                return Result<bool>.Fail(sqlResult.Messages);
-
-            return Result<bool>.Success(true);
-        }
-
         public ConnectionParams GetAdminConnParams(string dbName)
         {
             return connParams = new ConnectionParams()
@@ -180,7 +133,9 @@ namespace MasterRad.Services
                 Password = _adminConnectionConf.Password
             };
         }
+        #endregion
 
+        #region SQL_Metadata_Manager
         public IEnumerable<string> GetTableNames(ConnectionParams connParams)
         {
             var sqlCommand = "SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'";
@@ -194,7 +149,6 @@ namespace MasterRad.Services
 
             return result;
         }
-
         public IEnumerable<TableWithColumns> GetTableNamesWithColumnNames(ConnectionParams connParams)
         {
             var sqlCommand = "SELECT t.TABLE_SCHEMA, t.TABLE_NAME, c.COLUMN_NAME FROM INFORMATION_SCHEMA.TABLES " +
@@ -224,7 +178,6 @@ namespace MasterRad.Services
 
             return result;
         }
-
         public IEnumerable<string> GetDatabaseNames()
         {
             var sqlCommand = "SELECT name FROM master.dbo.sysdatabases";
@@ -236,7 +189,6 @@ namespace MasterRad.Services
                     .Rows
                     .Select(x => x[0].ToString());
         }
-
         public IEnumerable<ColumnInfoDTO> GetColumnsData(string schemaName, string tableName, ConnectionParams connParams)
         {
             var sqlCommand = "SELECT COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH " +
@@ -260,7 +212,6 @@ namespace MasterRad.Services
 
             return result;
         }
-
         public IEnumerable<ConstraintDTO> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams)
         {
             var sqlCommand = File.ReadAllText(@"SqlScripts\GetTableConstraints.sql");
@@ -281,7 +232,6 @@ namespace MasterRad.Services
 
             return result;
         }
-
         public IEnumerable<string> GetIdentityColumns(string schemaName, string tableName, ConnectionParams connParams)
         {
             var sqlCommand = "SELECT COLUMN_NAME " +
@@ -293,7 +243,9 @@ namespace MasterRad.Services
 
             return res;
         }
+        #endregion
 
+        #region Record
         public Result<bool> InsertRecord(string schemaName, string tableName, List<CellDTO> record, ConnectionParams connParams)
         {
             var columns = record.Select(x => $"[{x.ColumnName}]");
@@ -306,7 +258,6 @@ namespace MasterRad.Services
 
             return Result<bool>.Success(true);
         }
-
         public Result<bool> UpdateRecord(string schemaName, string tableName, CellDTO cellNew, List<CellDTO> recordPrevious, ConnectionParams connParams)
         {
             if (!recordPrevious.Any())
@@ -331,24 +282,6 @@ namespace MasterRad.Services
 
             return Result<bool>.Success(true);
         }
-
-        public int Count(string schemaName, string tableName, List<CellDTO> recordPrevious, ConnectionParams connParams)
-        {
-            if (!recordPrevious.Any())
-                return -1;
-
-            var columnValuesWhere = recordPrevious.Select(x =>
-                x.Value.ToLower().Equals("null") ? $"[{x.ColumnName}] IS NULL" : $"[{x.ColumnName}] = {_msSqlQueryBuilder.ToQuery(x.ColumnType, x.Value)}"
-            );
-            var whereExpr = string.Join(" and ", columnValuesWhere);
-
-            var sqlCommand = $"SELECT COUNT(*) FROM [{schemaName}].[{tableName}] WHERE {whereExpr}";
-            var sqlResult = ExecuteSQL(sqlCommand, connParams);
-
-            var count = sqlResult.Tables.First().Rows.First().First().ToString();
-            return int.Parse(count);
-        }
-
         public Result<bool> DeleteRecord(string schemaName, string tableName, List<CellDTO> record, ConnectionParams connParams)
         {
             if (!record.Any())
@@ -365,7 +298,50 @@ namespace MasterRad.Services
 
             return Result<bool>.Success(true);
         }
+        #endregion
 
+        #region Table
+        public IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables)
+        {
+            var successfullyCreated = new List<string>();
+
+            foreach (var table in tables)
+                if (CreateTable(table))
+                    successfullyCreated.Add(table.TableName);
+
+            return successfullyCreated;
+        }
+        public bool CreateTable(CreateTable table)
+        {
+            var columns = table.Columns.Select(x => $"{x.Name} {x.SqlType}");
+            var columnsExpr = string.Join(", ", columns);
+
+            var sqlCommand = $"CREATE TABLE [{table.TableName}] ({columnsExpr})";
+
+            var connection = GetAdminConnParams(table.DatabaseName);
+            var sqlResult = ExecuteSQL(sqlCommand, connection);
+
+            //if (sqlResult.Messages.Any()) - CreateDatabase treba da uloguje gresku + Messages
+            //    Log
+
+            return GetTableNames(connection)
+                    .Where(tn => string.Equals(tn, $"dbo.{table.TableName}", StringComparison.OrdinalIgnoreCase))
+                    .Any();
+        }
+        public bool DeleteTableIfExists(string tableName, string databaseName)
+        {
+            var sqlCommand = $"DROP TABLE [{tableName}]";
+
+            var connection = GetAdminConnParams(databaseName);
+            var sqlResult = ExecuteSQL(sqlCommand, connection);
+
+            //if (sqlResult.Messages.Any()) - CreateDatabase treba da uloguje gresku + Messages
+            //    Log
+
+            return !GetTableNames(connection)
+                    .Where(tn => string.Equals(tn, $"dbo.{tableName}", StringComparison.OrdinalIgnoreCase))
+                    .Any();
+        }
         public QueryExecuteRS ReadTable(string dbName, string schemaName, string tableName)
         {
             var conn = GetAdminConnParams(dbName);
@@ -373,31 +349,25 @@ namespace MasterRad.Services
 
             return ExecuteSQL(sqlCommand, connParams);
         }
-
-        public bool DatabaseExists(string name)
+        public int Count(string schemaName, string tableName, List<CellDTO> recordPrevious, ConnectionParams connParams)
         {
-            if (string.IsNullOrEmpty(name))
-                return false;
+            if (!recordPrevious.Any())
+                return -1;
 
-            return GetDatabaseNames()
-                    .Where(x => x.ToLower().Equals(name.ToLower()))
-                    .Any();
+            var columnValuesWhere = recordPrevious.Select(x =>
+                x.Value.ToLower().Equals("null") ? $"[{x.ColumnName}] IS NULL" : $"[{x.ColumnName}] = {_msSqlQueryBuilder.ToQuery(x.ColumnType, x.Value)}"
+            );
+            var whereExpr = string.Join(" and ", columnValuesWhere);
+
+            var sqlCommand = $"SELECT COUNT(*) FROM [{schemaName}].[{tableName}] WHERE {whereExpr}";
+            var sqlResult = ExecuteSQL(sqlCommand, connParams);
+
+            var count = sqlResult.Tables.First().Rows.First().First().ToString();
+            return int.Parse(count);
         }
+        #endregion
 
-        public bool DeleteDatabaseIfExists(string name)
-        {
-            if (!DatabaseExists(name))
-                return true;
-
-            var sqlQuery = $"ALTER DATABASE [{name}] SET single_user WITH ROLLBACK IMMEDIATE";
-            var sqlResult = ExecuteSQLAsAdmin(sqlQuery);
-
-            sqlQuery = $"DROP DATABASE [{name}]";
-            sqlResult = ExecuteSQLAsAdmin(sqlQuery);
-
-            return !DatabaseExists(name);
-        }
-
+        #region Database
         public bool CreateDatabase(string dbName, bool contained = false)
         {
             var sqlCommand = $"CREATE DATABASE [{dbName}]";
@@ -411,18 +381,6 @@ namespace MasterRad.Services
 
             return DatabaseExists(dbName);
         }
-
-        public IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbNames, bool failIfExists)
-        {
-            var successfullyCloned = new List<string>();
-
-            foreach (var destName in destDbNames)
-                if (CloneDatabase(originDbName, destName, failIfExists))
-                    successfullyCloned.Add(destName);
-
-            return successfullyCloned;
-        }
-
         public bool CloneDatabase(string originDbName, string destDbName, bool failIfExists)
         {
             if (DatabaseExists(destDbName))
@@ -474,49 +432,125 @@ namespace MasterRad.Services
 
             return DatabaseExists(destDbName);
         }
-
-        public bool CreateTable(CreateTable table)
+        public IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbNames, bool failIfExists)
         {
-            var columns = table.Columns.Select(x => $"{x.Name} {x.SqlType}");
-            var columnsExpr = string.Join(", ", columns);
+            var successfullyCloned = new List<string>();
 
-            var sqlCommand = $"CREATE TABLE [{table.TableName}] ({columnsExpr})";
+            foreach (var destName in destDbNames)
+                if (CloneDatabase(originDbName, destName, failIfExists))
+                    successfullyCloned.Add(destName);
 
-            var connection = GetAdminConnParams(table.DatabaseName);
-            var sqlResult = ExecuteSQL(sqlCommand, connection);
+            return successfullyCloned;
+        }
+        public bool DatabaseExists(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return false;
 
-            //if (sqlResult.Messages.Any()) - CreateDatabase treba da uloguje gresku + Messages
-            //    Log
-
-            return GetTableNames(connection)
-                    .Where(tn => string.Equals(tn, $"dbo.{table.TableName}", StringComparison.OrdinalIgnoreCase))
+            return GetDatabaseNames()
+                    .Where(x => x.ToLower().Equals(name.ToLower()))
                     .Any();
         }
-
-        public IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables)
+        public bool DeleteDatabaseIfExists(string name)
         {
-            var successfullyCreated = new List<string>();
+            if (!DatabaseExists(name))
+                return true;
 
-            foreach (var table in tables)
-                if (CreateTable(table))
-                    successfullyCreated.Add(table.TableName);
+            var sqlQuery = $"ALTER DATABASE [{name}] SET single_user WITH ROLLBACK IMMEDIATE";
+            var sqlResult = ExecuteSQLAsAdmin(sqlQuery);
 
-            return successfullyCreated;
+            sqlQuery = $"DROP DATABASE [{name}]";
+            sqlResult = ExecuteSQLAsAdmin(sqlQuery);
+
+            return !DatabaseExists(name);
+        }
+        #endregion
+
+        #region SQL_User_Manager
+        public bool CreateServerLogin(string login, string password)
+        {
+            var sqlCommand = $"CREATE LOGIN [{login}] " +
+                              $"WITH PASSWORD='{password}', " +
+                              "DEFAULT_DATABASE=[master], " +
+                              "DEFAULT_LANGUAGE=[us_english], " +
+                              "CHECK_EXPIRATION=OFF, " +
+                              "CHECK_POLICY=ON";
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand);
+            return sqlResult.IsCommandSuccess;
+        }
+        public bool CreateDbUserFromLogin(string userLogin, string dbName)
+        {
+            var sqlCommand = $"CREATE USER [{userLogin}] FOR LOGIN [{userLogin}] WITH DEFAULT_SCHEMA=[dbo] " +
+                             $"EXEC sp_addrolemember 'db_datawriter' , '{userLogin}' " +
+                             $"EXEC sp_addrolemember 'db_datareader' , '{userLogin}'";
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
+            return sqlResult.IsCommandSuccess;
+        }
+        public bool CreateDbUserContained(string userName, string password, string dbName)
+        {
+            var sqlCommand = $"CREATE USER [{userName}]  WITH PASSWORD = '{password}';";
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
+            return sqlResult.IsCommandSuccess;
+        }
+        public bool DeleteDbUser(string userName, string dbName)
+        {
+            var sqlCommand = $"DROP USER [{userName}]";
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
+            return sqlResult.IsCommandSuccess;
+        }
+        public bool DeleteServerLogin(string userLogin)
+        {
+            var sqlCommand = $"DROP LOGIN [{userLogin}]";
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand);
+            return sqlResult.IsCommandSuccess;
         }
 
-        public bool DeleteTableIfExists(string tableName, string databaseName)
+        public bool AssignReadonly(string userName, string dbName)
         {
-            var sqlCommand = $"DROP TABLE [{tableName}]";
+            var sqlCommand = $"GRANT SELECT TO [{userName}]";
 
-            var connection = GetAdminConnParams(databaseName);
-            var sqlResult = ExecuteSQL(sqlCommand, connection);
-
-            //if (sqlResult.Messages.Any()) - CreateDatabase treba da uloguje gresku + Messages
-            //    Log
-
-            return !GetTableNames(connection)
-                    .Where(tn => string.Equals(tn, $"dbo.{tableName}", StringComparison.OrdinalIgnoreCase))
-                    .Any();
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
+            return sqlResult.IsCommandSuccess;
         }
+        public bool AssignCRUD(string userName, string dbName)
+        {
+            var sqlCommand = $"GRANT INSERT TO [{userName}];" +
+                             $"GRANT SELECT TO [{userName}];" +
+                             $"GRANT UPDATE TO [{userName}];" +
+                             $"GRANT DELETE TO [{userName}];";
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
+            return sqlResult.IsCommandSuccess;
+        }
+        public bool AssignReadonly(string userName, string dbName, string tableName, string schemaName = null)
+        {
+            if (string.IsNullOrEmpty(schemaName))
+                schemaName = Constants.DefaultSchemaName;
+
+            var sqlCommand = $"GRANT SELECT ON [{schemaName}].[{tableName}] TO [{userName}]";
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
+            return sqlResult.IsCommandSuccess;
+        }
+        public bool AssignCRUD(string userName, string dbName, string tableName, string schemaName = null)
+        {
+            if (string.IsNullOrEmpty(schemaName))
+                schemaName = Constants.DefaultSchemaName;
+
+            var sqlCommand = $"GRANT INSERT ON [{schemaName}].[{tableName}] TO [{userName}];" +
+                             $"GRANT SELECT ON [{schemaName}].[{tableName}] TO [{userName}];" +
+                             $"GRANT UPDATE ON [{schemaName}].[{tableName}] TO [{userName}];" +
+                             $"GRANT DELETE ON [{schemaName}].[{tableName}] TO [{userName}];";
+
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
+            return sqlResult.IsCommandSuccess;
+        }
+        #endregion
     }
 }

@@ -21,7 +21,7 @@ namespace MasterRad.API
         [HttpPost, Route("msSqlServer/login/create")]
         public ActionResult<string> CreateLogin([FromBody] TestCreateLoginRQ body)
         {
-            _microsoftSQLService.CreateSQLServerUser("", "");
+            _microsoftSQLService.CreateServerLogin("", "");
 
             return "test completed";
         }
@@ -44,7 +44,7 @@ namespace MasterRad.API
         [HttpPost, Route("msSqlServer/login/assign")]
         public ActionResult<string> AssignLogin([FromBody] TestAssignLoginRQ body)
         {
-            _microsoftSQLService.AssignSQLServerUserToDb(body.Username, body.DbName);
+            _microsoftSQLService.CreateDbUserFromLogin(body.Username, body.DbName);
 
             return "test completed";
         }
@@ -52,7 +52,7 @@ namespace MasterRad.API
         [HttpPost, Route("msSqlServer/login/delete")]
         public ActionResult<string> DeleteLogin([FromBody] TestDeleteLoginRQ body)
         {
-            _microsoftSQLService.DeleteSQLServerUser(body.Username);
+            _microsoftSQLService.DeleteServerLogin(body.Username);
 
             return "test completed";
         }

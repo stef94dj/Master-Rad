@@ -101,11 +101,11 @@ namespace MasterRad.API
             var idsToMap = _userRepository.UnmappedIds(body.StudentIds);
             foreach (var id in idsToMap)
             {
-                var sqlUsername = $"sql-grader-user-{id}";
-                var sqlPass = $"Pass-{Guid.NewGuid()}-123!";
+                var sqlUsername = NameHelper.GenerateSqlUserName(id);
+                var sqlPass = NameHelper.GenerateRandomSqlPassowrd();
 
-                var mapRes = _microsoftSQLService.CreateSQLServerUser(sqlUsername, sqlPass);
-                if (mapRes == null || !mapRes.IsSuccess)
+                var mapSuccess = _microsoftSQLService.CreateServerLogin(sqlUsername, sqlPass);
+                if (!mapSuccess)
                     Result<bool>.Fail($"Failed to map user {id}.");
 
                 var mapSaveSuccess = _userRepository.CreateMapping(id, sqlUsername, sqlPass, UserId);
@@ -130,16 +130,25 @@ namespace MasterRad.API
 
             var synthesisExamDbNames = NameHelper.SynthesisTestExam(body.StudentIds, synthesisEntity.Id);
 
+            #region Clone_Databases
             var synthesisTemplateName = synthesisEntity.Task.Template.NameOnServer;
             var synthesisCloneSuccess = _microsoftSQLService.CloneDatabases(synthesisTemplateName, synthesisExamDbNames.Select(snp => snp.Value), false);
-
             synthesisExamDbNames = synthesisExamDbNames.Where(x => synthesisCloneSuccess.Contains(x.Value));
+            #endregion
 
-            var synthesisAssigned = _studentRepository.AssignSynthesisTest(synthesisExamDbNames, body.TestId, UserId);
-            if (synthesisAssigned != body.StudentIds.Count())
+            #region Assign_SQL_Logins
+            #endregion
+
+            #region Create_Entities
+            var entitiesCnt = _studentRepository.AssignSynthesisTest(synthesisExamDbNames, body.TestId, UserId);
+            #endregion
+
+            #region Return_Result
+            if (entitiesCnt != body.StudentIds.Count())
                 return Result<bool>.Fail("One or more students have not been assigned");
             else
                 return Result<bool>.Success(true);
+            #endregion
         }
 
         private ActionResult<Result<bool>> AssignStudentsToAnalysis(AssignStudentsRQ body)

@@ -1,0 +1,7 @@
+﻿USE master 
+GO
+
+CREATE LOGIN TestLogin4  WITH PASSWORD = 'readOaad1213nlyuser123!';
+GO
+
+GRANT CONNECT ANY DATABASE TO TestLogin4

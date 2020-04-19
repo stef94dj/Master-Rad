@@ -47,5 +47,15 @@ namespace MasterRad.Helpers
         {
             return $"ATE_{testId}_{studentId}";
         }
+
+        public static string GenerateRandomSqlPassowrd()
+        {
+            return $"Pass-{Guid.NewGuid()}-123!";
+        }
+
+        public static string GenerateSqlUserName(Guid microsoftId)
+        {
+            return $"Pass-{Guid.NewGuid()}-123!";
+        }
     }
 }

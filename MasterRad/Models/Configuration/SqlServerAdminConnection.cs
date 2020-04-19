@@ -10,6 +10,8 @@ namespace MasterRad.Models.Configuration
         public string DbName { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }
+        public string ReadOnlyLogin { get; set; }
+        public string ReadOnlyPassword { get; set; }
         public string ServerName { get; set; }
     }
 }

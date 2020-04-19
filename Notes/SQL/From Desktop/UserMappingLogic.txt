@@ -1,0 +1,8 @@
+Each Azure User will have a pair 1 sql credentials [username: Sql-Grader-studentIdGuid, passowrd: encrypted(Pass-RandomGuid-123!)]
+Those credentials will be used to create a single CONTAINED user on EACH of the sql databases he requires some access.
+
+In DBs for his synthesis tests, his SQL user will have ReadOnly access on all tables.
+In DB the DBs where he proides inputs (analysis) he will have CRUD access on all tables.
+In the Output_Tables DB, his sql user will have CRUD access only on his own TABLES.
+ 
+For evaluation, when a student SQL script is executed on a DB it should be executed under a contained user for that DB with RO access.
