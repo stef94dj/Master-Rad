@@ -16,31 +16,49 @@ namespace MasterRad.Services
 {
     public interface IMicrosoftSQL : IPerWebRequest
     {
+        #region SQL_Manager_Base
+        ConnectionParams GetAdminConnParams(string dbName);
         QueryExecuteRS ExecuteSQLAsAdmin(string sqlQuery, string dbName = "master");
         QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams);
-        QueryExecuteRS ReadTable(string dbName, string schemaName, string tableName);
-        bool CreateServerLogin(string login, string password);
-        bool CreateDbUserFromLogin(string userLogin, string dbName);
-        bool DeleteServerLogin(string userLogin);
+        #endregion
+
+        #region SQL_Metadata_Manager
         IEnumerable<string> GetTableNames(ConnectionParams connParams);
         IEnumerable<TableWithColumns> GetTableNamesWithColumnNames(ConnectionParams connParams);
         IEnumerable<string> GetDatabaseNames();
         IEnumerable<ColumnInfoDTO> GetColumnsData(string schemaName, string tableName, ConnectionParams connParams);
         IEnumerable<ConstraintDTO> GetConstraintData(string schemaName, string tableName, ConnectionParams connParams);
         IEnumerable<string> GetIdentityColumns(string schemaName, string tableName, ConnectionParams connParams);
+        #endregion
+
+        #region Record
+        int Count(string schemaName, string tableName, List<CellDTO> recordPrevious, ConnectionParams connParams);
+
+        #endregion
+
+        #region Table
+        bool CreateTable(CreateTable table);
+        IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables);
+        bool DeleteTableIfExists(string tableName, string databaseName);
+        QueryExecuteRS ReadTable(string dbName, string schemaName, string tableName);
         Result<bool> InsertRecord(string schemaName, string tableName, List<CellDTO> record, ConnectionParams connParams);
         Result<bool> UpdateRecord(string schemaName, string tableName, CellDTO cellNew, List<CellDTO> recordPrevious, ConnectionParams connParams);
-        int Count(string schemaName, string tableName, List<CellDTO> recordPrevious, ConnectionParams connParams);
         Result<bool> DeleteRecord(string schemaName, string tableName, List<CellDTO> record, ConnectionParams connParams);
+        #endregion
+
+        #region Database
         bool CreateDatabase(string dbName, bool contained = false);
         bool CloneDatabase(string originDbName, string destDbName, bool failIfExists);
         IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbName, bool failIfExists);
-        bool CreateTable(CreateTable table);
-        IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables);
         bool DatabaseExists(string name);
         bool DeleteDatabaseIfExists(string name);
-        bool DeleteTableIfExists(string tableName, string databaseName);
-        ConnectionParams GetAdminConnParams(string dbName);
+        #endregion
+
+        #region SQL_User_Manager
+        bool CreateServerLogin(string login, string password);
+        bool CreateDbUserFromLogin(string userLogin, string dbName);
+        bool DeleteServerLogin(string userLogin);
+        #endregion 
     }
 
     public class MicrosoftSQL : IMicrosoftSQL
@@ -301,16 +319,6 @@ namespace MasterRad.Services
         #endregion
 
         #region Table
-        public IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables)
-        {
-            var successfullyCreated = new List<string>();
-
-            foreach (var table in tables)
-                if (CreateTable(table))
-                    successfullyCreated.Add(table.TableName);
-
-            return successfullyCreated;
-        }
         public bool CreateTable(CreateTable table)
         {
             var columns = table.Columns.Select(x => $"{x.Name} {x.SqlType}");
@@ -327,6 +335,16 @@ namespace MasterRad.Services
             return GetTableNames(connection)
                     .Where(tn => string.Equals(tn, $"dbo.{table.TableName}", StringComparison.OrdinalIgnoreCase))
                     .Any();
+        }
+        public IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables)
+        {
+            var successfullyCreated = new List<string>();
+
+            foreach (var table in tables)
+                if (CreateTable(table))
+                    successfullyCreated.Add(table.TableName);
+
+            return successfullyCreated;
         }
         public bool DeleteTableIfExists(string tableName, string databaseName)
         {
