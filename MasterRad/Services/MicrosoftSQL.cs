@@ -18,7 +18,9 @@ namespace MasterRad.Services
     {
         #region SQL_Manager_Base
         ConnectionParams GetAdminConnParams(string dbName);
+        ConnectionParams GetReadOnlyAdminConnParams(string dbName);
         QueryExecuteRS ExecuteSQLAsAdmin(string sqlQuery, string dbName = "master");
+        QueryExecuteRS ExecuteSQLAsReadOnlyAdmin(string sqlQuery, string dbName = "master");
         QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams);
         #endregion
 
@@ -57,7 +59,14 @@ namespace MasterRad.Services
         #region SQL_User_Manager
         bool CreateServerLogin(string login, string password);
         bool CreateDbUserFromLogin(string userLogin, string dbName);
+        bool CreateDbUserContained(string userName, string password, string dbName);
+        bool DeleteDbUser(string userName, string dbName);
         bool DeleteServerLogin(string userLogin);
+
+        bool AssignReadonly(string userName, string dbName);
+        bool AssignCRUD(string userName, string dbName);
+        bool AssignReadonly(string userName, string dbName, string tableName, string schemaName = null);
+        bool AssignCRUD(string userName, string dbName, string tableName, string schemaName = null);
         #endregion 
     }
 
@@ -78,6 +87,24 @@ namespace MasterRad.Services
         }
 
         #region SQL_Manager_Base
+        public ConnectionParams GetAdminConnParams(string dbName)
+        {
+            return connParams = new ConnectionParams()
+            {
+                DbName = dbName,
+                Login = _adminConnectionConf.Login,
+                Password = _adminConnectionConf.Password
+            };
+        }
+        public ConnectionParams GetReadOnlyAdminConnParams(string dbName)
+        {
+            return connParams = new ConnectionParams()
+            {
+                DbName = dbName,
+                Login = _adminConnectionConf.ReadOnlyLogin,
+                Password = _adminConnectionConf.ReadOnlyPassword
+            };
+        }
         private string BuildConnectionString(ConnectionParams connParams)
         {
             var template = Constants.MicrosoftSQLConnectionStringTemplate;
@@ -87,6 +114,10 @@ namespace MasterRad.Services
         public QueryExecuteRS ExecuteSQLAsAdmin(string sqlQuery, string dbName = "master")
         {
             return ExecuteSQL(sqlQuery, GetAdminConnParams(dbName));
+        }
+        public QueryExecuteRS ExecuteSQLAsReadOnlyAdmin(string sqlQuery, string dbName = "master")
+        {
+            return ExecuteSQL(sqlQuery, GetReadOnlyAdminConnParams(dbName));
         }
         public QueryExecuteRS ExecuteSQL(string sqlQuery, ConnectionParams connParams)
         {
@@ -141,15 +172,6 @@ namespace MasterRad.Services
             }
 
             return new QueryExecuteRS(messages, tables, rowsAffected);
-        }
-        public ConnectionParams GetAdminConnParams(string dbName)
-        {
-            return connParams = new ConnectionParams()
-            {
-                DbName = dbName,
-                Login = _adminConnectionConf.Login,
-                Password = _adminConnectionConf.Password
-            };
         }
         #endregion
 
