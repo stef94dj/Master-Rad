@@ -42,7 +42,7 @@ namespace MasterRad.Services
         bool CreateTable(CreateTable table);
         IEnumerable<string> CreateTables(IEnumerable<CreateTable> tables);
         bool DeleteTableIfExists(string tableName, string databaseName);
-        QueryExecuteRS ReadTable(string dbName, string schemaName, string tableName);
+        QueryExecuteRS ReadTable(string schemaName, string tableName, ConnectionParams connParams);
         Result<bool> InsertRecord(string schemaName, string tableName, List<CellDTO> record, ConnectionParams connParams);
         Result<bool> UpdateRecord(string schemaName, string tableName, CellDTO cellNew, List<CellDTO> recordPrevious, ConnectionParams connParams);
         Result<bool> DeleteRecord(string schemaName, string tableName, List<CellDTO> record, ConnectionParams connParams);
@@ -382,10 +382,10 @@ namespace MasterRad.Services
                     .Where(tn => string.Equals(tn, $"dbo.{tableName}", StringComparison.OrdinalIgnoreCase))
                     .Any();
         }
-        public QueryExecuteRS ReadTable(string dbName, string schemaName, string tableName)
+        public QueryExecuteRS ReadTable(string schemaName, string tableName, ConnectionParams connParams)
         {
             var sqlCommand = $"SELECT * FROM [{schemaName}].[{tableName}]";
-            return ExecuteSQLAsReadOnlyAdmin(sqlCommand, dbName);
+            return ExecuteSQL(sqlCommand, connParams);
         }
         public int Count(string schemaName, string tableName, List<CellDTO> recordPrevious, ConnectionParams connParams)
         {

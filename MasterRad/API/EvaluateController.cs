@@ -35,6 +35,7 @@ namespace MasterRad.API
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly SqlServerAdminConnection _sqlServerAdmin;
         private readonly IMsGraph _msGraph;
+        private readonly IUserRepository _userRepo;
 
         public EvaluateController
         (
@@ -47,7 +48,8 @@ namespace MasterRad.API
             ISignalR<AnalysisProgressHub> analysisSignalR,
             IServiceScopeFactory serviceScopeFactory,
             IOptions<SqlServerAdminConnection> sqlServerAdmin,
-            IMsGraph msGraph
+            IMsGraph msGraph,
+            IUserRepository userRepo
         )
         {
             _evaluatorService = evaluatorService;
@@ -60,6 +62,7 @@ namespace MasterRad.API
             _serviceScopeFactory = serviceScopeFactory;
             _sqlServerAdmin = sqlServerAdmin.Value;
             _msGraph = msGraph;
+            _userRepo = userRepo;
         }
 
         #region Synthesis
@@ -133,29 +136,24 @@ namespace MasterRad.API
                     #endregion
 
                     #region Prepare_Data
-                    var originalDataNameOnServer = useSecretData ? sts.SynthesisTest.Task.NameOnServer : sts.SynthesisTest.Task.Template.NameOnServer;
-                    var cloneDataNameOnServer = NameHelper.SynthesisTestEvaluation(studentId, testId, useSecretData);
-
-                    var solutionScript = sts.SynthesisTest.Task.SolutionSqlScript;
-                    var solutionFormat = sts.SynthesisTest.Task.SolutionColumns.Select(sc => sc.ColumnName);
+                    var taskEntity = sts.SynthesisTest.Task;
+                    var dbNameOnServer = useSecretData ? taskEntity.NameOnServer : taskEntity.Template.NameOnServer;
+                    var solutionScript = taskEntity.SolutionSqlScript;
+                    var solutionFormat = taskEntity.SolutionColumns.Select(sc => sc.ColumnName);
                     var studentScript = sts.SqlScript;
-                    #endregion
-
-                    #region Clone_DB
-                    var cloneSuccess = _microsoftSQLService.CloneDatabase(originalDataNameOnServer, cloneDataNameOnServer, false);
-                    if (!cloneSuccess)
-                        throw new SynthesisEvaluationException(useSecretData, testId, studentId, $"Failed to clone database '{originalDataNameOnServer}' into '{cloneDataNameOnServer}'");
                     #endregion
 
                     #region Evaluate
                     EvaluationResult result = null;
-                    var studentResult = _microsoftSQLService.ExecuteSQLAsAdmin(studentScript, cloneDataNameOnServer);
+
+                    var conn = _userRepo.GetSqlConnection(studentId, dbNameOnServer);
+                    var studentResult = _microsoftSQLService.ExecuteSQL(studentScript, conn);
                     if (studentResult.Messages.Any())
                         result = new EvaluationResult() { Pass = false, Message = $"Student Sql execution failed with errors:'{string.Join(", ", studentResult.Messages)}'" };
 
                     if (result == null)
                     {
-                        var teacherResult = _microsoftSQLService.ExecuteSQLAsAdmin(solutionScript, originalDataNameOnServer);
+                        var teacherResult = _microsoftSQLService.ExecuteSQLAsReadOnlyAdmin(solutionScript, dbNameOnServer);
                         if (teacherResult.Messages.Any())
                             throw new SynthesisEvaluationException(useSecretData, testId, studentId, $"Failed to execute solution script: '{string.Join(", ", teacherResult.Messages)}'");
 
@@ -163,7 +161,7 @@ namespace MasterRad.API
                     }
                     #endregion
 
-                    #region Record_End_And_CleanUp
+                    #region Signal_End_And_Save_Result
                     var saveResultSuccess = synthesisRepository.SaveProgress(sts, useSecretData, result.PassStatus, userId, result.Message);
                     if (saveResultSuccess)
                         await _synthesisSignalR.SendMessageAsync(jobId, "synthesisEvaluationUpdate", new
@@ -172,11 +170,6 @@ namespace MasterRad.API
                             secret = useSecretData,
                             status = (int)(result.Pass ? EvaluationProgress.Passed : EvaluationProgress.Failed)
                         });
-
-                    var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(cloneDataNameOnServer);
-
-                    if (!deleteSuccess)
-                        throw new SynthesisEvaluationException(useSecretData, testId, studentId, $"Delete database {cloneDataNameOnServer} failed");
 
                     if (!saveResultSuccess)
                         throw new SynthesisEvaluationException(useSecretData, testId, studentId, "Failed to save evaluation result");
@@ -436,7 +429,8 @@ namespace MasterRad.API
                     #endregion
 
                     #region Evaluate
-                    var providedOutput = _microsoftSQLService.ReadTable(mainDbName, "dbo", providedOutputTableName);
+                    var conn = _userRepo.GetSqlConnection(studentId, mainDbName);
+                    var providedOutput = _microsoftSQLService.ReadTable(mainDbName, "dbo", conn);
                     if (providedOutput.Messages.Any())
                         throw new AnalysisEvaluationException(type, testId, studentId, $"Failed to read provided output table '{providedOutputTableName}'");
 

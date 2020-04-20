@@ -58,7 +58,8 @@ namespace MasterRad.API
         [HttpGet, Route("read/{dbName}/{schemaName}/{tableName}")]
         public ActionResult<TableDTO> ReadTable([FromRoute] string dbName, [FromRoute] string schemaName, [FromRoute] string tableName)
         {
-            var queryResult = _microsoftSQLService.ReadTable(dbName, schemaName, tableName);
+            var conn = GetSqlConnection(dbName);
+            var queryResult = _microsoftSQLService.ReadTable(schemaName, tableName, conn);
             return queryResult.Tables.Single();
         }
     }
