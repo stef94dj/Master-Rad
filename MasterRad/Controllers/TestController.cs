@@ -40,15 +40,16 @@ namespace MasterRad.Controllers
             if (!stsEntity.TakenTest)
                 _synthesisRepository.MarkExamAsTaken(testId, UserId, timeStamp);
 
+            var taskEntity = stsEntity.SynthesisTest.Task;
             var vm = new SynthesisExamVM()
             {
                 TestId = stsEntity.SynthesisTestId,
                 StudentId = stsEntity.StudentId,
                 TimeStamp = Convert.ToBase64String(stsEntity.TimeStamp),
-                NameOnServer = stsEntity.NameOnServer,
+                NameOnServer = taskEntity.Template.NameOnServer,
                 SqlScript = stsEntity.SqlScript ?? string.Empty,
-                TaskDescription = stsEntity.SynthesisTest.Task.Description,
-                ModelDescription = stsEntity.SynthesisTest.Task.Template.ModelDescription
+                TaskDescription = taskEntity.Description,
+                ModelDescription = taskEntity.Template.ModelDescription
             };
 
             return View(vm);

@@ -104,10 +104,6 @@ namespace MasterRad.API
                 var sqlUsername = NameHelper.GenerateSqlUserName(id);
                 var sqlPass = NameHelper.GenerateRandomSqlPassowrd();
 
-                var mapSuccess = _microsoftSQLService.CreateServerLogin(sqlUsername, sqlPass);
-                if (!mapSuccess)
-                    Result<bool>.Fail($"Failed to map user {id}.");
-
                 var mapSaveSuccess = _userRepository.CreateMapping(id, sqlUsername, sqlPass, UserId);
                 if (!mapSaveSuccess)
                     Result<bool>.Fail($"Failed to save user mapping for {id}.");
@@ -128,20 +124,21 @@ namespace MasterRad.API
             if (synthesisEntity.Status >= TestStatus.Completed)
                 return StatusCode(500);
 
-            var synthesisExamDbNames = NameHelper.SynthesisTestExam(body.StudentIds, synthesisEntity.Id);
+            var task = synthesisEntity.Task;
+            var template = task.Template;
+            var userMapEntities = _userRepository.Get(body.StudentIds);
+            foreach (var userMapEntity in userMapEntities)
+            {
+                oaisndoasnd
+                  //CreateDbUserContained - reentrant
+                  //CreateDbUserContained & AssignReadonly - maybe change to void & throw ex if fails?
+                _microsoftSQLService.CreateDbUserContained(userMapEntity.SqlUsername, userMapEntity.SqlPassword, task.NameOnServer);
+                _microsoftSQLService.AssignReadonly(userMapEntity.SqlUsername, task.NameOnServer);
+                _microsoftSQLService.CreateDbUserContained(userMapEntity.SqlUsername, userMapEntity.SqlPassword, template.NameOnServer);
+                _microsoftSQLService.AssignReadonly(userMapEntity.SqlUsername, template.NameOnServer);
+            }
 
-            #region Clone_Databases
-            var synthesisTemplateName = synthesisEntity.Task.Template.NameOnServer;
-            var synthesisCloneSuccess = _microsoftSQLService.CloneDatabases(synthesisTemplateName, synthesisExamDbNames.Select(snp => snp.Value), false);
-            synthesisExamDbNames = synthesisExamDbNames.Where(x => synthesisCloneSuccess.Contains(x.Value));
-            #endregion
-
-            #region Assign_SQL_Logins
-            #endregion
-
-            #region Create_Entities
-            var entitiesCnt = _studentRepository.AssignSynthesisTest(synthesisExamDbNames, body.TestId, UserId);
-            #endregion
+            var entitiesCnt = _studentRepository.AssignSynthesisTest(body.StudentIds, body.TestId, UserId);
 
             #region Return_Result
             if (entitiesCnt != body.StudentIds.Count())

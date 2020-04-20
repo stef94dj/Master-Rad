@@ -10,6 +10,7 @@ namespace MasterRad.Repositories
     public interface IUserRepository
     {
         AzureSqlUserMapEntity Get(Guid id);
+        IEnumerable<AzureSqlUserMapEntity> Get(IEnumerable<Guid> ids);
         ConnectionParams GetSqlConnection(Guid studentId, string dbName);
         IEnumerable<Guid> UnmappedIds(IEnumerable<Guid> userIds);
         bool CreateMapping(Guid id, string sqlUsername, string sqlPass, Guid currentUserId);
@@ -27,6 +28,10 @@ namespace MasterRad.Repositories
         public AzureSqlUserMapEntity Get(Guid id)
             => _context.AzureSqlUserMap
                        .Single(x => x.AzureId == id);
+
+        public IEnumerable<AzureSqlUserMapEntity> Get(IEnumerable<Guid> ids)
+            => _context.AzureSqlUserMap
+                       .Where(x => ids.Contains(x.AzureId));
 
         public ConnectionParams GetSqlConnection(Guid studentId, string dbName)
         {

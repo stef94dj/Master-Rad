@@ -19,22 +19,11 @@ namespace MasterRad.DTO.RS
         public List<TableDTO> Tables { get; set; }
 
         [JsonIgnore]
-        public bool IsCommandSuccess
+        public bool NoMessages
         {
             get
             {
-                return Messages != null &&
-                       Messages.Any() &&
-                       Messages[0].Equals(Constants.SQLServerCommandSuccessMessage);
-            }
-        }
-
-        [JsonIgnore]
-        public bool IsSelectSuccess
-        {
-            get
-            {
-                return Messages != null && !Messages.Any();
+                return Messages == null || !Messages.Any();
             }
         }
     }

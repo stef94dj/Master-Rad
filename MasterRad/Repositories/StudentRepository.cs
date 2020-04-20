@@ -11,7 +11,7 @@ namespace MasterRad.Repositories
     {
         IEnumerable<BaseTestStudentEntity> GetAssignedSynthesis(int testId);
         IEnumerable<BaseTestStudentEntity> GetAssignedAnalysis(int testId);
-        int AssignSynthesisTest(IEnumerable<KeyValuePair<Guid, string>> studDbNamePairs, int testId, Guid userId);
+        int AssignSynthesisTest(IEnumerable<Guid> studentIds, int testId, Guid userId);
         int AssignAnalysisTest(IEnumerable<AnalysisAssignModel> assignModels, int testId, Guid userId);
         bool RemoveSynthesis(Guid studentId, byte[] timeStamp, int testId);
         bool RemoveAnalysis(Guid studentId, byte[] timeStamp, int testId);
@@ -35,13 +35,13 @@ namespace MasterRad.Repositories
                        .Where(sts => sts.AnalysisTestId == testId)
                        .Include(sts => sts.Student);
 
-        public int AssignSynthesisTest(IEnumerable<KeyValuePair<Guid, string>> studDbNamePairs, int testId, Guid userId)
+        public int AssignSynthesisTest(IEnumerable<Guid> studentIds, int testId, Guid userId)
         {
-            var stsEntities = studDbNamePairs.Select(pair => new SynthesisTestStudentEntity()
+            var stsEntities = studentIds.Select(studentId => new SynthesisTestStudentEntity()
             {
                 SynthesisTestId = testId,
-                StudentId = pair.Key,
-                NameOnServer = pair.Value,
+                StudentId = studentId,
+                NameOnServer = "Obsolete",
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = userId,
             });

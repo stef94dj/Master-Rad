@@ -515,7 +515,7 @@ namespace MasterRad.Services
                               "CHECK_POLICY=ON";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand);
-            return sqlResult.IsCommandSuccess;
+            return sqlResult.NoMessages;
         }
         public bool CreateDbUserFromLogin(string userLogin, string dbName)
         {
@@ -524,28 +524,28 @@ namespace MasterRad.Services
                              $"EXEC sp_addrolemember 'db_datareader' , '{userLogin}'";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
-            return sqlResult.IsCommandSuccess;
+            return sqlResult.NoMessages;
         }
         public bool CreateDbUserContained(string userName, string password, string dbName)
         {
             var sqlCommand = $"CREATE USER [{userName}]  WITH PASSWORD = '{password}';";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
-            return sqlResult.IsCommandSuccess;
+            return sqlResult.NoMessages;
         }
         public bool DeleteDbUser(string userName, string dbName)
         {
             var sqlCommand = $"DROP USER [{userName}]";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
-            return sqlResult.IsCommandSuccess;
+            return sqlResult.NoMessages;
         }
         public bool DeleteServerLogin(string userLogin)
         {
             var sqlCommand = $"DROP LOGIN [{userLogin}]";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand);
-            return sqlResult.IsCommandSuccess;
+            return sqlResult.NoMessages;
         }
 
         public bool AssignReadonly(string userName, string dbName)
@@ -553,7 +553,7 @@ namespace MasterRad.Services
             var sqlCommand = $"GRANT SELECT TO [{userName}]";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
-            return sqlResult.IsCommandSuccess;
+            return sqlResult.NoMessages;
         }
         public bool AssignCRUD(string userName, string dbName)
         {
@@ -563,7 +563,7 @@ namespace MasterRad.Services
                              $"GRANT DELETE TO [{userName}];";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
-            return sqlResult.IsCommandSuccess;
+            return sqlResult.NoMessages;
         }
         public bool AssignReadonly(string userName, string dbName, string tableName, string schemaName = null)
         {
@@ -573,7 +573,7 @@ namespace MasterRad.Services
             var sqlCommand = $"GRANT SELECT ON [{schemaName}].[{tableName}] TO [{userName}]";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
-            return sqlResult.IsCommandSuccess;
+            return sqlResult.NoMessages;
         }
         public bool AssignCRUD(string userName, string dbName, string tableName, string schemaName = null)
         {
@@ -587,7 +587,7 @@ namespace MasterRad.Services
 
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
-            return sqlResult.IsCommandSuccess;
+            return sqlResult.NoMessages;
         }
         #endregion
     }

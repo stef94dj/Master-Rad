@@ -55,7 +55,7 @@ namespace MasterRad.Helpers
 
         public static string GenerateSqlUserName(Guid microsoftId)
         {
-            return $"Pass-{Guid.NewGuid()}-123!";
+            return $"sgu-{microsoftId}"; //sql grader user
         }
     }
 }

@@ -36,7 +36,7 @@ namespace MasterRad.API
             var sqlRes = _microsoftSQLService.ExecuteSQL(body.SQLQuery, conn);
 
             #region Build_Response
-            if (sqlRes.IsSelectSuccess)
+            if (sqlRes.NoMessages)
                 return Result<QueryExecuteRS>.Success(sqlRes);
             else
                 return Result<QueryExecuteRS>.Fail(sqlRes.Messages);
