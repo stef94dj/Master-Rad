@@ -26,7 +26,7 @@ namespace MasterRad
         }
 
         private string _sqlUsername;
-        private string SqlUsername
+        public string SqlUsername
         {
             get
             {
@@ -37,7 +37,7 @@ namespace MasterRad
         }
 
         private string _sqlPassword;
-        private string SqlPassword
+        public string SqlPassword
         {
             get
             {
