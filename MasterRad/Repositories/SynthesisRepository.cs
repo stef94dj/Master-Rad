@@ -22,7 +22,7 @@ namespace MasterRad.Repositories
         void Delete(DeleteDTO request);
         bool UpdateName(UpdateNameRQ request, Guid userId);
         bool StatusNext(UpdateDTO request, Guid userId);
-        bool MarkExamAsTaken(int testId, Guid studentId, byte[] timeStamp);
+        bool MarkExamAsTaken(int testId, Guid studentId, ref byte[] timeStamp);
         byte[] SubmitAnswer(int testId, Guid studentId, byte[] timeStamp, string sqlScript);
         bool HasAnswer(int testId, Guid userId);
         SynthesisTestStudentEntity GetEvaluationData(int testId, Guid studentId);
@@ -180,7 +180,7 @@ namespace MasterRad.Repositories
             return !string.IsNullOrEmpty(sqlAnswer);
         }
 
-        public bool MarkExamAsTaken(int testId, Guid studentId, byte[] timeStamp)
+        public bool MarkExamAsTaken(int testId, Guid studentId, ref byte[] timeStamp)
         {
             var entity = new SynthesisTestStudentEntity() //AutoMapper
             {
@@ -197,7 +197,11 @@ namespace MasterRad.Repositories
             _context.Entry(entity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(entity).Property(x => x.ModifiedBy).IsModified = true;
 
-            return _context.SaveChanges() == 1;
+            var isSuccess = _context.SaveChanges() == 1;
+            if (isSuccess)
+                timeStamp = entity.TimeStamp;
+
+            return isSuccess;
         }
 
         public byte[] SubmitAnswer(int testId, Guid studentId, byte[] timeStamp, string sqlScript)

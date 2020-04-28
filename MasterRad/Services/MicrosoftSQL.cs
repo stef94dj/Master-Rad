@@ -57,6 +57,8 @@ namespace MasterRad.Services
         #endregion
 
         #region SQL_User_Manager
+        IEnumerable<string> GetDatabaseUsers(string dbName);
+        bool UserExists(string username, string dbName);
         bool CreateServerLogin(string login, string password);
         bool CreateDbUserFromLogin(string userLogin, string dbName);
         bool CreateDbUserContained(string userName, string password, string dbName);
@@ -131,7 +133,7 @@ namespace MasterRad.Services
                 connection.FireInfoMessageEventOnUserErrors = true;
                 connection.InfoMessage += new SqlInfoMessageEventHandler((sender, args) =>
                 {
-                    messages.Add(args.Message); //args.Errors - zbog FireInfoMessageEventOnUserErrors ne razlikujem errors i messages
+                    messages.Add(args.Message);
                 });
 
                 SqlCommand command = new SqlCommand(sqlQuery, connection);
@@ -505,6 +507,27 @@ namespace MasterRad.Services
         #endregion
 
         #region SQL_User_Manager
+        public IEnumerable<string> GetDatabaseUsers(string dbName)
+        {
+            var sqlCommand = "SELECT [name] FROM [sys].[database_principals] WHERE [type] = N'S'";
+
+            var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
+
+            return sqlResult
+                    .Tables[0]
+                    .Rows
+                    .Select(x => x[0].ToString());
+        }
+        public bool UserExists(string username, string dbName)
+        {
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(dbName))
+                return false;
+
+            return GetDatabaseUsers(dbName)
+                    .Where(x => x.ToLower().Equals(username.ToLower()))
+                    .Any();
+        }
+
         public bool CreateServerLogin(string login, string password)
         {
             var sqlCommand = $"CREATE LOGIN [{login}] " +
@@ -570,7 +593,8 @@ namespace MasterRad.Services
             if (string.IsNullOrEmpty(schemaName))
                 schemaName = Constants.DefaultSchemaName;
 
-            var sqlCommand = $"GRANT SELECT ON [{schemaName}].[{tableName}] TO [{userName}]";
+            var sqlCommand = $"GRANT SELECT ON [{schemaName}].[{tableName}] TO [{userName}]" +
+                             $"GRANT VIEW DEFINITION ON SCHEMA :: [{schemaName}] TO [{userName}];";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
             return sqlResult.NoMessages;
@@ -583,8 +607,8 @@ namespace MasterRad.Services
             var sqlCommand = $"GRANT INSERT ON [{schemaName}].[{tableName}] TO [{userName}];" +
                              $"GRANT SELECT ON [{schemaName}].[{tableName}] TO [{userName}];" +
                              $"GRANT UPDATE ON [{schemaName}].[{tableName}] TO [{userName}];" +
-                             $"GRANT DELETE ON [{schemaName}].[{tableName}] TO [{userName}];";
-
+                             $"GRANT DELETE ON [{schemaName}].[{tableName}] TO [{userName}];" + 
+                             $"GRANT VIEW DEFINITION ON SCHEMA :: [{schemaName}] TO [{userName}];";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);
             return sqlResult.NoMessages;

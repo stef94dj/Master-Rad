@@ -13,7 +13,7 @@ namespace MasterRad
 {
     public class BaseUserMapController : BaseController
     {
-        private readonly IUserRepository _userRepo;
+        protected readonly IUserRepository _userRepo;
         private readonly SqlServerAdminConnection _adminConnectionConf;
         public BaseUserMapController
         (

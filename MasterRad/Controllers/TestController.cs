@@ -38,14 +38,14 @@ namespace MasterRad.Controllers
                 return Unauthorized();
 
             if (!stsEntity.TakenTest)
-                _synthesisRepository.MarkExamAsTaken(testId, UserId, timeStamp);
+                _synthesisRepository.MarkExamAsTaken(testId, UserId, ref timeStamp);
 
             var taskEntity = stsEntity.SynthesisTest.Task;
             var vm = new SynthesisExamVM()
             {
                 TestId = stsEntity.SynthesisTestId,
                 StudentId = stsEntity.StudentId,
-                TimeStamp = Convert.ToBase64String(stsEntity.TimeStamp),
+                TimeStamp = Convert.ToBase64String(timeStamp),
                 NameOnServer = taskEntity.Template.NameOnServer,
                 SqlScript = stsEntity.SqlScript ?? string.Empty,
                 TaskDescription = taskEntity.Description,
@@ -65,7 +65,7 @@ namespace MasterRad.Controllers
             if (!atsEntity.TakenTest)
                 _analysisRepository.MarkExamAsTaken(testId, UserId, timeStamp);
 
-            var outputTablesDb = _adminConnectionConf.DbName;
+            var outputTablesDb = _adminConnectionConf.OutputTablesDbName;
 
             var vm = new AnalysisExamVM()
             {

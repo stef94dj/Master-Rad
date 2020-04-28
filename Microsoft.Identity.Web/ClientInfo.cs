@@ -29,7 +29,7 @@ namespace Microsoft.Identity.Web
             {
                 return DeserializeFromJson<ClientInfo>(Base64UrlHelpers.DecodeToBytes(clientInfo));
             }
-            catch (Exception exc)
+            catch (Exception)
             {
                 throw new ArgumentException($"Failed to parse the returned client info. ", nameof(clientInfo));
             }

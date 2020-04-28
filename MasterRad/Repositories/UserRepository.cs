@@ -36,7 +36,7 @@ namespace MasterRad.Repositories
         public ConnectionParams GetSqlConnection(Guid studentId, string dbName)
         {
             var userMapEntity = Get(studentId);
-            return new ConnectionParams(dbName, userMapEntity.SqlUsername, userMapEntity.SqlUsername);
+            return new ConnectionParams(dbName, userMapEntity.SqlUsername, userMapEntity.SqlPassword);
         }
 
         public IEnumerable<Guid> UnmappedIds(IEnumerable<Guid> userIds)

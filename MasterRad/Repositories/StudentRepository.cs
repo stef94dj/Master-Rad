@@ -20,6 +20,8 @@ namespace MasterRad.Repositories
     public class StudentRepository : IStudentRepository
     {
         private readonly Context _context;
+        private const int synthesisEntitiesPerUser = 3;
+        private const int analysisEntitiesPerUser = 5;
 
         public StudentRepository(Context context)
         {
@@ -66,7 +68,7 @@ namespace MasterRad.Repositories
 
             _context.SynthesysTestEvaluations.AddRange(progressEntites);
             _context.SynthesysTestStudents.AddRange(stsEntities);
-            return _context.SaveChanges();
+            return _context.SaveChanges() / synthesisEntitiesPerUser;
         }
 
         public int AssignAnalysisTest(IEnumerable<AnalysisAssignModel> assignModels, int testId, Guid userId)
@@ -122,7 +124,7 @@ namespace MasterRad.Repositories
 
             _context.AnalysisTestEvaluations.AddRange(progressEntities);
             _context.AnalysisTestStudents.AddRange(atsEntities);
-            return _context.SaveChanges();
+            return _context.SaveChanges() / analysisEntitiesPerUser;
         }
 
         public bool RemoveSynthesis(Guid studentId, byte[] timeStamp, int testId)

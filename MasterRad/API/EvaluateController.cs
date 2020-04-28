@@ -35,7 +35,6 @@ namespace MasterRad.API
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly SqlServerAdminConnection _sqlServerAdmin;
         private readonly IMsGraph _msGraph;
-        private readonly IUserRepository _userRepo;
 
         public EvaluateController
         (
@@ -48,8 +47,7 @@ namespace MasterRad.API
             ISignalR<AnalysisProgressHub> analysisSignalR,
             IServiceScopeFactory serviceScopeFactory,
             IOptions<SqlServerAdminConnection> sqlServerAdmin,
-            IMsGraph msGraph,
-            IUserRepository userRepo
+            IMsGraph msGraph
         )
         {
             _evaluatorService = evaluatorService;
@@ -62,7 +60,6 @@ namespace MasterRad.API
             _serviceScopeFactory = serviceScopeFactory;
             _sqlServerAdmin = sqlServerAdmin.Value;
             _msGraph = msGraph;
-            _userRepo = userRepo;
         }
 
         #region Synthesis
@@ -115,7 +112,6 @@ namespace MasterRad.API
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
-                var logRepository = scope.ServiceProvider.GetService<ILogRepository>();
                 try
                 {
 
@@ -146,8 +142,7 @@ namespace MasterRad.API
                     #region Evaluate
                     EvaluationResult result = null;
 
-                    var conn = _userRepo.GetSqlConnection(studentId, dbNameOnServer);
-                    var studentResult = _microsoftSQLService.ExecuteSQL(studentScript, conn);
+                    var studentResult = _microsoftSQLService.ExecuteSQLAsReadOnlyAdmin(studentScript, dbNameOnServer);
                     if (studentResult.Messages.Any())
                         result = new EvaluationResult() { Pass = false, Message = $"Student Sql execution failed with errors:'{string.Join(", ", studentResult.Messages)}'" };
 
@@ -177,7 +172,8 @@ namespace MasterRad.API
                 }
                 catch (Exception ex)
                 {
-                    logRepository.Log(ex);
+                    var logRepo = scope.ServiceProvider.GetService<ILogRepository>();
+                    logRepo.Log(ex);
                 }
             }
         }
@@ -261,25 +257,17 @@ namespace MasterRad.API
                     var solutionFormat = task.SolutionColumns.Select(sc => sc.ColumnName);
                     #endregion
 
-                    #region Clone_DB
-                    var originalDataNameOnServer = ats.InputNameOnServer;
-                    var cloneDataNameOnServer = NameHelper.AnalysisTestEvaluation(studentId, testId, type);
-                    var cloneSuccess = _microsoftSQLService.CloneDatabase(originalDataNameOnServer, cloneDataNameOnServer, false);
-                    if (!cloneSuccess)
-                        throw new AnalysisEvaluationException(type, testId, studentId, $"Failed to clone database '{originalDataNameOnServer}' into '{cloneDataNameOnServer}'");
-                    #endregion
-
                     #region Get_Outputs
                     EvaluationResult result = new EvaluationResult() { Pass = true, Message = "Data successfully prepared." };
 
-                    var studentOutput = _microsoftSQLService.ExecuteSQLAsAdmin(studentSolutionSql, cloneDataNameOnServer);
+                    var studentOutput = _microsoftSQLService.ExecuteSQLAsReadOnlyAdmin(studentSolutionSql, ats.InputNameOnServer);
                     if (studentOutput.Messages.Any())
                         result = new EvaluationResult() { Pass = false, Message = $"Student Sql execution failed with errors:{string.Join(", ", studentOutput.Messages)}" };
 
                     QueryExecuteRS teacherOutput = null;
                     if (result.Pass)
                     {
-                        teacherOutput = _microsoftSQLService.ExecuteSQLAsAdmin(teacherSolutionSql, ats.InputNameOnServer);
+                        teacherOutput = _microsoftSQLService.ExecuteSQLAsReadOnlyAdmin(teacherSolutionSql, ats.InputNameOnServer);
                         if (teacherOutput.Messages.Any())
                             result = new EvaluationResult() { Pass = false, Message = $"Failed to execute solution script: '{string.Join(", ", teacherOutput.Messages)}'" };
                     }
@@ -317,7 +305,7 @@ namespace MasterRad.API
                     }
                     #endregion
 
-                    #region Save_And_CleanUp
+                    #region Signal_End_And_Save_Result
                     var saveResultSuccess = analysisRepository.SaveProgress(ats, type, result.PassStatus, userId, result.Message);
                     await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
                     {
@@ -325,10 +313,6 @@ namespace MasterRad.API
                         type = (int)AnalysisEvaluationType.PrepareData,
                         status = result.Pass ? (int)EvaluationProgress.Passed : (int)EvaluationProgress.Failed
                     });
-                    var deleteSuccess = _microsoftSQLService.DeleteDatabaseIfExists(cloneDataNameOnServer);
-
-                    if (!deleteSuccess)
-                        throw new AnalysisEvaluationException(type, testId, studentId, $"Delete database '{cloneDataNameOnServer}' failed");
 
                     if (!saveResultSuccess)
                         throw new AnalysisEvaluationException(type, testId, studentId, "Failed to save evaluation result");
@@ -336,7 +320,8 @@ namespace MasterRad.API
                 }
                 catch (Exception ex)
                 {
-                    var logRepository = scope.ServiceProvider.GetService<ILogRepository>();
+                    var logRepo = scope.ServiceProvider.GetService<ILogRepository>();
+                    logRepo.Log(ex);
                 }
             }
         }
@@ -384,7 +369,8 @@ namespace MasterRad.API
                 }
                 catch (Exception ex)
                 {
-                    var logRepository = scope.ServiceProvider.GetService<ILogRepository>();
+                    var logRepo = scope.ServiceProvider.GetService<ILogRepository>();
+                    logRepo.Log(ex);
                 }
             }
         }
@@ -413,7 +399,6 @@ namespace MasterRad.API
                     #endregion
 
                     #region Prepare_Data
-                    var mainDbName = _sqlServerAdmin.DbName;
                     var providedOutputTableName = "";
                     switch (type)
                     {
@@ -429,15 +414,15 @@ namespace MasterRad.API
                     #endregion
 
                     #region Evaluate
-                    var conn = _userRepo.GetSqlConnection(studentId, mainDbName);
-                    var providedOutput = _microsoftSQLService.ReadTable(mainDbName, "dbo", conn);
+                    var conn = _microsoftSQLService.GetReadOnlyAdminConnParams(_sqlServerAdmin.OutputTablesDbName);
+                    var providedOutput = _microsoftSQLService.ReadTable("dbo", providedOutputTableName, conn);
                     if (providedOutput.Messages.Any())
                         throw new AnalysisEvaluationException(type, testId, studentId, $"Failed to read provided output table '{providedOutputTableName}'");
 
                     var result = _evaluatorService.EvaluateQueryOutputs(providedOutput, actualOutput, solutionFormat, true);
                     #endregion
 
-                    #region Record_End
+                    #region Signal_End_And_Save_Result
                     var saveResultSuccess = analysisRepository.SaveProgress(ats, type, result.PassStatus, userId, result.Message);
                     if (saveResultSuccess)
                         await _analysisSignalR.SendMessageAsync(jobId, "analysisEvaluationUpdate", new
@@ -454,7 +439,8 @@ namespace MasterRad.API
                 }
                 catch (Exception ex)
                 {
-                    var logRepository = scope.ServiceProvider.GetService<ILogRepository>();
+                    var logRepo = scope.ServiceProvider.GetService<ILogRepository>();
+                    logRepo.Log(ex);
                 }
             }
         }

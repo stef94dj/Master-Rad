@@ -24,32 +24,32 @@ namespace MasterRad.API
     [Authorize(Roles = UserRole.Professor)]
     public class StudentController : BaseController
     {
-        private readonly IStudentRepository _studentRepository;
-        private readonly ISynthesisRepository _synthesisRepository;
-        private readonly IAnalysisRepository _analysisRepository;
+        private readonly IStudentRepository _studentRepo;
+        private readonly ISynthesisRepository _synthesisRepo;
+        private readonly IAnalysisRepository _analysisRepo;
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly SqlServerAdminConnection _adminConnectionConf;
         private readonly IMsGraph _msGraph;
-        private readonly IUserRepository _userRepository;
+        private readonly IUserRepository _userRepo;
 
         public StudentController
         (
-            IStudentRepository studentRepository,
-            ISynthesisRepository synthesisRepository,
-            IAnalysisRepository analysisRepository,
+            IStudentRepository studentRepo,
+            ISynthesisRepository synthesisRepo,
+            IAnalysisRepository analysisRepo,
             IMicrosoftSQL microsoftSQLService,
             IOptions<SqlServerAdminConnection> adminConnectionConf,
             IMsGraph msGraph,
-            IUserRepository userRepository
+            IUserRepository userRepo
         )
         {
-            _studentRepository = studentRepository;
-            _synthesisRepository = synthesisRepository;
-            _analysisRepository = analysisRepository;
+            _studentRepo = studentRepo;
+            _synthesisRepo = synthesisRepo;
+            _analysisRepo = analysisRepo;
             _microsoftSQLService = microsoftSQLService;
             _adminConnectionConf = adminConnectionConf.Value;
             _msGraph = msGraph;
-            _userRepository = userRepository;
+            _userRepo = userRepo;
         }
 
         [AjaxMsGraphProxy]
@@ -70,10 +70,10 @@ namespace MasterRad.API
             switch (testType)
             {
                 case TestType.Synthesis:
-                    entities = _studentRepository.GetAssignedSynthesis(testId);
+                    entities = _studentRepo.GetAssignedSynthesis(testId);
                     break;
                 case TestType.Analysis:
-                    entities = _studentRepository.GetAssignedAnalysis(testId);
+                    entities = _studentRepo.GetAssignedAnalysis(testId);
                     break;
                 default:
                     return StatusCode(500);
@@ -98,62 +98,90 @@ namespace MasterRad.API
         [HttpPost, Route("assign")]
         public ActionResult<Result<bool>> AssignStudentsToTest([FromBody] AssignStudentsRQ body)
         {
-            var idsToMap = _userRepository.UnmappedIds(body.StudentIds);
+            #region Create_Missing_Azure_Sql_Mappings
+            var mapSuccess = new List<Guid>();
+            var idsToMap = _userRepo.UnmappedIds(body.StudentIds);
             foreach (var id in idsToMap)
             {
                 var sqlUsername = NameHelper.GenerateSqlUserName(id);
                 var sqlPass = NameHelper.GenerateRandomSqlPassowrd();
 
-                var mapSaveSuccess = _userRepository.CreateMapping(id, sqlUsername, sqlPass, UserId);
-                if (!mapSaveSuccess)
-                    Result<bool>.Fail($"Failed to save user mapping for {id}.");
+                var mapSaveSuccess = _userRepo.CreateMapping(id, sqlUsername, sqlPass, UserId);
+                if (mapSaveSuccess)
+                    mapSuccess.Add(id);
             }
+            #endregion
 
-            return body.TestType switch
+            #region Assign_Synthesis_Or_Analysis
+            var idsToAssign = mapSuccess.Union(body.StudentIds.Except(idsToMap));
+            int successfullyAssigned;
+            switch (body.TestType)
             {
-                TestType.Synthesis => AssignStudentsToSynthesis(body),
-                TestType.Analysis => AssignStudentsToAnalysis(body),
-                _ => StatusCode(500),
-            };
-        }
-
-        private ActionResult<Result<bool>> AssignStudentsToSynthesis(AssignStudentsRQ body)
-        {
-            var synthesisEntity = _synthesisRepository.GetWithTaskAndTemplate(body.TestId);
-
-            if (synthesisEntity.Status >= TestStatus.Completed)
-                return StatusCode(500);
-
-            var task = synthesisEntity.Task;
-            var template = task.Template;
-            var userMapEntities = _userRepository.Get(body.StudentIds);
-            foreach (var userMapEntity in userMapEntities)
-            {
-                oaisndoasnd
-                  //CreateDbUserContained - reentrant
-                  //CreateDbUserContained & AssignReadonly - maybe change to void & throw ex if fails?
-                _microsoftSQLService.CreateDbUserContained(userMapEntity.SqlUsername, userMapEntity.SqlPassword, task.NameOnServer);
-                _microsoftSQLService.AssignReadonly(userMapEntity.SqlUsername, task.NameOnServer);
-                _microsoftSQLService.CreateDbUserContained(userMapEntity.SqlUsername, userMapEntity.SqlPassword, template.NameOnServer);
-                _microsoftSQLService.AssignReadonly(userMapEntity.SqlUsername, template.NameOnServer);
+                case TestType.Synthesis:
+                    successfullyAssigned = AssignStudentsToSynthesis(idsToAssign, body.TestId);
+                    break;
+                case TestType.Analysis:
+                    successfullyAssigned = AssignStudentsToAnalysis(idsToAssign, body.TestId);
+                    break;
+                default:
+                    return Result<bool>.Fail("Invalid test type."); ;
             }
+            #endregion
 
-            var entitiesCnt = _studentRepository.AssignSynthesisTest(body.StudentIds, body.TestId, UserId);
-
-            #region Return_Result
-            if (entitiesCnt != body.StudentIds.Count())
+            #region Return_Response
+            if (successfullyAssigned != body.StudentIds.Count())
                 return Result<bool>.Fail("One or more students have not been assigned");
             else
                 return Result<bool>.Success(true);
             #endregion
         }
 
-        private ActionResult<Result<bool>> AssignStudentsToAnalysis(AssignStudentsRQ body)
+        [NonAction]
+        private int AssignStudentsToSynthesis(IEnumerable<Guid> studentIds, int testId)
         {
-            if (_analysisRepository.Get(body.TestId).Status >= TestStatus.Completed)
-                return StatusCode(500);
+            if (_synthesisRepo.Get(testId).Status >= TestStatus.Completed)
+                return 0;
 
-            var analysisEntity = _analysisRepository.GetWithTaskTemplateAndSolutionFormat(body.TestId);
+            var synthesisEntity = _synthesisRepo.GetWithTaskAndTemplate(testId);
+            var userMapEntities = _userRepo.Get(studentIds);
+
+            var createContainedUserSuccessIds = new List<Guid>();
+            #region Create_Contained_Users
+            var task = synthesisEntity.Task;
+            var template = task.Template;
+            foreach (var userMapEntity in userMapEntities)
+            {
+                if (CreateContainedReadonly(userMapEntity.SqlUsername, userMapEntity.SqlPassword, template.NameOnServer))
+                    createContainedUserSuccessIds.Add(userMapEntity.AzureId);
+            }
+            #endregion
+
+            return _studentRepo.AssignSynthesisTest(createContainedUserSuccessIds, testId, UserId);
+        }
+
+        [NonAction]
+        private bool CreateContainedReadonly(string sqlUsername, string sqlPassword, string dbName)
+        {
+            if (!_microsoftSQLService.UserExists(sqlUsername, dbName))
+            {
+                var createTaskSuccess = _microsoftSQLService.CreateDbUserContained(sqlUsername, sqlPassword, dbName);
+                if (!createTaskSuccess)
+                    return false;
+            }
+
+            if (!_microsoftSQLService.UserExists(sqlUsername, dbName))
+                return false;
+
+            return _microsoftSQLService.AssignReadonly(sqlUsername, dbName);
+        }
+
+        [NonAction]
+        private int AssignStudentsToAnalysis(IEnumerable<Guid> studentIds, int testId)
+        {
+            if (_analysisRepo.Get(testId).Status >= TestStatus.Completed)
+                return 0;
+
+            var analysisEntity = _analysisRepo.GetWithTaskTemplateAndSolutionFormat(testId);
 
             #region Get_Output_Format
             var columns = analysisEntity
@@ -164,15 +192,15 @@ namespace MasterRad.API
                             .Select(c => new ColumnDTO(c.ColumnName, c.SqlType));
             #endregion
 
-            var assignModels = NameHelper.AnalysisTestExam(body.StudentIds, analysisEntity.Id);
+            var assignModels = NameHelper.AnalysisTestExam(studentIds, analysisEntity.Id);
 
-            #region Clone_Databases
+            #region Clone_Input_Databases
             var analysisTemplateName = analysisEntity.SynthesisTestStudent.SynthesisTest.Task.Template.NameOnServer;
             var dbCloneSuccess = _microsoftSQLService.CloneDatabases(analysisTemplateName, assignModels.Select(am => am.Database), false);
             assignModels = assignModels.Where(x => dbCloneSuccess.Contains(x.Database));
             #endregion
 
-            var outputTablesDbName = _adminConnectionConf.DbName;
+            var outputTablesDbName = _adminConnectionConf.OutputTablesDbName;
 
             #region Create_Student_Output_Tables
             var studentTableCreateSuccess = _microsoftSQLService.CreateTables(assignModels.Select(x => new CreateTable()
@@ -194,14 +222,47 @@ namespace MasterRad.API
             assignModels = assignModels.Where(x => teacherTableCreateSuccess.Contains(x.TeacherOutputTable));
             #endregion
 
-            var analysisAssigned = _studentRepository.AssignAnalysisTest(assignModels, body.TestId, UserId);
+            #region Create_Contained_Users
+            var userMapEntities = _userRepo.Get(assignModels.Select(am => am.StudentId)).ToList();
+            var createContainedUserSuccessIds = new List<Guid>();
+            foreach (var userMapEntity in userMapEntities)
+            {
+                var assignModel = assignModels.Single(am => am.StudentId == userMapEntity.AzureId);
 
-            #region Return_Result
-            if (analysisAssigned != new List<int>().Count()) //new List<int>()-> body.StudentIds
-                return Result<bool>.Fail("One or more students have not been assigned");
-            else
-                return Result<bool>.Success(true);
+                if (!CreateContainedCRUD(userMapEntity.SqlUsername, userMapEntity.SqlPassword, assignModel.Database))
+                    continue;
+
+                if (!CreateContainedCRUD(userMapEntity.SqlUsername, userMapEntity.SqlPassword, outputTablesDbName, assignModel.StudentOutputTable))
+                    continue;
+
+                if (!CreateContainedCRUD(userMapEntity.SqlUsername, userMapEntity.SqlPassword, outputTablesDbName, assignModel.TeacherOutputTable))
+                    continue;
+
+                createContainedUserSuccessIds.Add(userMapEntity.AzureId);
+            }
+            assignModels = assignModels.Where(x => createContainedUserSuccessIds.Contains(x.StudentId));
             #endregion
+
+            return _studentRepo.AssignAnalysisTest(assignModels, testId, UserId);
+        }
+
+        [NonAction]
+        private bool CreateContainedCRUD(string sqlUsername, string sqlPassword, string dbName, string tableName = null)
+        {
+            if (!_microsoftSQLService.UserExists(sqlUsername, dbName))
+            {
+                var createUserSuccess = _microsoftSQLService.CreateDbUserContained(sqlUsername, sqlPassword, dbName);
+                if (!createUserSuccess)
+                    return false;
+            }
+
+            if (!_microsoftSQLService.UserExists(sqlUsername, dbName))
+                return false;
+
+            if (string.IsNullOrEmpty(tableName))
+                return _microsoftSQLService.AssignCRUD(sqlUsername, dbName);
+            else
+                return _microsoftSQLService.AssignCRUD(sqlUsername, dbName, tableName);
         }
 
         [HttpPost, Route("remove/assigned")]
@@ -223,24 +284,18 @@ namespace MasterRad.API
 
         private bool RemoveStudentFromSynthesis(RemoveAssignedStudentRQ model)
         {
-            if (_synthesisRepository.Get(model.TestId).Status >= TestStatus.InProgress)
+            if (_synthesisRepo.Get(model.TestId).Status >= TestStatus.InProgress)
                 return false;
 
-            var assignment = _synthesisRepository.GetAssignment(model.StudentId, model.TestId);
-
-            var dbDeleted = _microsoftSQLService.DeleteDatabaseIfExists(assignment.NameOnServer);
-            if (!dbDeleted)
-                return false;
-
-            return _studentRepository.RemoveSynthesis(model.StudentId, model.TimeStamp, model.TestId);
+            return _studentRepo.RemoveSynthesis(model.StudentId, model.TimeStamp, model.TestId);
         }
 
         private bool RemoveStudentFromAnalysis(RemoveAssignedStudentRQ model)
         {
-            if (_analysisRepository.Get(model.TestId).Status >= TestStatus.InProgress)
+            if (_analysisRepo.Get(model.TestId).Status >= TestStatus.InProgress)
                 return false;
 
-            var assignment = _analysisRepository.GetAssignment(model.StudentId, model.TestId);
+            var assignment = _analysisRepo.GetAssignment(model.StudentId, model.TestId);
             var outputTablesDbName = _adminConnectionConf.DbName;
 
             var dbDeleted = _microsoftSQLService.DeleteDatabaseIfExists(assignment.InputNameOnServer);
@@ -250,7 +305,7 @@ namespace MasterRad.API
             if (!dbDeleted || !studOutTableDeleted || !teacherOutTableDeleted)
                 return false;
 
-            return _studentRepository.RemoveAnalysis(model.StudentId, model.TimeStamp, model.TestId);
+            return _studentRepo.RemoveAnalysis(model.StudentId, model.TimeStamp, model.TestId);
         }
     }
 }

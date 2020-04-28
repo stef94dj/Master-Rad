@@ -16,7 +16,7 @@ namespace MasterRad.API
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = UserRole.Professor)]
+    [Authorize(Roles = UserRole.ProfessorOrStudent)]
     public class SynthesisController : BaseController
     {
         private readonly ISynthesisRepository _synthesisRepo;
@@ -34,6 +34,7 @@ namespace MasterRad.API
 
         [AjaxMsGraphProxy]
         [HttpGet, Route("get")]
+        [Authorize(Roles = UserRole.Professor)]
         public async Task<ActionResult<IEnumerable<SynthesisTestDTO>>> GetTestsAsync()
         {
             var entities = _synthesisRepo.Get();
@@ -54,8 +55,8 @@ namespace MasterRad.API
             return Ok(res);
         }
 
-
         [HttpPost, Route("create/test")]
+        [Authorize(Roles = UserRole.Professor)]
         public ActionResult<Result<bool>> CreateTest([FromBody] SynthesisCreateRQ body)
         {
             if (string.IsNullOrEmpty(body.Name))
@@ -76,6 +77,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("update/name")]
+        [Authorize(Roles = UserRole.Professor)]
         public ActionResult<Result<bool>> UpdateTestName([FromBody] UpdateNameRQ body)
         {
             if (string.IsNullOrEmpty(body.Name))
@@ -93,15 +95,17 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("status/next")]
+        [Authorize(Roles = UserRole.Professor)]
         public ActionResult<bool> GoToNextStatus([FromBody] UpdateDTO body)
             => _synthesisRepo.StatusNext(body, UserId);
 
-
         [HttpGet, Route("Solution/Format/{testId}")]
+        [Authorize(Roles = UserRole.Student)]
         public ActionResult<IEnumerable<string>> GetSolutionFormat([FromRoute] int testId)
             => Ok(_synthesisRepo.GetSolutionFormat(testId));
 
         [HttpPost, Route("delete/test")]
+        [Authorize(Roles = UserRole.Professor)]
         public ActionResult<SynthesisTestEntity> DeleteTest([FromBody] DeleteDTO body)
         {
             _synthesisRepo.Delete(body);
@@ -109,6 +113,7 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("Submit/Answer")]
+        [Authorize(Roles = UserRole.Student)]
         public ActionResult<byte[]> SubmitAnswer([FromBody] AnswerSynthesisRQ body)
         {
             if (!_synthesisRepo.IsAssigned(UserId, body.TestId))
