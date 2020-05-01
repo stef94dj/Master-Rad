@@ -30,15 +30,18 @@ namespace MasterRad.Services
 
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly WebOptions _webOptions;
+        private readonly IAzureUserDetailCache _userDetailCache;
 
         public MsGraph
         (
              ITokenAcquisition tokenAcquisition,
-             IOptions<WebOptions> webOptions
+             IOptions<WebOptions> webOptions,
+             IAzureUserDetailCache userDetailCache
         )
         {
             _tokenAcquisition = tokenAcquisition;
             _webOptions = webOptions.Value;
+            _userDetailCache = userDetailCache;
         }
 
         public async Task<SearchStudentsRS> SearchStudentsAsync(SearchStudentsRQ model)
@@ -112,10 +115,28 @@ namespace MasterRad.Services
             if (!studendIds.Where(id => id != Guid.Empty).Any())
                 return new List<AzureUserDTO>();
 
-            studendIds = studendIds.Distinct()
-                                   .ToList();
+            studendIds = studendIds.Distinct();
 
-            var studentIdChunks = studendIds.ToChunks(15);
+            var cacheRes = _userDetailCache.Get(studendIds, out studendIds);
+
+            var apiRes = await UserReadBasicAsync(studendIds);
+            _userDetailCache.Add(apiRes);
+
+            return cacheRes.Union(apiRes);
+        }
+
+        private GraphServiceClient GetGraphServiceClient(string[] scopes)
+        {
+            return GraphServiceClientFactory.GetAuthenticatedGraphClient(async () =>
+            {
+                string result = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
+                return result;
+            }, _webOptions.GraphApiUrl);
+        }
+
+        private async Task<IEnumerable<AzureUserDTO>> UserReadBasicAsync(IEnumerable<Guid> ids)
+        {
+            var studentIdChunks = ids.ToChunks(15);
             var requests = new List<IGraphServiceUsersCollectionRequest>();
             GraphServiceClient graphClient = GetGraphServiceClient(new[] { Constants.ScopeUserReadBasicAll });
             foreach (var chunkIds in studentIdChunks)
@@ -128,16 +149,7 @@ namespace MasterRad.Services
 
             var studentChunks = await Task.WhenAll(requests.Select(rq => rq.GetAsync()));
             return studentChunks.SelectMany(x => x)
-                                .Select(x => new AzureUserDTO(x));
-        }
-
-        private GraphServiceClient GetGraphServiceClient(string[] scopes)
-        {
-            return GraphServiceClientFactory.GetAuthenticatedGraphClient(async () =>
-            {
-                string result = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-                return result;
-            }, _webOptions.GraphApiUrl);
+                                         .Select(x => new AzureUserDTO(x));
         }
     }
 }

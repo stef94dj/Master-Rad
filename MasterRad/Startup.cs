@@ -50,13 +50,13 @@ namespace MasterRad
             services.AddOptions();
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddSignIn("AzureAd", Configuration, options => Configuration.Bind("AzureAd", options));
+                    .AddSignIn("AzureAd", Configuration, options => Configuration.Bind(Constants.AADConfigSection, options));
 
             var initialScopes = new string[] { Constants.ScopeUserRead }; //scope consent's required for every authenthicated user
             services.AddWebAppCallsProtectedWebApi(Configuration, initialScopes)
                     .AddInMemoryTokenCaches();
 
-            var sqlServerAdminConfigSection = Configuration.GetSection("SqlServerAdminConnection");
+            var sqlServerAdminConfigSection = Configuration.GetSection(Constants.SqlServerAdminConfigSection);
             var dbConfig = new ConnectionParams();
             sqlServerAdminConfigSection.Bind(dbConfig);
             services.AddDbContext<Context>(opts => opts.UseSqlServer(new SqlConnection(dbConfig.EFConnectionString)));
@@ -68,10 +68,12 @@ namespace MasterRad
             services.AddScoped(typeof(ISignalR<>), typeof(SignalR<>));
             services.AddScoped<ILogRepository, LogRepository>();
             services.AddScoped<IMsGraph, MsGraph>();
+            services.AddSingleton<IAzureUserDetailCache, AzureUserDetailCache>();
 
             //configurations
             services.AddGraphService(Configuration);
             services.Configure<SqlServerAdminConnection>(sqlServerAdminConfigSection);
+            services.Configure<UserDetailCache>(Configuration.GetSection(Constants.UserDetailCacheConfigSection));
 
             //repositories
             services.AddScoped<ITemplateRepository, TemplateRepository>();

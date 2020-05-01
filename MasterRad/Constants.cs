@@ -14,6 +14,9 @@ namespace MasterRad
         public const string SQLServerCommandSuccessMessage = "Commands completed successfully.";
         public const string JSDateFormat = "yyyy-MM-dd-HH-mm-ss";
         public const string DefaultSchemaName = "dbo";
+        public const string AADConfigSection = "AzureAd";
+        public const string SqlServerAdminConfigSection = "SqlServerAdminConnection";
+        public const string UserDetailCacheConfigSection = "UserDetailCache";
     }
 
     public static class UserRole
