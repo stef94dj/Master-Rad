@@ -1,5 +1,6 @@
 ﻿using MasterRad.Attributes;
 using MasterRad.DTO.RQ;
+using MasterRad.DTO.RS;
 using MasterRad.DTO.RS.TableRow;
 using MasterRad.Helpers;
 using MasterRad.Models;
@@ -35,10 +36,10 @@ namespace MasterRad.API
         }
 
         [AjaxMsGraphProxy]
-        [HttpGet, Route("Get")]
-        public async Task<ActionResult<IEnumerable<TemplateDTO>>> GetTemplatesAsync()
+        [HttpPost, Route("Search")]
+        public async Task<ActionResult<PageRS<TemplateDTO>>> GetTemplatesAsync([FromBody] SearchPaginatedRQ body)
         {
-            var entities = _templateRepo.Get();
+            var entities = _templateRepo.GetPaginated(body, out int pageCnt);
 
             #region Get_CreatedBy_Users_Details
             var createdByIds = entities.Select(e => e.CreatedBy);
@@ -46,14 +47,14 @@ namespace MasterRad.API
             #endregion
 
             #region Map_Result
-            var res = entities.Select(te =>
+            var resData = entities.Select(te =>
             {
                 var createdByDetail = createdByDetails.Single(ud => ud.MicrosoftId == te.CreatedBy);
                 return new TemplateDTO(te, createdByDetail);
             });
             #endregion
 
-            return Ok(res);
+            return new PageRS<TemplateDTO>(resData, pageCnt);
         }
 
         [HttpPost, Route("Create")]

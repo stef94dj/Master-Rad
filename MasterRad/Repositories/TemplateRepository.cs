@@ -10,7 +10,7 @@ namespace MasterRad.Repositories
     public interface ITemplateRepository
     {
         TemplateEntity Get(int id);
-        List<TemplateEntity> Get();
+        List<TemplateEntity> GetPaginated(SearchPaginatedRQ searchRQ, out int pageCnt);
         TemplateEntity GetWithTaks(int id);
         bool Create(string templateName, string dbName, Guid userId);
         bool UpdateDescription(UpdateDescriptionRQ request, Guid userId);
@@ -40,11 +40,66 @@ namespace MasterRad.Repositories
                        .Where(x => x.Id == id)
                        .Single();
 
-        public List<TemplateEntity> Get()
-            => _context.Templates
-                       .Include(x => x.Tasks)
-                       .OrderByDescending(t => t.DateCreated)
-                       .ToList();
+        public List<TemplateEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt)
+        {
+            var qry = _context.Templates
+                              .Include(x => x.Tasks)
+                              .AsNoTracking();
+
+            #region Filter
+            foreach (var filter in request.Filters)
+            {
+                var filterValue = filter.Value.ToLower();
+                switch (filter.Key)
+                {
+                    case "name":
+                        qry = qry.Where(x => x.Name.ToLower().Contains(filterValue));
+                        break;
+                }
+            }
+            #endregion
+
+            #region Page_Count
+            var total = qry.Count();
+            pageCnt = total / request.PageSize;
+            if (total % request.PageSize > 0)
+                pageCnt++;
+            #endregion
+
+            #region Sort
+            if (string.IsNullOrEmpty(request.SortBy))
+            {
+                qry = qry.OrderBy(x => x.DateCreated);
+            }
+            else
+            {
+                switch (request.SortBy)
+                {
+                    case "name":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.Name) :
+                                qry.OrderBy(x => x.Name);
+                        break;
+                    case "date_created":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.DateCreated) :
+                                qry.OrderBy(x => x.DateCreated);
+                        break;
+                }
+            }
+            #endregion
+
+            #region Skip
+            if (request.Page > 0 && request.PageSize > 0)
+            {
+                qry = qry.Skip((request.Page - 1) * request.PageSize)
+                         .Take(request.PageSize);
+            }
+            #endregion
+
+            return qry.ToList();
+        }
+
 
         public bool Create(string templateName, string dbName, Guid userId)
         {

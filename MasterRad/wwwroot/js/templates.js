@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
     loadTemplates();
-
+    initializeTooltips();
     bindModalOnShow('#update-name-modal', onNameModalShow);
     bindModalOnShow('#update-description-modal', onDescriptionModalShow);
     bindModalOnClose('#create-template-modal', createTemplateModalClose);
@@ -10,8 +10,8 @@
 function loadTemplates() {
     drawTemplateTableMessage('Loading data...');
     getTemplates()
-        .then(data => {
-            drawTemplateTable($('#templates-tbody'), data);
+        .then(response => {
+            drawTemplateTable($('#templates-tbody'), response.data);
         })
         .catch(error => {
             if (error?.status && error.status === HttpCodes.ReloadRequired) {
@@ -28,11 +28,21 @@ function loadTemplates() {
 }
 
 function getTemplates() {
-    var apiUrl = '/api/Template/Get';
-    return promisifyAjaxGet(apiUrl);
+    var rqBody = {
+        "Filters": [{
+            "Key": "name",
+            "Value": "aza"
+        }],
+        "SortBy": "date_created",
+        "SortDescending": true,
+        "Page": 1,
+        "PageSize": 5,
+    }
+    var apiUrl = '/api/Template/Search';
+    return promisifyAjaxPost(apiUrl, rqBody);
 }
 function drawTemplateTableMessage(message) {
-    $('tbody').html(drawTableMessage(message, 7));
+    $('#templates-tbody').html(drawTableMessage(message, 7));
 }
 function drawTemplateTable(tbody, templates) {
     drawTemplateTableMessage('No records.');

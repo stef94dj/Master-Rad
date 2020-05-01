@@ -5,26 +5,67 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/datatable.css" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/pagination.css" />
 }
 <h1>Templates</h1>
 
+<!--Search filters-->
+<table class="table table-bordered fixed" style="margin-bottom: 0px;">
+    <thead>
+        <tr>
+            <th style="width: 16%; border:none;">
+                <input type="text" class="form-control" placeholder="Name" id="search-first-name" maxlength="50">
+            </th>
+            <th style="width: 4%; border:none;"></th>
+            <th style="width: 4%; border:none;"></th>
+            <th style="width: 4%; border:none;"></th>
+            <th style="width: 13%; border:none;"></th>
+            <th style="width: 4%; border:none;"></th>
+            <th style="width: 4%; border:none;">
+                <input type="number" id="page-size" class="form-control" min="5" max="25" step="5" value="5" style="width:65px; display:inline" data-toggle="tooltip" data-placement="top" title="Items per page">
+            </th>
+        </tr>
+    </thead>
+</table>
 <!-- Templates table -->
-<br />
 <table class="table table-bordered table-striped fixed wrap-single-long-word">
     <thead class="thead-dark" id="table-header">
         <tr id="database-table">
-            <th style="width: 16%">Name</th>
+            <th style="width: 16%">
+                <span>Name</span>
+                <i class="fa fa-fw fa-sort" style="color:#909090;"></i>
+            </th>
             <th style="width: 4%">Description</th>
             <th style="width: 4%">Model</th>
             <th style="width: 4%">Data</th>
             <th style="width: 13%">Author</th>
-            <th style="width: 4%">Created on</th>
+            <th style="width: 4%">
+                <span>Created on</span>
+                <i class="fa fa-fw fa-sort-desc" style="color:#ff3d4f;"></i>
+            </th>
             <th style="width: 4%">
                 <button data-toggle="modal" data-target="#create-template-modal" type="button" class="btn btn-primary btn-sm">Create</button>
             </th>
         </tr>
     </thead>
     <tbody id="templates-tbody" />
+</table>
+<!--Pagination-->
+<table class="table table-sm">
+    <tr>
+        <th style="border:none; float:right; font-weight:400;">
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item"><a class="page-link" href="#">Prev</a></li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </th>
+    </tr>
 </table>
 
 <!-- New template modal  -->
