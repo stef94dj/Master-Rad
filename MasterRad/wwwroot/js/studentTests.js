@@ -1,5 +1,6 @@
 ﻿var testsList = null;
 $(document).ready(function () {
+    setActive("Tests");
     testsList = $('#tests-list');
     loadTest();
 });

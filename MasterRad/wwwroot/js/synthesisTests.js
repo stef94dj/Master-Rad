@@ -6,6 +6,7 @@ var statusModalSelector = null;
 
 
 $(document).ready(function () {
+    setActive("Synthesis Tests");
     testsList = $('#tests-tbody');
 
     createTestModalSelector = '#create-test-modal';
