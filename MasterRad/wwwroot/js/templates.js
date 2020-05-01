@@ -1,4 +1,5 @@
 ﻿$(document).ready(function () {
+    setActive("Templates");
     loadTemplates();
     initializeTooltips();
     bindModalOnShow('#update-name-modal', onNameModalShow);

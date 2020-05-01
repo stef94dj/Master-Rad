@@ -2,6 +2,7 @@
 var statusModalSelector = null;
 var nameModalSelector = null;
 $(document).ready(function () {
+    setActive("Analysis Tests");
     testsList = $('#tests-tbody');
     loadTests();
     statusModalSelector = '#update-staus-modal';

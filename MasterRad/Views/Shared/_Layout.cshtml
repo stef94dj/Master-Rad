@@ -30,7 +30,7 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1" id="main-menu-list">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
@@ -41,26 +41,26 @@
                             @if (User.IsInRole(UserRole.Professor))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-primary" asp-controller="TeacherMenu" asp-action="Templates">Templates</a>
+                                    <a class="nav-link text-dark" asp-controller="TeacherMenu" asp-action="Templates">Templates</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-primary" asp-controller="TeacherMenu" asp-action="Tasks">Tasks</a>
+                                    <a class="nav-link text-dark" asp-controller="TeacherMenu" asp-action="Tasks">Tasks</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-primary" asp-controller="TeacherMenu" asp-action="SynthesisTests">Synthesis Tests</a>
+                                    <a class="nav-link text-dark" asp-controller="TeacherMenu" asp-action="SynthesisTests">Synthesis Tests</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-primary" asp-controller="TeacherMenu" asp-action="AnalysisTests">Analysis Tests</a>
+                                    <a class="nav-link text-dark" asp-controller="TeacherMenu" asp-action="AnalysisTests">Analysis Tests</a>
                                 </li>
                             }
 
                             @if (User.IsInRole(UserRole.Student))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-info" asp-controller="StudentMenu" asp-action="Exercises">Exercises</a>
+                                    <a class="nav-link text-dark" asp-controller="StudentMenu" asp-action="Exercises">Exercises</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link text-info" asp-controller="StudentMenu" asp-action="Tests">Tests</a>
+                                    <a class="nav-link text-dark" asp-controller="StudentMenu" asp-action="Tests">Tests</a>
                                 </li>
                             }
                         }
@@ -112,6 +112,7 @@
         </script>
     </environment>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/navigation.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
 </body>
