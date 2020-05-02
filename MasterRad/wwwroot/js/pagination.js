@@ -40,14 +40,14 @@
 
         var nextState = '';
         if (clickedSortIcon.hasClass('fa-sort'))
-            nextState = 'desc';
-        else if (clickedSortIcon.hasClass('fa-sort-desc'))
-            nextState = 'asc';
+            nextState = 'down';
+        else if (clickedSortIcon.hasClass('fa-sort-down'))
+            nextState = 'up';
 
         sortIcons = this.getSortIcons();
         $.each(sortIcons, function (index, item) {
-            $(item).removeClass('fa-sort-asc');
-            $(item).removeClass('fa-sort-desc');
+            $(item).removeClass('fa-sort-up');
+            $(item).removeClass('fa-sort-down');
             $(item).addClass('fa-sort');
         });
 

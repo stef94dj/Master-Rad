@@ -13,7 +13,7 @@ input[type=number]::-webkit-inner-spin-button {
     opacity: 1
 }
 
-i.fa-sort-desc.sort-icon, i.fa-sort-asc.sort-icon {
+i.fa-sort-down.sort-icon, i.fa-sort-up.sort-icon {
     color: #ff3d4d;
 }
 
