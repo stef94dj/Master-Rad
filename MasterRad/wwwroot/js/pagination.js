@@ -2,12 +2,16 @@
     tableTh: null,
     filterTh: null,
     search: null,
-    defaultSortKey: null,
-    initUI: function (tableThSelector, filterThSelector, reloadFunction, sortDefaultKey) {
-        tableTh = $(tableThSelector);
-        filterTh = $(filterThSelector);
-        search = reloadFunction;
-        defaultSortKey = sortDefaultKey ? sortDefaultKey : "date_created";
+    defaultSortKey: 'date_created',
+    displayPagesCnt: 3,
+    initUI: function (config) {
+        tableTh = $(config.tableThSelector);
+        filterTh = $(config.filterThSelector);
+        search = config.reloadFunction;
+        if (config.sortDefaultKey)
+            pagination.defaultSortKey = config.sortDefaultKey;
+        if (config.displayPagesCnt && config.displayPagesCnt > 0)
+            displayPagesCnt = config.displayPagesCnt;
 
         this.initPageSize();
         this.initSort();
@@ -69,9 +73,10 @@
             }
         });
 
+        debugger;
         if (!sortSet) {
             $.each(sortIcons, function (index, item) {
-                if ($(item).data('table-key') === defaultSortKey) {
+                if ($(item).data('table-key') === pagination.defaultSortKey) {
                     $(item).removeClass('fa-sort');
                     $(item).addClass('fa-sort-down');
                     return false;

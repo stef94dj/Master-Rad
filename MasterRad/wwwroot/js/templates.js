@@ -3,7 +3,14 @@ var tableHeaderSelector = '#table-header';
 
 $(document).ready(function () {
     setActive("Templates");
-    pagination.initUI(tableHeaderSelector, filterHeaderSelector, loadTemplates);
+    var paginationConfig = {
+        "tableThSelector": tableHeaderSelector,
+        "filterThSelector": filterHeaderSelector,
+        "reloadFunction": loadTemplates,
+        "displayPagesCnt": 5,
+        "sortDefaultKey": "name",
+    }
+    pagination.initUI(paginationConfig);
     loadTemplates();
     initializeTooltips();
     bindModalOnShow('#update-name-modal', onNameModalShow);
