@@ -4,7 +4,9 @@
     search: null,
     defaultSortKey: 'date_created',
     displayPagesCnt: 3,
+    pageList: null,
     initUI: function (config) {
+        pageList = $('ul.pagination');
         tableTh = $(config.tableThSelector);
         filterTh = $(config.filterThSelector);
         search = config.reloadFunction;
@@ -37,12 +39,6 @@
                 pagination.textInputHandler(this);
             }, 750));
         })
-    },
-    getSortIcons: function () {
-        return tableTh.find('i.sort-icon');
-    },
-    getFilterTextInputs: function () {
-        return filterTh.find('input.filter-text-input');
     },
     sortClickHandler: function (clickedThCell) {
         var clickedSortIcon = $($(clickedThCell).find('i.sort-icon')[0]);
@@ -89,8 +85,69 @@
     textInputHandler: function (input) {
         pagination.triggerSearch();
     },
-    triggerSearch: function () {
+    pageClickHandler: function (pageLink) {
+        $(pageLink).blur();
+
+        var txt = $(pageLink).html();
+
+        if (txt != 'Prev' && txt != 'Next') {
+            var pageItems = this.getPageItems();
+            $.each(pageItems, function (index, item) {
+                $(item).removeClass('active');
+            })
+
+            $(pageLink).parent().addClass('active');
+        }
+
+        this.triggerSearch(true);
+    },
+    triggerSearch: function (goToPage) {
+        if (!goToPage) {
+            this.clearPagesUI();
+        }
         search();
+    },
+    drawPagesUI: function (pageCnt, pageNo) {
+        this.clearPagesUI();
+        var html = '';
+
+        html += this.drawPageBtn('Prev', true);
+        for (var i = 1; i <= pageCnt; i++) {
+            html += this.drawPageBtn(i, true, i === pageNo);
+        }
+        html += this.drawPageBtn('Next', true);
+
+        pageList.html(html);
+    },
+    clearPagesUI: function () {
+        pageList.html('');
+    },
+    drawPageBtn: function (txt, enabled, active) {
+        var disabled = enabled ? '' : "disabled";
+        var active = active ? 'active' : '';
+
+        return `<li class="page-item ${disabled} ${active}"><a class="page-link" href="javascript:void(0)" onclick="pagination.pageClickHandler(this)">${txt}</a></li>`
+    },
+    getPageItems: function () {
+        return pageList.find('li');
+    },
+    getSortIcons: function () {
+        return tableTh.find('i.sort-icon');
+    },
+    getFilterTextInputs: function () {
+        return filterTh.find('input.filter-text-input');
+    },
+    getActivePage: function () {
+        var res = 1;
+        var pageItems = this.getPageItems();
+        $.each(pageItems, function (index, item) {
+            if ($(item).hasClass('active')) {
+                var aTag = $(item).find('a')[0];
+                res = parseInt($(aTag).html());
+                return false;
+            }
+        })
+        return res;
     }
 }
 

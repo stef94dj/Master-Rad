@@ -8,7 +8,7 @@ $(document).ready(function () {
         "filterThSelector": filterHeaderSelector,
         "reloadFunction": loadTemplates,
         "displayPagesCnt": 5,
-        "sortDefaultKey": "name",
+        "sortDefaultKey": "date_created",
     }
     pagination.initUI(paginationConfig);
     loadTemplates();
@@ -24,6 +24,8 @@ function loadTemplates() {
     getTemplates()
         .then(response => {
             drawTemplateTable($('#templates-tbody'), response.data);
+            if (response && response.pageCnt && response.pageNo)
+                pagination.drawPagesUI(response.pageCnt, response.pageNo);
         })
         .catch(error => {
             if (error?.status && error.status === HttpCodes.ReloadRequired) {
@@ -58,7 +60,6 @@ function getTemplates() {
 
     var sortDesc = true;
     var sortKey = "date_created";
-
     var sortIcons = pagination.getSortIcons();
     $.each(sortIcons, function (index, item) {
         if ($(item).hasClass('fa-sort-down') || $(item).hasClass('fa-sort-up')) {
@@ -71,7 +72,7 @@ function getTemplates() {
         "Filters": filters,
         "SortBy": sortKey,
         "SortDescending": sortDesc,
-        "Page": 1,
+        "Page": pagination.getActivePage(),
         "PageSize": pageSize,
     }
     var apiUrl = '/api/Template/Search';

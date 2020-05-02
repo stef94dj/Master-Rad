@@ -10,7 +10,7 @@ namespace MasterRad.Repositories
     public interface ITemplateRepository
     {
         TemplateEntity Get(int id);
-        List<TemplateEntity> GetPaginated(SearchPaginatedRQ searchRQ, out int pageCnt);
+        List<TemplateEntity> GetPaginated(SearchPaginatedRQ searchRQ, out int pageCnt, out int pageNo);
         TemplateEntity GetWithTaks(int id);
         bool Create(string templateName, string dbName, Guid userId);
         bool UpdateDescription(UpdateDescriptionRQ request, Guid userId);
@@ -40,7 +40,7 @@ namespace MasterRad.Repositories
                        .Where(x => x.Id == id)
                        .Single();
 
-        public List<TemplateEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt)
+        public List<TemplateEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo)
         {
             var qry = _context.Templates
                               .Include(x => x.Tasks)
@@ -59,11 +59,16 @@ namespace MasterRad.Repositories
             }
             #endregion
 
-            #region Page_Count
-            var total = qry.Count();
-            pageCnt = total / request.PageSize;
-            if (total % request.PageSize > 0)
-                pageCnt++;
+            #region Page_Count_and_Number
+            pageNo = request.Page > 0 ? request.Page : 1;
+            pageCnt = 1;
+            if(request.PageSize > 0)
+            {
+                var total = qry.Count();
+                pageCnt = total / request.PageSize;
+                if (total % request.PageSize > 0)
+                    pageCnt++;
+            }
             #endregion
 
             #region Sort

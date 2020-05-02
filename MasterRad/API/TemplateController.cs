@@ -39,7 +39,7 @@ namespace MasterRad.API
         [HttpPost, Route("Search")]
         public async Task<ActionResult<PageRS<TemplateDTO>>> GetTemplatesAsync([FromBody] SearchPaginatedRQ body)
         {
-            var entities = _templateRepo.GetPaginated(body, out int pageCnt);
+            var entities = _templateRepo.GetPaginated(body, out int pageCnt, out int pageNo);
 
             #region Get_CreatedBy_Users_Details
             var createdByIds = entities.Select(e => e.CreatedBy);
@@ -54,7 +54,7 @@ namespace MasterRad.API
             });
             #endregion
 
-            return new PageRS<TemplateDTO>(resData, pageCnt);
+            return new PageRS<TemplateDTO>(resData, pageCnt, pageNo);
         }
 
         [HttpPost, Route("Create")]
