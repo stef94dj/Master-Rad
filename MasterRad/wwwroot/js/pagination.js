@@ -8,7 +8,7 @@
         this.initTextFilters();
     },
     initSort: function () {
-        sortIcons = tableTh.find('i.sort-icon');
+        sortIcons = this.getSortIcons();
         $.each(sortIcons, function (index, item) {
             $(item).parent().click(function () {
                 pagination.sortClickHandler(this);
@@ -16,30 +16,30 @@
         });
     },
     initTextFilters: function () {
-        
+
     },
     sortClickHandler: function (clickedThCell) {
-        var nextState = '';
-        var sortIcon = $($(clickedThCell).find('i.sort-icon')[0]);
-        if (sortIcon.hasClass('fa-sort')) { //none
-            nextState = 'desc';
-        }
-        else if (sortIcon.hasClass('fa-sort-desc')) {
-            nextState = 'asc';
-        }
+        var clickedSortIcon = $($(clickedThCell).find('i.sort-icon')[0]);
 
-        sortIcons = tableTh.find('i.sort-icon');
+        var nextState = '';
+        if (clickedSortIcon.hasClass('fa-sort'))
+            nextState = 'desc';
+        else if (clickedSortIcon.hasClass('fa-sort-desc'))
+            nextState = 'asc';
+
+        sortIcons = this.getSortIcons();
         $.each(sortIcons, function (index, item) {
             $(item).removeClass('fa-sort-asc');
             $(item).removeClass('fa-sort-desc');
             $(item).addClass('fa-sort');
-            $(item).css('color', '#909090');
         });
 
-        if (nextState != '' ) {
-            sortIcon.removeClass('fa-sort');
-            sortIcon.addClass(`fa-sort-${nextState}`);
-            sortIcon.css('color', '#ff3d4f');
+        if (nextState != '') {
+            clickedSortIcon.removeClass('fa-sort');
+            clickedSortIcon.addClass(`fa-sort-${nextState}`);
         }
+    },
+    getSortIcons: function () {
+        return tableTh.find('i.sort-icon');
     }
 }

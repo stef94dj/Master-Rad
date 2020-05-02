@@ -1,8 +1,9 @@
 ﻿a.page-link {
     border-color: #ced4da;
     color: #495057;
-    margin-right:4px;
+    margin-right: 4px;
 }
+
     a.page-link.current {
         border-color: #007bff;
         color: #007bff;
@@ -10,4 +11,12 @@
 
 input[type=number]::-webkit-inner-spin-button {
     opacity: 1
+}
+
+i.fa-sort-desc.sort-icon, i.fa-sort-asc.sort-icon {
+    color: #ff3d4d;
+}
+
+i.fa-sort.sort-icon {
+    color: #909090;
 }
