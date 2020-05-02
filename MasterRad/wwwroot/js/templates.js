@@ -1,6 +1,9 @@
-﻿$(document).ready(function () {
+﻿var filterHeaderSelector = '#filter-header';
+var tableHeaderSelector = '#table-header';
+
+$(document).ready(function () {
     setActive("Templates");
-    pagination.initUI('#table-header', '#filter-header');
+    pagination.initUI(tableHeaderSelector, filterHeaderSelector, loadTemplates);
     loadTemplates();
     initializeTooltips();
     bindModalOnShow('#update-name-modal', onNameModalShow);
@@ -30,15 +33,28 @@ function loadTemplates() {
 }
 
 function getTemplates() {
+
+    var filterInputs = $(filterHeaderSelector).find('input.filter-text-input');
+    var filters = $.map(filterInputs, function (item, index) {
+        var val = $(item).val();
+        var key = $(item).data('filter-key');
+        if (val) {
+            var filter = {
+                "Key": key,
+                "Value": val
+            };
+            return filter
+        }
+    })
+
+    var pageSize = parseInt($('#page-size').val());
+
     var rqBody = {
-        "Filters": [{
-            "Key": "name",
-            "Value": "aza"
-        }],
+        "Filters": filters,
         "SortBy": "date_created",
         "SortDescending": true,
         "Page": 1,
-        "PageSize": 5,
+        "PageSize": pageSize,
     }
     var apiUrl = '/api/Template/Search';
     return promisifyAjaxPost(apiUrl, rqBody);

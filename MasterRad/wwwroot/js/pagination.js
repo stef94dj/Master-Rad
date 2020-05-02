@@ -1,16 +1,18 @@
 ﻿var pagination = {
     tableTh: null,
     filterTh: null,
-    initUI: function (tableThSelector, filterThSelector) {
+    search: null,
+    initUI: function (tableThSelector, filterThSelector, reloadFunction) {
         tableTh = $(tableThSelector);
         filterTh = $(filterThSelector);
+        search = reloadFunction;
         this.initPageSize();
         this.initSort();
         this.initTextFilters();
     },
     initPageSize: function () {
         $('#page-size').change(function () {
-            pagination.triggerSearch('page size change');
+            pagination.triggerSearch();
         })
     },
     initSort: function () {
@@ -56,14 +58,13 @@
             clickedSortIcon.addClass(`fa-sort-${nextState}`);
         }
 
-        pagination.triggerSearch(`sort`);
+        pagination.triggerSearch();
     },
     textInputHandler: function (input) {
-        var placeholderTxt = $(input).attr('placeholder');
-        pagination.triggerSearch(`filter ${placeholderTxt}`);
+        pagination.triggerSearch();
     },
-    triggerSearch: function (triggeredBy) {
-        alert(`search triggerred by ${triggeredBy}`);
+    triggerSearch: function () {
+        search();
     }
 }
 
