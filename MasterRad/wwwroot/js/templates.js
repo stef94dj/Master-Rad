@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
     setActive("Templates");
+    pagination.initUI('#table-header', '#filter-header');
     loadTemplates();
     initializeTooltips();
     bindModalOnShow('#update-name-modal', onNameModalShow);
