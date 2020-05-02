@@ -34,10 +34,10 @@ function loadTemplates() {
 
 function getTemplates() {
 
-    var filterInputs = $(filterHeaderSelector).find('input.filter-text-input');
+    var filterInputs = pagination.getFilterTextInputs();
     var filters = $.map(filterInputs, function (item, index) {
         var val = $(item).val();
-        var key = $(item).data('filter-key');
+        var key = $(item).data('table-key');
         if (val) {
             var filter = {
                 "Key": key,
@@ -49,10 +49,21 @@ function getTemplates() {
 
     var pageSize = parseInt($('#page-size').val());
 
+    var sortDesc = true;
+    var sortKey = "date_created";
+
+    var sortIcons = pagination.getSortIcons();
+    $.each(sortIcons, function (index, item) {
+        if ($(item).hasClass('fa-sort-down') || $(item).hasClass('fa-sort-up')) {
+            sortDesc = $(item).hasClass('fa-sort-down');
+            sortKey = $(item).data('table-key');
+        }
+    })
+
     var rqBody = {
         "Filters": filters,
-        "SortBy": "date_created",
-        "SortDescending": true,
+        "SortBy": sortKey,
+        "SortDescending": sortDesc,
         "Page": 1,
         "PageSize": pageSize,
     }

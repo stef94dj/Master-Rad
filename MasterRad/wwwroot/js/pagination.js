@@ -2,10 +2,13 @@
     tableTh: null,
     filterTh: null,
     search: null,
-    initUI: function (tableThSelector, filterThSelector, reloadFunction) {
+    defaultSortKey: null,
+    initUI: function (tableThSelector, filterThSelector, reloadFunction, sortDefaultKey) {
         tableTh = $(tableThSelector);
         filterTh = $(filterThSelector);
         search = reloadFunction;
+        defaultSortKey = sortDefaultKey ? sortDefaultKey : "date_created";
+
         this.initPageSize();
         this.initSort();
         this.initTextFilters();
@@ -56,6 +59,24 @@
         if (nextState != '') {
             clickedSortIcon.removeClass('fa-sort');
             clickedSortIcon.addClass(`fa-sort-${nextState}`);
+        }
+
+        var sortSet = false;
+        $.each(sortIcons, function (index, item) {
+            if ($(item).hasClass('fa-sort-up') || $(item).hasClass('fa-sort-down')) {
+                sortSet = true;
+                return false;
+            }
+        });
+
+        if (!sortSet) {
+            $.each(sortIcons, function (index, item) {
+                if ($(item).data('table-key') === defaultSortKey) {
+                    $(item).removeClass('fa-sort');
+                    $(item).addClass('fa-sort-down');
+                    return false;
+                }
+            });
         }
 
         pagination.triggerSearch();
