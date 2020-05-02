@@ -7,7 +7,7 @@ $(document).ready(function () {
         "tableThSelector": tableHeaderSelector,
         "filterThSelector": filterHeaderSelector,
         "reloadFunction": loadTemplates,
-        "displayPagesCnt": 5,
+        "displayPagesCnt": 2,
         "sortDefaultKey": "date_created",
     }
     pagination.initUI(paginationConfig);
@@ -42,7 +42,6 @@ function loadTemplates() {
 }
 
 function getTemplates() {
-
     var filterInputs = pagination.getFilterTextInputs();
     var filters = $.map(filterInputs, function (item, index) {
         var val = $(item).val();

@@ -69,7 +69,6 @@
             }
         });
 
-        debugger;
         if (!sortSet) {
             $.each(sortIcons, function (index, item) {
                 if ($(item).data('table-key') === pagination.defaultSortKey) {
@@ -90,6 +89,7 @@
 
         var txt = $(pageLink).html();
 
+        var doSearch = true;
         if (txt != 'Prev' && txt != 'Next') {
             var pageItems = this.getPageItems();
             $.each(pageItems, function (index, item) {
@@ -98,8 +98,51 @@
 
             $(pageLink).parent().addClass('active');
         }
+        else {
+            doSearch = this.prevNextHandler(pageLink);
+        }
 
-        this.triggerSearch(true);
+        if (doSearch)
+            this.triggerSearch(true);
+    },
+    prevNextHandler: function (pageLink) {
+        debugger;
+        var txt = $(pageLink).html();
+
+        var activePage = this.getActivePage();
+        currentSection = this.getSection(activePage);
+
+        var section = txt === 'Prev' ? currentSection - 1 : currentSection + 1;
+        var pageCnt = pageList.data('total-pages');
+        totalSections = Math.floor(pageCnt / displayPagesCnt);
+        if ((pageCnt % displayPagesCnt) != 0)
+            totalSections = totalSections + 1;
+
+        if (section < 0 || section >= totalSections)
+            return false;
+
+        this.clearPagesUI();
+        var html = '';
+
+        html += this.drawPageBtn('Prev', true);
+
+        var startPage = this.getFirstPage(section);
+        var lastPage = this.getLastPage(section, pageCnt);
+
+        var newActive = txt === 'Prev' ? lastPage : startPage;
+        for (var i = startPage; i <= lastPage; i++) {
+            html += this.drawPageBtn(i, true, i === newActive);
+        }
+        html += this.drawPageBtn('Next', true);
+
+        pageList.html(html);
+        return true;
+    },
+    getSection: function (pageNo) {
+        var section = Math.floor(pageNo / displayPagesCnt);
+        if ((pageNo % displayPagesCnt) === 0)
+            section = section - 1;
+        return section;
     },
     triggerSearch: function (goToPage) {
         if (!goToPage) {
@@ -107,17 +150,34 @@
         }
         search();
     },
+    getFirstPage: function (section) {
+        return (section * displayPagesCnt) + 1;
+    },
+    getLastPage: function (section, pageCnt) {
+        var lastPage = (section + 1) * displayPagesCnt;
+        if (pageCnt < lastPage)
+            lastPage = pageCnt;
+
+        return lastPage;
+    },
     drawPagesUI: function (pageCnt, pageNo) {
+        debugger;
         this.clearPagesUI();
         var html = '';
 
         html += this.drawPageBtn('Prev', true);
-        for (var i = 1; i <= pageCnt; i++) {
+
+        var section = this.getSection(pageNo);
+        var firstPage = this.getFirstPage(section);
+        var lastPage = this.getLastPage(section, pageCnt);
+
+        for (var i = firstPage; i <= lastPage; i++) {
             html += this.drawPageBtn(i, true, i === pageNo);
         }
         html += this.drawPageBtn('Next', true);
 
         pageList.html(html);
+        pageList.data('total-pages', pageCnt);
     },
     clearPagesUI: function () {
         pageList.html('');
