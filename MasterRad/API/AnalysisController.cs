@@ -1,12 +1,14 @@
 ﻿using MasterRad.Attributes;
 using MasterRad.DTO;
 using MasterRad.DTO.RQ;
+using MasterRad.DTO.RS;
 using MasterRad.DTO.RS.TableRow;
 using MasterRad.Models;
 using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,7 +34,36 @@ namespace MasterRad.API
         }
 
         [AjaxMsGraphProxy]
+        [HttpPost, Route("Search")]
+        public async Task<ActionResult<PageRS<AnalysisTestDTO>>> GetTestsAsync([FromBody] SearchPaginatedRQ body)
+        {
+            var entities = _analysisRepo.GetPaginated(body, out int pageCnt, out int pageNo);
+
+            #region Get_CreatedBy_Users_Details
+            var createdByIds = entities.Select(e => e.CreatedBy);
+            var createdByDetails = await _msGraph.GetStudentsByIds(createdByIds);
+            #endregion
+
+            #region Get_Student_Users_Details
+            var studentIds = entities.Select(e => e.STS_StudentId);
+            var studentDetails = await _msGraph.GetStudentsByIds(studentIds);
+            #endregion
+
+            #region Map_Result
+            var res = entities.Select(entity =>
+            {
+                var createdByDetail = createdByDetails.Single(ud => ud.MicrosoftId == entity.CreatedBy);
+                var studentDetail = studentDetails.Single(ud => ud.MicrosoftId == entity.STS_StudentId);
+                return new AnalysisTestDTO(entity, createdByDetail, studentDetail);
+            });
+            #endregion
+
+            return new PageRS<AnalysisTestDTO>(res, pageCnt, pageNo);
+        }
+
+        [AjaxMsGraphProxy]
         [HttpGet, Route("get")]
+        [Obsolete]
         public async Task<ActionResult<IEnumerable<AnalysisTestDTO>>> GetTestsAsync()
         {
             var entities = _analysisRepo.Get();

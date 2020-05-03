@@ -1,8 +1,19 @@
 ﻿var testsList = null;
 var statusModalSelector = null;
 var nameModalSelector = null;
+
+var filterHeaderSelector = '#filter-header';
+var tableHeaderSelector = '#table-header';
 $(document).ready(function () {
     setActive("Analysis Tests");
+    var paginationConfig = {
+        "tableThSelector": tableHeaderSelector,
+        "filterThSelector": filterHeaderSelector,
+        "reloadFunction": loadTests,
+        "displayPagesCnt": 5,
+        "sortDefaultKey": "date_created",
+    }
+    pagination.initUI(paginationConfig);
     testsList = $('#tests-tbody');
     loadTests();
     statusModalSelector = '#update-staus-modal';
@@ -15,8 +26,10 @@ function loadTests() {
     drawAnalysisTestsTableMessage('Loading data...');
 
     getAnalysisTests()
-        .then(data => {
-            drawTestsList(data);
+        .then(response => {
+            drawTestsList(response.data);
+            if (response && response.pageCnt && response.pageNo)
+                pagination.drawPagesUI(response.pageCnt, response.pageNo);
         })
         .catch(error => {
             drawAnalysisTestsTableMessage('Error loading data...');
@@ -26,8 +39,9 @@ function loadTests() {
         });
 }
 function getAnalysisTests() {
-    var apiUrl = '/api/Analysis/get';
-    return promisifyAjaxGet(apiUrl)
+    var apiUrl = '/api/Analysis/Search';
+    var rqBody = pagination.buildSearchRQ();
+    return promisifyAjaxPost(apiUrl, rqBody);
 }
 
 function drawAnalysisTestsTableMessage(message) {

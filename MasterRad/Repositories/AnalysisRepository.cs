@@ -11,6 +11,7 @@ namespace MasterRad.Repositories
 {
     public interface IAnalysisRepository
     {
+        List<AnalysisTestEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo);
         IEnumerable<AnalysisTestEntity> Get();
         AnalysisTestEntity Get(int testId);
         AnalysisTestStudentEntity GetAssignment(Guid studentId, int testId);
@@ -37,6 +38,93 @@ namespace MasterRad.Repositories
             _context = context;
         }
 
+        public List<AnalysisTestEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo)
+        {
+            var qry = _context.AnalysisTests
+                   .Include(at => at.SynthesisTestStudent)
+                   .ThenInclude(sts => sts.SynthesisTest)
+                   .ThenInclude(st => st.Task)
+                   .ThenInclude(t => t.Template)
+                   .Include(at => at.SynthesisTestStudent)
+                   .ThenInclude(sts => sts.Student)
+                   .AsNoTracking();
+
+            #region Filter
+            foreach (var filter in request.Filters)
+            {
+                var filterValue = filter.Value.ToLower();
+                switch (filter.Key)
+                {
+                    case "name":
+                        qry = qry.Where(x => x.Name.ToLower().Contains(filterValue));
+                        break;
+                    case "task_name":
+                        qry = qry.Where(x => x.SynthesisTestStudent.SynthesisTest.Task.Name.ToLower().Contains(filterValue));
+                        break;
+                    case "template_name":
+                        qry = qry.Where(x => x.SynthesisTestStudent.SynthesisTest.Task.Template.Name.ToLower().Contains(filterValue));
+                        break;
+                }
+            }
+            #endregion
+
+            #region Page_Count_and_Number
+            pageNo = request.Page > 0 ? request.Page : 1;
+            pageCnt = 1;
+            if (request.PageSize > 0)
+            {
+                var total = qry.Count();
+                pageCnt = total / request.PageSize;
+                if (total % request.PageSize > 0)
+                    pageCnt++;
+            }
+            #endregion
+
+            #region Sort
+            if (string.IsNullOrEmpty(request.SortBy))
+            {
+                qry = qry.OrderBy(x => x.DateCreated);
+            }
+            else
+            {
+                switch (request.SortBy)
+                {
+                    case "name":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.Name) :
+                                qry.OrderBy(x => x.Name);
+                        break;
+                    case "task_name":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.SynthesisTestStudent.SynthesisTest.Task.Name) :
+                                qry.OrderBy(x => x.SynthesisTestStudent.SynthesisTest.Task.Name);
+                        break;
+                    case "template_name":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.SynthesisTestStudent.SynthesisTest.Task.Template.Name) :
+                                qry.OrderBy(x => x.SynthesisTestStudent.SynthesisTest.Task.Template.Name);
+                        break;
+                    case "date_created":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.DateCreated) :
+                                qry.OrderBy(x => x.DateCreated);
+                        break;
+                }
+            }
+            #endregion
+
+            #region Skip
+            if (request.Page > 0 && request.PageSize > 0)
+            {
+                qry = qry.Skip((request.Page - 1) * request.PageSize)
+                         .Take(request.PageSize);
+            }
+            #endregion
+
+            return qry.ToList();
+        }
+
+        [Obsolete]
         public IEnumerable<AnalysisTestEntity> Get()
         => _context.AnalysisTests
                    .Include(at => at.SynthesisTestStudent)

@@ -106,7 +106,6 @@
             this.triggerSearch(true);
     },
     prevNextHandler: function (pageLink) {
-        debugger;
         var txt = $(pageLink).html();
 
         var activePage = this.getActivePage();
@@ -161,7 +160,6 @@
         return lastPage;
     },
     drawPagesUI: function (pageCnt, pageNo) {
-        debugger;
         this.clearPagesUI();
         var html = '';
 
