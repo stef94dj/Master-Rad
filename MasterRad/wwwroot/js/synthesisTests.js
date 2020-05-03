@@ -4,11 +4,19 @@ var createTestModalSelector = null;
 var nameModalSelector = null;
 var statusModalSelector = null;
 
-
+var filterHeaderSelector = '#filter-header';
+var tableHeaderSelector = '#table-header';
 $(document).ready(function () {
     setActive("Synthesis Tests");
+    var paginationConfig = {
+        "tableThSelector": tableHeaderSelector,
+        "filterThSelector": filterHeaderSelector,
+        "reloadFunction": loadTests,
+        "displayPagesCnt": 5,
+        "sortDefaultKey": "date_created",
+    }
+    pagination.initUI(paginationConfig);
     testsList = $('#tests-tbody');
-
     createTestModalSelector = '#create-test-modal';
     nameModalSelector = '#update-name-modal';
     statusModalSelector = '#update-staus-modal';
@@ -24,8 +32,10 @@ $(document).ready(function () {
 function loadTests() {
     drawSynthesisTestsTableMessage('Loading data...');
     getSynthesisTests()
-        .then(data => {
-            drawTestsList(data);
+        .then(response => {
+            drawTestsList(response.data);
+            if (response && response.pageCnt && response.pageNo)
+                pagination.drawPagesUI(response.pageCnt, response.pageNo);
         })
         .catch(error => {
             drawSynthesisTestsTableMessage('Error loading data...');
@@ -35,8 +45,9 @@ function loadTests() {
         });
 }
 function getSynthesisTests() {
-    var apiUrl = '/api/Synthesis/get';
-    return promisifyAjaxGet(apiUrl);
+    var apiUrl = '/api/Synthesis/Search';
+    var rqBody = pagination.buildSearchRQ();
+    return promisifyAjaxPost(apiUrl, rqBody);
 }
 
 function drawSynthesisTestsTableMessage(message) {
