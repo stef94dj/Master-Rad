@@ -7,7 +7,7 @@ $(document).ready(function () {
         "tableThSelector": tableHeaderSelector,
         "filterThSelector": filterHeaderSelector,
         "reloadFunction": loadTemplates,
-        "displayPagesCnt": 2,
+        "displayPagesCnt": 5,
         "sortDefaultKey": "date_created",
     }
     pagination.initUI(paginationConfig);
@@ -42,6 +42,8 @@ function loadTemplates() {
 }
 
 function getTemplates() {
+    var apiUrl = '/api/Template/Search';
+
     var filterInputs = pagination.getFilterTextInputs();
     var filters = $.map(filterInputs, function (item, index) {
         var val = $(item).val();
@@ -53,9 +55,7 @@ function getTemplates() {
             };
             return filter
         }
-    })
-
-    var pageSize = parseInt($('#page-size').val());
+    });
 
     var sortDesc = true;
     var sortKey = "date_created";
@@ -72,9 +72,9 @@ function getTemplates() {
         "SortBy": sortKey,
         "SortDescending": sortDesc,
         "Page": pagination.getActivePage(),
-        "PageSize": pageSize,
+        "PageSize": parseInt($('#page-size').val()),
     }
-    var apiUrl = '/api/Template/Search';
+
     return promisifyAjaxPost(apiUrl, rqBody);
 }
 function drawTemplateTableMessage(message) {
