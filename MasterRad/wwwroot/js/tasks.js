@@ -1,5 +1,15 @@
-﻿$(document).ready(function () {
+﻿var filterHeaderSelector = '#filter-header';
+var tableHeaderSelector = '#table-header';
+$(document).ready(function () {
     setActive("Tasks");
+    var paginationConfig = {
+        "tableThSelector": tableHeaderSelector,
+        "filterThSelector": filterHeaderSelector,
+        "reloadFunction": loadTasks,
+        "displayPagesCnt": 5,
+        "sortDefaultKey": "date_created",
+    }
+    pagination.initUI(paginationConfig);
     loadTasks();
     loadTemplates();
 
@@ -12,8 +22,10 @@
 function loadTasks() {
     drawTaskTableMessage('Loading data...');
     getTasks()
-        .then(data => {
-            drawTaskTable(data);
+        .then(response => {
+            drawTaskTable(response.data);
+            if (response && response.pageCnt && response.pageNo)
+                pagination.drawPagesUI(response.pageCnt, response.pageNo);
         })
         .catch(error => {
             if (error?.status && error.status === HttpCodes.ReloadRequired) {
@@ -29,8 +41,9 @@ function loadTasks() {
         });
 }
 function getTasks() {
-    var apiUrl = '/api/Task/Get';
-    return promisifyAjaxGet(apiUrl);
+    var apiUrl = '/api/Task/Search';
+    var rqBody = pagination.buildSearchRQ();
+    return promisifyAjaxPost(apiUrl, rqBody);
 }
 
 function drawTaskTableMessage(message) {
@@ -60,13 +73,6 @@ function drawTaskTable(tasks) {
     }
 }
 function drawNameCell(task) {
-    //var result = '<td><div>';
-    //result += '<p style="float:left">' + task.name + '</p>';
-    //result += drawCellEditModalButton('Edit', 'dark', '#update-name-modal', task.id, task.timeStamp, true);
-    //result += '</div></td>';
-    //return result;
-
-
     var result = '<td class="hover-text-button">';
     result += '<div class="text">' + task.name + '</div>';
     result += drawCellEditModalButton('Modify', 'dark', '#update-name-modal', task.id, task.timeStamp, true, true);

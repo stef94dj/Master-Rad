@@ -9,7 +9,9 @@ namespace MasterRad.Repositories
 {
     public interface ITaskRepository
     {
+        [Obsolete]
         List<TaskEntity> Get();
+        List<TaskEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo);
         TaskEntity Get(int id);
         bool Create(CreateTaskRQ request, string nameOnServer, Guid userId);
         bool UpdateName(UpdateNameRQ request, Guid userId);
@@ -28,10 +30,84 @@ namespace MasterRad.Repositories
             _context = context;
         }
 
+        [Obsolete]
         public List<TaskEntity> Get()
             => _context.Tasks.Include(x => x.Template)
                              .OrderByDescending(t => t.DateCreated)
                              .ToList();
+
+        public List<TaskEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo)
+        {
+            var qry = _context.Tasks
+                              .Include(x => x.Template)
+                              .AsNoTracking();
+
+            #region Filter
+            foreach (var filter in request.Filters)
+            {
+                var filterValue = filter.Value.ToLower();
+                switch (filter.Key)
+                {
+                    case "name":
+                        qry = qry.Where(x => x.Name.ToLower().Contains(filterValue));
+                        break;
+                    case "template_name":
+                        qry = qry.Where(x => x.Template.Name.ToLower().Contains(filterValue));
+                        break;
+                }
+            }
+            #endregion
+
+            #region Page_Count_and_Number
+            pageNo = request.Page > 0 ? request.Page : 1;
+            pageCnt = 1;
+            if (request.PageSize > 0)
+            {
+                var total = qry.Count();
+                pageCnt = total / request.PageSize;
+                if (total % request.PageSize > 0)
+                    pageCnt++;
+            }
+            #endregion
+
+            #region Sort
+            if (string.IsNullOrEmpty(request.SortBy))
+            {
+                qry = qry.OrderBy(x => x.DateCreated);
+            }
+            else
+            {
+                switch (request.SortBy)
+                {
+                    case "name":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.Name) :
+                                qry.OrderBy(x => x.Name);
+                        break;
+                    case "template_name":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.Template.Name) :
+                                qry.OrderBy(x => x.Template.Name);
+                        break;
+                    case "date_created":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.DateCreated) :
+                                qry.OrderBy(x => x.DateCreated);
+                        break;
+                }
+            }
+            #endregion
+
+            #region Skip
+            if (request.Page > 0 && request.PageSize > 0)
+            {
+                qry = qry.Skip((request.Page - 1) * request.PageSize)
+                         .Take(request.PageSize);
+            }
+            #endregion
+
+            return qry.ToList();
+        }
 
         public TaskEntity Get(int id)
             => _context.Tasks

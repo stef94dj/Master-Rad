@@ -208,6 +208,40 @@
             }
         })
         return res;
+    },
+    buildSearchRQ: function () {
+        var filterInputs = pagination.getFilterTextInputs();
+        var filters = $.map(filterInputs, function (item, index) {
+            var val = $(item).val();
+            var key = $(item).data('table-key');
+            if (val) {
+                var filter = {
+                    "Key": key,
+                    "Value": val
+                };
+                return filter
+            }
+        });
+
+        var sortDesc = true;
+        var sortKey = "date_created";
+        var sortIcons = pagination.getSortIcons();
+        $.each(sortIcons, function (index, item) {
+            if ($(item).hasClass('fa-sort-down') || $(item).hasClass('fa-sort-up')) {
+                sortDesc = $(item).hasClass('fa-sort-down');
+                sortKey = $(item).data('table-key');
+            }
+        })
+
+        var rqBody = {
+            "Filters": filters,
+            "SortBy": sortKey,
+            "SortDescending": sortDesc,
+            "Page": pagination.getActivePage(),
+            "PageSize": parseInt($('#page-size').val()),
+        }
+
+        return rqBody;
     }
 }
 

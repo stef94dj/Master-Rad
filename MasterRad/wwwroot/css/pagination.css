@@ -20,3 +20,7 @@ i.fa-sort-down.sort-icon, i.fa-sort-up.sort-icon {
 i.fa-sort.sort-icon {
     color: #909090;
 }
+
+#filter-header > tr > th {
+    border: none;
+}

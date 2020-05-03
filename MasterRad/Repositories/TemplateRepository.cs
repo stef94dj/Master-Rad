@@ -9,6 +9,8 @@ namespace MasterRad.Repositories
 {
     public interface ITemplateRepository
     {
+        [Obsolete]
+        List<TemplateEntity> Get();
         TemplateEntity Get(int id);
         List<TemplateEntity> GetPaginated(SearchPaginatedRQ searchRQ, out int pageCnt, out int pageNo);
         TemplateEntity GetWithTaks(int id);
@@ -28,6 +30,11 @@ namespace MasterRad.Repositories
             _context = context;
         }
 
+        public List<TemplateEntity> Get()
+            => _context.Templates
+                       .Include(x => x.Tasks)
+                       .OrderByDescending(t => t.DateCreated)
+                       .ToList();
 
         public TemplateEntity Get(int id)
             => _context.Templates
@@ -62,7 +69,7 @@ namespace MasterRad.Repositories
             #region Page_Count_and_Number
             pageNo = request.Page > 0 ? request.Page : 1;
             pageCnt = 1;
-            if(request.PageSize > 0)
+            if (request.PageSize > 0)
             {
                 var total = qry.Count();
                 pageCnt = total / request.PageSize;
