@@ -6,8 +6,10 @@
     {
         Id = "actions-modal",
         Options = new List<OptionModel>() {
-            new OptionModel(){Text = "Update Name", TargetModalId = "update-name-modal"},
-            new OptionModel(){Text = "Update Description", TargetModalId = "update-description-modal"},
+            new OptionModel(){Text = "Name", TargetModalId = "update-name-modal"},
+            new OptionModel(){Text = "Description", TargetModalId = "update-description-modal"},
+            new OptionModel(){Text = "Model", TargetUrl = "https://localhost:44359/Test/Results?testId=1&testType=2"},
+            new OptionModel(){Text = "Data", TargetUrl = "https://getbootstrap.com/docs/4.0/utilities/colors/"},
             new OptionModel(){Text = "Create Task", TargetModalId = "create-task-modal"},
             new OptionModel(){Text = "Delete", TargetModalId = "confirm-delete-modal"}
         }

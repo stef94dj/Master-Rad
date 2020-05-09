@@ -24,7 +24,7 @@
                                     }
                                     else if (!string.IsNullOrEmpty(item.TargetUrl))
                                     {
-                                        <a href="https://localhost:44359/Test/Results?testId=1&testType=2" class="list-group-item word-wrap-break">
+                                        <a href="@item.TargetUrl" class="list-group-item word-wrap-break">
                                             @item.Text
                                         </a>
                                     }
