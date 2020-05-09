@@ -27,7 +27,6 @@ function drawCellEditModalButton(buttonName, color, modalselector, id, timestamp
     return result;
 }
 
-
 function initializeTooltips() {
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()

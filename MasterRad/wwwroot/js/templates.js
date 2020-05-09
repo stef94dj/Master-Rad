@@ -1,6 +1,10 @@
 ﻿var filterHeaderSelector = '#filter-header';
 var tableHeaderSelector = '#table-header';
 
+var createTemplateModal = null;
+var nameModal = null;
+var createTaskModal = null;
+
 $(document).ready(function () {
     setActive("Templates");
     var paginationConfig = {
@@ -13,9 +17,22 @@ $(document).ready(function () {
     pagination.initUI(paginationConfig);
     loadTemplates();
     initializeTooltips();
-    bindModalOnShow('#update-name-modal', onNameModalShow);
-    bindModalOnShow('#update-description-modal', onDescriptionModalShow);
-    bindModalOnClose('#create-template-modal', createTemplateModalClose);
+
+    var dataAttributes = ["id", "timestamp", "name", "description"];
+    actionsModal.Init('#actions-modal', dataAttributes);
+
+    createTemplateModal = nameModalBuilder.BuildHandler();
+    createTemplateModal.Init('#create-template-modal', onCreateTemplateModalShow, createTemplate);
+
+    nameModal = nameModalBuilder.BuildHandler();
+    nameModal.Init('#update-name-modal', onNameModalShow, updateName);
+
+    createTaskModal = nameModalBuilder.BuildHandler();
+    createTaskModal.Init('#create-task-modal', onCreateTaskModalShow, createTask);
+
+    descriptionModal.Init('#update-description-modal', updateDescription);
+
+    bindModalOnClose('#create-template-modal', createTemplateModalClose); //obsolete
 });
 
 //DRAW TEMPLATES TABLE
@@ -47,7 +64,7 @@ function getTemplates() {
     return promisifyAjaxPost(apiUrl, rqBody);
 }
 function drawTemplateTableMessage(message) {
-    $('#templates-tbody').html(drawTableMessage(message, 7));
+    $('#templates-tbody').html(drawTableMessage(message, 4));
 }
 function drawTemplateTable(tbody, templates) {
     drawTemplateTableMessage('No records.');
@@ -58,12 +75,13 @@ function drawTemplateTable(tbody, templates) {
             var tableRow = '<tr>';
 
             tableRow += drawNameCell(template);
-            tableRow += drawDescriptionCell(template);
-            tableRow += drawModelCell(template);
-            tableRow += drawDataCell(template);
+            //tableRow += drawDescriptionCell(template);
+            //tableRow += drawModelCell(template);
+            //tableRow += drawDataCell(template);
             tableRow += drawAuthorCell(template);
             tableRow += drawCreatedOnCell(template);
-            tableRow += drawDeleteCell(template);
+            //tableRow += drawDeleteCell(template);
+            tableRow += drawActionsCell(template);
 
             tableRow += '</tr>'
             tbody.append(tableRow)
@@ -71,11 +89,7 @@ function drawTemplateTable(tbody, templates) {
     }
 }
 function drawNameCell(template) {
-    var result = '<td class="hover-text-button">';
-    result += '<div class="text">' + template.name + '</div>';
-    result += drawCellEditModalButton('Modify', 'dark', '#update-name-modal', template.id, template.timeStamp, true, true);
-    result += '</td>';
-    return result;
+    return `<td><div class="text">${template.name}</div></td>`;
 }
 
 function drawDescriptionCell(template) {
@@ -109,34 +123,27 @@ function drawCreatedOnCell(template) {
 function drawDeleteCell(template) {
     return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', template.id, template.timeStamp, true) + '</td>';
 }
+function drawActionsCell(template) {
+    var dataAttributes = {
+        "id": template.id,
+        "timestamp": template.timeStamp,
+        "name": template.name,
+        "description": template.description
+    }
+    return '<td>' + actionsModal.drawActionsBtn('#actions-modal', dataAttributes) + '</td>';
+}
 
 //MODAL SHOW CLOSE
 function onNameModalShow(element, event) {
-    var button = $(event.relatedTarget)
-    var name = button.parent().find('div').html();
-    var id = button.data('id');
-    var timestamp = button.data('timestamp');
-
-    var modal = $(element)
-
-    modal.find('#template-name').val(name);
-    modal.find('#template-id').val(id);
-    modal.find('#template-timestamp').val(timestamp);
-    hideModalError(element);
+    nameModal.SetInputVal(actionsModal.name);
+    nameModal.SetTitle(`Update name for '${actionsModal.name}'`);
 }
-function onDescriptionModalShow(element, event) {
-    var button = $(event.relatedTarget)
-
-    var name = button.parent().find('p').html();
-    var id = button.data('id');
-    var timestamp = button.data('timestamp');
-
-    var modal = $(element)
-
-    modal.find('#template-description').val(name);
-    modal.find('#template-id').val(id);
-    modal.find('#template-timestamp').val(timestamp);
-    hideModalError(element);
+function onCreateTemplateModalShow(element, event) {
+    nameModal.SetInputVal('');
+}
+function onCreateTaskModalShow(element, event) {
+    createTaskModal.SetInputVal('');
+    createTaskModal.SetTitle(`Create task from '${actionsModal.name}'`);
 }
 function createTemplateModalClose(element, event) {
     var modalBody = $(element).find('.modal-body');
@@ -146,10 +153,8 @@ function createTemplateModalClose(element, event) {
 
 //API CALLERS
 function createTemplate() {
-    var modalBody = $('#create-template-modal').find('.modal-body');
-
     var rqBody = {
-        "Name": modalBody.find('#template-name').val()
+        "Name": createTemplateModal.GetInputVal()
     }
 
     $.ajax({
@@ -167,12 +172,10 @@ function createTemplate() {
     });
 }
 function updateName() {
-    var modalBody = $('#update-name-modal').find('.modal-body');
-
     var rqBody = {
-        "Id": parseInt(modalBody.find('#template-id').val()),
-        "TimeStamp": modalBody.find('#template-timestamp').val(),
-        "Name": modalBody.find('#template-name').val()
+        "Id": actionsModal.id,
+        "TimeStamp": actionsModal.timestamp,
+        "Name": nameModal.GetInputVal()
     }
 
     $.ajax({
@@ -189,15 +192,17 @@ function updateName() {
         }
     });
 }
+function createTask() {
+    alert('not implemented: function createTask() {...');
+}
 function updateDescription() {
-    var modalBody = $('#update-description-modal').find('.modal-body');
-
     var rqBody = {
-        "Id": parseInt(modalBody.find('#template-id').val()),
-        "TimeStamp": modalBody.find('#template-timestamp').val(),
-        "Description": modalBody.find('#template-description').val()
+        "Id": actionsModal.id,
+        "TimeStamp": actionsModal.timestamp,
+        "Description": descriptionModal.GetInputVal()
     }
 
+    debugger;
     $.ajax({
         url: '/api/Template/Update/Description',
         dataType: 'json',
@@ -228,4 +233,18 @@ function updateData(id) {
     form.find('#template-id').val(id);
     form.attr('action', '/Template/ModifyTemplateData');
     form.submit();
+}
+
+//ACTIONS
+function nameAction(key) {
+    alert('ciclked ' + key);
+}
+function descriptionAction(key) {
+    alert('ciclked ' + key);
+}
+function templateAction(key) {
+    alert('ciclked ' + key);
+}
+function deleteAction(key) {
+    alert('ciclked ' + key);
 }
