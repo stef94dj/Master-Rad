@@ -123,8 +123,14 @@ namespace MasterRad.API
 
         [HttpPost, Route("status/next")]
         [Authorize(Roles = UserRole.Professor)]
-        public ActionResult<bool> GoToNextStatus([FromBody] UpdateDTO body)
-            => _synthesisRepo.StatusNext(body, UserId);
+        public ActionResult<Result<bool>> GoToNextStatus([FromBody] UpdateDTO body)
+        {
+            var success = _synthesisRepo.StatusNext(body, UserId);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed to save changes.");
+        }
 
         [HttpGet, Route("Solution/Format/{testId}")]
         [Authorize(Roles = UserRole.Student)]

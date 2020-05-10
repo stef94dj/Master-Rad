@@ -84,12 +84,12 @@ function drawTaskTable(tasks) {
         });
     }
 }
-function drawActionsCell(template) {
+function drawActionsCell(task) {
     var dataAttributes = {
-        "id": template.id,
-        "timestamp": template.timeStamp,
-        "name": template.name,
-        "description": template.description
+        "id": task.id,
+        "timestamp": task.timeStamp,
+        "name": task.name,
+        "description": task.description
     }
     return '<td>' + actionsModal.drawActionsBtn('#actions-modal', dataAttributes) + '</td>';
 }
