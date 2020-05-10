@@ -4,6 +4,7 @@ var tableHeaderSelector = '#table-header';
 var createTemplateModal = null;
 var nameModal = null;
 var createTaskModal = null;
+var deleteModal = null;
 
 $(document).ready(function () {
     setActive("Templates");
@@ -30,9 +31,10 @@ $(document).ready(function () {
     createTaskModal = nameModalBuilder.BuildHandler();
     createTaskModal.Init('#create-task-modal', onCreateTaskModalShow, createTask);
 
-    descriptionModal.Init('#update-description-modal', updateDescription);
+    deleteModal = confirmationModalBuilder.BuildHandler();
+    deleteModal.Init("#confirm-delete-modal", onDeleteModalShow, deleteTemplate);
 
-    //bindModalOnClose('#create-template-modal', createTemplateModalClose); //obsolete
+    descriptionModal.Init('#update-description-modal', updateDescription);
 });
 
 //DRAW TEMPLATES TABLE
@@ -96,9 +98,6 @@ function drawCreatedOnCell(template) {
     value = value.replace(' ', '<br/>');
     return '<td><div class="text">' + value + '</div></td>'
 }
-function drawDeleteCell(template) {
-    return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', template.id, template.timeStamp, true) + '</td>';
-}
 function drawActionsCell(template) {
     var dataAttributes = {
         "id": template.id,
@@ -125,11 +124,9 @@ function onCreateTaskModalShow(element, event) {
     createTaskModal.SetInputVal('');
     createTaskModal.SetTitle(`Create task from '${actionsModal.name}'`);
 }
-//function createTemplateModalClose(element, event) {
-//    var modalBody = $(element).find('.modal-body');
-//    modalBody.find('#template-name').val('');
-//    hideModalError(element);
-//}
+function onDeleteModalShow(element, event) {
+    deleteModal.SetText(`Are you sure you wish to delete template '${actionsModal.name}' ?`);
+}
 
 //API CALLERS
 function createTemplate() {
@@ -213,22 +210,13 @@ function updateDescription() {
         }
     });
 }
-function deleteTemplate(id) {
+function deleteTemplate() {
+    var rq = {
+        Id: actionsModal.id,
+        TimeStamp: actionsModal.timestamp
+    };
 
-}
-
-//NAVIGATION
-function updateModel(id) {
-    var form = $('#hidden-form');
-    form.find('#template-id').val(id);
-    form.attr('action', '/Template/Model');
-    form.submit();
-}
-function updateData(id) {
-    var form = $('#hidden-form');
-    form.find('#template-id').val(id);
-    form.attr('action', '/Template/ModifyTemplateData');
-    form.submit();
+    alert(`api call: ${rq.Id}, ${rq.TimeStamp}`);
 }
 
 //ACTIONS

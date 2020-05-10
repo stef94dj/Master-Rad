@@ -40,6 +40,13 @@
     };
 
     var descriptionModel = "update-description-modal";
+
+    var confirmationModel = new ConfirmationPartialVM()
+    {
+        Id = "confirm-delete-modal",
+        Title = "Confirm delete",
+        Text = string.Empty
+    };
 }
 
 @section Styles {
@@ -109,11 +116,7 @@
 <partial name="../Partials/Modals/Name.cshtml" model="@createTaskModel" />
 
 <!--Confirm Delete modal-->
-
-<form action="" hidden id="hidden-form" method="post">
-    <input type="number" name="templateId" id="template-id" />
-    <input type="submit" value="Submit" id="submit-btn" />
-</form>
+<partial name="../Partials/Modals/Confirmation.cshtml" model="@confirmationModel" />
 
 @section Scripts {
     <script src="~/js/enums.js" asp-append-version="true"></script>
@@ -122,5 +125,6 @@
     <script src="~/js/modals/actionsModal.js" asp-append-version="true"></script>
     <script src="~/js/modals/nameModal.js" asp-append-version="true"></script>
     <script src="~/js/modals/descriptionModal.js" asp-append-version="true"></script>
+    <script src="~/js/modals/confirmationModal.js" asp-append-version="true"></script>
     <script src="~/js/templates.js" asp-append-version="true"></script>
 }

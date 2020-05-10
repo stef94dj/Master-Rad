@@ -30,6 +30,6 @@
             }
         }
 
-        return modalHandler
+        return modalHandler;
     }
 }
