@@ -6,6 +6,7 @@
             Init: function (modalSelector, onShowHandler, clickHandler) {
                 modalHandler.Selector = modalSelector;
                 bindModalOnShow(modalSelector, onShowHandler);
+                bindModalOnClose(modalSelector, modalHandler.Clear);
 
                 var confirmBtn = $(modalSelector).find('button.modal-confirm-btn')[0];
                 $(confirmBtn).click(clickHandler);
@@ -21,6 +22,11 @@
             GetInputVal: function () {
                 var input = $(modalHandler.Selector).find('input')[0];
                 return $(input).val();
+            },
+            Clear: function () {
+                var input = $(modalHandler.Selector).find('input')[0];
+                $(input).val('');
+                hideModalError(modalHandler.Selector);
             }
         }
 

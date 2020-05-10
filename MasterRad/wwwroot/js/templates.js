@@ -32,7 +32,7 @@ $(document).ready(function () {
 
     descriptionModal.Init('#update-description-modal', updateDescription);
 
-    bindModalOnClose('#create-template-modal', createTemplateModalClose); //obsolete
+    //bindModalOnClose('#create-template-modal', createTemplateModalClose); //obsolete
 });
 
 //DRAW TEMPLATES TABLE
@@ -125,11 +125,11 @@ function onCreateTaskModalShow(element, event) {
     createTaskModal.SetInputVal('');
     createTaskModal.SetTitle(`Create task from '${actionsModal.name}'`);
 }
-function createTemplateModalClose(element, event) {
-    var modalBody = $(element).find('.modal-body');
-    modalBody.find('#template-name').val('');
-    hideModalError(element);
-}
+//function createTemplateModalClose(element, event) {
+//    var modalBody = $(element).find('.modal-body');
+//    modalBody.find('#template-name').val('');
+//    hideModalError(element);
+//}
 
 //API CALLERS
 function createTemplate() {
