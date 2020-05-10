@@ -37,29 +37,6 @@ namespace MasterRad.API
         }
 
         [AjaxMsGraphProxy]
-        [HttpGet, Route("Get")]
-        [Obsolete]
-        public async Task<ActionResult<IEnumerable<TemplateDTO>>> GetTemplatesAsync()
-        {
-            var entities = _templateRepo.Get();
-
-            #region Get_CreatedBy_Users_Details
-            var createdByIds = entities.Select(e => e.CreatedBy);
-            var createdByDetails = await _msGraph.GetStudentsByIds(createdByIds);
-            #endregion
-
-            #region Map_Result
-            var res = entities.Select(te =>
-            {
-                var createdByDetail = createdByDetails.Single(ud => ud.MicrosoftId == te.CreatedBy);
-                return new TemplateDTO(te, createdByDetail);
-            });
-            #endregion
-
-            return Ok(res);
-        }
-
-        [AjaxMsGraphProxy]
         [HttpPost, Route("Search")]
         public async Task<ActionResult<PageRS<TemplateDTO>>> GetTemplatesAsync([FromBody] SearchPaginatedRQ body)
         {

@@ -61,40 +61,9 @@ namespace MasterRad.API
             return new PageRS<AnalysisTestDTO>(res, pageCnt, pageNo);
         }
 
-        [AjaxMsGraphProxy]
-        [HttpGet, Route("get")]
-        [Obsolete]
-        public async Task<ActionResult<IEnumerable<AnalysisTestDTO>>> GetTestsAsync()
-        {
-            var entities = _analysisRepo.Get();
-
-            #region Get_CreatedBy_Users_Details
-            var createdByIds = entities.Select(e => e.CreatedBy);
-            var createdByDetails = await _msGraph.GetStudentsByIds(createdByIds);
-            #endregion
-
-            #region Get_Student_Users_Details
-            var studentIds = entities.Select(e => e.STS_StudentId);
-            var studentDetails = await _msGraph.GetStudentsByIds(studentIds);
-            #endregion
-
-            #region Map_Result
-            var res = entities.Select(entity =>
-            {
-                var createdByDetail = createdByDetails.Single(ud => ud.MicrosoftId == entity.CreatedBy);
-                var studentDetail = studentDetails.Single(ud => ud.MicrosoftId == entity.STS_StudentId);
-                return new AnalysisTestDTO(entity, createdByDetail, studentDetail);
-            });
-            #endregion
-
-            return Ok(res);
-        }
-
-
         [HttpPost, Route("create/test")]
         public ActionResult<bool> CreateTest([FromBody] AnalysisCreateRQ body)
            => _analysisRepo.Create(body, UserId);
-
 
         [HttpPost, Route("update/name")]
         public ActionResult<Result<bool>> UpdateTestName([FromBody] UpdateNameRQ body)

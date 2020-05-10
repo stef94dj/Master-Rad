@@ -9,8 +9,6 @@ namespace MasterRad.Repositories
 {
     public interface ITemplateRepository
     {
-        [Obsolete]
-        List<TemplateEntity> Get();
         TemplateEntity Get(int id);
         List<TemplateEntity> GetPaginated(SearchPaginatedRQ searchRQ, out int pageCnt, out int pageNo);
         TemplateEntity GetWithTaks(int id);
@@ -29,12 +27,6 @@ namespace MasterRad.Repositories
         {
             _context = context;
         }
-
-        public List<TemplateEntity> Get()
-            => _context.Templates
-                       .Include(x => x.Tasks)
-                       .OrderByDescending(t => t.DateCreated)
-                       .ToList();
 
         public TemplateEntity Get(int id)
             => _context.Templates

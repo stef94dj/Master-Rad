@@ -12,7 +12,6 @@ namespace MasterRad.Repositories
     public interface IAnalysisRepository
     {
         List<AnalysisTestEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo);
-        IEnumerable<AnalysisTestEntity> Get();
         AnalysisTestEntity Get(int testId);
         AnalysisTestStudentEntity GetAssignment(Guid studentId, int testId);
         AnalysisTestEntity GetWithTaskTemplateAndSolutionFormat(int testId);
@@ -123,16 +122,6 @@ namespace MasterRad.Repositories
 
             return qry.ToList();
         }
-
-        [Obsolete]
-        public IEnumerable<AnalysisTestEntity> Get()
-        => _context.AnalysisTests
-                   .Include(at => at.SynthesisTestStudent)
-                   .ThenInclude(sts => sts.SynthesisTest)
-                   .ThenInclude(st => st.Task)
-                   .ThenInclude(t => t.Template)
-                   .Include(at => at.SynthesisTestStudent)
-                   .ThenInclude(sts => sts.Student);
 
         public AnalysisTestEntity Get(int testId)
             => _context.AnalysisTests

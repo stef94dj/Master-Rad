@@ -13,8 +13,6 @@ namespace MasterRad.Repositories
         SynthesisTestEntity Get(int testId);
         SynthesisTestEntity GetWithTaskAndTemplate(int testId);
         
-        [Obsolete]
-        IEnumerable<SynthesisTestEntity> Get();
         IEnumerable<SynthesisTestEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo);
         SynthesisTestStudentEntity GetAssignment(Guid studentId, int testId);
         SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(Guid studentId, int testId);
@@ -138,12 +136,6 @@ namespace MasterRad.Repositories
                        .ThenInclude(t => t.Template)
                        .AsNoTracking()
                        .SingleOrDefault();
-
-        public IEnumerable<SynthesisTestEntity> Get()
-            => _context.SynthesisTests
-                       .Include(st => st.Task)
-                       .ThenInclude(t => t.Template)
-                       .OrderByDescending(t => t.DateCreated);
 
         public SynthesisTestStudentEntity GetAssignment(Guid studentId, int testId)
             => _context.SynthesysTestStudents

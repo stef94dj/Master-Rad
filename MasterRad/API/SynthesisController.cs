@@ -35,33 +35,8 @@ namespace MasterRad.API
         }
 
         [AjaxMsGraphProxy]
-        [HttpGet, Route("get")]
-        [Authorize(Roles = UserRole.Professor)]
-        [Obsolete]
-        public async Task<ActionResult<IEnumerable<SynthesisTestDTO>>> GetTestsAsync()
-        {
-            var entities = _synthesisRepo.Get();
-
-            #region Get_CreatedBy_Users_Details
-            var createdByIds = entities.Select(e => e.CreatedBy);
-            var createdByDetails = await _msGraph.GetStudentsByIds(createdByIds);
-            #endregion
-
-            #region Map_Result
-            var res = entities.Select(entity =>
-            {
-                var createdByDetail = createdByDetails.Single(ud => ud.MicrosoftId == entity.CreatedBy);
-                return new SynthesisTestDTO(entity, createdByDetail);
-            });
-            #endregion
-
-            return Ok(res);
-        }
-
-        [AjaxMsGraphProxy]
         [HttpPost, Route("Search")]
         [Authorize(Roles = UserRole.Professor)]
-        [Obsolete]
         public async Task<ActionResult<PageRS<SynthesisTestDTO>>> GetTestsAsync([FromBody] SearchPaginatedRQ body)
         {
             var entities = _synthesisRepo.GetPaginated(body, out int pageCnt, out int pageNo);

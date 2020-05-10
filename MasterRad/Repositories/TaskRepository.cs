@@ -9,8 +9,6 @@ namespace MasterRad.Repositories
 {
     public interface ITaskRepository
     {
-        [Obsolete]
-        List<TaskEntity> Get();
         List<TaskEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo);
         TaskEntity Get(int id);
         bool Create(CreateTaskRQ request, string nameOnServer, Guid userId);
@@ -29,12 +27,6 @@ namespace MasterRad.Repositories
         {
             _context = context;
         }
-
-        [Obsolete]
-        public List<TaskEntity> Get()
-            => _context.Tasks.Include(x => x.Template)
-                             .OrderByDescending(t => t.DateCreated)
-                             .ToList();
 
         public List<TaskEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo)
         {
