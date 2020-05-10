@@ -24,7 +24,7 @@ $(document).ready(function () {
 
     loadTests();
 
-    var dataAttributes = ["id", "timestamp", "name"];
+    var dataAttributes = ["id", "timestamp", "name", "status"];
     actionsModal.Init('#actions-modal', dataAttributes, onActionsModalShow);
 
     nameModal = nameModalBuilder.BuildHandler();
@@ -79,12 +79,12 @@ function drawTestsList(data) {
         });
     }
 }
-
 function drawActionsCell(test) {
     var dataAttributes = {
         "id": test.id,
         "timestamp": test.timeStamp,
         "name": test.name,
+        "status": test.status
     }
     return '<td>' + actionsModal.drawActionsBtn('#actions-modal', dataAttributes) + '</td>';
 }
@@ -93,6 +93,20 @@ function drawActionsCell(test) {
 function onActionsModalShow(element, event) {
     $('#assign-url').attr('href', `/Test/AssignStudents?testId=${actionsModal.id}&testType=${TestType.Synthesis}`);
     $('#results-url').attr('href', `/Test/Results?testId=${actionsModal.id}&testType=${TestType.Synthesis}`);
+
+    if (actionsModal.status == TestStatus.Scheduled) {
+        $('#assign-url').attr('hidden', false);
+    }
+    else {
+        $('#assign-url').attr('hidden', true);
+    }
+
+    if (actionsModal.status == TestStatus.Completed) {
+        $('#results-url').attr('hidden', false);
+    }
+    else {
+        $('#results-url').attr('hidden', true);
+    }
 }
 function onNameModalShow(element, event) {
     nameModal.SetInputVal(actionsModal.name);
@@ -134,7 +148,6 @@ function onDeleteModalShow(element, event) {
 function onStatusModalShow(element, event) {
     statusModal.SetText(`Are you sure you want to change the status of '${actionsModal.name}' ?`);
 }
-
 
 //API CALLERS
 function updateName() {
