@@ -43,6 +43,21 @@ function bindModalOnShow(selector, handler) {
     })
 }
 
+function drawTextCell(text, maxChars) {
+    if (!text)
+        text = "-";
+
+    if (text.length > maxChars) {
+        text = text.substring(0, maxChars);
+    }
+
+    if (text.length == maxChars) {
+        text = text.substring(0, text.length - 3) + '...';
+    }
+
+    return `<td><div class="text">${text}</div></td>`;
+}
+
 function bindModalOnClose(selector, handler) {
     $(selector).on('hidden.bs.modal', function (event) {
         handler(this, event);

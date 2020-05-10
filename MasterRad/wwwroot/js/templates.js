@@ -64,7 +64,7 @@ function getTemplates() {
     return promisifyAjaxPost(apiUrl, rqBody);
 }
 function drawTemplateTableMessage(message) {
-    $('#templates-tbody').html(drawTableMessage(message, 4));
+    $('#templates-tbody').html(drawTableMessage(message, 5));
 }
 function drawTemplateTable(tbody, templates) {
     drawTemplateTableMessage('No records.');
@@ -74,13 +74,10 @@ function drawTemplateTable(tbody, templates) {
         $.each(templates, function (index, template) {
             var tableRow = '<tr>';
 
-            tableRow += drawNameCell(template);
-            //tableRow += drawDescriptionCell(template);
-            //tableRow += drawModelCell(template);
-            //tableRow += drawDataCell(template);
+            tableRow += drawTextCell(template.name, 20);
+            tableRow += drawTextCell(template.description, 20);
             tableRow += drawAuthorCell(template);
             tableRow += drawCreatedOnCell(template);
-            //tableRow += drawDeleteCell(template);
             tableRow += drawActionsCell(template);
 
             tableRow += '</tr>'
@@ -88,36 +85,15 @@ function drawTemplateTable(tbody, templates) {
         });
     }
 }
-function drawNameCell(template) {
-    return `<td><div class="text">${template.name}</div></td>`;
-}
 
-function drawDescriptionCell(template) {
-    var result = '<td>';
-
-    result += '<p style="float:left" hidden>';
-    if (template.description != null)
-        result += template.description;
-    result += '</p>';
-
-    result += drawCellEditModalButton('Modify', 'dark', '#update-description-modal', template.id, template.timeStamp, true);
-
-    result += '</td>';
-
-    return result;
-}
-function drawModelCell(template) {
-    return '<td>' + drawCellEditNavigationButton('Modify', 'dark', 'updateModel', template.id, true) + '</td>';
-}
-function drawDataCell(template) {
-    return '<td>' + drawCellEditNavigationButton('Modify', 'dark', 'updateData', template.id, true) + '</td>';
-}
 function drawAuthorCell(template) {
     var author = template.createdBy;
     return drawAuthorCellUtil(author.firstName, author.lastName, author.email)
 }
 function drawCreatedOnCell(template) {
     var value = toLocaleDateTimeString(template.dateCreated);
+
+    value = value.replace(' ', '<br/>');
     return '<td><div class="text">' + value + '</div></td>'
 }
 function drawDeleteCell(template) {
@@ -223,7 +199,6 @@ function updateDescription() {
         "Description": descriptionModal.GetInputVal()
     }
 
-    debugger;
     $.ajax({
         url: '/api/Template/Update/Description',
         dataType: 'json',
