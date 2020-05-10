@@ -22,9 +22,9 @@
                                             @item.Text
                                         </button>
                                     }
-                                    else if (!string.IsNullOrEmpty(item.TargetUrl))
+                                    else if (!string.IsNullOrEmpty(item.UrlItemId))
                                     {
-                                        <a href="@item.TargetUrl" class="list-group-item word-wrap-break">
+                                        <a href="javascript:void(0)" id="@item.UrlItemId" class="list-group-item word-wrap-break">
                                             @item.Text
                                         </a>
                                     }

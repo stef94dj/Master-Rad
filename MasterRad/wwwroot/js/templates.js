@@ -19,7 +19,7 @@ $(document).ready(function () {
     initializeTooltips();
 
     var dataAttributes = ["id", "timestamp", "name", "description"];
-    actionsModal.Init('#actions-modal', dataAttributes);
+    actionsModal.Init('#actions-modal', dataAttributes, onActionsModalShow);
 
     createTemplateModal = nameModalBuilder.BuildHandler();
     createTemplateModal.Init('#create-template-modal', onCreateTemplateModalShow, createTemplate);
@@ -134,6 +134,10 @@ function drawActionsCell(template) {
 }
 
 //MODAL SHOW CLOSE
+function onActionsModalShow(element, event) {
+    $('#model-url').attr('href', `/Template/Model?templateId=${actionsModal.id}`);
+    $('#data-url').attr('href', `/Template/ModifyTemplateData?templateId=${actionsModal.id}`);
+}
 function onNameModalShow(element, event) {
     nameModal.SetInputVal(actionsModal.name);
     nameModal.SetTitle(`Update name for '${actionsModal.name}'`);
@@ -193,7 +197,24 @@ function updateName() {
     });
 }
 function createTask() {
-    alert('not implemented: function createTask() {...');
+    var rqBody = {
+        "Name": createTaskModal.GetInputVal(),
+        "TemplateId": actionsModal.id
+    };
+
+    $.ajax({
+        url: '/api/Task/Create',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            handleModalAjaxSuccess('#create-task-modal', data, null);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#create-task-modal', null);
+        }
+    });
 }
 function updateDescription() {
     var rqBody = {

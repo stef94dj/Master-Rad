@@ -8,8 +8,8 @@
         Options = new List<OptionModel>() {
             new OptionModel(){Text = "Name", TargetModalId = "update-name-modal"},
             new OptionModel(){Text = "Description", TargetModalId = "update-description-modal"},
-            new OptionModel(){Text = "Model", TargetUrl = "https://localhost:44359/Test/Results?testId=1&testType=2"},
-            new OptionModel(){Text = "Data", TargetUrl = "https://getbootstrap.com/docs/4.0/utilities/colors/"},
+            new OptionModel(){Text = "Model", UrlItemId = "model-url"},
+            new OptionModel(){Text = "Data", UrlItemId = "data-url"},
             new OptionModel(){Text = "Create Task", TargetModalId = "create-task-modal"},
             new OptionModel(){Text = "Delete", TargetModalId = "confirm-delete-modal"}
         }
@@ -19,21 +19,24 @@
     {
         Id = "update-name-modal",
         Title = string.Empty,
-        Label = "Name"
+        Label = "Name",
+        ConfirmButtonText = "Update"
     };
 
     var createTemplateModel = new NamePartialVM()
     {
         Id = "create-template-modal",
         Title = "Create new template",
-        Label = "Name"
+        Label = "Name",
+        ConfirmButtonText = "Create"
     };
 
     var createTaskModel = new NamePartialVM()
     {
         Id = "create-task-modal",
         Title = string.Empty,
-        Label = "Name"
+        Label = "Name",
+        ConfirmButtonText = "Create"
     };
 
     var descriptionModel = "update-description-modal";

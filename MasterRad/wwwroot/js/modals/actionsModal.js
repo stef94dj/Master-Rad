@@ -1,9 +1,11 @@
 ﻿var actionsModal = {
     Selector: null,
     DataAttributes: null,
-    Init: function (modalSelector, attrs) {
+    OnShowHandler: null,
+    Init: function (modalSelector, attrs, onShowHandler) {
         actionsModal.Selector = modalSelector;
         actionsModal.DataAttributes = attrs;
+        actionsModal.OnShowHandler = onShowHandler;
 
         bindModalOnShow(modalSelector, this.OnShow);
     },
@@ -13,6 +15,8 @@
         $.each(actionsModal.DataAttributes, function (index, attr) {
             actionsModal[attr] = button.data(attr);
         });
+
+        actionsModal.OnShowHandler();
     },
     drawActionsBtn: function (modalselector, dataAttributeVals) {
         var dataAttributesHtml = '';

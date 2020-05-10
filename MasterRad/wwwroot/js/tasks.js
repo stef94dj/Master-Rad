@@ -172,28 +172,6 @@ function onDescriptionModalShow(element, event) {
 }
 
 //API CALLERS
-function createTask() {
-    var modalBody = $('#create-task-modal').find('.modal-body');
-
-    var rqBody = {
-        "Name": modalBody.find('#task-name').val(),
-        "TemplateId": modalBody.find('#templates-list').find('a.active').data('template-id')
-    };
-
-    $.ajax({
-        url: '/api/Task/Create',
-        dataType: 'json',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(rqBody),
-        success: function (data, textStatus, jQxhr) {
-            handleModalAjaxSuccess('#create-task-modal', data, loadTasks);
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            handleModalAjaxError('#create-task-modal', loadTasks);
-        }
-    });
-}
 function updateName() {
     var modalBody = $('#update-name-modal').find('.modal-body');
 
