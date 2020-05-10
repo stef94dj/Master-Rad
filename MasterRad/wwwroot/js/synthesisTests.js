@@ -196,28 +196,6 @@ function openStatusModal(btn, nextStatus) {
 }
 
 //API CALLERS
-function createTest() {
-    var modalBody = $('#create-test-modal').find('.modal-body');
-
-    var rqBody = {
-        "Name": modalBody.find('#test-name').val(),
-        "TaskId": modalBody.find('#task-list').find('a.active').data('task-id')
-    };
-
-    $.ajax({
-        url: '/api/Synthesis/Create/Test',
-        dataType: 'json',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(rqBody),
-        success: function (data, textStatus, jQxhr) {
-            handleModalAjaxSuccess(createTestModalSelector, data, loadTests);
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            handleModalAjaxError(createTestModalSelector, loadTests);
-        }
-    });
-}
 function updateName() {
     var modalBody = $(nameModalSelector).find('.modal-body');
 

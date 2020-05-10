@@ -58,6 +58,17 @@ function drawTextCell(text, maxChars) {
     return `<td><div class="text">${text}</div></td>`;
 }
 
+function drawAuthorCell(author) {
+    return drawAuthorCellUtil(author.firstName, author.lastName, author.email)
+}
+
+function drawCreatedOnCell(date) {
+    var value = toLocaleDateTimeString(date);
+
+    value = value.replace(' ', '<br/>');
+    return '<td><div class="text">' + value + '</div></td>'
+}
+
 function bindModalOnClose(selector, handler) {
     $(selector).on('hidden.bs.modal', function (event) {
         handler(this, event);

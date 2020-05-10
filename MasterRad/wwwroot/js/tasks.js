@@ -1,5 +1,10 @@
 ﻿var filterHeaderSelector = '#filter-header';
 var tableHeaderSelector = '#table-header';
+
+var nameModal = null;
+var createSynthesisTestModal = null;
+var deleteModal = null;
+
 $(document).ready(function () {
     setActive("Tasks");
     var paginationConfig = {
@@ -11,11 +16,20 @@ $(document).ready(function () {
     }
     pagination.initUI(paginationConfig);
     loadTasks();
-    loadTemplates();
 
-    bindModalOnShow('#create-task-modal', onCreateTaskModalShow);
-    bindModalOnShow('#update-name-modal', onNameModalShow);
-    bindModalOnShow('#update-description-modal', onDescriptionModalShow);
+    var dataAttributes = ["id", "timestamp", "name", "description"];
+    actionsModal.Init('#actions-modal', dataAttributes, onActionsModalShow);
+
+    nameModal = nameModalBuilder.BuildHandler();
+    nameModal.Init('#update-name-modal', onNameModalShow, updateName);
+
+    descriptionModal.Init('#update-description-modal', updateDescription);
+
+    createSynthesisTestModal = nameModalBuilder.BuildHandler();
+    createSynthesisTestModal.Init('#create-synthesis-modal', onCreateSynthesisModalShow, createTest);
+
+    deleteModal = confirmationModalBuilder.BuildHandler();
+    deleteModal.Init("#confirm-delete-modal", onDeleteModalShow, deleteTask);
 });
 
 //LOAD TASKS
@@ -47,7 +61,7 @@ function getTasks() {
 }
 
 function drawTaskTableMessage(message) {
-    $('#tasks-tbody').html(drawTableMessage(message, 8));
+    $('#tasks-tbody').html(drawTableMessage(message, 6));
 }
 function drawTaskTable(tasks) {
     drawTaskTableMessage('No records.');
@@ -58,127 +72,51 @@ function drawTaskTable(tasks) {
         $.each(tasks, function (index, task) {
             var tableRow = '<tr>';
 
-            tableRow += drawNameCell(task);
-            tableRow += drawTemplateCell(task);
-            tableRow += drawDescriptionCell(task);
-            tableRow += drawDataCell(task);
-            tableRow += drawSolutionCell(task);
-            tableRow += drawAuthorCell(task);
-            tableRow += drawCreatedOnCell(task);
-            tableRow += drawDeleteCell(task);
+            tableRow += drawTextCell(task.name, 20);
+            tableRow += drawTextCell(task.templateName, 20);
+            tableRow += drawTextCell(task.description, 20);
+            tableRow += drawAuthorCell(task.createdBy);
+            tableRow += drawCreatedOnCell(task.dateCreated);
+            tableRow += drawActionsCell(task);
 
             tableRow += '</tr>'
             tbody.append(tableRow)
         });
     }
 }
-function drawNameCell(task) {
-    var result = '<td class="hover-text-button">';
-    result += '<div class="text">' + task.name + '</div>';
-    result += drawCellEditModalButton('Modify', 'dark', '#update-name-modal', task.id, task.timeStamp, true, true);
-    result += '</td>';
-    return result;
-}
-function drawDescriptionCell(task) {
-    var hiddenDescription = `<p style="display:none">${task.description != null ? task.description : ''}</p>`
-    var editBtn = drawCellEditModalButton('Modify', 'dark', '#update-description-modal', task.id, task.timeStamp, true);
-    return `<td>${hiddenDescription}${editBtn}</td>`;
-}
-function drawTemplateCell(task) {
-    return '<td>' + task.templateName + '</td>';
-}
-function drawDataCell(task) {
-    return `<td>${drawCellEditNavigationButton('Modify', 'dark', 'updateData', task.id, true)}</td>`;
-}
-function drawSolutionCell(task) {
-    return `<td>${drawCellEditNavigationButton('Modify', 'dark', 'updateSolution', task.id, true)}</td>`
-}
-function drawAuthorCell(task) {
-    var author = task.createdBy;
-    return drawAuthorCellUtil(author.firstName, author.lastName, author.email)
-}
-function drawCreatedOnCell(task) {
-    var value = toLocaleDateTimeString(task.dateCreated);
-    return '<td><div class="text">' + value + '</div></td>'
-}
-function drawDeleteCell(task) {
-    return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTemplate', task.id, task.timestamp, true) + '</td>';
-}
-
-//LOAD TEMPLATES
-function loadTemplates() {
-    getTemplates()
-        .then(data => {
-            drawTemplatesList(data);
-        })
-}
-function getTemplates() {
-    var apiUrl = '/api/Template/Get';
-    return promisifyAjaxGet(apiUrl);
-}
-function drawTemplatesList(data) {
-    var createTaskList = $('#create-task-modal').find('#templates-list');
-    var editTemplateList = $('#change-template-modal').find('#templates-list');
-
-    $.each(data, function (index, template) {
-        var item = '<a data-template-id="' + template.id + '"';
-        item += ' style="word-wrap: break-word" class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">';
-        item += template.name;
-        item += '</a>'
-
-        createTaskList.append(item);
-        editTemplateList.append(item);
-    });
+function drawActionsCell(template) {
+    var dataAttributes = {
+        "id": template.id,
+        "timestamp": template.timeStamp,
+        "name": template.name,
+        "description": template.description
+    }
+    return '<td>' + actionsModal.drawActionsBtn('#actions-modal', dataAttributes) + '</td>';
 }
 
 //MODAL SHOW/HIDE
-function onCreateTaskModalShow(element, event) {
-    var modal = $(element);
-    modal.find('#task-name').val('');
-    var templateItems = modal.find('a');
-    $.each(templateItems, function (index, item) {
-        $(item).removeClass('active', false);
-    });
-
-    hideModalError(element);
+function onActionsModalShow(element, event) {
+    $('#data-url').attr('href', `/Task/ModifyTaskData?taskId=${actionsModal.id}`);
+    $('#solution-url').attr('href', `/Task/ModifyTaskSolution?taskId=${actionsModal.id}`);
 }
 function onNameModalShow(element, event) {
-    var button = $(event.relatedTarget)
-
-    var name = button.parent().find('div').html();
-    var id = button.data('id');
-    var timestamp = button.data('timestamp');
-
-    var modal = $(element);
-
-    modal.find('#task-name').val(name);
-    modal.find('#task-id').val(id);
-    modal.find('#task-timestamp').val(timestamp);
-    hideModalError(element);
+    nameModal.SetInputVal(actionsModal.name);
+    nameModal.SetTitle(`Update name for '${actionsModal.name}'`);
 }
-function onDescriptionModalShow(element, event) {
-    var button = $(event.relatedTarget)
-
-    var name = button.parent().find('p').html();
-    var id = button.data('id');
-    var timestamp = button.data('timestamp');
-
-    var modal = $(element)
-
-    modal.find('#template-description').val(name);
-    modal.find('#template-id').val(id);
-    modal.find('#template-timestamp').val(timestamp);
-    hideModalError(element);
+function onCreateSynthesisModalShow(element, event) {
+    createSynthesisTestModal.SetInputVal('');
+    createSynthesisTestModal.SetTitle(`Create synthesis test from '${actionsModal.name}'`);
+}
+function onDeleteModalShow(element, event) {
+    deleteModal.SetText(`Are you sure you wish to delete task '${actionsModal.name}' ?`);
 }
 
 //API CALLERS
 function updateName() {
-    var modalBody = $('#update-name-modal').find('.modal-body');
-
     var rqBody = {
-        "Id": parseInt(modalBody.find('#task-id').val()),
-        "TimeStamp": modalBody.find('#task-timestamp').val(),
-        "Name": modalBody.find('#task-name').val()
+        "Id": actionsModal.id,
+        "TimeStamp": actionsModal.timestamp,
+        "Name": nameModal.GetInputVal()
     }
 
     $.ajax({
@@ -196,12 +134,10 @@ function updateName() {
     });
 }
 function updateDescription() {
-    var modalBody = $('#update-description-modal').find('.modal-body');
-
     var rqBody = {
-        "Id": parseInt(modalBody.find('#template-id').val()),
-        "TimeStamp": modalBody.find('#template-timestamp').val(),
-        "Description": modalBody.find('#template-description').val()
+        "Id": actionsModal.id,
+        "TimeStamp": actionsModal.timestamp,
+        "Description": descriptionModal.GetInputVal()
     }
 
     $.ajax({
@@ -218,20 +154,31 @@ function updateDescription() {
         }
     });
 }
+function createTest() {
+    var rqBody = {
+        "Name": createSynthesisTestModal.GetInputVal(),
+        "TaskId": actionsModal.id
+    };
 
-//NAVIGATION
-function updateData(id) {
-    var form = $('#hidden-form');
-    form.find('#task-id').val(id);
-    form.attr('action', '/Task/ModifyTaskData');
-    form.submit();
+    $.ajax({
+        url: '/api/Synthesis/Create/Test',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            handleModalAjaxSuccess('#create-synthesis-modal', data, loadTasks);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#create-synthesis-modal', loadTasks);
+        }
+    });
 }
-function updateSolution(id) {
-    var form = $('#hidden-form');
-    form.find('#task-id').val(id);
-    form.attr('action', '/Task/ModifyTaskSolution');
-    form.submit();
-}
-function deleteTask(id) {
+function deleteTask() {
+    var rq = {
+        Id: actionsModal.id,
+        TimeStamp: actionsModal.timestamp
+    };
 
+    alert(`deleteTask api call: ${rq.Id}, ${rq.TimeStamp}`);
 }

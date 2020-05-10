@@ -1,6 +1,45 @@
-﻿
+﻿@using MasterRad.Models.ViewModels
 @{
     ViewData["Title"] = "Tasks";
+
+    ViewData["Title"] = "Templates";
+    var actionsModel = new ActionsPartialVM()
+    {
+        Id = "actions-modal",
+        Options = new List<OptionModel>() {
+            new OptionModel(){Text = "Name", TargetModalId = "update-name-modal"},
+            new OptionModel(){Text = "Description", TargetModalId = "update-description-modal"},
+            new OptionModel(){Text = "Data", UrlItemId = "data-url"},
+            new OptionModel(){Text = "Solution", UrlItemId = "solution-url"},
+            new OptionModel(){Text = "Create Synthesis Test", TargetModalId = "create-synthesis-modal"},
+            new OptionModel(){Text = "Delete", TargetModalId = "confirm-delete-modal"}
+        }
+    };
+
+    var nameModel = new NamePartialVM()
+    {
+        Id = "update-name-modal",
+        Title = string.Empty,
+        Label = "Name",
+        ConfirmButtonText = "Update"
+    };
+
+    var descriptionModel = "update-description-modal";
+
+    var createSynthesisTestModel = new NamePartialVM()
+    {
+        Id = "create-synthesis-modal",
+        Title = "Create new synthesis test",
+        Label = "Name",
+        ConfirmButtonText = "Create"
+    };
+
+    var confirmationModel = new ConfirmationPartialVM()
+    {
+        Id = "confirm-delete-modal",
+        Title = "Confirm delete",
+        Text = string.Empty
+    };
 }
 
 @section Styles {
@@ -10,142 +49,73 @@
 }
 <h1>Tasks</h1>
 
-
 <!--Search filters-->
 <table class="table table-bordered fixed" style="margin-bottom: 0px;">
     <thead id="filter-header">
         <tr>
-            <th style="width: 16%">
+            <th style="width: 20%">
                 <input type="text" class="form-control filter-text-input" placeholder="Name" id="search-first-name" maxlength="50" data-table-key="name">
             </th>
-            <th style="width: 16%">
+            <th style="width: 20%">
                 <input type="text" class="form-control filter-text-input" placeholder="Template name" id="search-first-name" maxlength="50" data-table-key="template_name">
             </th>
-            <th style="width: 5%"></th>
-            <th style="width: 5%"></th>
-            <th style="width: 5%"></th>
-            <th style="width: 12%"></th>
-            <th style="width: 6%"></th>
-            <th style="width: 5%">
+            <th style="width: 20%"></th>
+            <th style="width: 20%"></th>
+            <th style="width: 10%"></th>
+            <th style="width: 10%">
                 <input type="number" id="page-size" class="form-control" min="5" max="25" step="5" value="5" style="width:65px; display:inline" data-toggle="tooltip" data-placement="top" title="Items per page">
             </th>
         </tr>
     </thead>
 </table>
 <!-- Templates table -->
-<br />
 <table class="table table-bordered table-striped wrap-single-long-word">
     <thead class="thead-dark" id="table-header">
         <tr id="database-table">
-            <th style="width: 16%">
+            <th style="width: 20%">
                 <span>Name</span>
                 <i class="fa fa-fw fa-sort sort-icon" data-table-key="name"></i>
             </th>
-            <th style="width: 16%">
+            <th style="width: 20%">
                 <span>Template</span>
                 <i class="fa fa-fw fa-sort sort-icon" data-table-key="template_name"></i>
             </th>
-            <th style="width: 5%">Description</th>
-            <th style="width: 5%">Data</th>
-            <th style="width: 5%">Solution</th>
-            <th style="width: 12%">Author</th>
-            <th style="width: 6%">
+            <th style="width: 20%">Description</th>
+            <th style="width: 20%">Author</th>
+            <th style="width: 10%">
                 <span>Created on</span>
                 <i class="fa fa-fw fa-sort-down sort-icon" data-table-key="date_created"></i>
             </th>
-            <th style="width: 5%">
-                <button data-toggle="modal" data-target="#create-task-modal" type="button" class="btn btn-primary btn-sm">Create</button>
-            </th>
+            <th style="width: 10%"></th>
         </tr>
     </thead>
     <tbody id="tasks-tbody" />
 </table>
 <partial name="../Partials/PaginationFooter.cshtml" />
 
-<!-- New task modal  -->
-<div class="modal fade" id="create-task-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Create new task</h5>
-            </div>
-            <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
-                <div class="form-group" style="margin: auto; max-width: 300px;">
-                    <div class="row">
-                        <div class="col-12">
-                            <label for="task-name" class="col-form-label">Name:</label>
-                            <input type="text" class="form-control" id="task-name" maxlength="50" onkeyup="hideModalError($(this).parent());" />
-                            <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
-                            <br />
-                            <label for="templates-list" class="col-form-label">Template:</label>
-                            <div class="list-group" id="templates-list" role="tablist"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="createTask()">Create</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Name modal  -->
-<div class="modal fade" id="update-name-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Update Name</h5>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="task-name" class="col-form-label">Name:</label>
-                    <input type="text" class="form-control" id="task-name" maxlength="50" onkeyup="hideModalError($(this).parent());" />
-                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
-                    <input type="text" class="form-control" id="task-id" hidden>
-                    <input type="text" class="form-control" id="task-timestamp" hidden>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="updateName()">Save changes</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Description modal  -->
-<div class="modal fade" id="update-description-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Update Description</h5>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="template-description" class="col-form-label">Description:</label>
-                    <textarea class="form-control" id="template-description" rows="10" maxlength="8191" onkeyup="hideModalError($(this).parent());"></textarea>
-                    <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
-                    <input type="text" class="form-control" id="template-id" hidden />
-                    <input type="text" class="form-control" id="template-timestamp" hidden />
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="updateDescription()">Save changes</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Form -->
-<form action="" hidden id="hidden-form" method="post">
-    <input type="number" name="taskId" id="task-id" />
-    <input type="submit" value="Submit" id="submit-btn" />
-</form>
+<!--Actions modal-->
+<partial name="../Partials/Modals/Actions.cshtml" model="@actionsModel" />
+
+<!--Name modal-->
+<partial name="../Partials/Modals/Name.cshtml" model="@nameModel" />
+
+<!--Description modal-->
+<partial name="../Partials/Modals/Description.cshtml" model="@descriptionModel" />
+
+<!--Create synthesis test modal-->
+<partial name="../Partials/Modals/Name.cshtml" model="@createSynthesisTestModel" />
+
+<!--Confirm Delete modal-->
+<partial name="../Partials/Modals/Confirmation.cshtml" model="@confirmationModel" />
 
 @section Scripts {
     <script src="~/js/enums.js" asp-append-version="true"></script>
     <script src="~/js/util.js" asp-append-version="true"></script>
     <script src="~/js/pagination.js" asp-append-version="true"></script>
+    <script src="~/js/modals/actionsModal.js" asp-append-version="true"></script>
+    <script src="~/js/modals/nameModal.js" asp-append-version="true"></script>
+    <script src="~/js/modals/descriptionModal.js" asp-append-version="true"></script>
+    <script src="~/js/modals/confirmationModal.js" asp-append-version="true"></script>
     <script src="~/js/tasks.js" asp-append-version="true"></script>
 }

@@ -28,13 +28,13 @@ $(document).ready(function () {
     nameModal = nameModalBuilder.BuildHandler();
     nameModal.Init('#update-name-modal', onNameModalShow, updateName);
 
+    descriptionModal.Init('#update-description-modal', updateDescription);
+
     createTaskModal = nameModalBuilder.BuildHandler();
     createTaskModal.Init('#create-task-modal', onCreateTaskModalShow, createTask);
 
     deleteModal = confirmationModalBuilder.BuildHandler();
     deleteModal.Init("#confirm-delete-modal", onDeleteModalShow, deleteTemplate);
-
-    descriptionModal.Init('#update-description-modal', updateDescription);
 });
 
 //DRAW TEMPLATES TABLE
@@ -78,8 +78,8 @@ function drawTemplateTable(tbody, templates) {
 
             tableRow += drawTextCell(template.name, 20);
             tableRow += drawTextCell(template.description, 20);
-            tableRow += drawAuthorCell(template);
-            tableRow += drawCreatedOnCell(template);
+            tableRow += drawAuthorCell(template.createdBy);
+            tableRow += drawCreatedOnCell(template.dateCreated);
             tableRow += drawActionsCell(template);
 
             tableRow += '</tr>'
@@ -88,16 +88,6 @@ function drawTemplateTable(tbody, templates) {
     }
 }
 
-function drawAuthorCell(template) {
-    var author = template.createdBy;
-    return drawAuthorCellUtil(author.firstName, author.lastName, author.email)
-}
-function drawCreatedOnCell(template) {
-    var value = toLocaleDateTimeString(template.dateCreated);
-
-    value = value.replace(' ', '<br/>');
-    return '<td><div class="text">' + value + '</div></td>'
-}
 function drawActionsCell(template) {
     var dataAttributes = {
         "id": template.id,
@@ -216,19 +206,5 @@ function deleteTemplate() {
         TimeStamp: actionsModal.timestamp
     };
 
-    alert(`api call: ${rq.Id}, ${rq.TimeStamp}`);
-}
-
-//ACTIONS
-function nameAction(key) {
-    alert('ciclked ' + key);
-}
-function descriptionAction(key) {
-    alert('ciclked ' + key);
-}
-function templateAction(key) {
-    alert('ciclked ' + key);
-}
-function deleteAction(key) {
-    alert('ciclked ' + key);
+    alert(`deleteTemplate api call: ${rq.Id}, ${rq.TimeStamp}`);
 }
