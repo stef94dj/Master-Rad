@@ -89,7 +89,7 @@ namespace MasterRad.API
 
             return Ok(res);
         }
-        
+
 
         [HttpPost, Route("create/test")]
         public ActionResult<bool> CreateTest([FromBody] AnalysisCreateRQ body)
@@ -114,7 +114,13 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("status/next")]
-        public ActionResult<bool> GoToNextStatus([FromBody] UpdateDTO body)
-            => _analysisRepo.StatusNext(body, UserId);
+        public ActionResult<Result<bool>> GoToNextStatus([FromBody] UpdateDTO body)
+        {
+            var success = _analysisRepo.StatusNext(body, UserId);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed to save changes.");
+        }
     }
 }

@@ -32,6 +32,9 @@ $(document).ready(function () {
 
     statusModal = confirmationModalBuilder.BuildHandler();
     statusModal.Init("#status-modal", onStatusModalShow, statusNext);
+
+    deleteModal = confirmationModalBuilder.BuildHandler();
+    deleteModal.Init("#confirm-delete-modal", onDeleteModalShow, deleteSynthesis);
 });
 
 //LOAD TESTS
@@ -103,50 +106,22 @@ function onActionsModalShow(element, event) {
 
     if (actionsModal.status == TestStatus.Completed) {
         $('#results-url').attr('hidden', false);
+        $('#status-next').attr('hidden', true);
     }
     else {
         $('#results-url').attr('hidden', true);
+        $('#status-next').attr('hidden', false);
     }
 }
 function onNameModalShow(element, event) {
     nameModal.SetInputVal(actionsModal.name);
     nameModal.SetTitle(`Update name for '${actionsModal.name}'`);
 }
-function onCreateSynthesisTestModalShow(element, event) {
-    var button = $(event.relatedTarget)
-
-    var modal = $(element)
-
-    modal.find('#test-name').val('');
-    modal.find('#test-id').val('');
-    modal.find('#test-timestamp').val('');
-    var taskItems = modal.find('a');
-    $.each(taskItems, function (index, item) {
-        $(item).removeClass('active', false);
-    });
-
-    hideModalError(element);
-}
-function openStatusModal(btn, nextStatus) {
-    var modal = $(statusModalSelector);
-
-    var id = $(btn).data('id');
-    var timestamp = $(btn).data('timestamp');
-
-    modal.find('#test-id').val(id);
-    modal.find('#test-timestamp').val(timestamp);
-
-    modal.find('#change-status-message').html(TestStatus.ActionWarningText(nextStatus));
-
-    modal.modal('show');
-    hideModalError(statusModalSelector);
-    return false;
+function onStatusModalShow(element, event) {
+    statusModal.SetText(`Are you sure you want to change the status of '${actionsModal.name}' ?`);
 }
 function onDeleteModalShow(element, event) {
     deleteModal.SetText(`Are you sure you wish to delete synthesis test '${actionsModal.name}' ?`);
-}
-function onStatusModalShow(element, event) {
-    statusModal.SetText(`Are you sure you want to change the status of '${actionsModal.name}' ?`);
 }
 
 //API CALLERS

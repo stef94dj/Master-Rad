@@ -18,13 +18,13 @@
                                 {
                                     if (!string.IsNullOrEmpty(item.TargetModalId))
                                     {
-                                        <button type="button" data-target="#@item.TargetModalId" data-toggle="modal" data-dismiss="modal" class="list-group-item list-group-item-action word-wrap-break">
+                                        <button type="button" id="@(item.ActionItemId ?? string.Empty)" data-target="#@item.TargetModalId" data-toggle="modal" data-dismiss="modal" class="list-group-item list-group-item-action word-wrap-break">
                                             @item.Text
                                         </button>
                                     }
-                                    else if (!string.IsNullOrEmpty(item.UrlItemId))
+                                    else if (!string.IsNullOrEmpty(item.ActionItemId))
                                     {
-                                        <a href="javascript:void(0)" id="@item.UrlItemId" class="list-group-item word-wrap-break">
+                                        <a href="javascript:void(0)" id="@item.ActionItemId" class="list-group-item word-wrap-break">
                                             @item.Text
                                         </a>
                                     }

@@ -4,6 +4,11 @@ var nameModalSelector = null;
 
 var filterHeaderSelector = '#filter-header';
 var tableHeaderSelector = '#table-header';
+
+var nameModal = null;
+var statusModal = null;
+var deleteModal = null;
+
 $(document).ready(function () {
     setActive("Analysis Tests");
     var paginationConfig = {
@@ -16,9 +21,18 @@ $(document).ready(function () {
     pagination.initUI(paginationConfig);
     testsList = $('#tests-tbody');
     loadTests();
-    statusModalSelector = '#update-staus-modal';
-    nameModalSelector = '#update-name-modal';
-    bindModalOnShow(nameModalSelector, onNameModalShow);
+
+    var dataAttributes = ["id", "timestamp", "name", "status"];
+    actionsModal.Init('#actions-modal', dataAttributes, onActionsModalShow);
+
+    nameModal = nameModalBuilder.BuildHandler();
+    nameModal.Init('#update-name-modal', onNameModalShow, updateName);
+
+    statusModal = confirmationModalBuilder.BuildHandler();
+    statusModal.Init("#status-modal", onStatusModalShow, statusNext);
+
+    deleteModal = confirmationModalBuilder.BuildHandler();
+    deleteModal.Init("#confirm-delete-modal", onDeleteModalShow, deleteAnalysis);
 });
 
 //LOAD TESTS
@@ -45,7 +59,7 @@ function getAnalysisTests() {
 }
 
 function drawAnalysisTestsTableMessage(message) {
-    testsList.html(drawTableMessage(message, 9));
+    testsList.html(drawTableMessage(message, 8));
 }
 function drawTestsList(data) {
     drawAnalysisTestsTableMessage("No records.");
@@ -54,108 +68,68 @@ function drawTestsList(data) {
         testsList.html('');
         $.each(data, function (index, test) {
             var testItem = '<tr>';
-            testItem += drawNameCell(test);
+            testItem += drawTextCell(test.name, 20);
             testItem += drawTextCell(`${test.synthesisTestName} <br/> <i>${test.student.firstName} ${test.student.lastName}</i> <br/> <i>${test.student.email}</i>`);
             testItem += drawTextCell(test.taskName);
             testItem += drawTextCell(test.templateName);
-            testItem += drawAuthorCell(test);
-            testItem += drawCreatedOnCell(test);
-            testItem += drawStudentsCell(test);
-            testItem += drawStateCell(test);
-            testItem += drawDeleteCell(test);
+            testItem += drawAuthorCell(test.createdBy);
+            testItem += drawCreatedOnCell(test.dateCreated);
+            testItem += drawTextCell(TestStatus.ToString(test.status), 15);
+            testItem += drawActionsCell(test);
             testItem += '</tr>'
 
             testsList.append(testItem);
         });
     }
 }
-function drawNameCell(test) {
-    var result = '<td class="hover-text-button">';
-    result += '<div class="text">' + test.name + '</div>';
-    result += drawCellEditModalButton('Edit', 'dark', '#update-name-modal', test.id, test.timeStamp, true, true);
-    result += '</td>';
-    return result;
-}
-function drawTextCell(templateName) {
-    return `<td>${templateName}</td>`;
-}
-function drawStudentsCell(test) {
-    var enabled = test.status < TestStatus.Completed;
-    return '<td>' + drawCellEditNavigationButton('Assign', 'dark', 'assignStudents', test.id, enabled) + '</td>';
-}
-function drawAuthorCell(test) {
-    var author = test.createdBy;
-    return drawAuthorCellUtil(author.firstName, author.lastName, author.email);
-}
-function drawCreatedOnCell(test) {
-    var value = toLocaleDateTimeString(test.dateCreated);
-    return '<td><div class="text">' + value + '</div></td>'
-}
-function drawStateCell(test) {
-    var result = '<td class="hover-text-button">';
-    result += '<div class="text">' + TestStatus.ToString(test.status) + '</div>';
-    result += drawChangeStatusModalButton('dark', test, true, true);
-    result += '</td>';
-    return result;
-}
-function drawChangeStatusModalButton(color, test, enabled, hidden) {
-    var newStatus = test.status + 1;
-    var result = '<button ';
-    if (!enabled)
-        result += 'disabled ';
-
-    if (hidden)
-        result += 'hidden="true" ';
-
-    if (test.status == TestStatus.Completed)
-        result += ' onclick="viewResults(' + test.id + ')" type="button" class="btn btn-outline-' + color + ' btn-sm">Results</button>';
-    else
-        result += 'data-toggle="modal" onclick="openStatusModal(this,' + newStatus + ')" data-id="' + test.id + '" data-timestamp="' + test.timeStamp + '" data-news-tatus-code="' + newStatus + '" type="button" class="btn btn-outline-' + color + ' btn-sm">' + TestStatus.ActionName(test.status) + '</button>'
-    return result;
-}
-function drawDeleteCell(test) {
-    return '<td>' + drawCellEditModalButton('Delete', 'danger', 'deleteTest', test.id, test.timeStamp, true) + '</td>';
+function drawActionsCell(test) {
+    var dataAttributes = {
+        "id": test.id,
+        "timestamp": test.timeStamp,
+        "name": test.name,
+        "status": test.status
+    }
+    return '<td>' + actionsModal.drawActionsBtn('#actions-modal', dataAttributes) + '</td>';
 }
 
 //MODAL SHOW/HIDE
-function onNameModalShow(element, event) {
-    var button = $(event.relatedTarget)
+function onActionsModalShow(element, event) {
+    $('#assign-url').attr('href', `/Test/AssignStudents?testId=${actionsModal.id}&testType=${TestType.Analysis}`);
+    $('#results-url').attr('href', `/Test/Results?testId=${actionsModal.id}&testType=${TestType.Analysis}`);
 
-    var name = button.parent().find('div.text').html();
-    var id = button.data('id');
-    var timestamp = button.data('timestamp');
+    if (actionsModal.status == TestStatus.Scheduled) {
+        $('#assign-url').attr('hidden', false);
+    }
+    else {
+        $('#assign-url').attr('hidden', true);
+    }
 
-    var modal = $(element)
-
-    modal.find('#test-name').val(name);
-    modal.find('#test-id').val(id);
-    modal.find('#test-timestamp').val(timestamp);
-    hideModalError(element);
+    if (actionsModal.status == TestStatus.Completed) {
+        $('#results-url').attr('hidden', false);
+        $('#status-next').attr('hidden', true);
+    }
+    else {
+        $('#results-url').attr('hidden', true);
+        $('#status-next').attr('hidden', false);
+    }
 }
-function openStatusModal(btn, nextStatus) {
-    var modal = $(statusModalSelector);
-
-    var id = $(btn).data('id');
-    var timestamp = $(btn).data('timestamp');
-
-    modal.find('#test-id').val(id);
-    modal.find('#test-timestamp').val(timestamp);
-
-    modal.find('#change-status-message').html(TestStatus.ActionWarningText(nextStatus));
-
-    modal.modal('show');
-    hideModalError(statusModalSelector);
-    return false;
+function onNameModalShow(element, event) {
+    nameModal.SetInputVal(actionsModal.name);
+    nameModal.SetTitle(`Update name for '${actionsModal.name}'`);
+}
+function onStatusModalShow(element, event) {
+    statusModal.SetText(`Are you sure you want to change the status of '${actionsModal.name}' ?`);
+}
+function onDeleteModalShow(element, event) {
+    deleteModal.SetText(`Are you sure you wish to delete analysis test '${actionsModal.name}' ?`);
 }
 
 //API CALLERS
 function updateName() {
-    var modalBody = $(nameModalSelector).find('.modal-body');
-
     var rqBody = {
-        "Id": parseInt(modalBody.find('#test-id').val()),
-        "TimeStamp": modalBody.find('#test-timestamp').val(),
-        "Name": modalBody.find('#test-name').val()
+        "Id": actionsModal.id,
+        "TimeStamp": actionsModal.timestamp,
+        "Name": nameModal.GetInputVal()
     }
 
     $.ajax({
@@ -165,19 +139,17 @@ function updateName() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            handleModalAjaxSuccess(nameModalSelector, data, loadTests);
+            handleModalAjaxSuccess('#update-name-modal', data, loadTests);
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            handleModalAjaxError(nameModalSelector, loadTests);
+            handleModalAjaxError('#update-name-modal', loadTests);
         }
     });
 }
 function statusNext() {
-    var modalBody = $(statusModalSelector).find('.modal-body');
-
     var rqBody = {
-        "Id": parseInt(modalBody.find('#test-id').val()),
-        "TimeStamp": modalBody.find('#test-timestamp').val()
+        "Id": actionsModal.id,
+        "TimeStamp": actionsModal.timestamp
     }
 
     $.ajax({
@@ -187,18 +159,18 @@ function statusNext() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            handleModalAjaxSuccess(statusModalSelector, data, loadTests);
+            handleModalAjaxSuccess('#status-modal', data, loadTests);
         },
         error: function (xhr, ajaxOptions, thrownError) {
-            handleModalAjaxError(statusModalSelector, loadTests);
+            handleModalAjaxError('#status-modal', loadTests);
         }
     });
 }
+function deleteAnalysis() {
+    var rq = {
+        Id: actionsModal.id,
+        TimeStamp: actionsModal.timestamp
+    };
 
-//NAVIGATION
-function viewResults(testId) {
-    window.location = `/Test/Results?testId=${testId}&testType=${TestType.Analysis}`;
-}
-function assignStudents(testId) {
-    window.location = `/Test/AssignStudents?testId=${testId}&testType=${TestType.Analysis}`
+    alert(`deleteAnalysis api call: ${rq.Id}, ${rq.TimeStamp}`);
 }

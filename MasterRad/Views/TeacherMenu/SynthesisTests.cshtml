@@ -7,9 +7,9 @@
         Id = "actions-modal",
         Options = new List<OptionModel>() {
             new OptionModel(){Text = "Name", TargetModalId = "update-name-modal"},
-            new OptionModel(){Text = "Assign to students", UrlItemId = "assign-url"},
-            new OptionModel(){Text = "Next state", TargetModalId =  "status-modal"},
-            new OptionModel(){Text = "Results", UrlItemId = "results-url"},
+            new OptionModel(){Text = "Assign to students", ActionItemId = "assign-url"},
+            new OptionModel(){Text = "Next state", ActionItemId= "status-next", TargetModalId =  "status-modal"},
+            new OptionModel(){Text = "Results", ActionItemId = "results-url"},
             new OptionModel(){Text = "Delete", TargetModalId = "confirm-delete-modal"}
         }
     };
@@ -97,7 +97,6 @@
 <!--Pagination footer-->
 <partial name="../Partials/PaginationFooter.cshtml" />
 
-
 <!--Actions modal-->
 <partial name="../Partials/Modals/Actions.cshtml" model="@actionsModel" />
 
@@ -109,36 +108,6 @@
 
 <!--Confirm Delete modal-->
 <partial name="../Partials/Modals/Confirmation.cshtml" model="@deleteModel" />
-
-<!-- Status modal  -->
-@*<div class="modal fade" id="update-staus-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Are you sure?</h5>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="test-id" id="change-status-message" class="col-form-label">Are you sure you want to change the state?</label>
-                        <div class="alert alert-danger modal-error" role="alert" style="margin-top:15px; display:none;"></div>
-                        <input type="text" class="form-control" id="test-id" hidden />
-                        <input type="text" class="form-control" id="test-timestamp" hidden />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="statusNext()">Yes</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                </div>
-            </div>
-        </div>
-    </div>*@
-
-<!-- Form -->
-@*<form action="" hidden id="hidden-form" method="post">
-        <input type="number" name="testId" id="test-id" />
-        <input type="number" name="testType" id="test-type" />
-        <input type="submit" value="Submit" id="submit-btn" />
-    </form>*@
 
 @section Scripts {
     <script src="~/js/enums.js" asp-append-version="true"></script>
