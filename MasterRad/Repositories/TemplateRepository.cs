@@ -17,6 +17,8 @@ namespace MasterRad.Repositories
         bool UpdateName(UpdateNameRQ request, Guid userId);
         bool DatabaseRegisteredAsTemplate(string name);
         bool TemplateExists(string templateName);
+
+        bool DeleteTemplate(int id, byte[] timeStamp);
     }
 
     public class TemplateRepository : ITemplateRepository
@@ -31,6 +33,7 @@ namespace MasterRad.Repositories
         public TemplateEntity Get(int id)
             => _context.Templates
                        .Where(x => x.Id == id)
+                       .AsNoTracking()
                        .Single();
 
         public TemplateEntity GetWithTaks(int id)
@@ -166,5 +169,17 @@ namespace MasterRad.Repositories
             => _context.Templates
                        .Where(t => t.NameOnServer.ToLower().Equals(dbName.ToLower()))
                        .Any();
+
+        public bool DeleteTemplate(int id, byte[] timeStamp)
+        {
+            var entity = new TemplateEntity()
+            {
+                Id = id,
+                TimeStamp = timeStamp
+            };
+
+            _context.Templates.Remove(entity);
+            return _context.SaveChanges() == 1;
+        }
     }
 }

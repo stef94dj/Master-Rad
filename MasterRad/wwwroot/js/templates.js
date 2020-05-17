@@ -115,6 +115,7 @@ function onCreateTaskModalShow(element, event) {
     createTaskModal.SetTitle(`Create task from '${actionsModal.name}'`);
 }
 function onDeleteModalShow(element, event) {
+    hideModalError("#confirm-delete-modal");
     deleteModal.SetText(`Are you sure you wish to delete template '${actionsModal.name}' ?`);
 }
 
@@ -206,5 +207,23 @@ function deleteTemplate() {
         TimeStamp: actionsModal.timestamp
     };
 
-    alert(`deleteTemplate api call: ${rq.Id}, ${rq.TimeStamp}`);
+    var rqBody = {
+        "Id": actionsModal.id,
+        "TimeStamp": actionsModal.timestamp,
+        "Description": descriptionModal.GetInputVal()
+    }
+
+    $.ajax({
+        url: '/api/Template/Delete',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            handleModalAjaxSuccess('#confirm-delete-modal', data, loadTemplates);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#confirm-delete-modal', loadTemplates);
+        }
+    });
 }

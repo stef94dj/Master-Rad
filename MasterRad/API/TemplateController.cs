@@ -8,8 +8,6 @@ using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,17 +20,20 @@ namespace MasterRad.API
     {
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly ITemplateRepository _templateRepo;
+        private readonly ITaskRepository _taskRepo;
         private readonly IMsGraph _msGraph;
 
         public TemplateController
         (
             IMicrosoftSQL microsoftSQLService,
             ITemplateRepository templateRepo,
+            ITaskRepository taskRepo,
             IMsGraph msGraph
         )
         {
             _microsoftSQLService = microsoftSQLService;
             _templateRepo = templateRepo;
+            _taskRepo = taskRepo;
             _msGraph = msGraph;
         }
 
@@ -118,7 +119,6 @@ namespace MasterRad.API
         [HttpPost, Route("Update/Model")]
         public ActionResult<Result<bool>> UpdateModel([FromBody] UpdateTemplateModelRQ body)
         {
-
             var templateEntity = _templateRepo.Get(body.Id);
 
             var scriptExeRes = _microsoftSQLService.ExecuteSQLAsAdmin(body.SqlScript, templateEntity.NameOnServer);
@@ -127,6 +127,27 @@ namespace MasterRad.API
                 return Result<bool>.Fail(scriptExeRes.Messages);
 
             return Result<bool>.Success(true);
+        }
+
+        [HttpPost, Route("Delete")]
+        public ActionResult<Result<bool>> DeleteTemplate([FromBody] DeleteEntityRQ body)
+        {
+            var entity = _templateRepo.Get(body.Id);
+
+            var childTaskCnt = _taskRepo.TemplateChildCount(body.Id);
+            if (childTaskCnt > 0)
+                return Result<bool>.Fail($"Unable to delete. A total of {childTaskCnt} tasks depend on this template.");
+
+            var success = _microsoftSQLService.DeleteDatabaseIfExists(entity.NameOnServer);
+
+            if (!success)
+                return Result<bool>.Fail("Failed to delete template database instance.");
+
+            success = _templateRepo.DeleteTemplate(body.Id, body.TimeStamp);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed delete template application record.");
         }
     }
 }

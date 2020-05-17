@@ -17,6 +17,7 @@ namespace MasterRad.Repositories
         TaskEntity UpdateSolution(UpdateTaskSolutionRQ request, Guid userId);
         bool TaskExists(string taskName);
         bool DatabaseRegisteredAsTask(string dbName);
+        int TemplateChildCount(int templateId);
     }
 
     public class TaskRepository : ITaskRepository
@@ -205,5 +206,10 @@ namespace MasterRad.Repositories
             => _context.Tasks
                        .Where(t => t.NameOnServer.ToLower().Equals(dbName.ToLower()))
                        .Any();
+
+        public int TemplateChildCount(int templateId)
+            => _context.Tasks
+                       .Where(t => t.TemplateId == templateId)
+                       .Count();
     }
 }
