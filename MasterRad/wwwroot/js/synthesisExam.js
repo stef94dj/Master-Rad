@@ -46,10 +46,6 @@ function executeScriptCallback(data) {
 }
 
 function submitAnswer() {
-
-    //upit, test id, (student id sa servera)
-    //api da odradi validaciju
-
     var rqBody = {
         "TestId": testId,
         "StudentId": studentId,

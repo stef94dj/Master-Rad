@@ -167,10 +167,22 @@ function statusNext() {
     });
 }
 function deleteSynthesis() {
-    var rq = {
-        Id: actionsModal.id,
-        TimeStamp: actionsModal.timestamp
-    };
+    var rqBody = {
+        "Id": actionsModal.id,
+        "TimeStamp": actionsModal.timestamp
+    }
 
-    alert(`deleteSynthesis api call: ${rq.Id}, ${rq.TimeStamp}`);
+    $.ajax({
+        url: '/api/Synthesis/Delete',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            handleModalAjaxSuccess('#confirm-delete-modal', data, loadTests);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#confirm-delete-modal', loadTests);
+        }
+    });
 }

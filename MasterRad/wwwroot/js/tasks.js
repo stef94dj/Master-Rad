@@ -178,8 +178,7 @@ function createTest() {
 function deleteTask() {
     var rqBody = {
         "Id": actionsModal.id,
-        "TimeStamp": actionsModal.timestamp,
-        "Description": descriptionModal.GetInputVal()
+        "TimeStamp": actionsModal.timestamp
     }
 
     $.ajax({

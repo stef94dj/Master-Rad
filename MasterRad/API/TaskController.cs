@@ -148,7 +148,7 @@ namespace MasterRad.API
             if (success)
                 return Result<bool>.Success(true);
             else
-                return Result<bool>.Fail("Failed delete record.");
+                return Result<bool>.Fail("Failed to delete record.");
         }
     }
 }

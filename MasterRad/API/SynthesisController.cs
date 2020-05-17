@@ -129,5 +129,27 @@ namespace MasterRad.API
 
             return _synthesisRepo.SubmitAnswer(body.TestId, UserId, body.TimeStamp, body.SqlScript);
         }
+
+        [HttpPost, Route("Delete")]
+        public ActionResult<Result<bool>> DeleteSynthesisTest([FromBody] DeleteEntityRQ body)
+        {
+            var entity = _synthesisRepo.Get(body.Id);
+
+            if (entity.Status > TestStatus.Scheduled)
+            {
+                var statusText = entity.Status.ToString().ToLower();
+                return Result<bool>.Fail($"Unable to delete. Delete of '{statusText}' test is not allowed");
+            }
+
+            var assignedCount = _synthesisRepo.AssignedCount(body.Id);
+            if (assignedCount > 0)
+                return Result<bool>.Fail($"Unable to delete. A total of {assignedCount} students are assigned to this test.");
+
+            var success = _synthesisRepo.DeleteSynthesisTest(body.Id, body.TimeStamp);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed to delete record.");
+        }
     }
 }
