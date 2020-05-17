@@ -202,11 +202,6 @@ function updateDescription() {
     });
 }
 function deleteTemplate() {
-    var rq = {
-        Id: actionsModal.id,
-        TimeStamp: actionsModal.timestamp
-    };
-
     var rqBody = {
         "Id": actionsModal.id,
         "TimeStamp": actionsModal.timestamp,

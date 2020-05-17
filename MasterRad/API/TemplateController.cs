@@ -134,20 +134,20 @@ namespace MasterRad.API
         {
             var entity = _templateRepo.Get(body.Id);
 
-            var childTaskCnt = _taskRepo.TemplateChildCount(body.Id);
-            if (childTaskCnt > 0)
-                return Result<bool>.Fail($"Unable to delete. A total of {childTaskCnt} tasks depend on this template.");
+            var childCnt = _taskRepo.TemplateChildCount(body.Id);
+            if (childCnt > 0)
+                return Result<bool>.Fail($"Unable to delete. A total of {childCnt} tasks depend on this template.");
 
             var success = _microsoftSQLService.DeleteDatabaseIfExists(entity.NameOnServer);
 
             if (!success)
-                return Result<bool>.Fail("Failed to delete template database instance.");
+                return Result<bool>.Fail("Failed to delete database instance.");
 
             success = _templateRepo.DeleteTemplate(body.Id, body.TimeStamp);
             if (success)
                 return Result<bool>.Success(true);
             else
-                return Result<bool>.Fail("Failed delete template application record.");
+                return Result<bool>.Fail("Failed delete record.");
         }
     }
 }

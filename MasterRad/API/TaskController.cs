@@ -23,18 +23,21 @@ namespace MasterRad.API
     {
         private readonly ITaskRepository _taskRepo;
         private readonly ITemplateRepository _templateRepo;
+        private readonly ISynthesisRepository _synthesisRepo;
         private readonly IMicrosoftSQL _microsoftSQLService;
         private readonly IMsGraph _msGraph;
 
         public TaskController(
             ITaskRepository taskRepo,
             ITemplateRepository templateRepo,
+            ISynthesisRepository synthesisRepo,
             IMicrosoftSQL microsoftSQLService,
             IMsGraph msGraph
         )
         {
             _taskRepo = taskRepo;
             _templateRepo = templateRepo;
+            _synthesisRepo = synthesisRepo;
             _microsoftSQLService = microsoftSQLService;
             _msGraph = msGraph;
         }
@@ -126,5 +129,26 @@ namespace MasterRad.API
         [HttpPost, Route("Update/Solution")]
         public ActionResult<TaskEntity> UpdateSolution([FromBody] UpdateTaskSolutionRQ body)
             => _taskRepo.UpdateSolution(body, UserId);
+
+        [HttpPost, Route("Delete")]
+        public ActionResult<Result<bool>> DeleteTask([FromBody] DeleteEntityRQ body)
+        {
+            var entity = _taskRepo.Get(body.Id);
+
+            var childCnt = _synthesisRepo.TaskChildCount(body.Id);
+            if (childCnt > 0)
+                return Result<bool>.Fail($"Unable to delete. A total of {childCnt} synthesis tests depend on this task.");
+
+            var success = _microsoftSQLService.DeleteDatabaseIfExists(entity.NameOnServer);
+
+            if (!success)
+                return Result<bool>.Fail("Failed to delete database instance.");
+
+            success = _taskRepo.DeleteTask(body.Id, body.TimeStamp);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed delete record.");
+        }
     }
 }

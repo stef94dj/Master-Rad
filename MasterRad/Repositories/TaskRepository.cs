@@ -18,6 +18,7 @@ namespace MasterRad.Repositories
         bool TaskExists(string taskName);
         bool DatabaseRegisteredAsTask(string dbName);
         int TemplateChildCount(int templateId);
+        bool DeleteTask(int id, byte[] timeStamp);
     }
 
     public class TaskRepository : ITaskRepository
@@ -209,7 +210,18 @@ namespace MasterRad.Repositories
 
         public int TemplateChildCount(int templateId)
             => _context.Tasks
-                       .Where(t => t.TemplateId == templateId)
-                       .Count();
+                       .Count(t => t.TemplateId == templateId);
+
+        public bool DeleteTask(int id, byte[] timeStamp)
+        {
+            var entity = new TaskEntity()
+            {
+                Id = id,
+                TimeStamp = timeStamp
+            };
+
+            _context.Tasks.Remove(entity);
+            return _context.SaveChanges() == 1;
+        }
     }
 }

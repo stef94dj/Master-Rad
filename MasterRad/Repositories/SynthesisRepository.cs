@@ -30,6 +30,7 @@ namespace MasterRad.Repositories
         bool SaveProgress(SynthesisTestStudentEntity entity, bool isSecret, EvaluationProgress status, Guid userId, string message = null);
         bool TestExists(string name);
         IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId);
+        int TaskChildCount(int taskId);
     }
 
     public class SynthesisRepository : ISynthesisRepository
@@ -334,5 +335,9 @@ namespace MasterRad.Repositories
             => _context.SynthesisTests
                        .Where(t => t.Name.ToLower().Equals(name.ToLower()))
                        .Any();
+
+        public int TaskChildCount(int taskId)
+            => _context.SynthesisTests
+                       .Count(t => t.TaskId == taskId);
     }
 }

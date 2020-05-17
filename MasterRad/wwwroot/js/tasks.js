@@ -108,6 +108,7 @@ function onCreateSynthesisModalShow(element, event) {
     createSynthesisTestModal.SetTitle(`Create synthesis test from '${actionsModal.name}'`);
 }
 function onDeleteModalShow(element, event) {
+    hideModalError("#confirm-delete-modal");
     deleteModal.SetText(`Are you sure you wish to delete task '${actionsModal.name}' ?`);
 }
 
@@ -175,10 +176,23 @@ function createTest() {
     });
 }
 function deleteTask() {
-    var rq = {
-        Id: actionsModal.id,
-        TimeStamp: actionsModal.timestamp
-    };
+    var rqBody = {
+        "Id": actionsModal.id,
+        "TimeStamp": actionsModal.timestamp,
+        "Description": descriptionModal.GetInputVal()
+    }
 
-    alert(`deleteTask api call: ${rq.Id}, ${rq.TimeStamp}`);
+    $.ajax({
+        url: '/api/Task/Delete',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            handleModalAjaxSuccess('#confirm-delete-modal', data, loadTasks);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#confirm-delete-modal', loadTasks);
+        }
+    });
 }
