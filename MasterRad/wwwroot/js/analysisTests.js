@@ -121,6 +121,7 @@ function onStatusModalShow(element, event) {
     statusModal.SetText(`Are you sure you want to change the status of '${actionsModal.name}' ?`);
 }
 function onDeleteModalShow(element, event) {
+    hideModalError("#confirm-delete-modal");
     deleteModal.SetText(`Are you sure you wish to delete analysis test '${actionsModal.name}' ?`);
 }
 
@@ -167,10 +168,22 @@ function statusNext() {
     });
 }
 function deleteAnalysis() {
-    var rq = {
-        Id: actionsModal.id,
-        TimeStamp: actionsModal.timestamp
-    };
+    var rqBody = {
+        "Id": actionsModal.id,
+        "TimeStamp": actionsModal.timestamp
+    }
 
-    alert(`deleteAnalysis api call: ${rq.Id}, ${rq.TimeStamp}`);
+    $.ajax({
+        url: '/api/Analysis/Delete',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            handleModalAjaxSuccess('#confirm-delete-modal', data, loadTests);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#confirm-delete-modal', loadTests);
+        }
+    });
 }

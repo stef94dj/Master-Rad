@@ -26,6 +26,8 @@ namespace MasterRad.Repositories
         AnalysisTestStudentEntity GetEvaluationData(int testId, Guid studentId);
         bool SaveProgress(AnalysisTestStudentEntity entity, AnalysisEvaluationType type, EvaluationProgress status, Guid userId, string message = null);
         bool TestExists(string name);
+        int AssignedStudentsCount(int testId);
+        bool DeleteTest(int id, byte[] timeStamp);
     }
 
     public class AnalysisRepository : IAnalysisRepository
@@ -268,5 +270,21 @@ namespace MasterRad.Repositories
             => _context.AnalysisTests
                        .Where(t => t.Name.ToLower().Equals(name.ToLower()))
                        .Any();
+
+        public int AssignedStudentsCount(int testId)
+            => _context.AnalysisTestStudents
+                       .Count(t => t.AnalysisTestId == testId);
+
+        public bool DeleteTest(int id, byte[] timeStamp)
+        {
+            var entity = new AnalysisTestEntity()
+            {
+                Id = id,
+                TimeStamp = timeStamp
+            };
+
+            _context.AnalysisTests.Remove(entity);
+            return _context.SaveChanges() == 1;
+        }
     }
 }

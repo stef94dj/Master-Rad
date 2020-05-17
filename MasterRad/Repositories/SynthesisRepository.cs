@@ -31,8 +31,8 @@ namespace MasterRad.Repositories
         bool TestExists(string name);
         IEnumerable<SynthesisTestStudentEntity> GetPapers(int testId);
         int TaskChildCount(int taskId);
-        int AssignedCount(int testId);
-        bool DeleteSynthesisTest(int id, byte[] timeStamp);
+        int AssignedStudentsCount(int testId);
+        bool DeleteTest(int id, byte[] timeStamp);
     }
 
     public class SynthesisRepository : ISynthesisRepository
@@ -342,11 +342,11 @@ namespace MasterRad.Repositories
             => _context.SynthesisTests
                        .Count(t => t.TaskId == taskId);
 
-        public int AssignedCount(int testId)
+        public int AssignedStudentsCount(int testId)
             => _context.SynthesysTestStudents
                        .Count(t => t.SynthesisTestId == testId);
 
-        public bool DeleteSynthesisTest(int id, byte[] timeStamp)
+        public bool DeleteTest(int id, byte[] timeStamp)
         {
             var entity = new SynthesisTestEntity()
             {

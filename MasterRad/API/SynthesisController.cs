@@ -9,7 +9,6 @@ using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -141,11 +140,11 @@ namespace MasterRad.API
                 return Result<bool>.Fail($"Unable to delete. Delete of '{statusText}' test is not allowed");
             }
 
-            var assignedCount = _synthesisRepo.AssignedCount(body.Id);
+            var assignedCount = _synthesisRepo.AssignedStudentsCount(body.Id);
             if (assignedCount > 0)
                 return Result<bool>.Fail($"Unable to delete. A total of {assignedCount} students are assigned to this test.");
 
-            var success = _synthesisRepo.DeleteSynthesisTest(body.Id, body.TimeStamp);
+            var success = _synthesisRepo.DeleteTest(body.Id, body.TimeStamp);
             if (success)
                 return Result<bool>.Success(true);
             else

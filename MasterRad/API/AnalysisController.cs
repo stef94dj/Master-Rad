@@ -91,5 +91,27 @@ namespace MasterRad.API
             else
                 return Result<bool>.Fail("Failed to save changes.");
         }
+
+        [HttpPost, Route("Delete")]
+        public ActionResult<Result<bool>> DeleteAnalysisTest([FromBody] DeleteEntityRQ body)
+        {
+            var entity = _analysisRepo.Get(body.Id);
+
+            if (entity.Status > TestStatus.Scheduled)
+            {
+                var statusText = entity.Status.ToString().ToLower();
+                return Result<bool>.Fail($"Unable to delete. Delete of '{statusText}' test is not allowed");
+            }
+
+            var assignedCount = _analysisRepo.AssignedStudentsCount(body.Id);
+            if (assignedCount > 0)
+                return Result<bool>.Fail($"Unable to delete. A total of {assignedCount} students are assigned to this test.");
+
+            var success = _analysisRepo.DeleteTest(body.Id, body.TimeStamp);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed to delete record.");
+        }
     }
 }

@@ -121,6 +121,7 @@ function onStatusModalShow(element, event) {
     statusModal.SetText(`Are you sure you want to change the status of '${actionsModal.name}' ?`);
 }
 function onDeleteModalShow(element, event) {
+    hideModalError("#confirm-delete-modal");
     deleteModal.SetText(`Are you sure you wish to delete synthesis test '${actionsModal.name}' ?`);
 }
 
