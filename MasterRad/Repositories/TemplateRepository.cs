@@ -15,6 +15,7 @@ namespace MasterRad.Repositories
         bool Create(string templateName, string dbName, Guid userId);
         bool UpdateDescription(UpdateDescriptionRQ request, Guid userId);
         bool UpdateName(UpdateNameRQ request, Guid userId);
+        bool UpdateIsPublic(UpdateIsPublicRQ request, Guid userId);
         bool DatabaseRegisteredAsTemplate(string name);
         bool TemplateExists(string templateName);
 
@@ -154,6 +155,25 @@ namespace MasterRad.Repositories
 
             _context.Templates.Attach(templateEntity);
             _context.Entry(templateEntity).Property(x => x.Name).IsModified = true;
+            _context.Entry(templateEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(templateEntity).Property(x => x.ModifiedBy).IsModified = true;
+
+            return _context.SaveChanges() == 1;
+        }
+
+        public bool UpdateIsPublic(UpdateIsPublicRQ request, Guid userId)
+        {
+            var templateEntity = new TemplateEntity() //AutoMapper
+            {
+                Id = request.Id,
+                TimeStamp = request.TimeStamp,
+                IsPublic = request.IsPublic,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = userId,
+            };
+
+            _context.Templates.Attach(templateEntity);
+            _context.Entry(templateEntity).Property(x => x.IsPublic).IsModified = true;
             _context.Entry(templateEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(templateEntity).Property(x => x.ModifiedBy).IsModified = true;
 

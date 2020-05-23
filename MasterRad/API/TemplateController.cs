@@ -49,10 +49,10 @@ namespace MasterRad.API
             #endregion
 
             #region Map_Result
-            var resData = entities.Select(te =>
+            var resData = entities.Select(entity =>
             {
-                var createdByDetail = createdByDetails.Single(ud => ud.MicrosoftId == te.CreatedBy);
-                return new TemplateDTO(te, createdByDetail);
+                var createdByDetail = createdByDetails.Single(ud => ud.MicrosoftId == entity.CreatedBy);
+                return new TemplateDTO(entity, createdByDetail);
             });
             #endregion
 
@@ -110,6 +110,16 @@ namespace MasterRad.API
                 return Result<bool>.Fail($"Template '{body.Name}' already exists in the system");
 
             var success = _templateRepo.UpdateName(body, UserId);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed to save changes.");
+        }
+
+        [HttpPost, Route("Toggle/IsPublic")]
+        public ActionResult<Result<bool>> UpdateIsPublic([FromBody] UpdateIsPublicRQ body)
+        {
+            var success = _templateRepo.UpdateIsPublic(body, UserId);
             if (success)
                 return Result<bool>.Success(true);
             else
