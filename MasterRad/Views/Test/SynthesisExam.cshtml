@@ -12,16 +12,16 @@
 </div>
 
 
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modelDescription">
+@*<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modelDescription">
     Model
 </button>
 
 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#taskDescription">
     Task
-</button>
+</button>*@
 
 <!-- Model Description Modal -->
-<div class="modal fade" id="modelDescription" tabindex="-1" role="dialog" aria-labelledby="modelDescriptionTitle" aria-hidden="true">
+@*<div class="modal fade" id="modelDescription" tabindex="-1" role="dialog" aria-labelledby="modelDescriptionTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -35,10 +35,10 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
 <!-- Task Description Modal -->
-<div class="modal fade" id="taskDescription" tabindex="-1" role="dialog" aria-labelledby="taskDescriptionTitle" aria-hidden="true">
+@*<div class="modal fade" id="taskDescription" tabindex="-1" role="dialog" aria-labelledby="taskDescriptionTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -52,20 +52,40 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 
 
-<br /><br />
-<partial name="../Partials/SqlEditor.cshtml" model="(Model.SqlScript)" />
-<button disabled id="save-sln-btn" type="button" class="btn btn-primary" onclick="submitAnswer()">Submit answer</button>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link" id="taskinfo-tab" data-toggle="tab" href="#taskinfo" role="tab" aria-controls="taskinfo" aria-selected="false">Task info</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" id="sqlsolution-tab" data-toggle="tab" href="#sqlsolution" role="tab" aria-controls="sqlsolution" aria-selected="true">SQL solution</a>
+    </li>
+</ul>
 
-<br /><br />
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show" id="taskinfo" role="tabpanel" aria-labelledby="task-info-tab">
+        <br />
+        <h5>Database model</h5>
+        <p>@Model.ModelDescription</p><hr>
+        <h5>Task</h5>
+        <p>@Model.TaskDescription</p><hr>
+    </div>
+    <div class="tab-pane fade show active" id="sqlsolution" role="tabpanel" aria-labelledby="sql-solution-tab">
+        <br /><br />
+        <partial name="../Partials/SqlEditor.cshtml" model="(Model.SqlScript)" />
+        <button disabled id="save-sln-btn" type="button" class="btn btn-primary" onclick="submitAnswer()">Submit answer</button>
 
-<div class="table-responsive">
-    <table class="table table-sm table-bordered">
-        <thead class="thead-dark" id="table-header" />
-        <tbody id="table-body" />
-    </table>
+        <br /><br />
+
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <thead class="thead-dark" id="table-header" />
+                <tbody id="table-body" />
+            </table>
+        </div>
+    </div>
 </div>
 
 

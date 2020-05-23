@@ -28,7 +28,7 @@ function initSqlEditor(tableAndColumnNames) {
         smartIndent: true,
         lineNumbers: true,
         matchBrackets: true,
-        autofocus: true,
+        autofocus: false,
         extraKeys: { "Ctrl-Space": "autocomplete" },
         hint: CodeMirror.hint.sql,
         hintOptions: {
