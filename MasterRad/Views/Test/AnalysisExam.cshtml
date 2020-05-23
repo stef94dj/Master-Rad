@@ -4,23 +4,25 @@
     var failingInputPartialModel = "failing-input";
     var studentOutputPartialModel = "student-output";
     var correctOutputPartialModel = "correct-output";
+
+    var readOnly = Model.Readonly ? "true" : "false";
 }
 
 <h1>@(Model.Title)</h1>
 <div>
-    <input hidden class="uid uid-db" value="@failingInputPartialModel" data-name-on-server="@Model.FailingInputVM.NameOnServer" type="text">
-    <input hidden class="uid uid-tb" value="@studentOutputPartialModel" data-name-on-server="@Model.StudentOutputVM.NameOnServer" data-table-name="@Model.StudentOutputVM.TableName" type="text">
-    <input hidden class="uid uid-tb" value="@correctOutputPartialModel" data-name-on-server="@Model.CorrectOutputVM.NameOnServer" data-table-name="@Model.CorrectOutputVM.TableName" type="text">
+    <input hidden class="uid uid-db" value="@failingInputPartialModel" data-name-on-server="@Model.FailingInputVM.NameOnServer" data-readonly="@readOnly" type="text">
+    <input hidden class="uid uid-tb" value="@studentOutputPartialModel" data-name-on-server="@Model.StudentOutputVM.NameOnServer" data-table-name="@Model.StudentOutputVM.TableName" data-readonly="@readOnly" type="text">
+    <input hidden class="uid uid-tb" value="@correctOutputPartialModel" data-name-on-server="@Model.CorrectOutputVM.NameOnServer" data-table-name="@Model.CorrectOutputVM.TableName" data-readonly="@readOnly" type="text">
 </div>
 <br />
 <br />
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item">
-        <a class="nav-link active" id="taskinfo-tab" data-toggle="tab" href="#taskinfo" role="tab" aria-controls="taskinfo" aria-selected="true">Task info</a>
+        <a class="nav-link" id="taskinfo-tab" data-toggle="tab" href="#taskinfo" role="tab" aria-controls="taskinfo" aria-selected="false">Task info</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="failinginput-tab" data-toggle="tab" href="#failinginput" role="tab" aria-controls="failinginput" aria-selected="false">Failing Input</a>
+        <a class="nav-link active" id="failinginput-tab" data-toggle="tab" href="#failinginput" role="tab" aria-controls="failinginput" aria-selected="true">Failing Input</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" id="queryoutput-tab" data-toggle="tab" href="#queryoutput" role="tab" aria-controls="queryoutput" aria-selected="false">Query Output</a>
@@ -30,7 +32,7 @@
     </li>
 </ul>
 <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="taskinfo" role="tabpanel" aria-labelledby="task-info-tab">
+    <div class="tab-pane fade show" id="taskinfo" role="tabpanel" aria-labelledby="task-info-tab">
         <br />
         <h5>Database model</h5>
         <p>@Model.ModelDescription</p><hr>
@@ -39,7 +41,7 @@
         <h5>Solution to evaluate</h5>
         <p>@Model.SqlSolutionForEvaluation</p><hr>
     </div>
-    <div class="tab-pane fade show" id="failinginput" role="tabpanel" aria-labelledby="failing-input-tab">
+    <div class="tab-pane fade show active" id="failinginput" role="tabpanel" aria-labelledby="failing-input-tab">
         <br />
         <h5>Provide an input for which the given query will return an incorrect output.</h5>
         <partial name="../Partials/ModifyDatabasePartial.cshtml" model="failingInputPartialModel" />

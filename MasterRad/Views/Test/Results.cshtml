@@ -33,7 +33,8 @@
                 <th scope="col">Student</th>
                 <th scope="col">Public Data Set</th>
                 <th scope="col">Secret Data Set</th>
-                <th scope="col"></th>
+                <th scope="col">Submited paper</th>
+                <th scope="col">Analysis test</th>
             </tr>
         </thead>
         <tbody id="evaluation-results-tbody"></tbody>
@@ -72,11 +73,19 @@ else if (Model.TestType == TestType.Analysis)
                 <th scope="col">Failing Input</th>
                 <th scope="col">Query Output</th>
                 <th scope="col">Correct Output</th>
+                <th scope="col">Submited paper</th>
             </tr>
         </thead>
         <tbody id="evaluation-results-tbody"></tbody>
     </table>
 }
+
+
+<!-- Form -->
+<form action="" hidden id="hidden-form" method="post" target="_blank">
+    <input type="number" name="testId" id="test-id">
+    <input type="text" name="studentId" id="student-id">
+</form>
 
 @section Scripts {
     <script src="~/lib/signalr/signalr.js"></script>

@@ -14,5 +14,6 @@ namespace MasterRad.Models.ViewModels
         public ModifyDatabasePartialVM FailingInputVM { get; set; }
         public ModifyTablePartialVM StudentOutputVM { get; set; }
         public ModifyTablePartialVM CorrectOutputVM { get; set; }
+        public bool Readonly { get; set; }
     }
 }

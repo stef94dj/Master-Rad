@@ -81,9 +81,9 @@ function getSignalRConnectionObjAnalysis() {
 function drawEvaluationResultsTableMessage(message) {
     switch (testType) {
         case TestType.Synthesis:
-            return drawTableMessage(message, 4);
-        case TestType.Analysis:
             return drawTableMessage(message, 5);
+        case TestType.Analysis:
+            return drawTableMessage(message, 6);
     }
     console.log(`test type '${testType}' not supported`);
     return null;
@@ -118,6 +118,7 @@ function drawTableSynthesis(tbody, testStudents) {
 
         tableRow += drawEvaluationProgressCell(takenTest, takenTest ? progressPublic : null, "public-data-progress");
         tableRow += drawEvaluationProgressCell(takenTest, takenTest ? progressSecret : null, "secret-data-progress");
+        tableRow += drawViewSubmitedCell(takenTest, testStudent);
         tableRow += drawCreateAnalysisCell(testStudent, progressPublic, progressSecret);
 
         tableRow += '</tr>'
@@ -133,13 +134,21 @@ function drawEvaluationProgressCell(takenTest, progress, cssClass) {
         cellContent = evaluationProgressUI.drawEvaluationStatus(progress)
     return `<td class="${cssClass}">${cellContent}</td>`;
 }
+function drawViewSubmitedCell(takenTest, testStudent) {
+    var enabled = testStudent != null && takenTest;
+    var dynamic = `disabled`;
+    if (enabled)
+        dynamic = `onclick="viewSubmitedPaper('${testStudent.studentDetail.microsoftId}')"`;
+
+    return `<td><button type="button" ${dynamic} class="btn btn-outline-primary">View</button></td>`;
+}
 function drawCreateAnalysisCell(testStudent, publicDataStatus, secretDataStatus) {
     var enabled = testStudent != null && (publicDataStatus == EvaluationStatus.Failed || secretDataStatus == EvaluationStatus.Failed);
     var dynamic = `disabled`;
     if (enabled)
         dynamic = `data-student-id="${testStudent.studentDetail.microsoftId}"`;
 
-    return `<td><button type="button" data-toggle="modal" data-target="#create-analysis-test-modal" ${dynamic} class="btn btn-outline-primary">Create analysis test</button></td>`;
+    return `<td><button type="button" data-toggle="modal" data-target="#create-analysis-test-modal" ${dynamic} class="btn btn-outline-primary">Create</button></td>`;
 }
 
 function drawTableAnalysis(tbody, analysisTestStudents) {
@@ -153,6 +162,7 @@ function drawTableAnalysis(tbody, analysisTestStudents) {
         tableRow += drawEvaluationProgressCell(ats.takenTest, ats.failingInputProgress, "failing-input-progress");
         tableRow += drawEvaluationProgressCell(ats.takenTest, ats.queryOutputProgress, "student-output-progress");
         tableRow += drawEvaluationProgressCell(ats.takenTest, ats.correctOutputProgress, "teacher-output-progress");
+        tableRow += drawViewSubmitedCell(ats.takenTest, ats);
 
         tableRow += '</tr>'
         tbody.append(tableRow)
@@ -284,7 +294,6 @@ function setCellStatus(data) {
     return null;
 }
 function setCellStatusSynthesis(data) {
-    debugger;
     var selector = `tr[data-student-id='${data.id}']`;
     if (data.secret)
         selector += ' td.secret-data-progress';
@@ -331,4 +340,22 @@ function onCreateAnalysisModalShow(element, event) {
 
     modal.find('#analysis-test-name').val("");
     modal.find('#student-id').val(id);
+}
+
+//NAVIGATION
+function viewSubmitedPaper(studentId) {
+    var form = $('#hidden-form');
+    form.find('#test-id').val(testId);
+    form.find('#student-id').val(studentId);
+
+    switch (testType) {
+        case TestType.Synthesis:
+            form.attr('action', '/Test/SynthesisExamReadonly');
+            break;
+        case TestType.Analysis:
+            form.attr('action', '/Test/AnalysisExamReadonly');
+            break;
+    }
+
+    form.submit();
 }

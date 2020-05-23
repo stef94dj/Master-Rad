@@ -54,6 +54,29 @@ namespace MasterRad.Controllers
 
             return View(vm);
         }
+        [Authorize(Roles = UserRole.Professor)]
+        public IActionResult SynthesisExamReadonly(Guid studentId, int testId)
+        {
+            var stsEntity = _synthesisRepository.GetAssignmentWithTaskAndTemplate(studentId, testId);
+
+            if (stsEntity == null || !stsEntity.TakenTest)
+                throw new Exception("Test not found or taken");
+
+            var taskEntity = stsEntity.SynthesisTest.Task;
+            var vm = new SynthesisExamVM()
+            {
+                TestId = stsEntity.SynthesisTestId,
+                StudentId = stsEntity.StudentId,
+                NameOnServer = taskEntity.Template.NameOnServer,
+                SqlScript = stsEntity.SqlScript ?? string.Empty,
+                TaskDescription = taskEntity.Description,
+                ModelDescription = taskEntity.Template.ModelDescription,
+                ReadOnly = true
+            };
+
+            return View("SynthesisExam", vm);
+        }
+
         [Authorize(Roles = UserRole.Student)]
         public IActionResult AnalysisExam(int testId, byte[] timeStamp)
         {
@@ -90,6 +113,46 @@ namespace MasterRad.Controllers
                     NameOnServer = outputTablesDb,
                     TableName = atsEntity.TeacherOutputNameOnServer
                 }
+            };
+
+            return View("~/Views/Test/AnalysisExam.cshtml", vm);
+        }
+
+        [Authorize(Roles = UserRole.Professor)]
+        public IActionResult AnalysisExamReadonly(Guid studentId, int testId)
+        {
+            var atsEntity = _analysisRepository.GetAssignmentWithTaskAndTemplate(studentId, testId);
+
+            if (atsEntity == null || !atsEntity.TakenTest)
+                throw new Exception("Test not found or taken");
+
+
+            var outputTablesDb = _adminConnectionConf.OutputTablesDbName;
+
+
+            var sts = atsEntity.AnalysisTest.SynthesisTestStudent;
+            var task = sts.SynthesisTest.Task;
+            var vm = new AnalysisExamVM()
+            {
+                Title = $"Task '{atsEntity.AnalysisTest.Name}'",
+                ModelDescription = task.Template.ModelDescription,
+                TaskDescription = task.Description,
+                SqlSolutionForEvaluation = sts.SqlScript,
+                FailingInputVM = new ModifyDatabasePartialVM()
+                {
+                    NameOnServer = atsEntity.InputNameOnServer
+                },
+                StudentOutputVM = new ModifyTablePartialVM()
+                {
+                    NameOnServer = outputTablesDb,
+                    TableName = atsEntity.StudentOutputNameOnServer
+                },
+                CorrectOutputVM = new ModifyTablePartialVM()
+                {
+                    NameOnServer = outputTablesDb,
+                    TableName = atsEntity.TeacherOutputNameOnServer
+                },
+                Readonly = true
             };
 
             return View("~/Views/Test/AnalysisExam.cshtml", vm);

@@ -69,9 +69,9 @@ function drawTestName(testName, testDescription) {
 function drawTestContent(status, studentId, testId, testType, testStudent, testStudentTimeStamp) {
     switch (status) {
         case TestStatus.Scheduled:
-            return '<a href="javascript:;" class="btn btn-dark disabled">' + 'Take test' + '</a>';
+            return '<a href="javascript:void(0)" class="btn btn-dark disabled">' + 'Take test' + '</a>';
         case TestStatus.InProgress:
-            return `<a href="javascript:;" class="btn btn-dark" onclick="startTest('${studentId}',${testId},${testType},${testStudentTimeStamp})">Take test</a>`;
+            return `<a href="javascript:void(0)" class="btn btn-dark" onclick="startTest(${testId},${testType},${testStudentTimeStamp})">Take test</a>`;
         case TestStatus.Completed:
             if (testStudent.takenTest) {
                 switch (testType) {
@@ -137,9 +137,9 @@ var testReader = {
     }
 }
 
-function startTest(studentId, synthesisTestId, testType, testStudentTimeStamp) {
+function startTest(testId, testType, testStudentTimeStamp) {
     var form = $('#hidden-form');
-    form.find('#test-id').val(synthesisTestId);
+    form.find('#test-id').val(testId);
     form.find('#test-student-timestamp').val(testStudentTimeStamp);
 
     switch (testType) {

@@ -5,6 +5,7 @@
     TableUids: null,
     NamesOnServer: null,
     TableNames: null,
+    ReadOnlyFlags: null,
     TableHeaders: null,
     TableBodies: null,
     Initialise: function () {
@@ -37,6 +38,11 @@
         this.TableNames = $.map(tableUidElements, function (item, index) {
             var tableName = $(item).data('table-name');
             return (tableName != undefined) ? tableName : "";
+        });
+
+        this.ReadOnlyFlags = $.map(tableUidElements, function (item, index) {
+            var tableName = $(item).data('readonly');
+            return (tableName != undefined) ? tableName : false;
         });
 
         this.TableHeaders = $.map(this.TableUids, function (uid, index) {
@@ -73,6 +79,9 @@
     },
     IsTableOnly: function (uid) {
         return this.DbUidIndex(uid) === -1;
+    },
+    IsReadOnly: function (uid) {
+        return UI.ReadOnlyFlags[this.TbUidIndex(uid)]
     }
 }
 
@@ -121,7 +130,7 @@ function tableSelected(uid = null) {
     var tbhead = UI.TableHeader(uid);
     var tbBody = UI.TableBody(uid);
 
-    renderTable(UI.NameOnServer(uid), tableFullName.schemaName, tableFullName.tableName, tbhead, tbBody);
+    renderTable(UI.NameOnServer(uid), tableFullName.schemaName, tableFullName.tableName, tbhead, tbBody, UI.IsReadOnly(uid));
 }
 
 function refreshSingleTableUI(uid) {
@@ -131,10 +140,10 @@ function refreshSingleTableUI(uid) {
     var tbHead = UI.TableHeader(uid);
     var tbBody = UI.TableHeader(uid);
 
-    renderTable(databaseName, schemaName, tableName, tbHead, tbBody);
+    renderTable(databaseName, schemaName, tableName, tbHead, tbBody, UI.IsReadOnly(uid));
 }
 
-function renderTable(databaseName, schemaName, tableName, tHead, tBody) {
+function renderTable(databaseName, schemaName, tableName, tHead, tBody, readonly) {
     var tableData = null;
     readTable(databaseName, schemaName, tableName)
         .then(data => {
@@ -142,7 +151,7 @@ function renderTable(databaseName, schemaName, tableName, tHead, tBody) {
             return getIdentityColumns(databaseName, schemaName, tableName);
         })
         .then(identityColumns => {
-            drawTable(tableData, identityColumns, tHead, tBody);
+            drawTable(tableData, identityColumns, tHead, tBody, readonly);
         });
 }
 
@@ -156,19 +165,25 @@ function getIdentityColumns(databaseName, schemaName, tableName) {
     return promisifyAjaxGet(apiUrl);
 }
 
-function drawTable(tbData, identityColumns, tbHeader, tbBody) {
+function drawTable(tbData, identityColumns, tbHeader, tbBody, readonly) {
     tbHeader.html('');
     tbBody.html('');
 
     //columns
-    tbHeader.append('<th scope="col"></th>');
+    if (!readonly) {
+        tbHeader.append('<th scope="col"></th>');
+    }
+    
     $.each(tbData.columns, function (index, value) {
         tbHeader.append('<th scope="col" data-sql-type="' + value.sqlType + '">' + value.name + '</th>');
     });
 
     //rows
     $.each(tbData.rows, function (rowIndex, row) {
-        var newRow = '<tr><td><button onclick="deleteRecord(this)" type="button" class="btn btn-danger btn-sm">-</button></td>';
+        if (!readonly) {
+            var newRow = '<tr><td><button onclick="deleteRecord(this)" type="button" class="btn btn-danger btn-sm">-</button></td>';
+        }
+        
         tbBody.append('<tr>');
         $.each(row, function (cellIndex, cell) {
             if (cell == null)
@@ -179,22 +194,26 @@ function drawTable(tbData, identityColumns, tbHeader, tbBody) {
             newRow += '<td><input ';
             if (identityColumns.includes(tbData.columns[cellIndex].name))
                 newRow += 'disabled ';
-            newRow += 'onblur="editCell(this)" class="form-control form-control-sm" type="text" data-value-original="' + cell + '"value="' + cell + '"></td>';
+
+            var cellOnBlur = readonly ? '' : 'onblur="editCell(this)" ';
+            newRow += cellOnBlur + 'class="form-control form-control-sm" type="text" data-value-original="' + cell + '"value="' + cell + '"></td>';
         });
         newRow += '</tr>';
         tbBody.append(newRow);
     });
 
-    //final row
-    var finalRow = '<tr><td><button onclick="insertRecord(this)" type="button" class="btn btn-info btn-sm">+</button></td>';
-    $.each(tbData.columns, function (index, value) {
-        finalRow += '<td><input ';
-        if (identityColumns.includes(tbData.columns[index].name))
-            finalRow += 'disabled ';
-        finalRow += 'class="form-control form-control-sm" type="text" value=""></td>';
-    });
-    finalRow += '</tr>';
-    tbBody.append(finalRow);
+    if (!readonly) {
+        //final row
+        var finalRow = '<tr><td><button onclick="insertRecord(this)" type="button" class="btn btn-info btn-sm">+</button></td>';
+        $.each(tbData.columns, function (index, value) {
+            finalRow += '<td><input ';
+            if (identityColumns.includes(tbData.columns[index].name))
+                finalRow += 'disabled ';
+            finalRow += 'class="form-control form-control-sm" type="text" value=""></td>';
+        });
+        finalRow += '</tr>';
+        tbBody.append(finalRow);
+    }
 }
 
 function getNewValue(element) {

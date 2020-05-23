@@ -1,5 +1,4 @@
 - Create Analysis Test button - enable after evaluate
-- Exam (synthesis/analysis) - show model & task description (new tab)
 - Analysis exam - show submited answer sql
 - Test Results (synthesis/analysis) - show submited data to teacher
 - Exercise?
