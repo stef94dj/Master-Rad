@@ -11,6 +11,7 @@ namespace MasterRad.Repositories
     {
         TemplateEntity Get(int id);
         List<TemplateEntity> GetPaginated(SearchPaginatedRQ searchRQ, out int pageCnt, out int pageNo);
+        IEnumerable<TemplateEntity> GetPublic();
         TemplateEntity GetWithTaks(int id);
         bool Create(string templateName, string dbName, Guid userId);
         bool UpdateDescription(UpdateDescriptionRQ request, Guid userId);
@@ -108,6 +109,10 @@ namespace MasterRad.Repositories
             return qry.ToList();
         }
 
+        public IEnumerable<TemplateEntity> GetPublic()
+            => _context.Templates
+                       .Where(t => t.IsPublic)
+                       .AsNoTracking();
 
         public bool Create(string templateName, string dbName, Guid userId)
         {

@@ -49,36 +49,20 @@
 
 <div class="tab-content" id="myTabContent">
     <div class="tab-pane fade show" id="templates" role="tabpanel" aria-labelledby="templates-tab">
-        <div class="row" style="padding:20px;">
-            @for (var i = 0; i < 30; i++)
-            {
-                <div class="card bg-light mb-3" style="max-width: 15rem; margin:5px;">
-                    <div class="card-header">22/11/2019</div>
-                    <div class="card-body">
-                        <h5 class="card-title">Template @i name </h5>
-                        <p class="card-text" data-toggle="tooltip" data-placement="top" title="Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.">
-                            Template description template description.Templ...
-                        </p>
-                        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create-instance-modal">
-                            + Create instance
-                        </button>
-                    </div>
-                </div>
-            }
-        </div>
+        <div class="row" style="padding:20px;" id="template-cards"></div>
     </div>
     <div class="tab-pane fade show active" id="instances" role="tabpanel" aria-labelledby="instances-tab">
-        <div class="row" style="padding:20px;">
-            @for (var i = 0; i < 30; i++)
+        <div class="row" style="padding:20px;" id="instance-cards">
+            @for (var i = 0; i < 17; i++)
             {
-                <div class="card text-white bg-dark mb-3" style="max-width: 15rem; min-width: 15rem; margin:5px;">
-                    <div class="card-header">Template 1</div>
+                <div class="card bg-light mb-3" style="max-width: 15rem; min-width: 15rem; margin:5px;">
+                    <div class="card-header">29/05/2020 21:16</div>
                     <div class="card-body">
                         <h5 class="card-title">Instance @i name </h5>
                         <p class="card-text">
-                            05/02/2020 22:05
+                            Template 1
                         </p>
-                        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#create-instance-modal">
+                        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create-instance-modal">
                             Open
                         </button>
                         <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#create-instance-modal" style="float:right">
