@@ -14,6 +14,7 @@ namespace MasterRad.Repositories
         List<AnalysisTestEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo);
         AnalysisTestEntity Get(int testId);
         AnalysisTestStudentEntity GetAssignment(Guid studentId, int testId);
+        AnalysisTestStudentEntity GetAssignmentWithTaskAndTemplate(Guid studentId, int testId);
         AnalysisTestEntity GetWithTaskTemplateAndSolutionFormat(int testId);
         IEnumerable<AnalysisTestStudentEntity> GetAssigned(Guid studentId);
 
@@ -135,6 +136,17 @@ namespace MasterRad.Repositories
             => _context.AnalysisTestStudents
                        .Where(ats => ats.StudentId == studentId && ats.AnalysisTestId == testId)
                        .Include(ats => ats.AnalysisTest)
+                       .AsNoTracking()
+                       .SingleOrDefault();
+
+        public AnalysisTestStudentEntity GetAssignmentWithTaskAndTemplate(Guid studentId, int testId)
+            => _context.AnalysisTestStudents
+                       .Where(ats => ats.StudentId == studentId && ats.AnalysisTestId == testId)
+                       .Include(ats => ats.AnalysisTest)
+                       .ThenInclude(at => at.SynthesisTestStudent)
+                       .ThenInclude(sts => sts.SynthesisTest)
+                       .ThenInclude(t => t.Task)
+                       .ThenInclude(t => t.Template)
                        .AsNoTracking()
                        .SingleOrDefault();
 

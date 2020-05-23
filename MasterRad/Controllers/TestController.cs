@@ -57,7 +57,7 @@ namespace MasterRad.Controllers
         [Authorize(Roles = UserRole.Student)]
         public IActionResult AnalysisExam(int testId, byte[] timeStamp)
         {
-            var atsEntity = _analysisRepository.GetAssignment(UserId, testId);
+            var atsEntity = _analysisRepository.GetAssignmentWithTaskAndTemplate(UserId, testId);
 
             if (atsEntity == null)
                 return Unauthorized();
@@ -67,9 +67,15 @@ namespace MasterRad.Controllers
 
             var outputTablesDb = _adminConnectionConf.OutputTablesDbName;
 
+
+            var sts = atsEntity.AnalysisTest.SynthesisTestStudent;
+            var task = sts.SynthesisTest.Task;
             var vm = new AnalysisExamVM()
             {
                 Title = $"Task '{atsEntity.AnalysisTest.Name}'",
+                ModelDescription = task.Template.ModelDescription,
+                TaskDescription = task.Description,
+                SqlSolutionForEvaluation = sts.SqlScript,
                 FailingInputVM = new ModifyDatabasePartialVM()
                 {
                     NameOnServer = atsEntity.InputNameOnServer
