@@ -1,6 +1,33 @@
-﻿
+﻿@using MasterRad.Models.ViewModels
+
 @{
     ViewData["Title"] = "Exercises";
+
+    var createInstanceModel = new NamePartialVM()
+    {
+        Id = "create-instance-modal",
+        Title = "Create new instance",
+        Label = "Instance name",
+        ConfirmButtonText = "Create"
+    };
+}
+
+@section Styles {
+    <style type="text/css">
+        .tooltip-inner {
+            max-width: 750px;
+        }
+
+        .tooltip-inner {
+            background-color: #f0f1f2 !important;
+            /*!important is not necessary if you place custom.css at the end of your css calls. For the purpose of this demo, it seems to be required in SO snippet*/
+            color: #000000;
+        }
+
+        .tooltip.top .tooltip-arrow {
+            border-top-color: #f0f1f2;
+        }
+    </style>
 }
 
 <h1>Exercises</h1>
@@ -11,6 +38,64 @@
     <input type="submit" value="Submit" id="submit-btn">
 </form>
 
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link" id="templates-tab" data-toggle="tab" href="#templates" role="tab" aria-controls="templates" aria-selected="false">Templates</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" id="instances-tab" data-toggle="tab" href="#instances" role="tab" aria-controls="instances" aria-selected="true">Instances</a>
+    </li>
+</ul>
+
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show" id="templates" role="tabpanel" aria-labelledby="templates-tab">
+        <div class="row" style="padding:20px;">
+            @for (var i = 0; i < 30; i++)
+            {
+                <div class="card bg-light mb-3" style="max-width: 15rem; margin:5px;">
+                    <div class="card-header">22/11/2019</div>
+                    <div class="card-body">
+                        <h5 class="card-title">Template @i name </h5>
+                        <p class="card-text" data-toggle="tooltip" data-placement="top" title="Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.Template description template description.">
+                            Template description template description.Templ...
+                        </p>
+                        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create-instance-modal">
+                            + Create instance
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="tab-pane fade show active" id="instances" role="tabpanel" aria-labelledby="instances-tab">
+        <div class="row" style="padding:20px;">
+            @for (var i = 0; i < 30; i++)
+            {
+                <div class="card text-white bg-dark mb-3" style="max-width: 15rem; min-width: 15rem; margin:5px;">
+                    <div class="card-header">Template 1</div>
+                    <div class="card-body">
+                        <h5 class="card-title">Instance @i name </h5>
+                        <p class="card-text">
+                            05/02/2020 22:05
+                        </p>
+                        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#create-instance-modal">
+                            Open
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#create-instance-modal" style="float:right">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!--Create instance modal-->
+<partial name="../Partials/Modals/Name.cshtml" model="@createInstanceModel" />
+
 @section Scripts {
+    <script src="~/js/util.js" asp-append-version="true"></script>
+    <script src="~/js/modals/nameModal.js" asp-append-version="true"></script>
     <script src="~/js/exercises.js" asp-append-version="true"></script>
 }
