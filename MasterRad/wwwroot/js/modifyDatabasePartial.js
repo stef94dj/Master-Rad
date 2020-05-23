@@ -195,8 +195,8 @@ function drawTable(tbData, identityColumns, tbHeader, tbBody, readonly) {
             if (identityColumns.includes(tbData.columns[cellIndex].name))
                 newRow += 'disabled ';
 
-            var cellOnBlur = readonly ? '' : 'onblur="editCell(this)" ';
-            newRow += cellOnBlur + 'class="form-control form-control-sm" type="text" data-value-original="' + cell + '"value="' + cell + '"></td>';
+            var cellOnBlur = readonly ? 'disabled' : 'onblur="editCell(this)"';
+            newRow += cellOnBlur + ' class="form-control form-control-sm" type="text" data-value-original="' + cell + '"value="' + cell + '"></td>';
         });
         newRow += '</tr>';
         tbBody.append(newRow);
