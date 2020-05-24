@@ -34,9 +34,8 @@ namespace MasterRad.Repositories
 
         public TemplateEntity Get(int id)
             => _context.Templates
-                       .Where(x => x.Id == id)
                        .AsNoTracking()
-                       .Single();
+                       .Single(x => x.Id == id);
 
         public TemplateEntity GetWithTaks(int id)
             => _context.Templates

@@ -88,7 +88,7 @@ namespace MasterRad.API
                 return Result<bool>.Fail($"Generated name is not unique. Please try again.");
 
             var templateEntity = _templateRepo.Get(body.TemplateId);
-            var cloneSuccess = _microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, newDbName, true);
+            var cloneSuccess = _microsoftSQLService.CloneDatabase(templateEntity.NameOnServer, newDbName, true, true);
             if (!cloneSuccess)
                 return Result<bool>.Fail($"Failed to clone database '{templateEntity.NameOnServer}' into '{newDbName}'.");
 

@@ -200,8 +200,7 @@ namespace MasterRad.Repositories
 
         public bool TaskExists(string taskName)
             => _context.Tasks
-                       .Where(t => t.Name.ToLower().Equals(taskName.ToLower()))
-                       .Any();
+                       .Any(t => t.Name.ToLower().Equals(taskName.ToLower()));
 
         public bool DatabaseRegisteredAsTask(string dbName)
             => _context.Tasks
