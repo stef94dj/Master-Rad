@@ -12,12 +12,15 @@ namespace MasterRad.DTO.RS.Card
         public InstanceDTO(ExerciseInstanceEntity entity)
         {
             Id = entity.Id;
+            TimeStamp = entity.TimeStamp;
+
             Name = entity.Name;
             TemplateName = entity.Template.Name;
             DateCreated = entity.DateCreated.ToJsonString();
         }
 
         public int Id { get; set; }
+        public byte[] TimeStamp { get; set; }
 
         public string Name { get; set; }
         public string TemplateName { get; set; }

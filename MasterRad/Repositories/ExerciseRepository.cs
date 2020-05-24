@@ -9,9 +9,11 @@ namespace MasterRad.Repositories
 {
     public interface IExerciseRepository
     {
+        ExerciseInstanceEntity Get(int id);
         IEnumerable<ExerciseInstanceEntity> GetInstances(Guid studentId);
         bool NameExists(string name, Guid studentId);
         bool Create(int templateId, Guid studentId, string name, string nameOnServer, Guid userId);
+        bool Delete(int id, byte[] timeStamp);
     }
 
     public class ExerciseRepository : IExerciseRepository
@@ -22,6 +24,11 @@ namespace MasterRad.Repositories
         {
             _context = context;
         }
+
+        public ExerciseInstanceEntity Get(int id)
+            => _context.Exercises
+                       .AsNoTracking()
+                       .Single(x => x.Id == id);
 
         public IEnumerable<ExerciseInstanceEntity> GetInstances(Guid studentId)
             => _context.Exercises
@@ -45,6 +52,18 @@ namespace MasterRad.Repositories
             };
 
             _context.Exercises.Add(entity);
+            return _context.SaveChanges() == 1;
+        }
+
+        public bool Delete(int id, byte[] timeStamp)
+        {
+            var entity = new ExerciseInstanceEntity()
+            {
+                Id = id,
+                TimeStamp = timeStamp
+            };
+
+            _context.Exercises.Remove(entity);
             return _context.SaveChanges() == 1;
         }
     }

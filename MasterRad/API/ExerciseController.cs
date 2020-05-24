@@ -6,6 +6,7 @@ using MasterRad.Repositories;
 using MasterRad.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -97,6 +98,24 @@ namespace MasterRad.API
             if (!saveSuccess)
                 return Result<bool>.Fail("Failed to save record.");
             #endregion
+
+            return Result<bool>.Success(true);
+        }
+
+        [HttpPost, Route("delete/instance")]
+        public ActionResult<Result<bool>> DeleteInstance([FromBody] DeleteEntityRQ body)
+        {
+            var instanceEntity = _exerciseRepo.Get(body.Id);
+            if (instanceEntity.StudentId != UserId)
+                return Unauthorized();
+
+            var instanceDeleteSuccess = _msSqlService.DeleteDatabaseIfExists(instanceEntity.NameOnServer);
+            if (!instanceDeleteSuccess)
+                return Result<bool>.Fail("Failed to delete database instance.");
+
+            var recordDeleteSuccess = _exerciseRepo.Delete(body.Id, body.TimeStamp);
+            if(!recordDeleteSuccess)
+                return Result<bool>.Fail("Failed to delete database record.");
 
             return Result<bool>.Success(true);
         }

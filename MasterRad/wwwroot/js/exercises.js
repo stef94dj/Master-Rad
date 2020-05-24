@@ -1,5 +1,9 @@
-﻿var nameModal = null;
-var templateId = null;
+﻿var templateId = null;
+var instanceId = null;
+var instanceTimeStamp = null;
+
+var nameModal = null;
+var deleteModal = null;
 
 $(document).ready(function () {
     setActive("Exercises");
@@ -9,6 +13,9 @@ $(document).ready(function () {
 
     nameModal = nameModalBuilder.BuildHandler();
     nameModal.Init('#create-instance-modal', onInstanceModalShow, createInstance);
+
+    deleteModal = confirmationModalBuilder.BuildHandler();
+    deleteModal.Init("#confirm-delete-modal", onDeleteModalShow, deleteInstance);
 });
 
 
@@ -125,11 +132,11 @@ function renderInstanceCard(instance) {
     var dateLabel = toLocaleDateTimeString(instance.dateCreated);
     return `<div class="card bg-light mb-3" style="max-width: 15rem; min-width: 15rem; margin:5px;">
                     <div class="card-header">${dateLabel}</div>
-                    <div class="card-body">
+                    <div class="card-body" data-instance-id="${instance.id}" data-instance-timestamp="${instance.timeStamp}">
                         <h5 class="card-title" ${nameTooltip}>${namePreview}</h5>
                         <p class="card-text" ${templateNameTooltip}>${templateNamePreview}</p>
                         <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create-instance-modal">Open</button>
-                        <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#create-instance-modal" style="float:right">Delete</button>
+                        <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#confirm-delete-modal"style="float:right">Delete</button>
                     </div>
                 </div>`;
 }
@@ -139,7 +146,12 @@ function onInstanceModalShow(element, event) {
     var button = $(event.relatedTarget);
     templateId = button.data('template-id');
 }
-
+function onDeleteModalShow(element, event) {
+    hideModalError("#confirm-delete-modal");
+    var buttonParent = $(event.relatedTarget).parent();
+    instanceId = buttonParent.data('instance-id');
+    instanceTimeStamp = buttonParent.data('instance-timestamp');
+}
 
 //API CALLERS
 function getTemplates() {
@@ -167,6 +179,26 @@ function createInstance() {
         },
         error: function (xhr, ajaxOptions, thrownError) {
             handleModalAjaxError('#create-instance-modal', loadInstances);
+        }
+    });
+}
+function deleteInstance() {
+    var rqBody = {
+        "Id": instanceId,
+        "TimeStamp": instanceTimeStamp
+    }
+
+    $.ajax({
+        url: '/api/Exercise/delete/instance',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            handleModalAjaxSuccess('#confirm-delete-modal', data, loadInstances);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#confirm-delete-modal', loadInstances);
         }
     });
 }
