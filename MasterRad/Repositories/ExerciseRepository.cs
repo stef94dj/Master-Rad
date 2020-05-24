@@ -1,4 +1,5 @@
 ﻿using MasterRad.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace MasterRad.Repositories
 {
     public interface IExerciseRepository
     {
+        IEnumerable<ExerciseInstanceEntity> GetInstances(Guid studentId);
         bool NameExists(string name, Guid studentId);
         bool Create(int templateId, Guid studentId, string name, string nameOnServer, Guid userId);
     }
@@ -20,6 +22,11 @@ namespace MasterRad.Repositories
         {
             _context = context;
         }
+
+        public IEnumerable<ExerciseInstanceEntity> GetInstances(Guid studentId)
+            => _context.Exercises
+                       .Include(x => x.Template)
+                       .Where(x => x.StudentId == studentId);
 
         public bool NameExists(string name, Guid studentId)
             => _context.Exercises
@@ -40,6 +47,5 @@ namespace MasterRad.Repositories
             _context.Exercises.Add(entity);
             return _context.SaveChanges() == 1;
         }
-         
     }
 }

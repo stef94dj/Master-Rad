@@ -3,7 +3,7 @@ var templateId = null;
 
 $(document).ready(function () {
     setActive("Exercises");
-    
+
     loadTemplates();
     loadInstances();
 
@@ -19,12 +19,19 @@ function loadTemplates() {
             initializeTooltips();
         })
         .catch(error => {
-            alert('Error loading data...');
+            debugger;
+            alert('Error loading templates...');
         })
 }
-
 function loadInstances() {
-
+    getInstances()
+        .then(response => {
+            renderInstances(response);
+            initializeTooltips();
+        })
+        .catch(error => {
+            alert('Error loading instances...');
+        })
 }
 
 //DOM HANDLERS
@@ -32,21 +39,51 @@ function renderTemplates(data) {
     var templateCards = $('#template-cards');
     templateCards.html('');
 
-    $.each(data, function (index, template) {
-        var cardHtml = renderTemplateCard(template);
-        templateCards.append(cardHtml)
-    });
+    if (data == null || data.length == 0) {
+        templateCards.append('<p>Sorry, no templates available at this time.</p>')
+    }
+    else {
+        $.each(data, function (index, template) {
+            var cardHtml = renderTemplateCard(template);
+            templateCards.append(cardHtml)
+        });
+    }
 }
+function renderInstances(data) {
+    var instanceCards = $('#instance-cards');
+    instanceCards.html('');
 
+    if (data == null || data.length == 0) {
+        instanceCards.append('<p>No instances. Go to Templates to create some.</p>')
+    }
+    else {
+        $.each(data, function (index, instance) {
+            var cardHtml = renderInstanceCard(instance);
+            instanceCards.append(cardHtml)
+        });
+    }
+}
 function renderTemplateCard(template) {
-    debugger;
     var descriptionPreview = "";
     var descriptionTooltip = "";
 
-    if (template.description != null) {
-        descriptionPreview = textPreview(template.description, 25);
-        if (template.description.length > descriptionPreview.length) {
-            descriptionTooltip = `data-toggle="tooltip" data-placement="top" title="${template.description}"`;
+    if (template.description == null || template.description == "")
+        template.description = "-";
+
+    if (template.description == "")
+        template.description = "-";
+    descriptionPreview = textPreview(template.description, 25);
+    if (template.description.length > descriptionPreview.length) {
+        descriptionTooltip = `data-toggle="tooltip" data-placement="top" title="${template.description}"`;
+    }
+
+    namePreview = "";
+    nameTooltip = "";
+
+    if (template.name != null) {
+        namePreview = textPreview(template.name, 15);
+        if (template.name.length > namePreview.length) {
+            nameTooltip = `data-toggle="tooltip" data-placement="top" title="${template.name}"`;
         }
     }
 
@@ -55,11 +92,44 @@ function renderTemplateCard(template) {
     return `<div class="card bg-light mb-3" style="max-width: 15rem; margin:5px;">
                     <div class="card-header">${dateLabel}</div>
                     <div class="card-body">
-                        <h5 class="card-title">${template.name}</h5>
+                        <h5 class="card-title" ${nameTooltip}>${namePreview}</h5>
                         <p class="card-text" ${descriptionTooltip}>${descriptionPreview}</p>
                         <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create-instance-modal" data-template-id="${template.id}">
                             + Create instance
                         </button>
+                    </div>
+                </div>`;
+}
+function renderInstanceCard(instance) {
+
+    templateNamePreview = "";
+    templateNameTooltip = "";
+
+    if (instance.name != null) {
+        templateNamePreview = textPreview(instance.name, 20);
+        if (instance.name.length > templateNamePreview.length) {
+            templateNameTooltip = `data-toggle="tooltip" data-placement="top" title="${instance.name}"`;
+        }
+    }
+
+    namePreview = "";
+    nameTooltip = "";
+
+    if (instance.name != null) {
+        namePreview = textPreview(instance.name, 20);
+        if (instance.name.length > namePreview.length) {
+            nameTooltip = `data-toggle="tooltip" data-placement="top" title="${instance.name}"`;
+        }
+    }
+
+    var dateLabel = toLocaleDateTimeString(instance.dateCreated);
+    return `<div class="card bg-light mb-3" style="max-width: 15rem; min-width: 15rem; margin:5px;">
+                    <div class="card-header">${dateLabel}</div>
+                    <div class="card-body">
+                        <h5 class="card-title" ${nameTooltip}>${namePreview}</h5>
+                        <p class="card-text" ${templateNameTooltip}>${templateNamePreview}</p>
+                        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create-instance-modal">Open</button>
+                        <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#create-instance-modal" style="float:right">Delete</button>
                     </div>
                 </div>`;
 }
@@ -74,6 +144,10 @@ function onInstanceModalShow(element, event) {
 //API CALLERS
 function getTemplates() {
     var apiUrl = '/api/Exercise/get/templates';
+    return promisifyAjaxGet(apiUrl);
+}
+function getInstances() {
+    var apiUrl = '/api/Exercise/get/instances';
     return promisifyAjaxGet(apiUrl);
 }
 function createInstance() {

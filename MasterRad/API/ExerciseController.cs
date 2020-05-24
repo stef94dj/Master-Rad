@@ -38,20 +38,16 @@ namespace MasterRad.API
         [HttpGet, Route("get/templates")]
         public ActionResult<IEnumerable<TemplateDTO>> GetPublicTemplates()
         {
-            var entities = _templateRepo.GetPublic();
+            var res = _templateRepo.GetPublic()
+                                   .Select(entity => new TemplateDTO(entity));
+            return Ok(res);
+        }
 
-            #region Map_Result
-            var resData = entities.Select(entity =>
-            {
-                return new TemplateDTO(entity);
-            });
-            #endregion
-
-            var res = entities.Select(entity =>
-            {
-                return new TemplateDTO(entity);
-            });
-
+        [HttpGet, Route("get/instances")]
+        public ActionResult<IEnumerable<InstanceDTO>> GetExerciseInstances()
+        {
+            var res = _exerciseRepo.GetInstances(UserId)
+                                   .Select(entity => new InstanceDTO(entity));
             return Ok(res);
         }
 
