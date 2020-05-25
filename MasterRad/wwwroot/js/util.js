@@ -44,18 +44,19 @@ function bindModalOnShow(selector, handler) {
 }
 
 function drawTextCell(text, maxChars) {
+    return `<td><div class="text">${textPreview(text, maxChars)}</div></td>`;
+}
+
+function textPreview(text, maxChars) {
     if (!text)
         text = "-";
 
     if (text.length > maxChars) {
         text = text.substring(0, maxChars);
-    }
-
-    if (text.length == maxChars) {
         text = text.substring(0, text.length - 3) + '...';
     }
 
-    return `<td><div class="text">${text}</div></td>`;
+    return text;
 }
 
 function drawAuthorCell(author) {
@@ -191,7 +192,7 @@ function toLocaleDateTimeString(serverUtcDateString) {
         });
         var utcDate = Date.UTC(dateNoArray[0], dateNoArray[1], dateNoArray[2], dateNoArray[3], dateNoArray[4], dateNoArray[5], 0);
         var dateObj = new Date(utcDate);
-        return dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString();
+        return dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
     catch (err) {
         return "error"

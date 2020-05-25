@@ -19,6 +19,11 @@ namespace MasterRad.Helpers
             return $"TSK_{Guid.NewGuid()}";
         }
 
+        public static string ExerciseName()
+        {
+            return $"EX_{Guid.NewGuid()}";
+        }
+
         public static IEnumerable<KeyValuePair<Guid, string>> SynthesisTestExam(IEnumerable<Guid> studentIds, int testId)
         {
             return studentIds.Select(sid => new KeyValuePair<Guid, string>(sid, $"ST_{testId}_{sid}")); //synthesis test

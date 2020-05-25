@@ -19,6 +19,8 @@ namespace MasterRad.Entities
         [MaxLength(255)]
         public string NameOnServer { get; set; }
 
+        public bool IsPublic { get; set; }
+
         public List<TaskEntity> Tasks{ get; set; }
     }
 }

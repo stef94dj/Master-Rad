@@ -196,7 +196,7 @@ namespace MasterRad.API
 
             #region Clone_Input_Databases
             var analysisTemplateName = analysisEntity.SynthesisTestStudent.SynthesisTest.Task.Template.NameOnServer;
-            var dbCloneSuccess = _microsoftSQLService.CloneDatabases(analysisTemplateName, assignModels.Select(am => am.Database), false);
+            var dbCloneSuccess = _microsoftSQLService.CloneDatabases(analysisTemplateName, assignModels.Select(am => am.Database), false, true);
             assignModels = assignModels.Where(x => dbCloneSuccess.Contains(x.Database));
             #endregion
 

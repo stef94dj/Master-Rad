@@ -1,6 +1,40 @@
-﻿
+﻿@using MasterRad.Models.ViewModels
+
 @{
     ViewData["Title"] = "Exercises";
+
+    var createInstanceModel = new NamePartialVM()
+    {
+        Id = "create-instance-modal",
+        Title = "Create new instance",
+        Label = "Instance name",
+        ConfirmButtonText = "Create"
+    };
+
+    var confirmationModel = new ConfirmationPartialVM()
+    {
+        Id = "confirm-delete-modal",
+        Title = "Confirm delete",
+        Text = "Are you sure you want to delete this instance?"
+    };
+}
+
+@section Styles {
+    <style type="text/css">
+        .tooltip-inner {
+            max-width: 750px;
+        }
+
+        .tooltip-inner {
+            background-color: #f0f1f2 !important;
+            /*!important is not necessary if you place custom.css at the end of your css calls. For the purpose of this demo, it seems to be required in SO snippet*/
+            color: #000000;
+        }
+
+        .tooltip.top .tooltip-arrow {
+            border-top-color: #f0f1f2;
+        }
+    </style>
 }
 
 <h1>Exercises</h1>
@@ -11,6 +45,33 @@
     <input type="submit" value="Submit" id="submit-btn">
 </form>
 
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link" id="templates-tab" data-toggle="tab" href="#templates" role="tab" aria-controls="templates" aria-selected="false">Templates</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" id="instances-tab" data-toggle="tab" href="#instances" role="tab" aria-controls="instances" aria-selected="true">Instances</a>
+    </li>
+</ul>
+
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show" id="templates" role="tabpanel" aria-labelledby="templates-tab">
+        <div class="row" style="padding:20px;" id="template-cards"></div>
+    </div>
+    <div class="tab-pane fade show active" id="instances" role="tabpanel" aria-labelledby="instances-tab">
+        <div class="row" style="padding:20px;" id="instance-cards"></div>
+    </div>
+</div>
+
+<!--Create instance modal-->
+<partial name="../Partials/Modals/Name.cshtml" model="@createInstanceModel" />
+
+<!--Confirm Delete modal-->
+<partial name="../Partials/Modals/Confirmation.cshtml" model="@confirmationModel" />
+
 @section Scripts {
+    <script src="~/js/util.js" asp-append-version="true"></script>
+    <script src="~/js/modals/nameModal.js" asp-append-version="true"></script>
+    <script src="~/js/modals/confirmationModal.js" asp-append-version="true"></script>
     <script src="~/js/exercises.js" asp-append-version="true"></script>
 }

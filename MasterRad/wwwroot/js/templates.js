@@ -66,7 +66,7 @@ function getTemplates() {
     return promisifyAjaxPost(apiUrl, rqBody);
 }
 function drawTemplateTableMessage(message) {
-    $('#templates-tbody').html(drawTableMessage(message, 5));
+    $('#templates-tbody').html(drawTableMessage(message, 6));
 }
 function drawTemplateTable(tbody, templates) {
     drawTemplateTableMessage('No records.');
@@ -80,6 +80,7 @@ function drawTemplateTable(tbody, templates) {
             tableRow += drawTextCell(template.description, 20);
             tableRow += drawAuthorCell(template.createdBy);
             tableRow += drawCreatedOnCell(template.dateCreated);
+            tableRow += drawPublicCell(template);
             tableRow += drawActionsCell(template);
 
             tableRow += '</tr>'
@@ -88,6 +89,10 @@ function drawTemplateTable(tbody, templates) {
     }
 }
 
+function drawPublicCell(template) {
+    var checkedHtml = template.isPublic ? 'checked="checked"' : '';
+    return `<td><div><input type="checkbox" ${checkedHtml} style="transform:scale(1.5)" onchange="toggleIsPublic(this, ${template.id}, '${template.timeStamp}')"></div></td>`;
+}
 function drawActionsCell(template) {
     var dataAttributes = {
         "id": template.id,
@@ -218,6 +223,30 @@ function deleteTemplate() {
         },
         error: function (xhr, ajaxOptions, thrownError) {
             handleModalAjaxError('#confirm-delete-modal', loadTemplates);
+        }
+    });
+}
+function toggleIsPublic(cbx, id, timestamp) {
+    debugger;
+    var newVal = $(cbx).is(":checked");
+
+    var rqBody = {
+        "Id": id,
+        "TimeStamp": timestamp,
+        "IsPublic": newVal
+    }
+
+    $.ajax({
+        url: '/api/Template/Toggle/IsPublic',
+        dataType: 'json',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(rqBody),
+        success: function (data, textStatus, jQxhr) {
+            loadTemplates();
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            loadTemplates();
         }
     });
 }

@@ -9,15 +9,16 @@ namespace MasterRad.DTO.RS.TableRow
 {
     public class TemplateDTO
     {
-        public TemplateDTO(TemplateEntity te, AzureUserDTO userDetail)
+        public TemplateDTO(TemplateEntity entity, AzureUserDTO userDetail)
         {
-            Id = te.Id;
-            TimeStamp = te.TimeStamp;
+            Id = entity.Id;
+            TimeStamp = entity.TimeStamp;
 
-            Name = te.Name;
-            Description = te.ModelDescription;
-            NameOnServer = te.NameOnServer;
-            DateCreated = te.DateCreated.ToJsonString(); 
+            Name = entity.Name;
+            Description = entity.ModelDescription;
+            NameOnServer = entity.NameOnServer;
+            IsPublic = entity.IsPublic;
+            DateCreated = entity.DateCreated.ToJsonString(); 
             CreatedBy = userDetail;
         }
 
@@ -29,5 +30,6 @@ namespace MasterRad.DTO.RS.TableRow
         public string NameOnServer { get; set; }
         public string DateCreated { get; set; }
         public AzureUserDTO CreatedBy { get; set; }
+        public bool IsPublic { get; set; }
     }
 }

@@ -50,8 +50,8 @@ namespace MasterRad.Services
 
         #region Database
         bool CreateDatabase(string dbName, bool contained = false);
-        bool CloneDatabase(string originDbName, string destDbName, bool failIfExists);
-        IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbName, bool failIfExists);
+        bool CloneDatabase(string originDbName, string destDbName, bool failIfExists, bool clearUsersAfterClone);
+        IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbName, bool failIfExists, bool clearUsersAfterClone);
         bool DatabaseExists(string name);
         bool DeleteDatabaseIfExists(string name);
         #endregion
@@ -421,7 +421,7 @@ namespace MasterRad.Services
 
             return DatabaseExists(dbName);
         }
-        public bool CloneDatabase(string originDbName, string destDbName, bool failIfExists)
+        public bool CloneDatabase(string originDbName, string destDbName, bool failIfExists, bool clearUsersAfterClone)
         {
             if (DatabaseExists(destDbName))
                 return !failIfExists;
@@ -470,14 +470,30 @@ namespace MasterRad.Services
                 //LOG(ex) - vodi racuna o kruznim referencama kod serijalizacije (vidi kako si resio u midleware-u)
             }
 
-            return DatabaseExists(destDbName);
+            if (!DatabaseExists(destDbName))
+                return false;
+
+            if (clearUsersAfterClone)
+            {
+                var dbUsers = GetDatabaseUsers(destDbName);
+                if (dbUsers != null)
+                {
+                    var usersToRemove = dbUsers.Except(new string[] { "dbo", "guest", "INFORMATION_SCHEMA", "sys" });
+                    foreach (var userToRemove in usersToRemove)
+                    {
+                        DeleteDbUser(userToRemove, destDbName);
+                    }
+                }
+            }
+
+            return true;
         }
-        public IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbNames, bool failIfExists)
+        public IEnumerable<string> CloneDatabases(string originDbName, IEnumerable<string> destDbNames, bool failIfExists, bool clearUsersAfterClone)
         {
             var successfullyCloned = new List<string>();
 
             foreach (var destName in destDbNames)
-                if (CloneDatabase(originDbName, destName, failIfExists))
+                if (CloneDatabase(originDbName, destName, failIfExists, clearUsersAfterClone))
                     successfullyCloned.Add(destName);
 
             return successfullyCloned;
@@ -607,7 +623,7 @@ namespace MasterRad.Services
             var sqlCommand = $"GRANT INSERT ON [{schemaName}].[{tableName}] TO [{userName}];" +
                              $"GRANT SELECT ON [{schemaName}].[{tableName}] TO [{userName}];" +
                              $"GRANT UPDATE ON [{schemaName}].[{tableName}] TO [{userName}];" +
-                             $"GRANT DELETE ON [{schemaName}].[{tableName}] TO [{userName}];" + 
+                             $"GRANT DELETE ON [{schemaName}].[{tableName}] TO [{userName}];" +
                              $"GRANT VIEW DEFINITION ON SCHEMA :: [{schemaName}] TO [{userName}];";
 
             var sqlResult = ExecuteSQLAsAdmin(sqlCommand, dbName);

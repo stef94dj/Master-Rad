@@ -11,10 +11,12 @@ namespace MasterRad.Repositories
     {
         TemplateEntity Get(int id);
         List<TemplateEntity> GetPaginated(SearchPaginatedRQ searchRQ, out int pageCnt, out int pageNo);
+        IEnumerable<TemplateEntity> GetPublic();
         TemplateEntity GetWithTaks(int id);
         bool Create(string templateName, string dbName, Guid userId);
         bool UpdateDescription(UpdateDescriptionRQ request, Guid userId);
         bool UpdateName(UpdateNameRQ request, Guid userId);
+        bool UpdateIsPublic(UpdateIsPublicRQ request, Guid userId);
         bool DatabaseRegisteredAsTemplate(string name);
         bool TemplateExists(string templateName);
 
@@ -32,9 +34,8 @@ namespace MasterRad.Repositories
 
         public TemplateEntity Get(int id)
             => _context.Templates
-                       .Where(x => x.Id == id)
                        .AsNoTracking()
-                       .Single();
+                       .Single(x => x.Id == id);
 
         public TemplateEntity GetWithTaks(int id)
             => _context.Templates
@@ -107,6 +108,10 @@ namespace MasterRad.Repositories
             return qry.ToList();
         }
 
+        public IEnumerable<TemplateEntity> GetPublic()
+            => _context.Templates
+                       .Where(t => t.IsPublic)
+                       .AsNoTracking();
 
         public bool Create(string templateName, string dbName, Guid userId)
         {
@@ -154,6 +159,25 @@ namespace MasterRad.Repositories
 
             _context.Templates.Attach(templateEntity);
             _context.Entry(templateEntity).Property(x => x.Name).IsModified = true;
+            _context.Entry(templateEntity).Property(x => x.DateModified).IsModified = true;
+            _context.Entry(templateEntity).Property(x => x.ModifiedBy).IsModified = true;
+
+            return _context.SaveChanges() == 1;
+        }
+
+        public bool UpdateIsPublic(UpdateIsPublicRQ request, Guid userId)
+        {
+            var templateEntity = new TemplateEntity() //AutoMapper
+            {
+                Id = request.Id,
+                TimeStamp = request.TimeStamp,
+                IsPublic = request.IsPublic,
+                DateModified = DateTime.UtcNow,
+                ModifiedBy = userId,
+            };
+
+            _context.Templates.Attach(templateEntity);
+            _context.Entry(templateEntity).Property(x => x.IsPublic).IsModified = true;
             _context.Entry(templateEntity).Property(x => x.DateModified).IsModified = true;
             _context.Entry(templateEntity).Property(x => x.ModifiedBy).IsModified = true;
 

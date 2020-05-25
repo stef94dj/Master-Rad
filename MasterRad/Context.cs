@@ -26,6 +26,7 @@ namespace MasterRad
         public DbSet<AnalysisTestEntity> AnalysisTests { get; set; }
         public DbSet<AnalysisTestStudentEntity> AnalysisTestStudents { get; set; }
         public DbSet<AnalysisEvaluationEntity> AnalysisTestEvaluations { get; set; }
+        public DbSet<ExerciseInstanceEntity> Exercises { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,6 +42,7 @@ namespace MasterRad
             modelBuilder.Entity<AnalysisTestEntity>().ToTable("AnalysisTest");
             modelBuilder.Entity<AnalysisTestStudentEntity>().ToTable("AnalysisTestStudent");
             modelBuilder.Entity<AnalysisEvaluationEntity>().ToTable("AnalysisEvaluation");
+            modelBuilder.Entity<ExerciseInstanceEntity>().ToTable("ExerciseInstance");
 
             //seed data - DEV ONLY (comment out for production)
 
@@ -74,6 +76,14 @@ namespace MasterRad
 
             modelBuilder.Entity<AzureSqlUserMapEntity>()
               .HasIndex(s => s.SqlUsername)
+              .IsUnique();
+
+            modelBuilder.Entity<ExerciseInstanceEntity>()
+              .HasIndex(s => s.Name)
+              .IsUnique();
+
+            modelBuilder.Entity<ExerciseInstanceEntity>()
+              .HasIndex(s => s.NameOnServer)
               .IsUnique();
 
             //delete template

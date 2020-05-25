@@ -12,6 +12,7 @@ namespace MasterRad.Repositories
         AzureSqlUserMapEntity Get(Guid id);
         IEnumerable<AzureSqlUserMapEntity> Get(IEnumerable<Guid> ids);
         ConnectionParams GetSqlConnection(Guid studentId, string dbName);
+        bool IsMapped(Guid userId);
         IEnumerable<Guid> UnmappedIds(IEnumerable<Guid> userIds);
         bool CreateMapping(Guid id, string sqlUsername, string sqlPass, Guid currentUserId);
     }
@@ -27,6 +28,7 @@ namespace MasterRad.Repositories
 
         public AzureSqlUserMapEntity Get(Guid id)
             => _context.AzureSqlUserMap
+                       .AsNoTracking()
                        .Single(x => x.AzureId == id);
 
         public IEnumerable<AzureSqlUserMapEntity> Get(IEnumerable<Guid> ids)
@@ -39,9 +41,15 @@ namespace MasterRad.Repositories
             return new ConnectionParams(dbName, userMapEntity.SqlUsername, userMapEntity.SqlPassword);
         }
 
+        public bool IsMapped(Guid userId)
+            => _context.AzureSqlUserMap
+                       .AsNoTracking()
+                       .Any(x => x.AzureId == userId);
+
         public IEnumerable<Guid> UnmappedIds(IEnumerable<Guid> userIds)
         {
             var mappedIds = _context.AzureSqlUserMap
+                                    .AsNoTracking()
                                     .Where(x => userIds.Contains(x.AzureId))
                                     .Select(x => x.AzureId);
 
@@ -61,8 +69,6 @@ namespace MasterRad.Repositories
 
             _context.AzureSqlUserMap.Add(entity);
             return _context.SaveChanges() == 1;
-
-            throw new NotImplementedException();
         }
     }
 }
