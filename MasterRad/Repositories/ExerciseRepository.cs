@@ -10,11 +10,13 @@ namespace MasterRad.Repositories
     public interface IExerciseRepository
     {
         ExerciseInstanceEntity Get(int id);
+        ExerciseInstanceEntity GetAsTracking(int id);
         ExerciseInstanceEntity GetWithTemplate(int id);
         IEnumerable<ExerciseInstanceEntity> GetInstancesWithTemplates(Guid studentId);
         bool NameExists(string name, Guid studentId);
         bool Create(int templateId, Guid studentId, string name, string nameOnServer, Guid userId);
         bool Delete(int id, byte[] timeStamp);
+        bool UpdateSql(ExerciseInstanceEntity entity, byte[] requestTimeStamp, string sql);
     }
 
     public class ExerciseRepository : IExerciseRepository
@@ -29,6 +31,10 @@ namespace MasterRad.Repositories
         public ExerciseInstanceEntity Get(int id)
             => _context.Exercises
                        .AsNoTracking()
+                       .Single(x => x.Id == id);
+
+        public ExerciseInstanceEntity GetAsTracking(int id)
+            => _context.Exercises
                        .Single(x => x.Id == id);
 
         public ExerciseInstanceEntity GetWithTemplate(int id)
@@ -71,6 +77,13 @@ namespace MasterRad.Repositories
             };
 
             _context.Exercises.Remove(entity);
+            return _context.SaveChanges() == 1;
+        }
+
+        public bool UpdateSql(ExerciseInstanceEntity entity, byte[] requestTimeStamp, string sql)
+        {
+            entity.TimeStamp = requestTimeStamp;
+            entity.SqlScript = sql;
             return _context.SaveChanges() == 1;
         }
     }

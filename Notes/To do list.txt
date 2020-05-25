@@ -1,7 +1,7 @@
 - Create Analysis Test button - enable after evaluate
 - Analysis exam - show submited answer sql
 - Test Results (synthesis/analysis) - show submited data to teacher
-- Exercise?
+- Exercise: (handle bad query + save query)
 =======================================================================================================================================
 Mozda ne bi bilo lose da svuda pozivas ExecuteSQL (da izbacis ExecuteSQLAsAdmin, AsReadonlyAdmin - ovo treba svakako izbaciti) 
 i onda u BaseController razresiti SqlUserName, SqlPassword

@@ -114,10 +114,24 @@ namespace MasterRad.API
                 return Result<bool>.Fail("Failed to delete database instance.");
 
             var recordDeleteSuccess = _exerciseRepo.Delete(body.Id, body.TimeStamp);
-            if(!recordDeleteSuccess)
+            if (!recordDeleteSuccess)
                 return Result<bool>.Fail("Failed to delete database record.");
 
             return Result<bool>.Success(true);
+        }
+
+        [HttpPost, Route("save/query")]
+        public ActionResult<Result<byte[]>> SaveQuery([FromBody] UpdateInstanceQuery body)
+        {
+            var instanceEntity = _exerciseRepo.GetAsTracking(body.Id);
+            if (instanceEntity.StudentId != UserId)
+                return Unauthorized();
+
+            var updateSuccess = _exerciseRepo.UpdateSql(instanceEntity, body.TimeStamp, body.SqlQuery);
+            if (!updateSuccess)
+                return Result<byte[]>.Fail("Failed to save sql script.");
+
+            return Result<byte[]>.Success(instanceEntity.TimeStamp);
         }
     }
 }

@@ -14,7 +14,10 @@
 }
 
 <div hidden>
-    <input type="text" value="@(Model.NameOnServer)" id="db-name">
+    <input type="number" value="@Model.InstanceId" id="instance-id" />
+    <input type="text" value="@Model.InstanceTimeStamp" id="instance-timeStamp" />
+
+    <input type="text" value="@Model.NameOnServer" id="db-name">
     <input class="uid uid-db" value="@modifyDbPartialModel" data-name-on-server="@Model.NameOnServer" data-readonly="false" type="text">
 </div>
 
@@ -41,7 +44,8 @@
     <div class="tab-pane fade show active" id="execsql" role="tabpanel" aria-labelledby="execsql-input-tab">
         <br />
         <h5>Write and run SQL queries</h5>
-        <partial name="../Partials/SqlEditor.cshtml" model="@(string.Empty)" />
+        <partial name="../Partials/SqlEditor.cshtml" model="@(Model.SqlScript)" />
+        <button type="button" class="btn btn-primary" onclick="saveSql()">Save</button>
 
         <br /><br />
         <div class="table-responsive">

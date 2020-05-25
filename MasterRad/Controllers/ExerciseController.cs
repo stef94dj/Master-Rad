@@ -2,6 +2,7 @@
 using MasterRad.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace MasterRad.Controllers
 {
@@ -23,9 +24,12 @@ namespace MasterRad.Controllers
 
             var vm = new ExerciseInstanceVM()
             {
+                InstanceId = entity.Id,
+                InstanceTimeStamp = Convert.ToBase64String(entity.TimeStamp),
                 Name = entity.Name,
                 DatabaseDescription = entity.Template.ModelDescription,
-                NameOnServer = entity.NameOnServer
+                NameOnServer = entity.NameOnServer,
+                SqlScript = entity.SqlScript
             };
 
             return View(vm);

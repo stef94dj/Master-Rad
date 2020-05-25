@@ -16,5 +16,7 @@ namespace MasterRad.Entities
 
         [Required, MaxLength(255)]
         public string NameOnServer { get; set; }
+
+        public string SqlScript { get; set; }
     }
 }
