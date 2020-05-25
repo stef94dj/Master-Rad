@@ -47,7 +47,7 @@ namespace MasterRad.API
         [HttpGet, Route("get/instances")]
         public ActionResult<IEnumerable<InstanceDTO>> GetExerciseInstances()
         {
-            var res = _exerciseRepo.GetInstances(UserId)
+            var res = _exerciseRepo.GetInstancesWithTemplates(UserId)
                                    .Select(entity => new InstanceDTO(entity));
             return Ok(res);
         }

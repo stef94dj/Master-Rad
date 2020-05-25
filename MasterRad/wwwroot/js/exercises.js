@@ -135,7 +135,7 @@ function renderInstanceCard(instance) {
                     <div class="card-body" data-instance-id="${instance.id}" data-instance-timestamp="${instance.timeStamp}">
                         <h5 class="card-title" ${nameTooltip}>${namePreview}</h5>
                         <p class="card-text" ${templateNameTooltip}>${templateNamePreview}</p>
-                        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create-instance-modal">Open</button>
+                        <a class="btn btn-outline-primary" href="/Exercise/Instance?exerciseId=${instance.id}" role="button">Open</a>
                         <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#confirm-delete-modal"style="float:right">Delete</button>
                     </div>
                 </div>`;

@@ -1,0 +1,75 @@
+﻿@model MasterRad.Models.ViewModels.ExerciseInstanceVM
+
+@{
+    ViewData["Title"] = $"Instance-{Model.Name}";
+    var databaseDescription = string.IsNullOrEmpty(Model?.DatabaseDescription) ? "N/A" : Model.DatabaseDescription;
+    var modifyDbPartialModel = "modify-database";
+}
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/CodeMirror/codemirror-custom.css">
+    <link rel="stylesheet" href="~/css/CodeMirror/codemirror.css">
+    <link rel="stylesheet" href="~/css/CodeMirror/show-hint.css" />
+}
+
+<div hidden>
+    <input type="text" value="@(Model.NameOnServer)" id="db-name">
+    <input class="uid uid-db" value="@modifyDbPartialModel" data-name-on-server="@Model.NameOnServer" data-readonly="false" type="text">
+</div>
+
+<h1>Instance '@Model.Name'</h1>
+<br />
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link" id="databaseinfo-tab" data-toggle="tab" href="#databaseinfo" role="tab" aria-controls="databaseinfo" aria-selected="false">Database info</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" id="execsql-tab" data-toggle="tab" href="#execsql" role="tab" aria-controls="execsql" aria-selected="true">Execute SQL</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="datamodify-tab" data-toggle="tab" href="#datamodify" role="tab" aria-controls="datamodify" aria-selected="false">Modify data</a>
+    </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show" id="databaseinfo" role="tabpanel" aria-labelledby="databaseinfo-tab">
+        <br />
+        <h5>Model description</h5>
+        <p>@databaseDescription</p><hr>
+    </div>
+    <div class="tab-pane fade show active" id="execsql" role="tabpanel" aria-labelledby="execsql-input-tab">
+        <br />
+        <h5>Write and run SQL queries</h5>
+        <partial name="../Partials/SqlEditor.cshtml" model="@(string.Empty)" />
+
+        <br /><br />
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <thead class="thead-dark" id="table-header" />
+                <tbody id="table-body" />
+            </table>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="datamodify" role="tabpanel" aria-labelledby="datamodify-tab">
+        <br />
+        <h5>Use the UI to modify data without writing SQL</h5>
+        <partial name="../Partials/ModifyDatabasePartial.cshtml" model="modifyDbPartialModel" />
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/util.js" asp-append-version="true"></script>
+
+    <script src="~/js/tablesDropdown.js" asp-append-version="true"></script>
+    <script src="~/js/modifyDatabasePartial.js" asp-append-version="true"></script>
+
+    <script src="~/js/sqlEditor.js" asp-append-version="true"></script>
+    <script src="~/js/CodeMirror/codemirror.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/sql.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/show-hint.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/sql-hint.js" asp-append-version="false"></script>
+    <script src="~/js/CodeMirror/placeholder.js" asp-append-version="false"></script>
+
+    <script src="~/js/instance.js" asp-append-version="true"></script>
+}

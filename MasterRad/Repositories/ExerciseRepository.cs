@@ -10,7 +10,8 @@ namespace MasterRad.Repositories
     public interface IExerciseRepository
     {
         ExerciseInstanceEntity Get(int id);
-        IEnumerable<ExerciseInstanceEntity> GetInstances(Guid studentId);
+        ExerciseInstanceEntity GetWithTemplate(int id);
+        IEnumerable<ExerciseInstanceEntity> GetInstancesWithTemplates(Guid studentId);
         bool NameExists(string name, Guid studentId);
         bool Create(int templateId, Guid studentId, string name, string nameOnServer, Guid userId);
         bool Delete(int id, byte[] timeStamp);
@@ -30,7 +31,13 @@ namespace MasterRad.Repositories
                        .AsNoTracking()
                        .Single(x => x.Id == id);
 
-        public IEnumerable<ExerciseInstanceEntity> GetInstances(Guid studentId)
+        public ExerciseInstanceEntity GetWithTemplate(int id)
+            => _context.Exercises
+                       .AsNoTracking()
+                       .Include(x => x.Template)
+                       .Single(x => x.Id == id);
+
+        public IEnumerable<ExerciseInstanceEntity> GetInstancesWithTemplates(Guid studentId)
             => _context.Exercises
                        .Include(x => x.Template)
                        .Where(x => x.StudentId == studentId);
@@ -45,7 +52,7 @@ namespace MasterRad.Repositories
             {
                 TemplateId = templateId,
                 StudentId = studentId,
-                Name = name, 
+                Name = name,
                 NameOnServer = nameOnServer,
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = userId,
