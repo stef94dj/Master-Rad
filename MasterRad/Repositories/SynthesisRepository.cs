@@ -12,7 +12,7 @@ namespace MasterRad.Repositories
     {
         SynthesisTestEntity Get(int testId);
         SynthesisTestEntity GetWithTaskAndTemplate(int testId);
-        
+
         IEnumerable<SynthesisTestEntity> GetPaginated(SearchPaginatedRQ request, out int pageCnt, out int pageNo);
         SynthesisTestStudentEntity GetAssignment(Guid studentId, int testId);
         SynthesisTestStudentEntity GetAssignmentWithTaskAndTemplate(Guid studentId, int testId);
@@ -72,6 +72,11 @@ namespace MasterRad.Repositories
                     case "template_name":
                         qry = qry.Where(x => x.Task.Template.Name.ToLower().Contains(filterValue));
                         break;
+                    case "test_status":
+                        var statusId = int.Parse(filter.Value);
+                        if (statusId > 0)
+                            qry = qry.Where(x => x.Status == (TestStatus)statusId);
+                        break;
                 }
             }
             #endregion
@@ -116,6 +121,11 @@ namespace MasterRad.Repositories
                         qry = request.SortDescending ?
                                 qry.OrderByDescending(x => x.DateCreated) :
                                 qry.OrderBy(x => x.DateCreated);
+                        break;
+                    case "test_status":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.Status) :
+                                qry.OrderBy(x => x.Status);
                         break;
                 }
             }

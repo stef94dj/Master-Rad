@@ -59,9 +59,11 @@
             <th style="width: 14%">
                 <input type="text" class="form-control filter-text-input" placeholder="Template name" id="search-first-name" maxlength="50" data-table-key="template_name">
             </th>
-            <th style="width: 15%"></th>
-            <th style="width: 8%"></th>
-            <th style="width: 6%"></th>
+            <th style="width: 14%"></th>
+            <th style="width: 7%"></th>
+            <th style="width: 8%">
+                <partial name="../Partials/StatusFilterPartial.cshtml" />
+            </th>
             <th style="width: 6%">
                 <input type="number" id="page-size" class="form-control" min="5" max="25" step="5" value="5" style="width:65px; display:inline" data-toggle="tooltip" data-placement="top" title="Items per page">
             </th>
@@ -85,12 +87,15 @@
                 <span>Template</span>
                 <i class="fa fa-fw fa-sort sort-icon" data-table-key="template_name"></i>
             </th>
-            <th style="width: 15%">Author</th>
-            <th style="width: 8%">
+            <th style="width: 14%">Author</th>
+            <th style="width: 7%">
                 <span>Created on</span>
                 <i class="fa fa-fw fa-sort-down sort-icon" data-table-key="date_created"></i>
             </th>
-            <th style="width: 6%">State</th>
+            <th style="width: 8%">
+                <span>State</span>
+                <i class="fa fa-fw fa-sort sort-icon" data-table-key="test_status"></i>
+            </th>
             <th style="width: 6%"></th>
         </tr>
     </thead>

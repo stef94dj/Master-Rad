@@ -66,6 +66,11 @@ namespace MasterRad.Repositories
                     case "template_name":
                         qry = qry.Where(x => x.SynthesisTestStudent.SynthesisTest.Task.Template.Name.ToLower().Contains(filterValue));
                         break;
+                    case "test_status":
+                        var statusId = int.Parse(filter.Value);
+                        if (statusId > 0)
+                            qry = qry.Where(x => x.Status == (TestStatus)statusId);
+                        break;
                 }
             }
             #endregion
@@ -110,6 +115,11 @@ namespace MasterRad.Repositories
                         qry = request.SortDescending ?
                                 qry.OrderByDescending(x => x.DateCreated) :
                                 qry.OrderBy(x => x.DateCreated);
+                        break;
+                    case "test_status":
+                        qry = request.SortDescending ?
+                                qry.OrderByDescending(x => x.Status) :
+                                qry.OrderBy(x => x.Status);
                         break;
                 }
             }

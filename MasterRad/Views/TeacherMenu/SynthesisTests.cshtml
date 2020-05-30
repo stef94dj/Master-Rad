@@ -21,7 +21,7 @@
         Label = "Name",
         ConfirmButtonText = "Update"
     };
-    
+
     var statusModel = new ConfirmationPartialVM()
     {
         Id = "status-modal",
@@ -60,7 +60,9 @@
             </th>
             <th style="width: 15%"></th>
             <th style="width: 10%"></th>
-            <th style="width: 10%"></th>
+            <th style="width: 10%">
+                <partial name="../Partials/StatusFilterPartial.cshtml"/>
+            </th>
             <th style="width: 10%">
                 <input type="number" id="page-size" class="form-control" min="5" max="25" step="5" value="5" style="width:65px; display:inline" data-toggle="tooltip" data-placement="top" title="Items per page">
             </th>
@@ -88,7 +90,10 @@
                 <span>Created on</span>
                 <i class="fa fa-fw fa-sort-down sort-icon" data-table-key="date_created"></i>
             </th>
-            <th style="width: 10%">State</th>
+            <th style="width: 10%">
+                <span>State</span>
+                <i class="fa fa-fw fa-sort sort-icon" data-table-key="test_status"></i>
+            </th>
             <th style="width: 10%"></th>
         </tr>
     </thead>

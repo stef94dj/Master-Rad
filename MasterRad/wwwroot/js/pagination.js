@@ -18,6 +18,7 @@
         this.initPageSize();
         this.initSort();
         this.initTextFilters();
+        this.initDropdownsFilters();
     },
     initPageSize: function () {
         $('#page-size').change(function () {
@@ -38,6 +39,14 @@
             $(item).keyup(throttle(function () {
                 pagination.textInputHandler(this);
             }, 750));
+        })
+    },
+    initDropdownsFilters: function () {
+        var dropdowns = this.getFilterDropdowns();
+        $.each(dropdowns, function (index, item) {
+            $(item).change(function () {
+                pagination.triggerSearch();
+            });
         })
     },
     sortClickHandler: function (clickedThCell) {
@@ -195,6 +204,9 @@
     getFilterTextInputs: function () {
         return filterTh.find('input.filter-text-input');
     },
+    getFilterDropdowns: function () {
+        return filterTh.find('.filter-dropdown');
+    },
     getActivePage: function () {
         var res = 1;
         var pageItems = this.getPageItems();
@@ -220,6 +232,26 @@
                 return filter
             }
         });
+
+        var filterDropdowns = pagination.getFilterDropdowns();
+        var mappedDropdowns = $.map(filterDropdowns, function (item, index) {
+            var val = $(item).val();
+            var key = $(item).data('table-key');
+            if (val) {
+                var filter = {
+                    "Key": key,
+                    "Value": val
+                };
+                return filter
+            }
+        });
+
+        if (mappedDropdowns && mappedDropdowns.length > 0) {
+            if (filters)
+                filters = filters.concat(mappedDropdowns);
+            else
+                filters = mappedDropdowns;
+        }
 
         var sortDesc = true;
         var sortKey = "date_created";
