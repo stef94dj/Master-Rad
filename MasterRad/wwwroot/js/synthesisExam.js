@@ -17,6 +17,7 @@ $(document).ready(function () {
 
     buildSqlEditor(nameOnServer); //sets value for "editor"
     loadSolutionFormat();
+    initialiseModifyDatabasePartial();
 });
 
 function loadSolutionFormat() {

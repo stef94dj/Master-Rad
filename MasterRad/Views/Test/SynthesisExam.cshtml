@@ -1,6 +1,8 @@
 ﻿@model MasterRad.Models.ViewModels.SynthesisExamVM
 @{
     ViewData["Title"] = "Exam";
+
+    var viewDataPartialMode = "view-data";
 }
 
 <h1>Synthesis exam</h1>
@@ -10,10 +12,16 @@
     <input type="text" value="@(Model.TimeStamp)" id="synthesis-test-student-timestamp">
     <input type="text" value="@(Model.NameOnServer)" id="name-on-server">
 </div>
+<div>
+    <input hidden class="uid uid-db" value="@viewDataPartialMode" data-name-on-server="@(Model.NameOnServer)" data-readonly="true" type="text">
+</div>
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item">
         <a class="nav-link" id="taskinfo-tab" data-toggle="tab" href="#taskinfo" role="tab" aria-controls="taskinfo" aria-selected="false">Task info</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="viewdata-tab" data-toggle="tab" href="#viewdata" role="tab" aria-controls="viewdata" aria-selected="false">View data</a>
     </li>
     <li class="nav-item">
         <a class="nav-link active" id="sqlsolution-tab" data-toggle="tab" href="#sqlsolution" role="tab" aria-controls="sqlsolution" aria-selected="true">SQL solution</a>
@@ -28,12 +36,17 @@
         <h5>Task</h5>
         <p>@Model.TaskDescription</p><hr>
     </div>
+    <div class="tab-pane fade show" id="viewdata" role="tabpanel" aria-labelledby="viewdata-tab">
+        <br />
+        <h5>View data</h5>
+        <partial name="../Partials/ModifyDatabasePartial.cshtml" model="viewDataPartialMode" />
+    </div>
     <div class="tab-pane fade show active" id="sqlsolution" role="tabpanel" aria-labelledby="sql-solution-tab">
         <br /><br />
         <partial name="../Partials/SqlEditor.cshtml" model="(Model.SqlScript)" />
         @if (!Model.ReadOnly)
         {
-            <button disabled id="save-sln-btn" type="button" class="btn btn-primary" onclick="submitAnswer()">Submit answer</button>
+            <button disabled id="save-sln-btn" type="button" class="btn btn-primary" onclick="submitAnswer()">Submit</button>
         }
 
         <br /><br />
@@ -55,8 +68,10 @@
 }
 
 @section Scripts {
-    <script src="~/js/synthesisExam.js" asp-append-version="true"></script>
     <script src="~/js/util.js" asp-append-version="true"></script>
+    <script src="~/js/tablesDropdown.js" asp-append-version="true"></script>
+    <script src="~/js/modifyDatabasePartial.js" asp-append-version="true"></script>
+    <script src="~/js/synthesisExam.js" asp-append-version="true"></script>
 
     <script src="~/js/sqlEditor.js" asp-append-version="true"></script>
     <script src="~/js/CodeMirror/codemirror.js" asp-append-version="false"></script>
