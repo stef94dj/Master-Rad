@@ -62,8 +62,26 @@ namespace MasterRad.API
         }
 
         [HttpPost, Route("create/test")]
-        public ActionResult<bool> CreateTest([FromBody] AnalysisCreateRQ body)
-           => _analysisRepo.Create(body, UserId);
+        public ActionResult<Result<bool>> CreateTest([FromBody] AnalysisCreateRQ body)
+        {
+            if (string.IsNullOrEmpty(body.Name))
+                return Result<bool>.Fail("Name cannot be empty.");
+
+            if (body.SynthesisTestId <= 0 || body.StudentId == Guid.Empty)
+                return Result<bool>.Fail("A synthesis test must be selected.");
+
+            var testExists = _analysisRepo.TestExists(body.Name);
+            if (testExists)
+                return Result<bool>.Fail($"Test '{body.Name}' already exists.");
+
+            var success = _analysisRepo.Create(body, UserId);
+            if (success)
+                return Result<bool>.Success(true);
+            else
+                return Result<bool>.Fail("Failed to save changes.");
+
+            throw new NotImplementedException();
+        }
 
         [HttpPost, Route("update/name")]
         public ActionResult<Result<bool>> UpdateTestName([FromBody] UpdateNameRQ body)

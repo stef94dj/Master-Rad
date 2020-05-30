@@ -33,6 +33,8 @@ $(document).ready(function () {
 
     deleteModal = confirmationModalBuilder.BuildHandler();
     deleteModal.Init("#confirm-delete-modal", onDeleteModalShow, deleteAnalysis);
+
+    initializeTooltips();
 });
 
 //LOAD TESTS

@@ -178,6 +178,9 @@ function createTask() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
+            if (data != null && data.isSuccess)
+                window.location.replace('/TeacherMenu/Tasks');
+
             handleModalAjaxSuccess('#create-task-modal', data, null);
         },
         error: function (xhr, ajaxOptions, thrownError) {

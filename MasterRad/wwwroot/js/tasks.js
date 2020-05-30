@@ -30,6 +30,8 @@ $(document).ready(function () {
 
     deleteModal = confirmationModalBuilder.BuildHandler();
     deleteModal.Init("#confirm-delete-modal", onDeleteModalShow, deleteTask);
+
+    initializeTooltips();
 });
 
 //LOAD TASKS
@@ -168,6 +170,9 @@ function createTest() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
+            if (data != null && data.isSuccess)
+                window.location.replace('/TeacherMenu/SynthesisTests');
+
             handleModalAjaxSuccess('#create-synthesis-modal', data, loadTasks);
         },
         error: function (xhr, ajaxOptions, thrownError) {

@@ -2,13 +2,13 @@
 var tbody = null;
 var dataToEvaluate = null;
 var testType = null;
+var createAnalysisTestModal = null;
+var studentId = null;
 
 $(document).ready(function () {
     testId = $('#test-id').val();
     tbody = $('#evaluation-results-tbody');
     testType = parseInt($('#test-type').val());
-
-    bindModalOnShow('#create-analysis-test-modal', onCreateAnalysisModalShow);
 
     tbody.html(drawEvaluationResultsTableMessage('Loading data...'));
 
@@ -36,6 +36,11 @@ $(document).ready(function () {
             if (dataToEvaluate != null)
                 enableButton($('#start-evaluation-btn'));
         });
+
+    if (testType == TestType.Synthesis) {
+        createAnalysisTestModal = nameModalBuilder.BuildHandler();
+        createAnalysisTestModal.Init('#create-analysis-test-modal', onCreateAnalysisModalShow, createAnalysisTest);
+    }
 });
 
 function getApiUrlToGetPapers(testId) {
@@ -265,8 +270,8 @@ function createAnalysisTest() {
     var modalBody = $('#create-analysis-test-modal').find('.modal-body');
 
     var rqBody = {
-        "Name": modalBody.find('#analysis-test-name').val(),
-        "StudentId": modalBody.find('#student-id').val(),
+        "Name": createAnalysisTestModal.GetInputVal(),
+        "StudentId": studentId,
         "SynthesisTestId": testId,
     }
 
@@ -277,8 +282,13 @@ function createAnalysisTest() {
         contentType: 'application/json',
         data: JSON.stringify(rqBody),
         success: function (data, textStatus, jQxhr) {
-            $('#create-analysis-test-modal').modal('toggle');
-            window.location.replace('/TeacherMenu/AnalysisTests');
+            if (data != null && data.isSuccess)
+                window.location.replace('/TeacherMenu/AnalysisTests');
+
+            handleModalAjaxSuccess('#create-analysis-test-modal', data, null);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            handleModalAjaxError('#create-analysis-test-modal', null);
         }
     });
 }
@@ -333,13 +343,7 @@ function setCellStatusAnalysis(data) {
 
 function onCreateAnalysisModalShow(element, event) {
     var button = $(event.relatedTarget)
-
-    var id = button.data('student-id');
-
-    var modal = $(element)
-
-    modal.find('#analysis-test-name').val("");
-    modal.find('#student-id').val(id);
+    studentId = button.data('student-id');
 }
 
 //NAVIGATION
