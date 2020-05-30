@@ -96,14 +96,16 @@ function renderTemplateCard(template) {
 
     var dateLabel = toLocaleDateTimeString(template.dateCreated);
 
-    return `<div class="card bg-light mb-3" style="max-width: 15rem; margin:5px;">
-                    <div class="card-header">${dateLabel}</div>
+    return `<div class="card bg-light mb-3" style="min-width: 15rem; max-width: 15rem; margin:5px;">
+                    <div class="card-header" style="text-align:center;">${dateLabel}</div>
                     <div class="card-body">
-                        <h5 class="card-title" ${nameTooltip}>${namePreview}</h5>
-                        <p class="card-text" ${descriptionTooltip}>${descriptionPreview}</p>
-                        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create-instance-modal" data-template-id="${template.id}">
-                            + Create instance
-                        </button>
+                        <h5 class="card-title" ${nameTooltip} style="text-align:center;">${namePreview}</h5>
+                        <p style="text-align:center;" class="card-text" ${descriptionTooltip}>${descriptionPreview}</p>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#create-instance-modal" data-template-id="${template.id}">
+                                + Create instance
+                            </button>
+                        </div>
                     </div>
                 </div>`;
 }
@@ -131,10 +133,10 @@ function renderInstanceCard(instance) {
 
     var dateLabel = toLocaleDateTimeString(instance.dateCreated);
     return `<div class="card bg-light mb-3" style="max-width: 15rem; min-width: 15rem; margin:5px;">
-                    <div class="card-header">${dateLabel}</div>
+                    <div class="card-header" style="text-align:center;">${dateLabel}</div>
                     <div class="card-body" data-instance-id="${instance.id}" data-instance-timestamp="${instance.timeStamp}">
-                        <h5 class="card-title" ${nameTooltip}>${namePreview}</h5>
-                        <p class="card-text" ${templateNameTooltip}>${templateNamePreview}</p>
+                        <h5 style="text-align:center;" class="card-title" ${nameTooltip}>${namePreview}</h5>
+                        <p style="text-align:center;" class="card-text" ${templateNameTooltip}>${templateNamePreview}</p>
                         <a class="btn btn-outline-primary" href="/Exercise/Instance?exerciseId=${instance.id}" role="button">Open</a>
                         <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#confirm-delete-modal"style="float:right">Delete</button>
                     </div>

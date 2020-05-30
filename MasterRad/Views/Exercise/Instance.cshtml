@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="~/css/CodeMirror/codemirror-custom.css">
     <link rel="stylesheet" href="~/css/CodeMirror/codemirror.css">
     <link rel="stylesheet" href="~/css/CodeMirror/show-hint.css" />
+    <link rel="stylesheet" href="~/css/tabs.css" />
 }
 
 <div hidden>
@@ -35,11 +36,11 @@
         <a class="nav-link" id="datamodify-tab" data-toggle="tab" href="#datamodify" role="tab" aria-controls="datamodify" aria-selected="false">Modify data</a>
     </li>
 </ul>
-<div class="tab-content" id="myTabContent">
+<div class="tab-content additional-padding" id="myTabContent">
     <div class="tab-pane fade show" id="databaseinfo" role="tabpanel" aria-labelledby="databaseinfo-tab">
         <br />
         <h5>Model description</h5>
-        <p>@databaseDescription</p><hr>
+        <p>@databaseDescription</p>
     </div>
     <div class="tab-pane fade show active" id="execsql" role="tabpanel" aria-labelledby="execsql-input-tab">
         <br />

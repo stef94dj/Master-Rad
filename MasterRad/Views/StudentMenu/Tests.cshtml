@@ -3,10 +3,36 @@
     ViewData["Title"] = "Tests";
 }
 
-<h1>Tests</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/datatable.css" />
+    <link rel="stylesheet" href="~/css/tabs.css" />
+}
 
-<div id="tests-list">
-   
+<h1>Tests</h1>
+<br />
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link" id="scheduled-tab" data-toggle="tab" href="#scheduled" role="tab" aria-controls="scheduled" aria-selected="false">Scheduled</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" id="inprogress-tab" data-toggle="tab" href="#inprogress" role="tab" aria-controls="inprogress" aria-selected="true">In progress</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="completed-tab" data-toggle="tab" href="#completed" role="tab" aria-controls="completed" aria-selected="false">Completed</a>
+    </li>
+</ul>
+
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show" id="scheduled" role="tabpanel" aria-labelledby="scheduled-tab">
+        <div class="row" style="padding:20px;" id="scheduled-tests-list"></div>
+    </div>
+    <div class="tab-pane fade show active" id="inprogress" role="tabpanel" aria-labelledby="inprogress-tab">
+        <div class="row" style="padding:20px;" id="inprogress-tests-list"></div>
+    </div>
+    <div class="tab-pane fade show" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+        <div class="row" style="padding:20px;" id="completed-tests-list"></div>
+    </div>
 </div>
 
 <!-- Form -->
