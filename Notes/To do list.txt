@@ -1,8 +1,6 @@
-- tests redesign
 - filter tests by status
 - results fail show row diff
 - scheduled test (date and time)
-- overall design: cards min-max width
 =========================================================================================================
 - Create Analysis Test button - enable after evaluate
 - Analysis exam - show submited answer sql

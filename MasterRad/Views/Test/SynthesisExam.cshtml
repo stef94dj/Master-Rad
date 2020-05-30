@@ -1,11 +1,12 @@
 ﻿@model MasterRad.Models.ViewModels.SynthesisExamVM
 @{
-    ViewData["Title"] = "Exam";
+    ViewData["Title"] = "Synthesis Exam";
 
     var viewDataPartialMode = "view-data";
 }
 
-<h1>Synthesis exam</h1>
+<h1>@Model.Title</h1>
+<br />
 <div hidden>
     <input type="text" value="@(Model.TestId)" id="test-id">
     <input type="text" value="@(Model.StudentId)" id="student-id">
@@ -28,13 +29,13 @@
     </li>
 </ul>
 
-<div class="tab-content" id="myTabContent">
+<div class="tab-content additional-padding" id="myTabContent">
     <div class="tab-pane fade show" id="taskinfo" role="tabpanel" aria-labelledby="task-info-tab">
         <br />
         <h5>Database model</h5>
         <p>@Model.ModelDescription</p><hr>
         <h5>Task</h5>
-        <p>@Model.TaskDescription</p><hr>
+        <p>@Model.TaskDescription</p>
     </div>
     <div class="tab-pane fade show" id="viewdata" role="tabpanel" aria-labelledby="viewdata-tab">
         <br />
@@ -65,6 +66,7 @@
     <link rel="stylesheet" href="~/css/CodeMirror/codemirror-custom.css">
     <link rel="stylesheet" href="~/css/CodeMirror/codemirror.css">
     <link rel="stylesheet" href="~/css/CodeMirror/show-hint.css" />
+    <link rel="stylesheet" href="~/css/tabs.css" />
 }
 
 @section Scripts {

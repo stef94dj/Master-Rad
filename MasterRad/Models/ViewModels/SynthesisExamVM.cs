@@ -17,5 +17,7 @@ namespace MasterRad.Models.ViewModels
         public string TaskDescription { get; set; }
 
         public bool ReadOnly { get; set; }
+
+        public string Title { get; set; }
     }
 }

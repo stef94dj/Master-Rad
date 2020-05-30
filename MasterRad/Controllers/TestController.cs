@@ -43,6 +43,7 @@ namespace MasterRad.Controllers
             var taskEntity = stsEntity.SynthesisTest.Task;
             var vm = new SynthesisExamVM()
             {
+                Title = stsEntity.SynthesisTest.Name,
                 TestId = stsEntity.SynthesisTestId,
                 StudentId = stsEntity.StudentId,
                 TimeStamp = Convert.ToBase64String(timeStamp),
@@ -65,6 +66,7 @@ namespace MasterRad.Controllers
             var taskEntity = stsEntity.SynthesisTest.Task;
             var vm = new SynthesisExamVM()
             {
+                Title = stsEntity.SynthesisTest.Name,
                 TestId = stsEntity.SynthesisTestId,
                 StudentId = stsEntity.StudentId,
                 NameOnServer = taskEntity.Template.NameOnServer,
@@ -95,7 +97,7 @@ namespace MasterRad.Controllers
             var task = sts.SynthesisTest.Task;
             var vm = new AnalysisExamVM()
             {
-                Title = $"Task '{atsEntity.AnalysisTest.Name}'",
+                Title = $"{atsEntity.AnalysisTest.Name}",
                 ModelDescription = task.Template.ModelDescription,
                 TaskDescription = task.Description,
                 SqlSolutionForEvaluation = sts.SqlScript,

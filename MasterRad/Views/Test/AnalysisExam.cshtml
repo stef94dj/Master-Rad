@@ -1,6 +1,6 @@
 ﻿@model MasterRad.Models.ViewModels.AnalysisExamVM
 @{
-    ViewData["Title"] = "Modify Data";
+    ViewData["Title"] = "Analysis Exam";
     var failingInputPartialModel = "failing-input";
     var studentOutputPartialModel = "student-output";
     var correctOutputPartialModel = "correct-output";
@@ -9,13 +9,12 @@
 }
 
 <h1>@(Model.Title)</h1>
+<br/>
 <div>
     <input hidden class="uid uid-db" value="@failingInputPartialModel" data-name-on-server="@Model.FailingInputVM.NameOnServer" data-readonly="@readOnly" type="text">
     <input hidden class="uid uid-tb" value="@studentOutputPartialModel" data-name-on-server="@Model.StudentOutputVM.NameOnServer" data-table-name="@Model.StudentOutputVM.TableName" data-readonly="@readOnly" type="text">
     <input hidden class="uid uid-tb" value="@correctOutputPartialModel" data-name-on-server="@Model.CorrectOutputVM.NameOnServer" data-table-name="@Model.CorrectOutputVM.TableName" data-readonly="@readOnly" type="text">
 </div>
-<br />
-<br />
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item">
@@ -31,7 +30,7 @@
         <a class="nav-link" id="correctoutput-tab" data-toggle="tab" href="#correctoutput" role="tab" aria-controls="correctoutput" aria-selected="false">Correct Output</a>
     </li>
 </ul>
-<div class="tab-content" id="myTabContent">
+<div class="tab-content additional-padding" id="myTabContent">
     <div class="tab-pane fade show" id="taskinfo" role="tabpanel" aria-labelledby="task-info-tab">
         <br />
         <h5>Database model</h5>
@@ -39,7 +38,7 @@
         <h5>Synthesis task</h5>
         <p>@Model.TaskDescription</p><hr>
         <h5>Solution to evaluate</h5>
-        <p>@Model.SqlSolutionForEvaluation</p><hr>
+        <p>@Model.SqlSolutionForEvaluation</p>
     </div>
     <div class="tab-pane fade show active" id="failinginput" role="tabpanel" aria-labelledby="failing-input-tab">
         <br />
@@ -59,6 +58,10 @@
         <partial name="../Partials/ModifyTablePartial.cshtml" model="correctOutputPartialModel" />
     </div>
 </div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/tabs.css" />
+}
 
 @section Scripts {
     <script src="~/js/modifyDatabasePartial.js" asp-append-version="true"></script>
