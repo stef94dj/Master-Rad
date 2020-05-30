@@ -1,4 +1,3 @@
-- filter tests by status
 - results fail show row diff
 - scheduled test (date and time)
 =========================================================================================================
