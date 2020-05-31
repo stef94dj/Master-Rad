@@ -40,7 +40,9 @@ $(document).ready(function () {
     if (testType == TestType.Synthesis) {
         createAnalysisTestModal = nameModalBuilder.BuildHandler();
         createAnalysisTestModal.Init('#create-analysis-test-modal', onCreateAnalysisModalShow, createAnalysisTest);
-    }
+    };
+
+    bindModalOnShow('#diff-modal', diffModalOnShow);
 });
 
 function getApiUrlToGetPapers(testId) {
@@ -49,6 +51,17 @@ function getApiUrlToGetPapers(testId) {
             return `/api/evaluate/get/papers/synthesis/${testId}`;
         case TestType.Analysis:
             return `/api/evaluate/get/papers/analysis/${testId}`;
+    }
+    console.log(`test type '${testType}' not supported`);
+    return null;
+}
+function getApiUrlToGetDiff(testId, studentId) {
+    debugger;
+    switch (testType) {
+        case TestType.Synthesis:
+            return `/api/evaluate/get/diff/synthesis/${testId}/${studentId}`;
+        case TestType.Analysis:
+            return `/api/evaluate/get/diff/analysis/${testId}/${studentId}`;
     }
     console.log(`test type '${testType}' not supported`);
     return null;
@@ -135,8 +148,12 @@ function drawStudentCell(student) {
 };
 function drawEvaluationProgressCell(takenTest, progress, cssClass) {
     var cellContent = evaluationProgressUI.drawEvaluationStatus(EvaluationStatus.NotSubmited);
-    if (takenTest)
-        cellContent = evaluationProgressUI.drawEvaluationStatus(progress)
+    if (takenTest) {
+        cellContent = evaluationProgressUI.drawEvaluationStatus(progress);
+        if (progress == EvaluationStatus.Failed) {
+            cellContent = `<div data-toggle="modal" data-target="#diff-modal">${cellContent}</div>`
+        }
+    }
     return `<td class="${cssClass}">${cellContent}</td>`;
 }
 function drawViewSubmitedCell(takenTest, testStudent) {
@@ -312,10 +329,14 @@ function setCellStatusSynthesis(data) {
 
     var tableRow = $(selector);
 
-    if (tableRow.length == 1)
-        tableRow.html(evaluationProgressUI.drawEvaluationStatus(data.status));
+    if (tableRow.length == 1) {
+        var htmlContent = evaluationProgressUI.drawEvaluationStatus(data.status);
+        if (data.status == EvaluationStatus.Failed) {
+            htmlContent = `<div data-toggle="modal" data-target="#diff-modal">${htmlContent}</div>`
+        }
+        tableRow.html(htmlContent)
+    }
 }
-
 function setCellStatusAnalysis(data) {
     var selector = `tr[data-student-id='${data.id}']`;
 
@@ -337,13 +358,67 @@ function setCellStatusAnalysis(data) {
 
     var tableRow = $(selector);
 
-    if (tableRow.length == 1)
-        tableRow.html(evaluationProgressUI.drawEvaluationStatus(data.status));
+    if (tableRow.length == 1) {
+        var htmlContent = evaluationProgressUI.drawEvaluationStatus(data.status);
+        if (data.status == EvaluationStatus.Failed) {
+            htmlContent = `<div data-toggle="modal" data-target="#diff-modal">${htmlContent}</div>`
+        }
+        tableRow.html(htmlContent);
+    }
 }
-
 function onCreateAnalysisModalShow(element, event) {
     var button = $(event.relatedTarget)
     studentId = button.data('student-id');
+}
+function setSmallTable() {
+    var data = {
+        columns: ["col 1", "col 2"],
+        row: ["val 1", "val 2"]
+    }
+
+    setDiffTable(data);
+}
+function setLargeTable() {
+    var data = {
+        columns: ["col 1", "col 2", "col 3", "col 4", "col 5", "col 6", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7", "col 7"],
+        row: ["val 1", "val 2", "val 3", "val 4", "val 5", "val 6", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7", "val 7"]
+    }
+
+    setDiffTable(data);
+}
+function setDiffTable(data) {
+    var diffTable = $('#diff-table');
+    var header = "";
+    var content = "";
+
+    $.each(data.columns, function (index, item) {
+        header += `<th scope="col">${item}</th>`
+    });
+
+    $.each(data.row, function (index, item) {
+        content += `<td>${item}</th>`
+    });
+
+    var thtml = `<table class="table table-sm table-bordered wrap-single-long-word" id="diff-table">
+                    <thead class="thead-dark" id="table-header"><tr>${header}</tr></thead>
+                    <tbody><tr>${content}</tr></tbody>
+                 </table>`;
+
+    diffTable.html(thtml);
+}
+function setDiffFooter(inStudent) {
+    var message = inStudent ? 'In student paper' : 'In expected result';
+    $('#diff-footer').html(message);
+}
+function diffModalOnShow() {
+    debugger;
+    var apiUrl = getApiUrlToGetDiff(testId, 'e6cddeb9-f049-4977-922e-3d4a05ab374f');
+    promisifyAjaxGet(apiUrl)
+        .then(data => {
+            debugger;
+            setDiffTable(data);;
+            setDiffFooter(true);
+        })
 }
 
 //NAVIGATION

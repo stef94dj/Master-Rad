@@ -177,6 +177,25 @@ namespace MasterRad.API
                 }
             }
         }
+
+        [HttpGet, Route("get/diff/synthesis/{testId}/{studentId}")]
+        public ActionResult GetSynthesisDiff([FromRoute] int testId, [FromRoute] Guid studentId)
+        {
+            var cols = new List<string>();
+            var cells = new List<string>();
+
+            for (int i = 0; i < 5; i++)
+            {
+                cols.Add($"col {i}");
+                cells.Add($"val {i}");
+            }
+            var res = new
+            {
+                columns = cols.ToArray(),
+                row = cells.ToArray()
+            };
+            return Ok(res);
+        }
         #endregion
 
         #region Analysis
