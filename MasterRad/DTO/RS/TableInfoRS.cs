@@ -13,7 +13,7 @@ namespace MasterRad.DTO.RS
         {
             Name = name;
             Columns = new List<ColumnInfoDTO>();
-            Constraints = new List<ConstraintDTO>();
+            //Constraints = new List<ConstraintDTO>();
         }
         public string Name { get; set; }
         public List<ColumnInfoDTO> Columns { get; set; }

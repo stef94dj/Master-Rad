@@ -27,7 +27,7 @@ function displayJson(jsonData) {
 function mapToDisplay(inputJson) {
     var res = {
         columns: {},
-        constraints: {}
+        //constraints: {}
     };
 
     if (inputJson == null)
@@ -51,7 +51,7 @@ function mapToDisplay(inputJson) {
                 type: item.type,
                 description: item.description,
             };
-            res.constraints[item.name] = consObj;
+            //res.constraints[item.name] = consObj;
         });
     }
 

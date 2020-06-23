@@ -181,7 +181,7 @@ function drawTable(tbData, identityColumns, tbHeader, tbBody, readonly) {
     //rows
     $.each(tbData.rows, function (rowIndex, row) {
         if (!readonly) {
-            var newRow = '<tr><td><button onclick="deleteRecord(this)" type="button" class="btn btn-danger btn-sm">-</button></td>';
+            var newRow = '<tr><td><button style="min-width:30px;  display:block; margin:auto;" onclick="deleteRecord(this)" type="button" class="btn btn-danger btn-sm">-</button></td>';
         }
         
         tbBody.append('<tr>');
@@ -204,7 +204,7 @@ function drawTable(tbData, identityColumns, tbHeader, tbBody, readonly) {
 
     if (!readonly) {
         //final row
-        var finalRow = '<tr><td><button onclick="insertRecord(this)" type="button" class="btn btn-info btn-sm">+</button></td>';
+        var finalRow = '<tr><td><button style="min-width:30px; display:block; margin:auto;" onclick="insertRecord(this)" type="button" class="btn btn-info btn-sm">+</button></td>';
         $.each(tbData.columns, function (index, value) {
             finalRow += '<td><input ';
             if (identityColumns.includes(tbData.columns[index].name))

@@ -77,7 +77,7 @@ namespace MasterRad.API
             var conn = GetSqlConnection(dbName);
 
             res.Columns = _microsoftSQLService.GetColumnsData(schemaName, tableName, conn).ToList();
-            res.Constraints = _microsoftSQLService.GetConstraintData(schemaName, tableName, conn).ToList();
+            //res.Constraints = _microsoftSQLService.GetConstraintData(schemaName, tableName, conn).ToList();
 
             return res;
         }
