@@ -171,7 +171,7 @@ function drawTable(tbData, identityColumns, tbHeader, tbBody, readonly) {
 
     //columns
     if (!readonly) {
-        tbHeader.append('<th scope="col"></th>');
+        tbHeader.append('<th scope="col" style="width:60px;"></th>');
     }
     
     $.each(tbData.columns, function (index, value) {

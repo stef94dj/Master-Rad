@@ -52,7 +52,7 @@ namespace MasterRad
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddSignIn("AzureAd", Configuration, options => Configuration.Bind(Constants.AADConfigSection, options));
 
-            var initialScopes = new string[] { Constants.ScopeUserRead }; //scope consent's required for every authenthicated user
+            var initialScopes = new string[] { Constants.ScopeUserRead };
             services.AddWebAppCallsProtectedWebApi(Configuration, initialScopes)
                     .AddInMemoryTokenCaches();
 
