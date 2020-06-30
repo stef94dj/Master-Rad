@@ -50,7 +50,8 @@ namespace MasterRad
             services.AddOptions();
 
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                    .AddSignIn("AzureAd", Configuration, options => Configuration.Bind(Constants.AADConfigSection, options));
+                    .AddSignIn("AzureAd", Configuration, 
+                                options => Configuration.Bind(Constants.AADConfigSection, options));
 
             var initialScopes = new string[] { Constants.ScopeUserRead };
             services.AddWebAppCallsProtectedWebApi(Configuration, initialScopes)
