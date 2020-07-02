@@ -43,7 +43,6 @@ namespace MasterRad.Repositories
             {
                 SynthesisTestId = testId,
                 StudentId = studentId,
-                NameOnServer = "Obsolete",
                 DateCreated = DateTime.UtcNow,
                 CreatedBy = userId,
             });

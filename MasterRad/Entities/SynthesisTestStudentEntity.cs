@@ -12,9 +12,6 @@ namespace MasterRad.Entities
         public int SynthesisTestId { get; set; }
         public SynthesisTestEntity SynthesisTest { get; set; }
 
-        [Required, MaxLength(255)]
-        public string NameOnServer { get; set; }
-
         public bool TakenTest { get; set; }
 
         public string SqlScript { get; set; }
