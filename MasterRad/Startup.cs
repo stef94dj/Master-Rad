@@ -86,17 +86,17 @@ namespace MasterRad
             services.AddScoped<IExerciseRepository, ExerciseRepository>();
 
             services.AddControllersWithViews(options =>
-                    {
-                        var policyBuilder = new AuthorizationPolicyBuilder();
-                        var policy = policyBuilder.RequireAuthenticatedUser()
-                                                  .Build();
-                        options.Filters.Add(new AuthorizeFilter(policy));
-                    })
-                    .AddNewtonsoftJson(options =>
-                    {
-                        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                    })
-                    .AddMicrosoftIdentityUI();
+            {
+                var policyBuilder = new AuthorizationPolicyBuilder();
+                var policy = policyBuilder.RequireAuthenticatedUser()
+                                          .Build();
+                options.Filters.Add(new AuthorizeFilter(policy));
+            })
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            })
+            .AddMicrosoftIdentityUI();
 
             services.AddRazorPages();
 
