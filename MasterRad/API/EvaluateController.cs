@@ -114,7 +114,6 @@ namespace MasterRad.API
             {
                 try
                 {
-
                     var synthesisRepository = scope.ServiceProvider.GetService<ISynthesisRepository>();
                     var sts = synthesisRepository.GetEvaluationData(testId, studentId);
 
