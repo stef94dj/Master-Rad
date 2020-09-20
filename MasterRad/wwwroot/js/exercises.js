@@ -110,14 +110,13 @@ function renderTemplateCard(template) {
                 </div>`;
 }
 function renderInstanceCard(instance) {
-
     templateNamePreview = "";
     templateNameTooltip = "";
 
     if (instance.name != null) {
-        templateNamePreview = textPreview(instance.name, 20);
+        templateNamePreview = textPreview(instance.templateName, 20);
         if (instance.name.length > templateNamePreview.length) {
-            templateNameTooltip = `data-toggle="tooltip" data-placement="top" title="${instance.name}"`;
+            templateNameTooltip = `data-toggle="tooltip" data-placement="top" title="${instance.templateName}"`;
         }
     }
 
